@@ -1,6 +1,6 @@
 #include "SceneManager.hpp"
 #include "Scene.hpp"
-#include "../rendering/Renderer.hpp"
+#include "rendering/Renderer.hpp"
 
 SceneManager::SceneManager() : sceneStack(), deletionScheduled(false), postDeletionScene()
 {

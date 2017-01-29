@@ -1,13 +1,16 @@
 #include "Room.hpp"
+#include "rendering/Renderer.hpp"
+#include "scene/GameScene.hpp"
+#include "resources/ResourceManager.hpp"
+
 #include <functional>
-#include "../scene/GameScene.hpp"
-#include "../collision/CollisionHandler.hpp"
-#include "../defaults.hpp"
+#include <cppmunk/Space.h>
+#include <cppmunk/Body.h>
+#include <cppmunk/SegmentShape.h>
+#include <cppmunk/CircleShape.h>
 
-Room::Room(GameScene& scene, ResourceManager& manager) : currentScene(scene), currentManager(manager)
+Room::Room(GameScene& scene) : gameScene(scene)
 {
-    handle = scene.getCollisionHandler().newStaticBody();
-
     sf::FloatRect drawingFrame{(ScreenWidth-PlayfieldWidth)/2, (ScreenHeight-PlayfieldHeight)/2,
         PlayfieldWidth, PlayfieldHeight};
     mainLayerTilemap.setDrawingFrame(drawingFrame);
@@ -19,8 +22,8 @@ Room::~Room()
 
 void Room::loadRoom(std::string resourceName)
 {
-    currentRoom = currentManager.load<RoomData>(resourceName);
-    mainLayerTilemap.setTexture(*currentManager.load<sf::Texture>(currentRoom->textureName));
+    currentRoom = gameScene.getResourceManager().load<RoomData>(resourceName);
+    mainLayerTilemap.setTexture(*gameScene.getResourceManager().load<sf::Texture>(currentRoom->textureName));
     mainLayerTilemap.setTileData(currentRoom->mainLayer);
 
     generateRoomShapes();
@@ -38,8 +41,11 @@ void Room::render(Renderer& renderer)
 
 void Room::generateRoomShapes()
 {
-    handle.clearShapes();
+    using namespace Chipmunk;
 
+    clearShapes();
+    
+    auto staticBody = gameScene.getGameSpace().getStaticBody();
     const auto& layer = currentRoom->mainLayer;
 
     enum NodeType { None, Knee, Ankle };
@@ -173,26 +179,34 @@ void Room::generateRoomShapes()
 
         switch(seg.p2)
         {
-            case None: endPoint2.x = (seg.x2 + 1) * DefaultTileSize; break;
+            case None: endPoint2.x = (seg.x2 + 2) * DefaultTileSize; break;
             case Knee: endPoint2.x = (seg.x2 + 1) * DefaultTileSize - 10; break;
             case Ankle: endPoint2.x = seg.x2 * DefaultTileSize + 2; break;
         }
 
-        auto shp = handle.addShape(cp::SegmentShapeMake(handle.getBodyPtr(), endPoint1, endPoint2, 2));
-        cpShapeSetFriction(shp, 0.9);
+        auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
+        if (seg.isDown) shp->setElasticity(0.6);
+        gameScene.getGameSpace().add(shp);
+        roomShapes.push_back(shp);
 
         if (seg.p1 == Knee)
         {
-            cpVect vec = { seg.x1 * (cpFloat)DefaultTileSize + 10.0, seg.y * (cpFloat)DefaultTileSize + 10.0 };
-            auto shp = handle.addShape(cp::CircleShapeMake(handle.getBodyPtr(), 10, vec));
-            cpShapeSetFriction(shp, 0.9);
+            cpVect vec = { seg.x1 * (cpFloat)DefaultTileSize + 10.0,
+                           seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
+            auto shp = std::make_shared<CircleShape>(staticBody, 10, vec);
+            if (seg.isDown) shp->setElasticity(0.6);
+            gameScene.getGameSpace().add(shp);
+            roomShapes.push_back(shp);
         }
 
         if (seg.p2 == Knee)
         {
-            cpVect vec = { (seg.x2 + 1) * (cpFloat)DefaultTileSize - 10.0, seg.y * (cpFloat)DefaultTileSize + 10.0 };
-            auto shp = handle.addShape(cp::CircleShapeMake(handle.getBodyPtr(), 10, vec));
-            cpShapeSetFriction(shp, 0.9);
+            cpVect vec = { (seg.x2 + 1) * (cpFloat)DefaultTileSize - 10.0,
+                           seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
+            auto shp = std::make_shared<CircleShape>(staticBody, 10, vec);
+            if (seg.isDown) shp->setElasticity(0.6);
+            gameScene.getGameSpace().add(shp);
+            roomShapes.push_back(shp);
         }
     }
 
@@ -211,13 +225,22 @@ void Room::generateRoomShapes()
 
         switch(seg.p2)
         {
-            case None: endPoint2.y = (seg.y2 + 1) * DefaultTileSize; break;
-            case Knee: endPoint2.y = seg.y2 * DefaultTileSize - 10; break;
-            case Ankle: endPoint2.y = (seg.y2 - 1) * DefaultTileSize + 2; break;
+            case None: endPoint2.y = (seg.y2 + 2) * DefaultTileSize; break;
+            case Knee: endPoint2.y = (seg.y2 + 1) * DefaultTileSize - 10; break;
+            case Ankle: endPoint2.y = seg.y2 * DefaultTileSize + 2; break;
         }
 
-        auto shp = handle.addShape(cp::SegmentShapeMake(handle.getBodyPtr(), endPoint1, endPoint2, 2));
-        cpShapeSetFriction(shp, 1.0);
-        cpShapeSetElasticity(shp, 1.0);
+        auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
+        shp->setElasticity(0.6);
+        gameScene.getGameSpace().add(shp);
+        roomShapes.push_back(shp);
     }
+}
+
+void Room::clearShapes()
+{
+    for (auto shp : roomShapes)
+        gameScene.getGameSpace().remove(shp);
+
+    roomShapes.clear();
 }

@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SFML_STATIC_LIBRARIES ON)
 
+add_subdirectory(CppMunk)
 add_subdirectory(ExportTools)
 add_subdirectory(MainGame)
 add_subdirectory(Resources)

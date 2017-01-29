@@ -3,6 +3,7 @@
 #include <thread>
 #include <utility>
 #include <SFML/Graphics.hpp>
+
 #include "input/InputManager.hpp"
 #include "input/PlayerController.hpp"
 #include "scene/Scene.hpp"
@@ -14,7 +15,7 @@
 #include "scene/SceneManager.hpp"
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
-#include "collision/chipmunkWrapperTypes.hpp"
+#include "rendering/Renderer.hpp"
 #include "defaults.hpp"
 
 using namespace std::literals::chrono_literals;
@@ -42,8 +43,7 @@ int main(int argc, char **argv)
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
 
-    Player player(controller, manager, *scene);
-
+    Player player(controller, *scene);
     scene->setPlayer(player);
 
     while (renderWindow.isOpen())

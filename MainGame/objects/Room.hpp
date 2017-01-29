@@ -1,27 +1,25 @@
 #pragma once
 
-#include "../scene/Scene.hpp"
-#include "../rendering/Renderer.hpp"
-#include "../drawables/Tilemap.hpp"
-#include "../data/RoomData.hpp"
-#include "../resources/ResourceManager.hpp"
-#include "../collision/CollisionBodyHandle.hpp"
+#include "drawables/Tilemap.hpp"
+#include "data/RoomData.hpp"
+
+#include <cppmunk/Shape.h>
 
 class GameScene;
+class ResourceManager;
+class Renderer;
 
 class Room final : util::non_copyable
 {
     std::shared_ptr<RoomData> currentRoom;
+    std::vector<std::shared_ptr<Chipmunk::Shape>> roomShapes;
 
     Tilemap mainLayerTilemap;
 
-    GameScene& currentScene;
-    ResourceManager& currentManager;
-
-    cp::CollisionBodyHandle handle;
+    GameScene& gameScene;
 
 public:
-    Room(GameScene &scene, ResourceManager& manager);
+    explicit Room(GameScene &scene);
     ~Room();
 
     void loadRoom(std::string resourceName);
@@ -30,6 +28,7 @@ public:
     void render(Renderer& renderer);
 
     void generateRoomShapes();
+    void clearShapes();
 
     size_t getWidth() const { return currentRoom->mainLayer.width(); }
     size_t getHeight() const { return currentRoom->mainLayer.height(); }

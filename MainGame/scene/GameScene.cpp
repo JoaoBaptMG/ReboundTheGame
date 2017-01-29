@@ -1,6 +1,9 @@
-#include "GameScene.hpp"
+#include "scene/GameScene.hpp"
+#include "objects/Player.hpp"
+#include "rendering/Renderer.hpp"
+#include "resources/ResourceManager.hpp"
+
 #include <functional>
-#include "../objects/Player.hpp"
 #include <SFML/System.hpp>
 
 template <typename T>
@@ -9,8 +12,13 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(ResourceManager &manager) : room(*this, manager)
+GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager)
+#if CP_DEBUG
+, debug(gameSpace)
+#endif
 {
+    gameSpace.setGravity({ 0.0f, 1024.0f });
+    
     guiLeft.setTexture(*manager.load<sf::Texture>("gui-left.png"));
     guiRight.setTexture(*manager.load<sf::Texture>("gui-right.png"));
     guiRight.setPosition((ScreenWidth+PlayfieldWidth)/2, 0);
@@ -18,7 +26,7 @@ GameScene::GameScene(ResourceManager &manager) : room(*this, manager)
 
 void GameScene::update(float dt)
 {
-    collisionHandler.update(dt);
+    gameSpace.step(dt);
 
     if (currentPlayer)
         currentPlayer->update(dt);
@@ -37,6 +45,10 @@ void GameScene::render(Renderer& renderer)
     if (currentPlayer)
         currentPlayer->render(renderer);
     room.render(renderer);
+
+#if CP_DEBUG
+    renderer.pushDrawable(debug, {}, 20);
+#endif
 
     renderer.popTransform();
 
