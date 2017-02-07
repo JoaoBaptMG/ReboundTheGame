@@ -5,6 +5,8 @@
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
+#include <chrono>
+#include <type_traits>
 
 #define CP_DEBUG 0
 
@@ -27,9 +29,11 @@ class GameScene : public Scene
     Room room;
 
     ResourceManager &resourceManager;
-    Player* currentPlayer;
+    std::vector<std::unique_ptr<GameObject>> gameObjects;
 
     sf::Sprite guiLeft, guiRight;
+
+    const PlayerController* playerController;
 
 public:
     GameScene(ResourceManager& manager);
@@ -40,12 +44,22 @@ public:
 
     Room& getRoom() { return room; }
     const Room& getRoom() const { return room; }
-
-    void setPlayer(Player& player) { currentPlayer = &player; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
 
-    virtual void update(float dt) override;
+    void addObject(std::unique_ptr<GameObject> obj);
+    GameObject* getObjectByName(std::string str);
+
+    void setPlayerController(const PlayerController& controller) { playerController = &controller; }
+    const PlayerController& getPlayerController() const { return *playerController; }
+
+    template <typename T>
+    std::enable_if_t<std::is_base_of<GameObject, T>::value, T*>
+    getObjectByName(std::string str) { return dynamic_cast<T*>(getObjectByName(str)); }
+
+    std::vector<GameObject*> getObjectsByName(std::string str);
+
+    virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;
 };
 

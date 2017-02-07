@@ -1,15 +1,24 @@
 #pragma once
 
-#include "../utility/grid.hpp"
-#include "../utility/non_copyable_movable.hpp"
+#include "utility/grid.hpp"
+#include "utility/non_copyable_movable.hpp"
+#include "resources/Memory.hpp"
+
 #include <vector>
 #include <SFML/System.hpp>
+
+struct GameObjectDescriptor
+{
+    std::string klass;
+    Memory parameters;
+};
 
 struct RoomData final : util::non_copyable
 {
 public:
     util::grid<uint8_t> mainLayer;
     std::string textureName;
+    std::vector<GameObjectDescriptor> gameObjectDescriptors;
 
     RoomData() : mainLayer(), textureName() {}
     RoomData(RoomData&& other) noexcept : RoomData() { swap(*this, other); }

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "utility/non_copyable_movable.hpp"
+
 #include <stack>
 #include <memory>
-#include "../utility/non_copyable_movable.hpp"
+#include <chrono>
 
 class Scene;
 class Renderer;
@@ -25,6 +27,6 @@ public:
 
     inline bool hasScenes() const { return !sceneStack.empty(); }
 
-    void update(float dt);
+    void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);
 };

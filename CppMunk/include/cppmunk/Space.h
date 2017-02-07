@@ -139,7 +139,6 @@ namespace Chipmunk
     private:
         Space(const Space&);
         const Space& operator=(const Space&);
-        static void segmentQueryFunc(cpShape*, cpVect, cpVect, cpFloat, void*);
         std::shared_ptr<Shape> findShape(cpShape*) const;
         std::shared_ptr<Body> findBody(cpBody*) const;
         std::shared_ptr<Constraint> findConstraint(cpConstraint*) const;
@@ -175,19 +174,6 @@ namespace Chipmunk
         static cpBool helperPreSolve(cpArbiter* arb, cpSpace* s, void* d);
         static void helperPostSolve(cpArbiter* arb, cpSpace* s, void* d);
         static void helperSeparate(cpArbiter* arb, cpSpace* s, void* d);
-        
-        static void helperShapeFreeWrap(cpSpace *space, cpShape *shape, void *unused);
-        static void helperPostShapeFree(cpShape *shape, cpSpace *space);
-        static void helperConstraintFreeWrap(cpSpace *space, cpConstraint *constraint, void *unused);
-        static void helperPostConstraintFree(cpConstraint *constraint, cpSpace *space);
-        static void helperBodyFreeWrap(cpSpace *space, cpBody *body, void *unused);
-        static void helperPostBodyFree(cpBody *body, cpSpace *space);
-        static void helperShapeAddWrap(cpSpace *space, cpShape *shape, void *unused);
-        static void helperPostShapeAdd(cpShape *shape, cpSpace *space);
-        static void helperConstraintAddWrap(cpSpace *space, cpConstraint *constraint, void *unused);
-        static void helperPostConstraintAdd(cpConstraint *constraint, cpSpace *space);
-        static void helperBodyAddWrap(cpSpace *space, cpBody *body, void *unused);
-        static void helperPostBodyAdd(cpBody *body, cpSpace *space);
     };
 }
 

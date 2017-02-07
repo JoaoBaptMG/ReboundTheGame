@@ -42,11 +42,11 @@ void SceneManager::handleScreenTransition()
     }
 }
 
-void SceneManager::update(float dt)
+void SceneManager::update(std::chrono::steady_clock::time_point curTime)
 {
     handleScreenTransition();
 
-    sceneStack.top()->update(dt);
+    sceneStack.top()->update(curTime);
 }
 
 void SceneManager::render(Renderer& renderer)

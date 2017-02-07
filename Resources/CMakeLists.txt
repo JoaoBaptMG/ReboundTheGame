@@ -5,10 +5,34 @@ project(Resources)
 file(GLOB_RECURSE RESOURCES RELATIVE ${PROJECT_SOURCE_DIR} "*")
 list(REMOVE_ITEM RESOURCES "CMakeLists.txt")
 
+function(add_resource fname)
+    set(EXTENSIONS ".tmx")
+    set(TOOLS tmxToMap)
+    set(TOOL_OUTPUTS ".map")
+
+    get_filename_component(ext ${fname} EXT)
+    list(FIND EXTENSIONS ${ext} toolIndex)
+
+    if(toolIndex EQUAL -1)
+        add_custom_command(OUTPUT ${fname}
+                           COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${fname} ${PROJECT_BINARY_DIR}/${fname}
+                           MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/${fname})
+    else()
+        list(GET TOOLS ${toolIndex} tool)
+        list(GET TOOL_OUTPUTS ${toolIndex} output)
+
+        get_filename_component(fname_noext ${fname} NAME_WE)
+        set(out_fname "${fname_noext}${output}")
+
+        add_custom_command(OUTPUT ${out_fname}
+                           COMMAND ExportTools ${tool} ${PROJECT_SOURCE_DIR}/${fname} ${PROJECT_BINARY_DIR}/${out_fname}
+                           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                           MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/${fname} DEPENDS ExportTools)
+    endif()
+endfunction()
+
 foreach(fname ${RESOURCES})
-	add_custom_command(OUTPUT ${fname}
-                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${fname} ${PROJECT_BINARY_DIR}/${fname}
-                       MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/${fname})
+    add_resource(${fname})
 endforeach()
 
 add_custom_target(Resources ALL DEPENDS ${RESOURCES} SOURCES ${RESOURCES})

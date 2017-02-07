@@ -38,13 +38,13 @@ int main(int argc, char **argv)
     manager.setResourceLocator(new FilesystemResourceLocator());
 
     auto scene = new GameScene(manager);
+    scene->setPlayerController(controller);
     scene->getRoom().loadRoom("room1.map");
 
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
 
-    Player player(controller, *scene);
-    scene->setPlayer(player);
+    auto updateTime = std::chrono::steady_clock::now();
 
     while (renderWindow.isOpen())
     {
@@ -66,8 +66,15 @@ int main(int argc, char **argv)
             }
         }
 
+        auto curTime = std::chrono::steady_clock::now();
+
         controller.update();
-        sceneManager.update(0.016);
+
+        while (curTime - updateTime > UpdateFrequency)
+        {
+            updateTime += UpdateFrequency;
+            sceneManager.update(updateTime);
+        }
 
         renderWindow.clear(sf::Color::White);
         renderer.clearState();

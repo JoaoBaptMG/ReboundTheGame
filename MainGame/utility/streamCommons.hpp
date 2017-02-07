@@ -16,7 +16,7 @@ namespace util
         return stream.read((void*)&value, sizeof(T)) == sizeof(T);
     }
 
-    template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<std::is_pod<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
         uint32_t size;
@@ -32,7 +32,7 @@ namespace util
         return true;
     }
 
-    template <typename T, typename std::enable_if<!std::is_standard_layout<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<!std::is_pod<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
         uint32_t size;

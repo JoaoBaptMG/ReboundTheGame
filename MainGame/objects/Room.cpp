@@ -2,8 +2,10 @@
 #include "rendering/Renderer.hpp"
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
+#include "objects/GameObject.hpp"
 
 #include <functional>
+#include <algorithm>
 #include <cppmunk/Space.h>
 #include <cppmunk/Body.h>
 #include <cppmunk/SegmentShape.h>
@@ -27,12 +29,15 @@ void Room::loadRoom(std::string resourceName)
     mainLayerTilemap.setTileData(currentRoom->mainLayer);
 
     generateRoomShapes();
+
+    for (const auto& descriptor : currentRoom->gameObjectDescriptors)
+    {
+        auto obj = createObjectFromDescriptor(gameScene, descriptor);
+        if (obj) gameScene.addObject(std::move(obj));
+    }
 }
 
-void Room::update(float delta)
-{
-
-}
+void Room::update(std::chrono::steady_clock::time_point curTime) {}
 
 void Room::render(Renderer& renderer)
 {
@@ -185,7 +190,12 @@ void Room::generateRoomShapes()
         }
 
         auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
-        if (seg.isDown) shp->setElasticity(0.6);
+        if (seg.isDown)
+        {
+            shp->setElasticity(0.6);
+            shp->setCollisionType(Room::terrainCollisionType);
+        }
+        else shp->setCollisionType(Room::groundTerrainCollisionType);
         gameScene.getGameSpace().add(shp);
         roomShapes.push_back(shp);
 
@@ -193,8 +203,13 @@ void Room::generateRoomShapes()
         {
             cpVect vec = { seg.x1 * (cpFloat)DefaultTileSize + 10.0,
                            seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
-            auto shp = std::make_shared<CircleShape>(staticBody, 10, vec);
-            if (seg.isDown) shp->setElasticity(0.6);
+            auto shp = std::make_shared<CircleShape>(staticBody, 9.8, vec);
+            if (seg.isDown)
+            {
+                shp->setElasticity(0.6);
+                shp->setCollisionType(Room::terrainCollisionType);
+            }
+            else shp->setCollisionType(Room::groundTerrainCollisionType);
             gameScene.getGameSpace().add(shp);
             roomShapes.push_back(shp);
         }
@@ -203,8 +218,13 @@ void Room::generateRoomShapes()
         {
             cpVect vec = { (seg.x2 + 1) * (cpFloat)DefaultTileSize - 10.0,
                            seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
-            auto shp = std::make_shared<CircleShape>(staticBody, 10, vec);
-            if (seg.isDown) shp->setElasticity(0.6);
+            auto shp = std::make_shared<CircleShape>(staticBody, 9.8, vec);
+            if (seg.isDown)
+            {
+                shp->setElasticity(0.6);
+                shp->setCollisionType(Room::terrainCollisionType);
+            }
+            else shp->setCollisionType(Room::groundTerrainCollisionType);
             gameScene.getGameSpace().add(shp);
             roomShapes.push_back(shp);
         }
@@ -232,6 +252,7 @@ void Room::generateRoomShapes()
 
         auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
         shp->setElasticity(0.6);
+        shp->setCollisionType(Room::wallTerrainCollisionType);
         gameScene.getGameSpace().add(shp);
         roomShapes.push_back(shp);
     }

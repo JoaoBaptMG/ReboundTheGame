@@ -112,17 +112,7 @@ namespace Chipmunk
         assert(it != _constraints.end());
         return *it;
     }
-    
-    void Space::segmentQueryFunc(cpShape* shape,
-                                 cpVect point,
-                                 cpVect normal,
-                                 cpFloat alpha,
-                                 void* data)
-    {
-        auto d = reinterpret_cast<SegmentQueryData*>(data);
-        d->func(d->self->findShape(shape), alpha, normal);
-    }
-    
+       
     void Space::segmentQuery(cpVect a,
                              cpVect b,
                              LayerMask layers,
@@ -133,7 +123,12 @@ namespace Chipmunk
         cpShapeFilter filter{static_cast<cpGroup>(group),
             static_cast<cpBitmask>(layers),
             static_cast<cpBitmask>(layers)};
-        cpSpaceSegmentQuery(_space, a, b, 0, filter, segmentQueryFunc, &data);
+        cpSpaceSegmentQuery(_space, a, b, 0, filter,
+        [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
+        {
+            auto d = reinterpret_cast<SegmentQueryData*>(data);
+            d->func(d->self->findShape(shape), alpha, normal);
+        }, &data);
     }
     
     std::shared_ptr<Shape> Space::segmentQueryFirst(cpVect a,
@@ -224,45 +219,36 @@ namespace Chipmunk
     void Space::clearSpace()
     {
         // Must remove these BEFORE freeing the bodies or you will access dangling pointers.
-        cpSpaceEachShape(_space, (cpSpaceShapeIteratorFunc)helperPostShapeFree, _space);
-        cpSpaceEachConstraint(_space, (cpSpaceConstraintIteratorFunc)helperPostConstraintFree, _space);
-        cpSpaceEachBody(_space, (cpSpaceBodyIteratorFunc)helperPostBodyFree, _space);
+        cpSpaceEachShape(_space, [](cpShape *shape, void *space)
+        {
+            cpSpaceAddPostStepCallback((cpSpace*)space, [](cpSpace *space, void *shape, void *unused)
+            {
+                cpSpaceRemoveShape((cpSpace*)space, (cpShape*)shape);
+                cpShapeFree((cpShape*)shape);
+            }, shape, NULL);
+        }, _space);
+
+        cpSpaceEachConstraint(_space, [](cpConstraint *constraint, void *space)
+        {
+            cpSpaceAddPostStepCallback((cpSpace*)space, [](cpSpace *space, void *constraint, void *unused)
+            {
+                cpSpaceRemoveConstraint((cpSpace*)space, (cpConstraint*)constraint);
+                cpConstraintFree((cpConstraint*)constraint);
+            }, constraint, NULL);
+        }, _space);
+
+        
+        cpSpaceEachBody(_space, [](cpBody *body, void *space)
+        {
+            cpSpaceAddPostStepCallback((cpSpace*)space, [](cpSpace *space, void *body, void *unused)
+            {
+                cpSpaceRemoveBody(space, (cpBody*)body);
+                cpBodyFree((cpBody*)body);
+            }, body, NULL);
+        }, _space);
     }
     
-    void Space::helperShapeFreeWrap(cpSpace *space, cpShape *shape, void *unused)
-    {
-        cpSpaceRemoveShape(space, shape);
-        cpShapeFree(shape);
-    }
-    
-    void Space::helperPostShapeFree(cpShape *shape, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperShapeFreeWrap, shape, NULL);
-    }
-    
-    void Space::helperConstraintFreeWrap(cpSpace *space, cpConstraint *constraint, void *unused)
-    {
-        cpSpaceRemoveConstraint(space, constraint);
-        cpConstraintFree(constraint);
-    }
-    
-    void Space::helperPostConstraintFree(cpConstraint *constraint, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperConstraintFreeWrap, constraint, NULL);
-    }
-    
-    void Space::helperBodyFreeWrap(cpSpace *space, cpBody *body, void *unused)
-    {
-        cpSpaceRemoveBody(space, body);
-        cpBodyFree(body);
-    }
-    
-    void Space::helperPostBodyFree(cpBody *body, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperBodyFreeWrap, body, NULL);
-    }
-    
-    void Space::helperShapeAddWrap(cpSpace *space, cpShape *shape, void *unused)
+    /*void Space::helperShapeAddWrap(cpSpace *space, cpShape *shape, void *unused)
     {
         cpSpaceAddShape(space, shape);
     }
@@ -290,5 +276,5 @@ namespace Chipmunk
     void Space::helperPostBodyAdd(cpBody *body, cpSpace *space)
     {
         cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperBodyAddWrap, body, NULL);
-    }
+    }*/
 }

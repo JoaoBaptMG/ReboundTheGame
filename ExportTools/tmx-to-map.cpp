@@ -31,7 +31,8 @@ int tmxToMap(string inFile, string outFile)
 
 	if (imgStr)
 	{
-		imgStr = strrchr(imgStr, '/')+1;
+        auto str = strrchr(imgStr, '/');
+        if (str) imgStr = str+1;
 		
 		uint32_t s = strlen(imgStr);
 		out.write((const char*)&s, sizeof(uint32_t));
@@ -65,6 +66,87 @@ int tmxToMap(string inFile, string outFile)
 			out.write((const char*)&v, sizeof(uint8_t));
 		}
 	}
+
+    auto globalSizePos = out.tellp();
+    uint32_t objTotal = 0;
+    out.write((const char*)&objTotal, sizeof(uint32_t));
+    
+    auto objgroup = map.FirstChildElement("objectgroup");
+    for (auto obj = objgroup.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
+    {
+        auto elm = obj.ToElement();
+
+        auto typeStr = elm->Attribute("type");
+        uint32_t tsize = strlen(typeStr);
+        out.write((const char*)&tsize, sizeof(uint32_t));
+        out.write(typeStr, tsize * sizeof(char));
+
+        auto localSizePos = out.tellp();
+        uint32_t strSize = 2 * sizeof(float);
+        out.write((const char*)&strSize, sizeof(uint32_t));
+
+        float posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
+        float posY = elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height");
+        out.write((const char*)&posX, sizeof(float));
+        out.write((const char*)&posY, sizeof(float));
+
+        auto props = obj.FirstChildElement("properties");
+        for (auto prop = props.FirstChildElement("property"); prop.ToElement(); prop = prop.NextSiblingElement("property"))
+        {
+            auto pelm = prop.ToElement();
+
+            const char* str;
+            if (!(str = pelm->Attribute("value")))
+                str = pelm->GetText();
+
+            if (pelm->Attribute("type", "int"))
+            {
+                int32_t val = atol(str);
+                out.write((const char*)&val, sizeof(int32_t));
+                strSize += sizeof(int32_t);
+            }
+            else if (pelm->Attribute("type", "float"))
+            {
+                float val = strtof(str, nullptr);
+                out.write((const char*)&val, sizeof(float));
+                strSize += sizeof(float);
+            }
+            else if (pelm->Attribute("type", "bool"))
+            {
+                bool val = !strcmp(str, "true");
+                out.write((const char*)&val, sizeof(bool));
+                strSize += sizeof(bool);
+            }
+            else if (pelm->Attribute("type", "color"))
+            {
+                uint32_t val = strtoul(str+1, nullptr, 16);
+                out.write((const char*)&val, sizeof(uint32_t));
+                strSize += sizeof(uint32_t);
+            }
+            else
+            {
+                if (pelm->Attribute("type", "file"))
+                {
+                    auto cstr = strrchr(str, '/');
+                    if (cstr) str = cstr+1;
+                }
+
+                uint32_t size = strlen(str);
+                out.write((const char*)&size, sizeof(uint32_t));
+                out.write(str, size * sizeof(char));
+
+                strSize += sizeof(uint32_t) + size * sizeof(char);
+            }
+        }
+
+        out.seekp(localSizePos);
+        out.write((const char*)&strSize, sizeof(uint32_t));
+        out.seekp(0, ios::end);
+        objTotal++;
+    }
+
+    out.seekp(globalSizePos);
+    out.write((const char*)&objTotal, sizeof(uint32_t));
 
     return 0;
 }
