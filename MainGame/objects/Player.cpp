@@ -5,8 +5,9 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "defaults.hpp"
+#include "utility/chronoUtils.hpp"
 #include "utility/assert.hpp"
+#include "utility/vector_math.hpp"
 
 #include <functional>
 #include <limits>
@@ -18,11 +19,9 @@
 using namespace std::literals::chrono_literals;
 
 Player::Player(GameScene& scene)
-    : abilityLevel(0), GameObject(scene)
+    : abilityLevel(1), angle(0), GameObject(scene),
+    sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
 {
-    sprite.setTexture(*scene.getResourceManager().load<sf::Texture>("player.png"));
-    sprite.setOrigin(32, 32);
-
     setupPhysics();
 
     setName("player");
@@ -42,17 +41,43 @@ void Player::setupPhysics()
     playerShape = std::make_shared<CircleShape>(body, 32);
     playerShape->setDensity(1);
     playerShape->setElasticity(1);
-    playerShape->setCollisionType(Player::collisionType);
+    playerShape->setCollisionType(Player::CollisionType);
 
     gameScene.getGameSpace().add(body);
     gameScene.getGameSpace().add(playerShape);
 
     body->setMoment(std::numeric_limits<cpFloat>::infinity());
 
-    gameScene.getGameSpace().addCollisionHandler(Player::collisionType, Room::groundTerrainCollisionType,
+    gameScene.getGameSpace().addCollisionHandler(Player::CollisionType, Room::GroundTerrainCollisionType,
         [](Arbiter, Space&) { return true; },
-        [=](Arbiter, Space&) { lastGroundTime = curTime; return true; },
+        [=](Arbiter, Space&) { lastGroundTime = curTime; wallJumpPressedBefore = false; return true; },
         [](Arbiter, Space&) {}, [=](Arbiter, Space&) {});
+
+    gameScene.getGameSpace().addCollisionHandler(Player::CollisionType, Room::WallTerrainCollisionType,
+        [](Arbiter, Space&) { return true; },
+        [=](Arbiter arbiter, Space& space)
+        {
+            if (abilityLevel >= 1)
+            {
+                if (wallJumpPressedBefore)
+                {
+                    if (curTime - wallJumpTriggerTime < 4 * UpdateFrequency)
+                    {
+                        wallJumpTriggerTime = decltype(wallJumpTriggerTime)();
+                        wallJumpPressedBefore = false;
+
+                        cpSpaceAddPostStepCallback(space.getSpace(), [](cpSpace*, void*, void* data)
+                        {
+                            static_cast<Player*>(data)->wallJump();
+                        }, nullptr, (void*)this);
+                    }
+                }
+                else wallJumpTriggerTime = curTime;
+            }
+            
+            return true;
+        },
+        [](Arbiter, Space&) {}, [](Arbiter, Space&) {});
 }
 
 Player::~Player()
@@ -68,7 +93,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto body = playerShape->getBody();
 
     auto vel = body->getVelocity();
-    auto dest = 320 * vec.x;
+    auto dest = 400 * vec.x;
 
     if (std::abs(vel.x - dest) < 6.0)
     {
@@ -79,25 +104,68 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
 
     auto pos = body->getPosition();
-    body->applyForceAtWorldPoint(base * body->getMass() * 480, pos);
+    body->applyForceAtWorldPoint(base * body->getMass() * 600, pos);
 
-    if (controller.hasJumpAction()) // jump
-        if (curTime - lastGroundTime <= 4 * UpdateFrequency)
+    if (onGround()) // jump
+    {
+        if (controller.isJumpPressed())
         {
             lastGroundTime = decltype(lastGroundTime)();
             jump();
         }
+    }
+    else
+    {
+        if (controller.isJumpReleased())
+            decayJump();
+        else if (controller.isJumpPressed())
+        {
+            if (abilityLevel >= 1)
+            {
+                if (!wallJumpPressedBefore && curTime - wallJumpTriggerTime < 4 * UpdateFrequency)
+                {
+                    wallJumpTriggerTime = decltype(wallJumpTriggerTime)();
+                    wallJump();
+                }
+                else
+                {
+                    wallJumpPressedBefore = true;
+                    wallJumpTriggerTime = curTime;
+                }
+            }
+        }
+    }
 
-    sprite.rotate(body->getVelocity().x/32);
+    angle += radiansToDegrees(body->getVelocity().x * toSeconds<float>(UpdateFrequency) / 32);
+    angle -= 360 * roundf(angle/360);
 }
 
 void Player::jump()
 {
     auto body = playerShape->getBody();
-    auto pos = body->getPosition();
+    auto y = -660.0 - body->getVelocity().y;
+    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
+}
 
-    auto y = -600.0 - body->getVelocity().y;
-    body->applyImpulseAtWorldPoint(cpVect{0, y} * body->getMass(), pos);
+void Player::decayJump()
+{
+    auto body = playerShape->getBody();
+    auto y = std::max(-360.0 - body->getVelocity().y, 0.0);
+    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
+}
+
+void Player::wallJump()
+{
+    auto body = playerShape->getBody();
+    auto sgn = body->getVelocity().x > 0 ? 1.0 : body->getVelocity().x < 0 ? -1.0 : 0.0;
+    if (sgn == 0.0) return;
+    auto dv = cpVect{ sgn * 400.0, -660.0 } - body->getVelocity();
+    body->applyImpulseAtLocalPoint(dv * body->getMass(), { 0, 0 });
+}
+
+bool Player::onGround() const
+{
+     return curTime - lastGroundTime <= 7 * UpdateFrequency;
 }
 
 void Player::render(Renderer& renderer)
@@ -105,10 +173,7 @@ void Player::render(Renderer& renderer)
     renderer.pushTransform();
 
     renderer.currentTransform.translate(getDisplayPosition());
-    renderer.currentTransform.rotate(radiansToDegrees(playerShape->getBody()->getAngle()));
-
-    sprite.setColor(curTime - lastGroundTime <= 4 * UpdateFrequency ? sf::Color::Red : sf::Color::White);
-
+    renderer.currentTransform.rotate(angle);
     renderer.pushDrawable(sprite, {}, 2);
     renderer.popTransform();
 }

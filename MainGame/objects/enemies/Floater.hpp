@@ -1,6 +1,7 @@
 #pragma once
 
 #include "objects/GameObject.hpp"
+#include "drawables/Sprite.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <chrono>
@@ -13,7 +14,10 @@ namespace enemies
     class Floater final : public ::GameObject
     {
         sf::Vector2f position;
-        sf::Sprite sprite;
+        float yDisplacement;
+        Sprite sprite;
+
+        std::chrono::steady_clock::time_point initialTime;
 
     public:
         Floater(GameScene& gameScene);

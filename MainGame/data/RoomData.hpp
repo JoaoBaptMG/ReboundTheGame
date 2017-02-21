@@ -36,3 +36,5 @@ public:
     bool loadFromStream(sf::InputStream &stream);
 };
 
+bool readFromStream(sf::InputStream &stream, RoomData& room);
+

@@ -16,7 +16,7 @@
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
-#include "defaults.hpp"
+#include "utility/chronoUtils.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     auto scene = new GameScene(manager);
     scene->setPlayerController(controller);
-    scene->getRoom().loadRoom("room1.map");
+    scene->loadRoom("room1.map");
 
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
@@ -68,10 +68,9 @@ int main(int argc, char **argv)
 
         auto curTime = std::chrono::steady_clock::now();
 
-        controller.update();
-
         while (curTime - updateTime > UpdateFrequency)
         {
+            controller.update();
             updateTime += UpdateFrequency;
             sceneManager.update(updateTime);
         }
@@ -81,8 +80,6 @@ int main(int argc, char **argv)
         sceneManager.render(renderer);
         renderer.render();
         renderWindow.display();
-
-        std::this_thread::sleep_for(16ms);
     }
 
     return 0;

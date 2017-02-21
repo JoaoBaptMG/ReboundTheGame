@@ -10,8 +10,6 @@
 #include "objects/Player.hpp"
 #include "objects/enemies/Floater.hpp"
 
-template <typename Deduced> struct Print;
-
 template <typename Obj>
 auto factoryFor(GameScene& gameScene, const Memory& parameters)
 {

@@ -2,7 +2,7 @@
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "defaults.hpp"
+#include "utility/chronoUtils.hpp"
 
 #include <functional>
 #include <SFML/System.hpp>
@@ -23,6 +23,20 @@ GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(ma
     guiLeft.setTexture(*manager.load<sf::Texture>("gui-left.png"));
     guiRight.setTexture(*manager.load<sf::Texture>("gui-right.png"));
     guiRight.setPosition((ScreenWidth+PlayfieldWidth)/2, 0);
+}
+
+void GameScene::loadRoom(std::string roomName)
+{
+    gameObjects.clear();
+    
+    currentRoom = resourceManager.load<RoomData>(roomName);
+    room.loadRoom(*currentRoom);
+
+    for (const auto& descriptor : currentRoom->gameObjectDescriptors)
+    {
+        auto obj = createObjectFromDescriptor(*this, descriptor);
+        if (obj) addObject(std::move(obj));
+    }
 }
 
 void GameScene::addObject(std::unique_ptr<GameObject> obj)
@@ -53,8 +67,7 @@ std::vector<GameObject*> GameScene::getObjectsByName(std::string str)
 
 void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
-    using FloatSeconds = std::chrono::duration<cpFloat>;
-    gameSpace.step(std::chrono::duration_cast<FloatSeconds>(UpdateFrequency).count());
+    gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
 
     room.update(curTime);
 
@@ -73,8 +86,8 @@ void GameScene::render(Renderer& renderer)
     if (player)
     {
         auto vec = player->getDisplayPosition();
-        vec.x = clamp<float>(vec.x, PlayfieldWidth/2, DefaultTileSize * room.getWidth() - PlayfieldWidth/2);
-        vec.y = clamp<float>(vec.y, PlayfieldHeight/2, DefaultTileSize * room.getHeight() - PlayfieldHeight/2);
+        vec.x = clamp<float>(vec.x, PlayfieldWidth/2, DefaultTileSize * currentRoom->mainLayer.width() - PlayfieldWidth/2);
+        vec.y = clamp<float>(vec.y, PlayfieldHeight/2, DefaultTileSize * currentRoom->mainLayer.height() - PlayfieldHeight/2);
 
         renderer.currentTransform.translate(sf::Vector2f{ScreenWidth, ScreenHeight}/2.0f - vec);
     }

@@ -13,10 +13,14 @@ bool readFromStream(sf::InputStream& stream, GameObjectDescriptor& descriptor)
     return stream.read(descriptor.parameters.get_ptr(), size) == size;
 }
 
-bool RoomData::loadFromStream(sf::InputStream &stream)
+bool readFromStream(sf::InputStream &stream, RoomData& room)
 {
     using namespace util;
 
-    return checkMagic(stream, "ROOM")
-        && readFromStream(stream, textureName, mainLayer, gameObjectDescriptors);
+    return readFromStream(stream, room.textureName, room.mainLayer, room.gameObjectDescriptors);
+}
+
+bool RoomData::loadFromStream(sf::InputStream& stream)
+{
+    return util::checkMagic(stream, "ROOM") && readFromStream(stream, *this);
 }

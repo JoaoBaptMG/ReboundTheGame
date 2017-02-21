@@ -29,6 +29,7 @@ class GameScene : public Scene
     Room room;
 
     ResourceManager &resourceManager;
+    std::shared_ptr<RoomData> currentRoom;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
     sf::Sprite guiLeft, guiRight;
@@ -46,6 +47,8 @@ public:
     const Room& getRoom() const { return room; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
+
+    void loadRoom(std::string roomName);
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);

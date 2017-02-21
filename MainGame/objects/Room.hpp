@@ -14,7 +14,6 @@ class GameObject;
 
 class Room final : util::non_copyable
 {
-    std::shared_ptr<RoomData> currentRoom;
     std::vector<std::shared_ptr<Chipmunk::Shape>> roomShapes;
 
     Tilemap mainLayerTilemap;
@@ -24,19 +23,16 @@ public:
     explicit Room(GameScene &scene);
     ~Room();
 
-    void loadRoom(std::string resourceName);
+    void loadRoom(const RoomData& data);
 
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);
 
-    void generateRoomShapes();
+    void generateRoomShapes(const RoomData& data);
     void clearShapes();
 
-    size_t getWidth() const { return currentRoom->mainLayer.width(); }
-    size_t getHeight() const { return currentRoom->mainLayer.height(); }
-
-    static constexpr cpCollisionType terrainCollisionType = 'rtrn';
-    static constexpr cpCollisionType groundTerrainCollisionType = 'tgnd';
-    static constexpr cpCollisionType wallTerrainCollisionType = 'twal';
+    static constexpr cpCollisionType TerrainCollisionType = 'rtrn';
+    static constexpr cpCollisionType GroundTerrainCollisionType = 'tgnd';
+    static constexpr cpCollisionType WallTerrainCollisionType = 'twal';
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "objects/GameObject.hpp"
+#include "drawables/Sprite.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <cppmunk/Shape.h>
@@ -14,11 +15,11 @@ class Renderer;
 
 class Player final : public GameObject
 {
-    sf::Sprite sprite;
+    Sprite sprite;
     std::shared_ptr<Chipmunk::Shape> playerShape;
-
-    std::chrono::steady_clock::time_point lastGroundTime;
-    std::chrono::steady_clock::time_point curTime;
+    float angle;
+    bool wallJumpPressedBefore;
+    std::chrono::steady_clock::time_point lastGroundTime, wallJumpTriggerTime, curTime;
 
     size_t abilityLevel;
 
@@ -40,8 +41,12 @@ public:
     }
 
     void jump();
+    void decayJump();
+    void wallJump();
 
-    static constexpr cpCollisionType collisionType = 'plyr';
+    bool onGround() const;
+
+    static constexpr cpCollisionType CollisionType = 'plyr';
 
 #pragma pack(push, 1)
     struct ConfigStruct
