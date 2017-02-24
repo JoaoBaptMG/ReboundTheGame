@@ -1,7 +1,8 @@
 #include "ResourceLoader.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "../data/RoomData.hpp"
+#include "data/RoomData.hpp"
+#include "data/LevelData.hpp"
 
 using namespace util;
 using namespace ResourceLoader;
@@ -34,6 +35,7 @@ generic_shared_ptr loadStringMap(std::unique_ptr<sf::InputStream>& stream)
 
 const loadFunc loadFunctions[] =
 {
+    loadGenericResource<LevelData>,
     loadGenericResource<RoomData>,
     loadGenericResource<sf::Texture>,
     loadGenericResource<sf::Font>,
@@ -46,6 +48,7 @@ generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStrea
     {
         auto ptr = func(stream);
         if (ptr) return ptr;
+        stream->seek(0);
     }
 
     return generic_shared_ptr{};

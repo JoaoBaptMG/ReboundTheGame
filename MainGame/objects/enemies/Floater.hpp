@@ -29,10 +29,10 @@ namespace enemies
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2f position;
+            sf::Vector2<int16_t> position;
         };
 
-        static_assert(sizeof(ConfigStruct) == sizeof(sf::Vector2f), "Packing failed!");
+        static_assert(sizeof(ConfigStruct) == 4*sizeof(char), "Packing failed!");
 #pragma pack(pop)
 
         bool configure(const ConfigStruct& config);

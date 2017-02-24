@@ -8,6 +8,16 @@
 using namespace std;
 using namespace tinyxml2;
 
+auto findObjectLayer(XMLHandle map, const char* name)
+{
+    for (auto objgroup = map.FirstChildElement("objectgroup"); objgroup.ToElement();
+        objgroup = objgroup.NextSiblingElement("objectgroup"))
+        if (objgroup.ToElement()->Attribute("name", name))
+            return objgroup;
+    
+    return XMLHandle(nullptr);
+}
+
 int tmxToMap(string inFile, string outFile)
 {
 	XMLDocument doc;
@@ -71,7 +81,7 @@ int tmxToMap(string inFile, string outFile)
     uint32_t objTotal = 0;
     out.write((const char*)&objTotal, sizeof(uint32_t));
     
-    auto objgroup = map.FirstChildElement("objectgroup");
+    auto objgroup = findObjectLayer(map, "object-layer");
     for (auto obj = objgroup.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
     {
         auto elm = obj.ToElement();
@@ -82,13 +92,13 @@ int tmxToMap(string inFile, string outFile)
         out.write(typeStr, tsize * sizeof(char));
 
         auto localSizePos = out.tellp();
-        uint32_t strSize = 2 * sizeof(float);
+        uint32_t strSize = 2 * sizeof(int16_t);
         out.write((const char*)&strSize, sizeof(uint32_t));
 
-        float posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
-        float posY = elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height");
-        out.write((const char*)&posX, sizeof(float));
-        out.write((const char*)&posY, sizeof(float));
+        int16_t posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
+        int16_t posY = elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height");
+        out.write((const char*)&posX, sizeof(int16_t));
+        out.write((const char*)&posY, sizeof(int16_t));
 
         auto props = obj.FirstChildElement("properties");
         for (auto prop = props.FirstChildElement("property"); prop.ToElement(); prop = prop.NextSiblingElement("property"))
@@ -147,6 +157,76 @@ int tmxToMap(string inFile, string outFile)
 
     out.seekp(globalSizePos);
     out.write((const char*)&objTotal, sizeof(uint32_t));
+    out.seekp(0, ios::end);
+
+    auto warps = findObjectLayer(map, "warp-layer");
+
+    uint32_t maxId = 0;
+    for (auto obj = warps.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
+    {
+        auto warp = obj.ToElement();
+        uint16_t id = atol(warp->Attribute("name"));
+        if (maxId < id) maxId = id;
+    }
+
+    maxId++;
+    out.write((const char*)&maxId, sizeof(uint32_t));
+    globalSizePos = out.tellp();
+    
+    for (uint32_t i = 0; i < maxId; i++)
+    {
+        int16_t values[4] = { -1, -1, -1, -1 };
+        out.write((const char*)values, 4*sizeof(int16_t));
+    }
+
+    for (auto obj = warps.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
+    {
+        auto warp = obj.ToElement();
+
+        auto warpDir = warp->Attribute("type");
+        int dir = -1;
+
+        if (!strcasecmp(warpDir, "right")) dir = 0;
+        else if (!strcasecmp(warpDir, "down")) dir = 1;
+        else if (!strcasecmp(warpDir, "left")) dir = 2;
+        else if (!strcasecmp(warpDir, "up")) dir = 3;
+
+        if (dir == -1) continue;
+
+        auto warpNameCode = warp->Attribute("name");
+        uint16_t id = atol(warpNameCode);
+
+        auto warpRoomDest = strstr(warpNameCode, "->");
+        if (warpRoomDest) warpRoomDest += 2;
+        else continue;
+
+        uint16_t roomId = atol(warpRoomDest);
+
+        auto warpIdDest = strchr(warpRoomDest, '.');
+        if (warpIdDest) warpIdDest += 1;
+        else continue;
+
+        uint16_t warpId = atol(warpIdDest) | (dir << 14);
+        
+        int16_t c1, c2;
+
+        if (dir & 1)
+        {
+            c1 = warp->IntAttribute("x");
+            c2 = c1 + warp->IntAttribute("width");
+        }
+        else
+        {
+            c1 = warp->IntAttribute("y");
+            c2 = c1 + warp->IntAttribute("height");
+        }
+
+        out.seekp(globalSizePos + streamoff(4*sizeof(int16_t) * id));
+        out.write((const char*)&c1, sizeof(int16_t));
+        out.write((const char*)&c2, sizeof(int16_t));
+        out.write((const char*)&roomId, sizeof(uint16_t));
+        out.write((const char*)&warpId, sizeof(uint16_t));
+    }
 
     return 0;
 }

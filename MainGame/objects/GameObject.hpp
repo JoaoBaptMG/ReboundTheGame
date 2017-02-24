@@ -12,6 +12,7 @@ class GameObject : util::non_copyable
 protected:
     GameScene& gameScene;
     bool shouldRemove;
+    bool isPersistent;
 
     std::string name;
 

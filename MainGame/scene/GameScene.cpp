@@ -3,6 +3,7 @@
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
 #include "utility/chronoUtils.hpp"
+#include "data/RoomData.hpp"
 
 #include <functional>
 #include <SFML/System.hpp>
@@ -19,23 +20,28 @@ GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(ma
 #endif
 {
     gameSpace.setGravity({ 0.0f, 1024.0f });
-    
-    guiLeft.setTexture(*manager.load<sf::Texture>("gui-left.png"));
-    guiRight.setTexture(*manager.load<sf::Texture>("gui-right.png"));
-    guiRight.setPosition((ScreenWidth+PlayfieldWidth)/2, 0);
 }
 
-void GameScene::loadRoom(std::string roomName)
+void GameScene::loadLevel(std::string levelName)
 {
-    gameObjects.clear();
-    
-    currentRoom = resourceManager.load<RoomData>(roomName);
-    room.loadRoom(*currentRoom);
+    levelData = resourceManager.load<LevelData>(levelName);
+    loadRoom(levelData->startingRoom);
+}
 
-    for (const auto& descriptor : currentRoom->gameObjectDescriptors)
+void GameScene::loadRoom(size_t id)
+{
+    auto roomName = levelData->roomResourceNames[id] + ".map";
+    
+    gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+        [](const auto& obj) { return !obj->isPersistent; }), gameObjects.end());
+    
+    currentRoomData = resourceManager.load<RoomData>(roomName);
+    room.loadRoom(*currentRoomData);
+
+    for (const auto& descriptor : currentRoomData->gameObjectDescriptors)
     {
         auto obj = createObjectFromDescriptor(*this, descriptor);
-        if (obj) addObject(std::move(obj));
+        if (obj) gameObjects.push_back(std::move(obj));
     }
 }
 
@@ -75,6 +81,66 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
+
+    checkWarps();
+}
+
+void GameScene::checkWarps()
+{
+    auto player = getObjectByName<Player>("player");
+
+    if (player)
+    {
+        auto pos = player->getPosition();
+
+        if (pos.x >= DefaultTileSize * currentRoomData->mainLayer.width())
+        {
+            pos.x -= DefaultTileSize * currentRoomData->mainLayer.width();
+            checkWarp(player, WarpData::Dir::Right, pos);
+            player->setPosition(pos);
+        }
+        else if (pos.y >= DefaultTileSize * currentRoomData->mainLayer.height())
+        {
+            pos.y -= DefaultTileSize * currentRoomData->mainLayer.height();
+            checkWarp(player, WarpData::Dir::Down, pos);
+            player->setPosition(pos);
+        }
+        else if (pos.x < 0)
+        {
+            checkWarp(player, WarpData::Dir::Left, pos);
+            pos.x += DefaultTileSize * currentRoomData->mainLayer.width();
+            player->setPosition(pos);
+        }
+        else if (pos.y < 0)
+        {
+            checkWarp(player, WarpData::Dir::Up, pos);
+            pos.y += DefaultTileSize * currentRoomData->mainLayer.height();
+            player->setPosition(pos);
+        }
+    }
+}
+
+void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect &pos)
+{
+    bool isHorizontal = direction == WarpData::Dir::Right || direction == WarpData::Dir::Left;
+    auto c = isHorizontal ? pos.y : pos.x;
+
+    WarpData warp = { 0, 0, (uint16_t)-1, 16383, WarpData::Dir::Up };
+    for (const auto& curWarp : currentRoomData->warps)
+    {
+        if (curWarp.warpDir != direction) continue;
+        if (c < curWarp.c1 || c >= curWarp.c2) continue;
+        warp = curWarp;
+    }
+
+    if (warp.roomId != (uint16_t)-1)
+    {
+        loadRoom(warp.roomId);
+        auto delta = currentRoomData->warps[warp.warpId].c1 - warp.c1;
+        if (isHorizontal) pos.y += delta;
+        else pos.x += delta;
+        player->setPosition(pos);
+    }
 }
 
 void GameScene::render(Renderer& renderer)
@@ -86,11 +152,15 @@ void GameScene::render(Renderer& renderer)
     if (player)
     {
         auto vec = player->getDisplayPosition();
-        vec.x = clamp<float>(vec.x, PlayfieldWidth/2, DefaultTileSize * currentRoom->mainLayer.width() - PlayfieldWidth/2);
-        vec.y = clamp<float>(vec.y, PlayfieldHeight/2, DefaultTileSize * currentRoom->mainLayer.height() - PlayfieldHeight/2);
+        vec.x = clamp<float>(vec.x, PlayfieldWidth/2,
+            DefaultTileSize * currentRoomData->mainLayer.width() - PlayfieldWidth/2);
+        vec.y = clamp<float>(vec.y, PlayfieldHeight/2,
+            DefaultTileSize * currentRoomData->mainLayer.height() - PlayfieldHeight/2);
 
-        renderer.currentTransform.translate(sf::Vector2f{ScreenWidth, ScreenHeight}/2.0f - vec);
+        offsetPos = vec;
     }
+
+    renderer.currentTransform.translate(sf::Vector2f{ScreenWidth, ScreenHeight}/2.0f - offsetPos);
     
     room.render(renderer);
     for (const auto& obj : gameObjects) obj->render(renderer);
@@ -100,7 +170,4 @@ void GameScene::render(Renderer& renderer)
 #endif
 
     renderer.popTransform();
-
-    renderer.pushDrawable(guiLeft, {}, 100);
-    renderer.pushDrawable(guiRight, {}, 100);
 }

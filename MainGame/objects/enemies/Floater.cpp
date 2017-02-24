@@ -17,7 +17,7 @@ Floater::Floater(GameScene& gameScene) : GameObject(gameScene),
 
 bool Floater::configure(const Floater::ConfigStruct& config)
 {
-    position = config.position;
+    position = sf::Vector2f(config.position);
     return true;
 }
 

@@ -2,6 +2,8 @@
 
 #include "scene/Scene.hpp"
 #include "objects/Room.hpp"
+#include "drawables/Sprite.hpp"
+#include "data/LevelData.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
@@ -27,14 +29,14 @@ class GameScene : public Scene
     
     Chipmunk::Space gameSpace;
     Room room;
+    std::shared_ptr<LevelData> levelData;
 
     ResourceManager &resourceManager;
-    std::shared_ptr<RoomData> currentRoom;
+    std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
-    sf::Sprite guiLeft, guiRight;
-
     const PlayerController* playerController;
+    sf::Vector2f offsetPos;
 
 public:
     GameScene(ResourceManager& manager);
@@ -43,12 +45,13 @@ public:
     Chipmunk::Space& getGameSpace() { return gameSpace; }
     const Chipmunk::Space& getGameSpace() const { return gameSpace; }
 
-    Room& getRoom() { return room; }
-    const Room& getRoom() const { return room; }
+    Room& getCurrentRoom() { return room; }
+    const Room& getCurrentRoom() const { return room; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
 
-    void loadRoom(std::string roomName);
+    void loadLevel(std::string levelName);
+    void loadRoom(size_t id);
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
@@ -63,6 +66,9 @@ public:
     std::vector<GameObject*> getObjectsByName(std::string str);
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    void checkWarps();
+    void checkWarp(Player* player, WarpData::Dir direction, cpVect &pos);
+    
     virtual void render(Renderer& renderer) override;
 };
 

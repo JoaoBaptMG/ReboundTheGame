@@ -33,6 +33,7 @@ public:
     virtual void render(Renderer& renderer) override;
 
     auto getPosition() const { return playerShape->getBody()->getPosition(); }
+    void setPosition(cpVect pos) { playerShape->getBody()->setPosition(pos); }
 
     auto getDisplayPosition() const
     {
@@ -51,7 +52,7 @@ public:
 #pragma pack(push, 1)
     struct ConfigStruct
     {
-        sf::Vector2f position;
+        sf::Vector2<int16_t> position;
     };
 #pragma pack(pop)
 

@@ -9,13 +9,12 @@
 class LevelData final
 {
 public:
-    uint32_t levelNumber;
-    uint32_t startingRoom;
-    std::string levelName;
+    uint16_t levelNumber;
+    uint16_t startingRoom;
     std::string songResourceName;
     std::vector<std::string> roomResourceNames;
 
-    LevelData() : mainLayer(), textureName() {}
+    LevelData() {}
     LevelData(LevelData&& other) noexcept : LevelData() { swap(*this, other); }
     ~LevelData() {}
 
@@ -24,13 +23,12 @@ public:
     friend void swap(LevelData& r1, LevelData &r2)
     {
         using std::swap;
-        swap(r1.levelNumver, r2.levelNumber);
-        swap(r1.levelName, r2.levelName);
-        swap(r1.songName, r2.songName);
-        swap(r1.rooms, r2.rooms);
+        swap(r1.levelNumber, r2.levelNumber);
+        swap(r1.songResourceName, r2.songResourceName);
+        swap(r1.roomResourceNames, r2.roomResourceNames);
     }
 
     bool loadFromStream(sf::InputStream& stream);
-}
+};
 
 bool readFromStream(sf::InputStream& stream, LevelData& level);

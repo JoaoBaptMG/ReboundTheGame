@@ -17,7 +17,7 @@ bool readFromStream(sf::InputStream &stream, RoomData& room)
 {
     using namespace util;
 
-    return readFromStream(stream, room.textureName, room.mainLayer, room.gameObjectDescriptors);
+    return readFromStream(stream, room.textureName, room.mainLayer, room.gameObjectDescriptors, room.warps);
 }
 
 bool RoomData::loadFromStream(sf::InputStream& stream)

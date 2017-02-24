@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     auto scene = new GameScene(manager);
     scene->setPlayerController(controller);
-    scene->loadRoom("room1.map");
+    scene->loadLevel("level1.lvl");
 
     SceneManager sceneManager;
     sceneManager.pushScene(scene);

@@ -10,11 +10,14 @@
 
 namespace util
 {
-    template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<std::is_pod<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, T& value)
     {
         return stream.read((void*)&value, sizeof(T)) == sizeof(T);
     }
+
+    template <typename T>
+    bool readFromStream(sf::InputStream &stream, std::basic_string<T> &value);
 
     template <typename T, typename std::enable_if<std::is_pod<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
@@ -119,7 +122,7 @@ namespace util
         return __rtfsaux(stream, tuple, std::index_sequence_for<Ts...>());
     }
 
-    bool checkMagic(sf::InputStream& stream, const char *val)
+    inline static bool checkMagic(sf::InputStream& stream, const char *val)
     {
         bool value = true;
         for (const char *p = val; *p; p++)

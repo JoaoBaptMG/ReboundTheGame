@@ -18,19 +18,31 @@
 
 using namespace std::literals::chrono_literals;
 
+constexpr float MaxHorSpeed = 400;
+constexpr float HorAcceleration = 600;
+constexpr float PeakJumpSpeed = 660;
+constexpr float DecayJumpSpeed = 360;
+
 Player::Player(GameScene& scene)
     : abilityLevel(1), angle(0), GameObject(scene),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
 {
-    setupPhysics();
+    isPersistent = true;
 
     setName("player");
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
 {
-    playerShape->getBody()->setPosition(cpVect{config.position.x, config.position.y});
-    return gameScene.getObjectByName("player") == nullptr;
+    bool cfg = gameScene.getObjectByName("player") == nullptr;
+    
+    if (cfg)
+    {
+        setupPhysics();
+        playerShape->getBody()->setPosition(cpVect{(cpFloat)config.position.x, (cpFloat)config.position.y});
+    }
+    
+    return cfg;
 }
 
 void Player::setupPhysics()
@@ -66,10 +78,7 @@ void Player::setupPhysics()
                         wallJumpTriggerTime = decltype(wallJumpTriggerTime)();
                         wallJumpPressedBefore = false;
 
-                        cpSpaceAddPostStepCallback(space.getSpace(), [](cpSpace*, void*, void* data)
-                        {
-                            static_cast<Player*>(data)->wallJump();
-                        }, nullptr, (void*)this);
+                        space.addPostStepCallback(nullptr, [=] { wallJump(); });
                     }
                 }
                 else wallJumpTriggerTime = curTime;
@@ -93,7 +102,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto body = playerShape->getBody();
 
     auto vel = body->getVelocity();
-    auto dest = 400 * vec.x;
+    auto dest = MaxHorSpeed * vec.x;
 
     if (std::abs(vel.x - dest) < 6.0)
     {
@@ -104,7 +113,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
 
     auto pos = body->getPosition();
-    body->applyForceAtWorldPoint(base * body->getMass() * 600, pos);
+    body->applyForceAtWorldPoint(base * body->getMass() * HorAcceleration, pos);
 
     if (onGround()) // jump
     {
@@ -143,14 +152,14 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 void Player::jump()
 {
     auto body = playerShape->getBody();
-    auto y = -660.0 - body->getVelocity().y;
+    auto y = -PeakJumpSpeed - body->getVelocity().y;
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
 }
 
 void Player::decayJump()
 {
     auto body = playerShape->getBody();
-    auto y = std::max(-360.0 - body->getVelocity().y, 0.0);
+    auto y = std::max(-DecayJumpSpeed - body->getVelocity().y, 0.0);
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
 }
 
@@ -159,7 +168,7 @@ void Player::wallJump()
     auto body = playerShape->getBody();
     auto sgn = body->getVelocity().x > 0 ? 1.0 : body->getVelocity().x < 0 ? -1.0 : 0.0;
     if (sgn == 0.0) return;
-    auto dv = cpVect{ sgn * 400.0, -660.0 } - body->getVelocity();
+    auto dv = cpVect{ sgn * MaxHorSpeed, -PeakJumpSpeed } - body->getVelocity();
     body->applyImpulseAtLocalPoint(dv * body->getMass(), { 0, 0 });
 }
 

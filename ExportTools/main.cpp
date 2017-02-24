@@ -10,10 +10,12 @@ struct Descriptor
 };
 
 int tmxToMap(std::string, std::string);
+int lvxToLvl(std::string, std::string);
 
 const std::map<std::string,Descriptor> toolList =
 {
     { "tmxToMap", { tmxToMap, "converts a Tiled map into a form that can be consumed by the engine" } },
+    { "lvxToLvl", { lvxToLvl, "converts a XML document describing a level into a form accessible by the engine" } },
 };
 
 void printAllTools()

@@ -5,7 +5,7 @@ void Tilemap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     mutableUpdateVertexMap(states.transform);
 
-    states.texture = texture;
+    states.texture = texture.get();
     states.transform.translate(long(tileSize) * lastPoint.x, long(tileSize) * lastPoint.y);
     target.draw(vertices.get(), vertexSize, sf::Quads, states);
 }

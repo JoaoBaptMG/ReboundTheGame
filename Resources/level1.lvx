@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<level number="1" song="z3.breakout.ogg">
+    <room id="0" name="room0" starting="true"/>
+    <room id="1" name="room1"/>
+</level>

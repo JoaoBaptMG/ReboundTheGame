@@ -11,3 +11,5 @@ file(GLOB_RECURSE MainGame_SRCS "*.c" "*.cpp" "*.h" "*.hpp")
 
 add_executable(MainGame ${MainGame_SRCS})
 target_link_libraries(MainGame CppMunk ${CHIPMUNK_LIBRARIES} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
+
+install(TARGETS MainGame RUNTIME DESTINATION bin)

@@ -24,7 +24,7 @@ Room::~Room()
 
 void Room::loadRoom(const RoomData& data)
 {
-    mainLayerTilemap.setTexture(*gameScene.getResourceManager().load<sf::Texture>(data.textureName));
+    mainLayerTilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>(data.textureName));
     mainLayerTilemap.setTileData(data.mainLayer);
 
     generateRoomShapes(data);
@@ -48,8 +48,8 @@ void Room::generateRoomShapes(const RoomData& data)
 
     enum NodeType { None, Knee, Ankle };
 
-    struct HorSegment { size_t y, x1, x2; NodeType p1, p2; bool isDown; };
-    struct VertSegment { size_t x, y1, y2; NodeType p1, p2; bool isRight; };
+    struct HorSegment { ssize_t y, x1, x2; NodeType p1, p2; bool isDown; };
+    struct VertSegment { ssize_t x, y1, y2; NodeType p1, p2; bool isRight; };
 
     std::vector<HorSegment> horizontalSegments;
     std::vector<VertSegment> verticalSegments;
@@ -77,7 +77,7 @@ void Room::generateRoomShapes(const RoomData& data)
                     default: inSegment = false;
                 }
 
-                if (i == 0)
+                if (!inSegment && i == 0)
                 {
                     inSegment = true;
                     if (tile == 1) { curHSegment.p1 = None; curHSegment.isDown = false; }
@@ -97,7 +97,7 @@ void Room::generateRoomShapes(const RoomData& data)
                     default: inSegment = true;
                 }
 
-                if (i == layer.width()-1 && (tile == 1 || tile == 11))
+                if (inSegment && i == layer.width()-1 && (tile == 1 || tile == 11))
                 {
                     curHSegment.p2 = None;
                     inSegment = false;
@@ -131,7 +131,7 @@ void Room::generateRoomShapes(const RoomData& data)
                     default: inSegment = false;
                 }
 
-                if (i == 0)
+                if (!inSegment && j == 0)
                 {
                     inSegment = true;
                     if (tile == 5) { curVSegment.p1 = None; curVSegment.isRight = false; }
@@ -151,7 +151,7 @@ void Room::generateRoomShapes(const RoomData& data)
                     default: inSegment = true;
                 }
 
-                if (i == layer.width()-1 && (tile == 5 || tile == 7))
+                if (inSegment && j == layer.height()-1 && (tile == 5 || tile == 7))
                 {
                     curVSegment.p2 = None;
                     inSegment = false;
@@ -168,14 +168,14 @@ void Room::generateRoomShapes(const RoomData& data)
 
         endPoint1.y = endPoint2.y = seg.y * DefaultTileSize + (seg.isDown ? DefaultTileSize - 2 : 2);
 
-        switch(seg.p1)
+        switch (seg.p1)
         {
-            case None: endPoint1.x = (seg.x1 - 1) * DefaultTileSize; break;
+            case None: endPoint1.x = (seg.x1 - 1) * (ssize_t)DefaultTileSize; break;
             case Knee: endPoint1.x = seg.x1 * DefaultTileSize + 10; break;
             case Ankle: endPoint1.x = (seg.x1 + 1) * DefaultTileSize - 2; break;
         }
 
-        switch(seg.p2)
+        switch (seg.p2)
         {
             case None: endPoint2.x = (seg.x2 + 2) * DefaultTileSize; break;
             case Knee: endPoint2.x = (seg.x2 + 1) * DefaultTileSize - 10; break;
@@ -221,14 +221,14 @@ void Room::generateRoomShapes(const RoomData& data)
 
         endPoint1.x = endPoint2.x = seg.x * DefaultTileSize + (seg.isRight ? DefaultTileSize - 2 : 2);
 
-        switch(seg.p1)
+        switch (seg.p1)
         {
-            case None: endPoint1.y = (seg.y1 - 1) * DefaultTileSize; break;
+            case None: endPoint1.y = (seg.y1 - 1) * (ssize_t)DefaultTileSize; break;
             case Knee: endPoint1.y = seg.y1 * DefaultTileSize + 10; break;
             case Ankle: endPoint1.y = (seg.y1 + 1) * DefaultTileSize - 2; break;
         }
 
-        switch(seg.p2)
+        switch (seg.p2)
         {
             case None: endPoint2.y = (seg.y2 + 2) * DefaultTileSize; break;
             case Knee: endPoint2.y = (seg.y2 + 1) * DefaultTileSize - 10; break;

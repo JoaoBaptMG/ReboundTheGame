@@ -4,7 +4,7 @@ bool readFromStream(sf::InputStream& stream, LevelData& level)
 {
     using namespace util;
 
-    return readFromStream(stream, level.levelNumber, level.startingRoom, level.levelName,
+    return readFromStream(stream, level.levelNumber, level.startingRoom,
                                   level.songResourceName, level.roomResourceNames);
 }
 
