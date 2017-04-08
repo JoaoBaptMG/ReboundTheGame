@@ -183,12 +183,8 @@ void Room::generateRoomShapes(const RoomData& data)
         }
 
         auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
-        if (seg.isDown)
-        {
-            shp->setElasticity(0.6);
-            shp->setCollisionType(Room::TerrainCollisionType);
-        }
-        else shp->setCollisionType(Room::GroundTerrainCollisionType);
+        if (seg.isDown) shp->setElasticity(0.6);
+        shp->setCollisionType(CollisionType);
         gameScene.getGameSpace().add(shp);
         roomShapes.push_back(shp);
 
@@ -198,7 +194,7 @@ void Room::generateRoomShapes(const RoomData& data)
                            seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
             auto shp = std::make_shared<CircleShape>(staticBody, 9.8, vec);
             if (seg.isDown) shp->setElasticity(0.6);
-            shp->setCollisionType(Room::TerrainCollisionType);
+            shp->setCollisionType(CollisionType);
             gameScene.getGameSpace().add(shp);
             roomShapes.push_back(shp);
         }
@@ -209,7 +205,7 @@ void Room::generateRoomShapes(const RoomData& data)
                            seg.y * (cpFloat)DefaultTileSize + (seg.isDown ? DefaultTileSize - 10.0 : 10.0) };
             auto shp = std::make_shared<CircleShape>(staticBody, 9.8, vec);
             if (seg.isDown) shp->setElasticity(0.6);
-            shp->setCollisionType(Room::TerrainCollisionType);
+            shp->setCollisionType(CollisionType);
             gameScene.getGameSpace().add(shp);
             roomShapes.push_back(shp);
         }
@@ -237,7 +233,7 @@ void Room::generateRoomShapes(const RoomData& data)
 
         auto shp = std::make_shared<SegmentShape>(staticBody, endPoint1, endPoint2, 2);
         shp->setElasticity(0.6);
-        shp->setCollisionType(Room::WallTerrainCollisionType);
+        shp->setCollisionType(CollisionType);
         gameScene.getGameSpace().add(shp);
         roomShapes.push_back(shp);
     }

@@ -9,6 +9,11 @@
 // Objects
 #include "objects/Player.hpp"
 #include "objects/enemies/Floater.hpp"
+#include "objects/enemies/Rotator.hpp"
+#include "objects/collectibles/HealthPickup.hpp"
+#include "objects/collectibles/Powerup.hpp"
+#include "objects/props/PushableCrate.hpp"
+#include "objects/props/BombCrate.hpp"
 
 template <typename Obj>
 auto factoryFor(GameScene& gameScene, const Memory& parameters)
@@ -51,7 +56,15 @@ const std::unordered_map<std::string, FactoryFunction> factoryFunctions =
 
     // enemies
     DEFINE_FACTORY(enemies::Floater),
-    
+    DEFINE_FACTORY(enemies::Rotator),
+
+    // collectibles
+    DEFINE_FACTORY(collectibles::HealthPickup),
+    DEFINE_FACTORY(collectibles::Powerup),
+
+    // props
+    DEFINE_FACTORY(props::PushableCrate),
+    DEFINE_FACTORY(props::BombCrate),
 };
 
 #undef DEFINE_FACTORY

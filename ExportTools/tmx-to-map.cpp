@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
 #include "tinyxml2.h"
+#include "varlength.hpp"
 
 using namespace std;
 using namespace tinyxml2;
@@ -43,16 +45,12 @@ int tmxToMap(string inFile, string outFile)
 	{
         auto str = strrchr(imgStr, '/');
         if (str) imgStr = str+1;
-		
-		uint32_t s = strlen(imgStr);
-		out.write((const char*)&s, sizeof(uint32_t));
+
+        auto s = strlen(imgStr);
+		write_varlength(out, s);
 		out.write(imgStr, s * sizeof(char));
 	}
-    else
-    {
-        uint32_t z = 0;
-        out.write((const char*)&z, sizeof(uint32_t));
-    }
+    else write_varlength(out, 0);
 
 	uint32_t width, height;
 	auto layer = map.FirstChildElement("layer");
@@ -61,8 +59,8 @@ int tmxToMap(string inFile, string outFile)
 		width = atol(layer.ToElement()->Attribute("width"));
 		height = atol(layer.ToElement()->Attribute("height"));
 
-		out.write((const char*)&width, sizeof(uint32_t));
-		out.write((const char*)&height, sizeof(uint32_t));
+		write_varlength(out, width);
+        write_varlength(out, height);
 
 		auto data = layer.FirstChildElement("data");
 		auto txt = data.FirstChild().ToText()->Value();
@@ -77,9 +75,8 @@ int tmxToMap(string inFile, string outFile)
 		}
 	}
 
-    auto globalSizePos = out.tellp();
     uint32_t objTotal = 0;
-    out.write((const char*)&objTotal, sizeof(uint32_t));
+    stringstream objects(stringstream::binary | stringstream::out);
     
     auto objgroup = findObjectLayer(map, "object-layer");
     for (auto obj = objgroup.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
@@ -88,17 +85,16 @@ int tmxToMap(string inFile, string outFile)
 
         auto typeStr = elm->Attribute("type");
         uint32_t tsize = strlen(typeStr);
-        out.write((const char*)&tsize, sizeof(uint32_t));
-        out.write(typeStr, tsize * sizeof(char));
+        write_varlength(objects, tsize);
+        objects.write(typeStr, tsize * sizeof(char));
 
-        auto localSizePos = out.tellp();
         uint32_t strSize = 2 * sizeof(int16_t);
-        out.write((const char*)&strSize, sizeof(uint32_t));
+        stringstream curObj(stringstream::binary | stringstream::out);
 
         int16_t posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
         int16_t posY = elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height");
-        out.write((const char*)&posX, sizeof(int16_t));
-        out.write((const char*)&posY, sizeof(int16_t));
+        curObj.write((const char*)&posX, sizeof(int16_t));
+        curObj.write((const char*)&posY, sizeof(int16_t));
 
         auto props = obj.FirstChildElement("properties");
         for (auto prop = props.FirstChildElement("property"); prop.ToElement(); prop = prop.NextSiblingElement("property"))
@@ -112,25 +108,25 @@ int tmxToMap(string inFile, string outFile)
             if (pelm->Attribute("type", "int"))
             {
                 int32_t val = atol(str);
-                out.write((const char*)&val, sizeof(int32_t));
+                curObj.write((const char*)&val, sizeof(int32_t));
                 strSize += sizeof(int32_t);
             }
             else if (pelm->Attribute("type", "float"))
             {
                 float val = strtof(str, nullptr);
-                out.write((const char*)&val, sizeof(float));
+                curObj.write((const char*)&val, sizeof(float));
                 strSize += sizeof(float);
             }
             else if (pelm->Attribute("type", "bool"))
             {
                 bool val = !strcmp(str, "true");
-                out.write((const char*)&val, sizeof(bool));
+                curObj.write((const char*)&val, sizeof(bool));
                 strSize += sizeof(bool);
             }
             else if (pelm->Attribute("type", "color"))
             {
                 uint32_t val = strtoul(str+1, nullptr, 16);
-                out.write((const char*)&val, sizeof(uint32_t));
+                curObj.write((const char*)&val, sizeof(uint32_t));
                 strSize += sizeof(uint32_t);
             }
             else
@@ -141,23 +137,37 @@ int tmxToMap(string inFile, string outFile)
                     if (cstr) str = cstr+1;
                 }
 
-                uint32_t size = strlen(str);
-                out.write((const char*)&size, sizeof(uint32_t));
-                out.write(str, size * sizeof(char));
+                if (!strcasecmp(str, "#width"))
+                {
+                    int16_t width = elm->IntAttribute("width");
+                    curObj.write((const char*)&width, sizeof(int16_t));
+                    strSize += sizeof(int16_t);
+                }
+                else if (!strcasecmp(str, "#height"))
+                {
+                    int16_t height = elm->IntAttribute("height");
+                    curObj.write((const char*)&height, sizeof(int16_t));
+                    strSize += sizeof(int16_t);
+                }
+                else
+                {
+                    uint32_t size = strlen(str);
+                    auto s = write_varlength(curObj, size);
+                    curObj.write(str, size * sizeof(char));
 
-                strSize += sizeof(uint32_t) + size * sizeof(char);
+                    strSize += s + size * sizeof(char);
+                }
             }
         }
 
-        out.seekp(localSizePos);
-        out.write((const char*)&strSize, sizeof(uint32_t));
-        out.seekp(0, ios::end);
+        write_varlength(objects, strSize);
+        objects << curObj.str();
         objTotal++;
     }
 
-    out.seekp(globalSizePos);
-    out.write((const char*)&objTotal, sizeof(uint32_t));
-    out.seekp(0, ios::end);
+    write_varlength(out, objTotal);
+    out << objects.str();
+    objects.clear();
 
     auto warps = findObjectLayer(map, "warp-layer");
 
@@ -170,8 +180,8 @@ int tmxToMap(string inFile, string outFile)
     }
 
     maxId++;
-    out.write((const char*)&maxId, sizeof(uint32_t));
-    globalSizePos = out.tellp();
+    write_varlength(out, maxId);
+    auto globalSizePos = out.tellp();
     
     for (uint32_t i = 0; i < maxId; i++)
     {

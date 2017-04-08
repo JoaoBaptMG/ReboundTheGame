@@ -17,8 +17,9 @@ generic_shared_ptr ResourceManager::load(std::string id)
 
     if (it == cache.end())
     {
-        auto ptr = ResourceLoader::loadFromStream(locator->getResource(id));
-        if (!ptr) throw ResourceNotIdentified(id);
+        auto type = id.substr(id.find_last_of('.') + 1);
+        auto ptr = ResourceLoader::loadFromStream(locator->getResource(id), type);
+        if (!ptr) throw ResourceLoadingError(id);
         std::tie(it, std::ignore) = cache.emplace(id, ptr);
     }
 

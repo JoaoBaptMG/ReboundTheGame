@@ -10,8 +10,10 @@ namespace Chipmunk
     {
     public:
         Arbiter(cpArbiter*);
-        Body getBodyA();
-        Body getBodyB();
+        cpBody* getBodyA();
+        cpBody* getBodyB();
+        cpShape* getShapeA();
+        cpShape* getShapeB();
 
         cpFloat getRestitution() const { return cpArbiterGetRestitution(arbiter); }
         void setRestitution(cpFloat value) { cpArbiterSetRestitution(arbiter, value); }
@@ -24,6 +26,13 @@ namespace Chipmunk
 
         cpDataPointer getUserData() const { return cpArbiterGetUserData(arbiter); }
         void setUserData(cpDataPointer value) { cpArbiterSetUserData(arbiter, value); }
+
+        cpVect totalImpulse() const { return cpArbiterTotalImpulse(arbiter); }
+        int getCount() const { return cpArbiterGetCount(arbiter); }
+        cpVect getNormal() const { return cpArbiterGetNormal(arbiter); }
+        cpVect getPointA(int i) const { return cpArbiterGetPointA(arbiter, i); }
+        cpVect getPointB(int i) const { return cpArbiterGetPointB(arbiter, i); }
+        cpFloat getDepth(int i) const { return cpArbiterGetDepth(arbiter, i); }
         
     private:
         cpArbiter* arbiter;

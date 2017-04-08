@@ -4,6 +4,7 @@
 #include "objects/Room.hpp"
 #include "drawables/Sprite.hpp"
 #include "data/LevelData.hpp"
+#include "objects/GUI.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
@@ -37,6 +38,8 @@ class GameScene : public Scene
 
     const PlayerController* playerController;
     sf::Vector2f offsetPos;
+
+    GUI gui;
 
 public:
     GameScene(ResourceManager& manager);

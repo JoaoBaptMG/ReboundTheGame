@@ -14,22 +14,29 @@ extern "C"
 
 std::string getResourceDirectory()
 {
-    std::vector<char> buffer;
+    static std::string dir;
 
-    ssize_t size = 8;
-    do
+    if (dir.empty())
     {
-        size *= 2;
-        buffer.resize(size, 0);
-        size = readlink("/proc/self/exe", buffer.data(), buffer.size());
-    } while (size == buffer.size());
+        std::vector<char> buffer;
 
-    if (size < 0) return std::string{};
+        ssize_t size = 8;
+        do
+        {
+            size *= 2;
+            buffer.resize(size, 0);
+            size = readlink("/proc/self/exe", buffer.data(), buffer.size());
+        } while (size == buffer.size());
 
-    for (; size > 1; size--)
-        if (buffer[size] == '/') break;
+        if (size < 0) return std::string{};
 
-    return std::string(buffer.data(), size) + "/Resources";
+        for (; size > 1; size--)
+            if (buffer[size] == '/') break;
+
+        dir = std::string(buffer.data(), size) + "/Resources";
+    }
+
+    return dir;
 }
 #endif
 

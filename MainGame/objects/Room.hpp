@@ -31,8 +31,6 @@ public:
     void generateRoomShapes(const RoomData& data);
     void clearShapes();
 
-    static constexpr cpCollisionType TerrainCollisionType = 'rtrn';
-    static constexpr cpCollisionType GroundTerrainCollisionType = 'tgnd';
-    static constexpr cpCollisionType WallTerrainCollisionType = 'twal';
+    static constexpr cpCollisionType CollisionType = 'room';
 };
 

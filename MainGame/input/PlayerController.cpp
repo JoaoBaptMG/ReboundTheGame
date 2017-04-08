@@ -1,7 +1,7 @@
 #include "PlayerController.hpp"
 
 PlayerController::PlayerController(InputManager &inputManager)
-    : lastJump1(false), lastJump2(false), curJump(false), isLeft(false), isRight(false), isUp(false), isDown(false), active(true)
+    : active(true)
 {
     leftEntry = inputManager.registerCallback(Actions::Left,
         [this](ActionState state) { isLeft = state == ActionState::Down; });
@@ -13,6 +13,10 @@ PlayerController::PlayerController(InputManager &inputManager)
         [this](ActionState state) { isDown = state == ActionState::Down; });
     jumpEntry = inputManager.registerCallback(Actions::Jump,
         [this](ActionState state) { curJump = state == ActionState::Down; });
+    dashEntry = inputManager.registerCallback(Actions::Dash,
+        [this](ActionState state) { curDash = state == ActionState::Down; });
+    bombEntry = inputManager.registerCallback(Actions::Bomb,
+        [this](ActionState state) { curBomb = state == ActionState::Down; });
 }
 
 void PlayerController::update()
@@ -22,4 +26,10 @@ void PlayerController::update()
 
     lastJump2 = lastJump1;
     lastJump1 = curJump;
+
+    lastDash2 = lastDash1;
+    lastDash1 = curDash;
+
+    lastBomb2 = lastBomb1;
+    lastBomb1 = curBomb;
 }

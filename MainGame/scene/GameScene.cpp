@@ -14,12 +14,13 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager), playerController(nullptr)
+GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager), playerController(nullptr),
+    gui(*this)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
 {
-    gameSpace.setGravity({ 0.0f, 1024.0f });
+    gameSpace.setGravity(cpVect{0.0f, 1024.0f});
 }
 
 void GameScene::loadLevel(std::string levelName)
@@ -81,6 +82,8 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
+
+    gui.update(curTime);
 
     checkWarps();
 }
@@ -160,13 +163,14 @@ void GameScene::render(Renderer& renderer)
         offsetPos = vec;
     }
 
+    gui.render(renderer);
     renderer.currentTransform.translate(sf::Vector2f{ScreenWidth, ScreenHeight}/2.0f - offsetPos);
     
     room.render(renderer);
     for (const auto& obj : gameObjects) obj->render(renderer);
 
 #if CP_DEBUG
-    renderer.pushDrawable(debug, {}, 20);
+    renderer.pushDrawable(debug, {}, 800);
 #endif
 
     renderer.popTransform();

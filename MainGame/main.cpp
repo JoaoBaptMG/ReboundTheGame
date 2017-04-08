@@ -23,6 +23,7 @@ using namespace std::literals::chrono_literals;
 int main(int argc, char **argv)
 {
     sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game");
+    renderWindow.setVerticalSyncEnabled(true);
 
     Renderer renderer(renderWindow);
     InputManager inputManager;
@@ -33,6 +34,8 @@ int main(int argc, char **argv)
     inputManager.setMapping(sf::Keyboard::Key::W, PlayerController::Actions::Up);
     inputManager.setMapping(sf::Keyboard::Key::S, PlayerController::Actions::Down);
     inputManager.setMapping((sf::Keyboard::Key)80, PlayerController::Actions::Jump);
+    inputManager.setMapping((sf::Keyboard::Key)79, PlayerController::Actions::Dash);
+    inputManager.setMapping((sf::Keyboard::Key)81, PlayerController::Actions::Bomb);
 
     ResourceManager manager;
     manager.setResourceLocator(new FilesystemResourceLocator());

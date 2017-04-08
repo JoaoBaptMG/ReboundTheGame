@@ -153,6 +153,19 @@ namespace Chipmunk
         }
         return findShape(rtn);
     }
+
+    void Space::pointQuery(cpVect p,
+                           cpFloat maxDistance,
+                           cpShapeFilter filter,
+                           PointQueryFunc func) const
+    {
+        cpSpacePointQuery(_space, p, maxDistance, filter,
+        [](cpShape* shape, cpVect point, cpFloat distance, cpVect gradient, void* data)
+        {
+            auto d = reinterpret_cast<PointQueryFunc*>(data);
+            (*d)(shape, point, distance, gradient);
+        }, (void*)&func);
+    }
     
     std::shared_ptr<Shape> Space::pointQueryNearest(cpVect p,
                                                   LayerMask layers,
@@ -277,4 +290,15 @@ namespace Chipmunk
     {
         cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperBodyAddWrap, body, NULL);
     }*/
+
+    void Space::addPostStepCallback(void* key, std::function<void()> callback)
+    {
+        auto cbPtr = new std::function<void()>(callback);
+        
+        cpSpaceAddPostStepCallback(_space, [](cpSpace* space, void*, void* data)
+        {
+            auto ptr = static_cast<std::function<void()>*>(data);
+            (*ptr)(); delete ptr; 
+        }, key, (void*)cbPtr);
+    }
 }

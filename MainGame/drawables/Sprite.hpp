@@ -15,7 +15,7 @@ class Sprite final : public sf::Drawable
 
 public:
     Sprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f anchor);
-    Sprite(std::shared_ptr<sf::Texture> tex);
+    Sprite(std::shared_ptr<sf::Texture> tex = nullptr);
 
     sf::Vector2f getAnchorPoint() const { return anchorPoint; }
     void setAnchorPoint(sf::Vector2f ap) { anchorPoint = ap; }

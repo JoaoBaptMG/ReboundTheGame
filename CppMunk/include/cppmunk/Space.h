@@ -15,7 +15,8 @@ namespace Chipmunk
 
     class Constraint;
     class Shape;
-    
+
+    typedef std::function<void(cpShape*, cpVect, cpFloat, cpVect)> PointQueryFunc;
     typedef std::function<void(std::shared_ptr<Shape>, cpFloat, cpVect)> SegmentQueryFunc;
     
     class Space
@@ -109,7 +110,9 @@ namespace Chipmunk
         void remove(std::shared_ptr<Body>);
         /// Remove a constraint from the simulation.
         void remove(std::shared_ptr<Constraint>);
-        
+
+        /// Query the space at a point and call @c for each shape found which is on a reasonable distance
+        void pointQuery(cpVect point, cpFloat maxDistance, cpShapeFilter, PointQueryFunc) const;
         /// Query the space at a point and return the nearest shape found. Returns NULL if no shapes were found.
         std::shared_ptr<Shape> pointQueryNearest(cpVect p, LayerMask, cpGroup) const;
         
@@ -127,6 +130,8 @@ namespace Chipmunk
         
         /// Step the space forward in time by @c dt.
         virtual void step(cpFloat dt);
+
+        void addPostStepCallback(void* key, std::function<void()> callback);
 
         // Remove all shapes, bodies and constraints in the space
         virtual void clearSpace();

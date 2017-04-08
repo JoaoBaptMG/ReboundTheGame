@@ -17,7 +17,7 @@ protected:
     std::string name;
 
 public:
-    GameObject(GameScene& scene) : gameScene(scene), shouldRemove(false), name() {}
+    GameObject(GameScene& scene) : gameScene(scene), shouldRemove(false), isPersistent(false), name() {}
     inline void remove() { shouldRemove = true; }
 
     virtual void update(std::chrono::steady_clock::time_point curTime) = 0;

@@ -1,8 +1,12 @@
 #include "Body.h"
 #include "Shape.h"
+#include "Arbiter.h"
 
 namespace Chipmunk
 {
+    const Body::StaticTag Body::Static {};
+    const Body::KinematicTag Body::Kinematic {};
+    
     Body::Body(cpFloat mass, cpFloat inertia) :
     _body(cpBodyNew(mass, inertia))
     { }
@@ -12,6 +16,14 @@ namespace Chipmunk
     {
         other._body = nullptr;
     }
+
+    Body::Body(StaticTag) :
+    _body(cpBodyNewStatic())
+    { }
+
+    Body::Body(KinematicTag) :
+    _body(cpBodyNewKinematic())
+    { }
     
     Body::Body(cpBody* body) :
     _body(body)
@@ -29,4 +41,12 @@ namespace Chipmunk
     }
     
     void Body::activateStatic(std::shared_ptr<Shape> filter) { cpBodyActivateStatic(_body, *filter); };
+
+    void Body::eachArbiter(std::function<void(Arbiter)> func)
+    {
+        cpBodyEachArbiter(_body, [](cpBody* body, cpArbiter* arbiter, void* data)
+        {
+            (*(std::function<void(Arbiter)>*)data)(Arbiter(arbiter));
+        }, (void*)&func);
+    }
 }

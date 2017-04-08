@@ -1,6 +1,9 @@
 #include "ResourceLoader.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <unordered_map>
+
 #include "data/RoomData.hpp"
 #include "data/LevelData.hpp"
 
@@ -19,37 +22,18 @@ generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
     return generic_shared_ptr{};
 }
 
-generic_shared_ptr loadStringMap(std::unique_ptr<sf::InputStream>& stream)
+const std::unordered_map<std::string,loadFunc> loadFuncs =
 {
-    auto size = stream->getSize();
-    if (size == -1) return generic_shared_ptr{};
-
-    std::vector<char> buffer(size, (char)0);
-    auto err = stream->read(buffer.data(), buffer.size());
-
-    if (err == -1) return generic_shared_ptr{};
-
-    std::shared_ptr<std::string> str{new std::string{buffer.begin(), buffer.end()}};
-    return generic_shared_ptr{str};
-}
-
-const loadFunc loadFunctions[] =
-{
-    loadGenericResource<LevelData>,
-    loadGenericResource<RoomData>,
-    loadGenericResource<sf::Texture>,
-    loadGenericResource<sf::Font>,
-    loadStringMap
+    { "lvl", loadGenericResource<LevelData> },
+    { "map", loadGenericResource<RoomData> },
+    { "png", loadGenericResource<sf::Texture> },
+    { "ttf", loadGenericResource<sf::Font> }
 };
 
-generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream)
+generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)
 {
-    for (auto func : loadFunctions)
-    {
-        auto ptr = func(stream);
-        if (ptr) return ptr;
-        stream->seek(0);
-    }
-
+    auto it = loadFuncs.find(type);
+    if (it != loadFuncs.end())
+        return it->second(stream);
     return generic_shared_ptr{};
 }

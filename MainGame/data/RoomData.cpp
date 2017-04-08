@@ -7,8 +7,8 @@ bool readFromStream(sf::InputStream& stream, GameObjectDescriptor& descriptor)
 {
     using namespace util;
 
-    uint32_t size;
-    if (!readFromStream(stream, descriptor.klass, size)) return false;
+    size_t size;
+    if (!readFromStream(stream, descriptor.klass, VarLength(size))) return false;
     descriptor.parameters = Memory(size);
     return stream.read(descriptor.parameters.get_ptr(), size) == size;
 }

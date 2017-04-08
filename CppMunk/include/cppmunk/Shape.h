@@ -59,7 +59,7 @@ namespace Chipmunk
         BoundingBox getBoundingBox();
 
         /// Get if the shape is set to be a sensor or not.
-        inline cpBool getSensor() { return cpShapeGetSensor(_shape); };
+        inline cpBool isSensor() { return cpShapeGetSensor(_shape); };
         /// Set if the shape is a sensor or not.
         inline void setSensor(cpBool sensor) { cpShapeSetSensor(_shape, sensor); };
 
@@ -89,7 +89,7 @@ namespace Chipmunk
         inline void setCollisionType(cpCollisionType type) { cpShapeSetCollisionType(_shape, type); };
 
         /// Get the collision filtering parameters of this shape.
-        inline cpShapeFilter getShapeFilter() const { return cpShapeGetFilter(_shape); };
+        inline cpShapeFilter getFilter() const { return cpShapeGetFilter(_shape); };
         /// Set the collision filtering parameters of this shape.
         inline void setFilter(cpShapeFilter filter) { cpShapeSetFilter(_shape, filter); };
         

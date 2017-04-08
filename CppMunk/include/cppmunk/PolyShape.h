@@ -9,7 +9,7 @@ namespace Chipmunk
     class PolyShape : public Shape
     {
     public:
-        PolyShape(std::shared_ptr<Body>, const std::vector<cpVect>& verts);
+        PolyShape(std::shared_ptr<Body>, const std::vector<cpVect>& verts, cpFloat radius = 0);
         
         /// Get the number of verts in a polygon shape.
         int getCount() const { return cpPolyShapeGetCount(_shape); };

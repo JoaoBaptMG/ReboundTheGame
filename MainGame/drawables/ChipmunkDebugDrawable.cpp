@@ -56,6 +56,44 @@ auto pointsForShape(cpShape* shape)
             vertices.emplace_back(toVec(b + prp), sf::Color::Green);
         } break;
 
+        case CP_POLY_SHAPE:
+        {
+            auto n = cpPolyShapeGetCount(shape);
+            auto radius = cpPolyShapeGetRadius(shape);
+
+            for (int i = 0; i < n; i++)
+            {
+                if (radius == 0)
+                {
+                    auto vpos = pos + cpvrotate(rvec, cpPolyShapeGetVert(shape, i));
+                    vertices.emplace_back(toVec(vpos), sf::Color::Green);
+                }
+                else
+                {
+                    auto vprev = pos + cpvrotate(rvec, cpPolyShapeGetVert(shape, i != 0 ? i-1 : n-1));
+                    auto vcur = pos + cpvrotate(rvec, cpPolyShapeGetVert(shape, i));
+                    auto vnext = pos + cpvrotate(rvec, cpPolyShapeGetVert(shape, i != n-1 ? i+1 : 0));
+
+                    auto t1 = cpvtoangle(cpvperp(vcur - vprev));
+                    auto t2 = cpvtoangle(cpvperp(vcur - vnext));
+
+                    t1 -= floor(t1/6.28318530718) * 6.28318530718;
+                    t2 -= floor(t2/6.28318530718) * 6.28318530718;
+                    if (t2 < t1) t2 += 6.28318530718;
+
+                    size_t partitions = floor((t2-t1)*radius / 3);
+
+                    for (int i = 0; i < partitions; i++)
+                    {
+                        auto vec = vcur + cpvforangle(t1 + (t2-t1) * i / partitions);
+                        vertices.emplace_back(toVec(vec), sf::Color::Green);
+                    }
+
+                    vertices.emplace_back(toVec(vcur + cpvforangle(t2)), sf::Color::Green);
+                }
+            }
+        } break;
+
         default: break;
     }
 

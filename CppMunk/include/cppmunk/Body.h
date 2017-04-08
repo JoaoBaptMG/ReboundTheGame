@@ -8,11 +8,17 @@ namespace Chipmunk
 {
     class Shape;
     class Space;
+    class Arbiter;
     
     class Body
     {
     public:
+        static const struct StaticTag {} Static;
+        static const struct KinematicTag {} Kinematic;
+    
         Body(cpFloat mass, cpFloat inertia);
+        Body(StaticTag);
+        Body(KinematicTag);
         Body(Body&&);
         explicit Body(cpBody* body);
         ~Body();
@@ -116,6 +122,9 @@ namespace Chipmunk
 
         /// Get the amount of kinetic energy contained by the body.
         inline cpFloat kineticEnergy() { return cpBodyKineticEnergy(_body); };
+
+        /// Iterate through all arbiters
+        void eachArbiter(std::function<void(Arbiter)> func);
 
     protected:
         cpBody* _body;

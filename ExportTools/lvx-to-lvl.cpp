@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <memory>
 #include "tinyxml2.h"
+#include "varlength.hpp"
 
 using namespace std;
 using namespace tinyxml2;
@@ -35,7 +36,7 @@ int lvxToLvl(string inFile, string outFile)
     auto startingRoomPos = out.tellp();
     out.write((const char*)&startingRoom, sizeof(uint16_t));
 
-    out.write((const char*)&songNameS, sizeof(uint32_t));
+    write_varlength(out, songNameS);
     out.write(songName, songNameS * sizeof(char));
 
     uint32_t maxId = 0;
@@ -46,7 +47,7 @@ int lvxToLvl(string inFile, string outFile)
     }
 
     maxId++;
-    out.write((const char*)&maxId, sizeof(uint32_t));   
+    write_varlength(out, maxId);  
 
     unique_ptr<const char*[]> names{ new const char*[maxId] };
 
@@ -66,14 +67,10 @@ int lvxToLvl(string inFile, string outFile)
         if (name)
         {
             nameS = strlen(name);
-            out.write((const char*)&nameS, sizeof(uint32_t));
+            write_varlength(out, nameS);
             out.write(name, nameS * sizeof(char));
         }
-        else
-        {
-            nameS = 0;
-            out.write((const char*)&nameS, sizeof(uint32_t));
-        }
+        else write_varlength(out, 0);
     }
 
     out.seekp(startingRoomPos);
