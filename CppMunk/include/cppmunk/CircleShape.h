@@ -3,7 +3,7 @@
 
 #include "Shape.h"
 
-namespace Chipmunk
+namespace cp
 {
     class CircleShape : public Shape
     {

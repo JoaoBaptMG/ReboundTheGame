@@ -1,7 +1,7 @@
 #include "RatchetJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     RatchetJoint::RatchetJoint(std::shared_ptr<Body> bodyA,
                                std::shared_ptr<Body> bodyB,

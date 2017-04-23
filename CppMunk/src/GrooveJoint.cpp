@@ -1,7 +1,7 @@
 #include "GrooveJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     GrooveJoint::GrooveJoint(std::shared_ptr<Body> bodyA,
                              std::shared_ptr<Body> bodyB,

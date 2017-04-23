@@ -1,6 +1,6 @@
 #include "BoundingBox.h"
 
-namespace Chipmunk
+namespace cp
 {
     BoundingBox::BoundingBox()
     {

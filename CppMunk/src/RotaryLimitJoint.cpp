@@ -1,7 +1,7 @@
 #include "RotaryLimitJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     RotaryLimitJoint::RotaryLimitJoint(std::shared_ptr<Body> bodyA,
                                        std::shared_ptr<Body> bodyB,

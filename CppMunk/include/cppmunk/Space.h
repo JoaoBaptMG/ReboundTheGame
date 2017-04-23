@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-namespace Chipmunk
+namespace cp
 {
     class Body;
     class Arbiter;
@@ -95,6 +95,13 @@ namespace Chipmunk
                                  std::function<int(Arbiter, Space&)> preSolve,
                                  std::function<void(Arbiter, Space&)> postSolve,
                                  std::function<void(Arbiter, Space&)> separate);
+
+        /// Create a wildcard collision handler for the specified collision type.
+        void addWildcardCollisionHandler(cpCollisionType a,
+                                         std::function<int(Arbiter, Space&)> begin,
+                                         std::function<int(Arbiter, Space&)> preSolve,
+                                         std::function<void(Arbiter, Space&)> postSolve,
+                                         std::function<void(Arbiter, Space&)> separate);
         
         /// Add a collision shape to the simulation.
         /// If the shape is attached to a static body, it will be added as a static shape.
@@ -164,16 +171,18 @@ namespace Chipmunk
             std::function<int(Arbiter, Space&)> preSolve;
             std::function<void(Arbiter, Space&)> postSolve;
             std::function<void(Arbiter, Space&)> separate;
-            Space& self;
+            Space* self;
             
             CallbackData(std::function<int(Arbiter, Space&)> begin, std::function<int(Arbiter, Space&)> preSolve,
                          std::function<void(Arbiter, Space&)> postSolve, std::function<void(Arbiter, Space&)> separate,
                          Space& self)
-            : begin(begin), preSolve(preSolve), postSolve(postSolve), separate(separate), self(self)
+            : begin(begin), preSolve(preSolve), postSolve(postSolve), separate(separate), self(&self)
             {}
+            CallbackData() {}
         };
         
-        std::map<std::pair<cpCollisionType, cpCollisionType>, std::unique_ptr<CallbackData>> callbackDatas;
+        std::map<std::pair<cpCollisionType, cpCollisionType>, CallbackData> callbackDatas;
+        std::map<cpCollisionType, CallbackData> wildcardCallbackDatas;
         
         static cpBool helperBegin(cpArbiter* arb, cpSpace* s, void* d);
         static cpBool helperPreSolve(cpArbiter* arb, cpSpace* s, void* d);

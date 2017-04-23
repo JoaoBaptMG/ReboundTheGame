@@ -3,7 +3,7 @@
 
 #include <chipmunk.h>
 
-namespace Chipmunk
+namespace cp
 {
     class BoundingBox
     {

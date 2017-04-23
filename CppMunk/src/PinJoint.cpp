@@ -1,7 +1,7 @@
 #include "PinJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     PinJoint::PinJoint(std::shared_ptr<Body> bodyA,
                        std::shared_ptr<Body> bodyB,

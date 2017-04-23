@@ -1,7 +1,7 @@
 #include "GearJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     GearJoint::GearJoint(std::shared_ptr<Body> bodyA,
                          std::shared_ptr<Body> bodyB,

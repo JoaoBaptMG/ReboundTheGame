@@ -1,7 +1,7 @@
 #include "DampedRotarySpring.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     DampedRotarySpring::DampedRotarySpring(std::shared_ptr<Body> bodyA,
                                            std::shared_ptr<Body> bodyB,

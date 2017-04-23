@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace Chipmunk
+namespace cp
 {
     Space::Space() :
     _space(cpSpaceNew()),
@@ -181,25 +181,25 @@ namespace Chipmunk
     cpBool Space::helperBegin(cpArbiter* arb, cpSpace* s, void* d)
     {
         CallbackData& data = *reinterpret_cast<CallbackData*>(d);
-        return data.begin(arb, data.self);
+        return data.begin(arb, *data.self);
     }
     
     cpBool Space::helperPreSolve(cpArbiter* arb, cpSpace* s, void* d)
     {
         CallbackData& data = *reinterpret_cast<CallbackData*>(d);
-        return data.preSolve(arb, data.self);
+        return data.preSolve(arb, *data.self);
     }
     
     void Space::helperPostSolve(cpArbiter* arb, cpSpace* s, void* d)
     {
         CallbackData& data = *reinterpret_cast<CallbackData*>(d);
-        return data.postSolve(arb, data.self);
+        return data.postSolve(arb, *data.self);
     }
     
     void Space::helperSeparate(cpArbiter* arb, cpSpace* s, void* d)
     {
         CallbackData& data = *reinterpret_cast<CallbackData*>(d);
-        return data.separate(arb, data.self);
+        return data.separate(arb, *data.self);
     }
     
     void Space::addCollisionHandler(cpCollisionType a,
@@ -209,14 +209,30 @@ namespace Chipmunk
                                     std::function<void(Arbiter, Space&)> postSolve,
                                     std::function<void(Arbiter, Space&)> separate)
     {
-        auto data = new CallbackData(begin, preSolve, postSolve, separate, *this);
-        callbackDatas[std::make_pair(a, b)] = std::unique_ptr<CallbackData>(data);
+        auto it = callbackDatas.emplace(std::make_pair(a, b),
+            CallbackData(begin, preSolve, postSolve, separate, *this)).first;
         cpCollisionHandler* handler = cpSpaceAddCollisionHandler(_space, a, b);
         handler->beginFunc = begin == nullptr ? nullptr : helperBegin;
         handler->preSolveFunc = preSolve == nullptr ? nullptr : helperPreSolve;
         handler->postSolveFunc = postSolve == nullptr ? nullptr : helperPostSolve;
         handler->separateFunc = separate == nullptr ? nullptr : helperSeparate;
-        handler->userData = data;
+        handler->userData = &it->second;
+    }
+
+    void Space::addWildcardCollisionHandler(cpCollisionType a,
+                                            std::function<int(Arbiter, Space&)> begin,
+                                            std::function<int(Arbiter, Space&)> preSolve,
+                                            std::function<void(Arbiter, Space&)> postSolve,
+                                            std::function<void(Arbiter, Space&)> separate)
+    {
+        auto it = wildcardCallbackDatas.emplace(a,
+            CallbackData(begin, preSolve, postSolve, separate, *this)).first;
+        cpCollisionHandler* handler = cpSpaceAddWildcardHandler(_space, a);
+        handler->beginFunc = begin == nullptr ? nullptr : helperBegin;
+        handler->preSolveFunc = preSolve == nullptr ? nullptr : helperPreSolve;
+        handler->postSolveFunc = postSolve == nullptr ? nullptr : helperPostSolve;
+        handler->separateFunc = separate == nullptr ? nullptr : helperSeparate;
+        handler->userData = &it->second;
     }
 
     void Space::reindexShapesForBody(std::shared_ptr<Body> body)

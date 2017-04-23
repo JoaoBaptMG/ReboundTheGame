@@ -1,7 +1,7 @@
 #include "PivotJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     PivotJoint::PivotJoint(std::shared_ptr<Body> bodyA,
                            std::shared_ptr<Body> bodyB,

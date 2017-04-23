@@ -1,7 +1,7 @@
 #include "PolyShape.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     PolyShape::PolyShape(std::shared_ptr<Body> body, const std::vector<cpVect>& verts, cpFloat radius)
     : Shape(cpPolyShapeNewRaw(*body,

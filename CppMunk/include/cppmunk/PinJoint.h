@@ -4,7 +4,7 @@
 #include "Constraint.h"
 #include <chipmunk.h>
 
-namespace Chipmunk
+namespace cp
 {
     class PinJoint : public Constraint
     {

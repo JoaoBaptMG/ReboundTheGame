@@ -4,7 +4,7 @@
 #include "Body.h"
 #include <chipmunk.h>
 
-namespace Chipmunk
+namespace cp
 {
     class Arbiter
     {

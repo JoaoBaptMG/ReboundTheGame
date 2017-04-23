@@ -5,7 +5,7 @@
 #include "Body.h"
 #include <memory>
 
-namespace Chipmunk
+namespace cp
 {
     class SegmentShape : public Shape
     {

@@ -4,7 +4,7 @@
 #include "Shape.h"
 #include <vector>
 
-namespace Chipmunk
+namespace cp
 {
     class PolyShape : public Shape
     {

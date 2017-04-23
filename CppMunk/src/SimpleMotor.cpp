@@ -1,7 +1,7 @@
 #include "SimpleMotor.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     SimpleMotor::SimpleMotor(std::shared_ptr<Body> bodyA,
                              std::shared_ptr<Body> bodyB,

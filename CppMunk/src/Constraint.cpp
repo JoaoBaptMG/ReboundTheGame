@@ -1,6 +1,6 @@
 #include "Constraint.h"
 
-namespace Chipmunk
+namespace cp
 {
     Constraint::Constraint(cpConstraint* constraint,
                            std::shared_ptr<Body> bodyA,

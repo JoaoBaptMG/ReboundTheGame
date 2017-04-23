@@ -4,7 +4,7 @@
 #include <chipmunk.h>
 #include <memory>
 
-namespace Chipmunk
+namespace cp
 {
     class Shape;
     class Space;

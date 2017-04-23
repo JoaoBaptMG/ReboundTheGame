@@ -1,7 +1,7 @@
 #include "CircleShape.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     CircleShape::CircleShape(std::shared_ptr<Body> body,
                              cpFloat radius,

@@ -1,6 +1,6 @@
 #include "Arbiter.h"
 
-namespace Chipmunk
+namespace cp
 {
     Arbiter::Arbiter(cpArbiter* a) : arbiter(a)
     { }

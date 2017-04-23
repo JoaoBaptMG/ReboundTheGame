@@ -1,7 +1,7 @@
 #include "SlideJoint.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     SlideJoint::SlideJoint(std::shared_ptr<Body> bodyA,
                            std::shared_ptr<Body> bodyB,

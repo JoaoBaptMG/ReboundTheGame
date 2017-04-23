@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-namespace Chipmunk
+namespace cp
 {
     LayerMask::LayerMask() :
     _bitMask(0)

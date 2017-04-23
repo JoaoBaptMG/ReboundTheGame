@@ -2,7 +2,7 @@
 #include "Shape.h"
 #include "Arbiter.h"
 
-namespace Chipmunk
+namespace cp
 {
     const Body::StaticTag Body::Static {};
     const Body::KinematicTag Body::Kinematic {};

@@ -2,7 +2,7 @@
 #include "Body.h"
 #include "BoundingBox.h"
 
-namespace Chipmunk
+namespace cp
 {
     Shape::Shape(cpShape* s, std::shared_ptr<Body> b) :
     _body(b),

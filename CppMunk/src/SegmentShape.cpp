@@ -1,7 +1,7 @@
 #include "SegmentShape.h"
 #include "Body.h"
 
-namespace Chipmunk
+namespace cp
 {
     SegmentShape::SegmentShape(std::shared_ptr<Body> body,
                                cpVect a, cpVect b,
