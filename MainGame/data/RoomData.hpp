@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility/grid.hpp"
+#include "utility/generic_ptrs.hpp"
 #include "utility/non_copyable_movable.hpp"
 #include "resources/Memory.hpp"
 
@@ -9,14 +10,14 @@
 
 template <size_t size> struct Print;
 
-struct GameObjectDescriptor
+struct GameObjectDescriptor final
 {
     std::string klass;
-    Memory parameters;
+    util::generic_shared_ptr parameters;
 };
 
 #pragma pack(push, 1)
-struct WarpData
+struct WarpData final
 {
     int16_t c1, c2; // y1, y2 if a vertical warp, x1, x2 if horizontal
     uint16_t roomId, warpId:14; // room ID on level, warp ID on room
@@ -40,7 +41,7 @@ struct WarpData
 #pragma pack(pop)
 static_assert(sizeof(WarpData) == 8*sizeof(char), "WarpData was not correctly packed by the compiler!");
 
-struct RoomData final : util::non_copyable
+struct RoomData final
 {
 public:
     util::grid<uint8_t> mainLayer;

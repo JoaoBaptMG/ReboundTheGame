@@ -19,7 +19,7 @@ namespace props
     class BombCrate final : public ::GameObject
     {
         Sprite sprite;
-        std::shared_ptr<Chipmunk::Shape> shape;
+        std::shared_ptr<cp::Shape> shape;
         std::function<void(Bomb*)> bombHandler;
 
     public:

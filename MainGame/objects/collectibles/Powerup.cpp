@@ -74,7 +74,7 @@ bool Powerup::configure(const Powerup::ConfigStruct& config)
 
 void Powerup::setupPhysics()
 {
-    using namespace Chipmunk;
+    using namespace cp;
 
     collisionBody = std::make_shared<Body>(Body::Kinematic);
     collisionShape = std::make_shared<PolyShape>(collisionBody, std::vector<cpVect>{});

@@ -13,9 +13,9 @@
 #include <cppmunk/Arbiter.h>
 
 using namespace props;
-using namespace Chipmunk;
+using namespace cp;
 
-void PushableCrate::setupCollisionHandlers(Chipmunk::Space* space)
+void PushableCrate::setupCollisionHandlers(cp::Space* space)
 {
     static Space* lastSpaceSetup = nullptr;
 

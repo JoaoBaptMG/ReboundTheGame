@@ -2,10 +2,9 @@
 
 #include "objects/Player.hpp"
 
-#include <cppmunk/Arbiter.h>
-#include <cppmunk/Space.h>
+#include <cppmunk.h>
 
-using namespace Chipmunk;
+using namespace cp;
 
 void Collectible::setupCollisionHandlers(Space* space)
 {

@@ -21,11 +21,11 @@ using namespace std::literals::chrono_literals;
 size_t global_AbilityLevel = 0;
 
 constexpr float MaxHorSpeed = 400;
-constexpr float MaxHorSpeedEnhanced = 600;
+constexpr float MaxHorSpeedEnhanced = 520;
 constexpr float HorAcceleration = 800;
 
 constexpr float PeakJumpSpeed = 480;
-constexpr float PeakJumpSpeedEnhanced = 600;
+constexpr float PeakJumpSpeedEnhanced = 560;
 constexpr float DecayJumpSpeed = 300;
 
 constexpr float DashSpeed = 600;
@@ -59,7 +59,7 @@ bool Player::configure(const Player::ConfigStruct& config)
 
 void Player::setupPhysics()
 {
-    using namespace Chipmunk;
+    using namespace cp;
     
     auto body = std::make_shared<Body>(0.0, 0.0);
     playerShape = std::make_shared<CircleShape>(body, 32);
@@ -108,11 +108,11 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     bool onGround = false, wallHit = false;
 
-    body->eachArbiter([&,this] (Chipmunk::Arbiter arbiter)
+    body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
         cpFloat angle = cpvtoangle(arbiter.getNormal());
-        if (fabs(angle - 1.57079632679) < 0.1) onGround = true;
-        if (fabs(angle) < 0.1 || fabs(angle - 3.14159265359) < 0.1)
+        if (fabs(angle - 1.57079632679) < 0.52) onGround = true;
+        if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06)
             wallHit = true;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
@@ -224,6 +224,7 @@ void Player::dash()
     {
         case DashDir::Left: vel.x = -dashSpeed; break;
         case DashDir::Right: vel.x = +dashSpeed; break;
+        case DashDir::Up: if (abilityLevel >= 10) vel.y = -dashSpeed; break;
         default: break;
     }
 

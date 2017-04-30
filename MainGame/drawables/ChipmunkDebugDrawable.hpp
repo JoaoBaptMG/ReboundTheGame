@@ -5,10 +5,10 @@
 
 class ChipmunkDebugDrawable final : public sf::Drawable
 {
-    const Chipmunk::Space& debugSpace;
+    const cp::Space& debugSpace;
 
 public:
-    ChipmunkDebugDrawable(const Chipmunk::Space& space) : debugSpace(space) {}
+    ChipmunkDebugDrawable(const cp::Space& space) : debugSpace(space) {}
 
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

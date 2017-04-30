@@ -1,8 +1,10 @@
 #pragma once
 
 #include "utility/non_copyable_movable.hpp"
+#include "utility/generic_ptrs.hpp"
 #include <memory>
 #include <chrono>
+#include <SFML/System.hpp>
 
 class GameScene;
 class Renderer;
@@ -33,4 +35,5 @@ public:
 
 class GameObjectDescriptor;
 
+util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass);
 std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, const GameObjectDescriptor& descriptor);

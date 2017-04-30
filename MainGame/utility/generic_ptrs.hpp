@@ -81,6 +81,8 @@ namespace util
             return type == type_id<T>();
         }
 
+        bool empty() { return type == notype; }
+
         template <typename T>
         std::shared_ptr<T> try_convert()
         {

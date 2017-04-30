@@ -39,7 +39,7 @@ void Room::render(Renderer& renderer)
 
 void Room::generateRoomShapes(const RoomData& data)
 {
-    using namespace Chipmunk;
+    using namespace cp;
 
     clearShapes();
     

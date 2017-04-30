@@ -38,7 +38,7 @@ bool Rotator::configure(const Rotator::ConfigStruct &config)
 
 void Rotator::setupPhysics()
 {
-    using namespace Chipmunk;
+    using namespace cp;
     
     collisionBody = std::make_shared<Body>(Body::Kinematic);
     

@@ -28,7 +28,7 @@ class GameScene : public Scene
     ChipmunkDebugDrawable debug;
 #endif
     
-    Chipmunk::Space gameSpace;
+    cp::Space gameSpace;
     Room room;
     std::shared_ptr<LevelData> levelData;
 
@@ -45,8 +45,8 @@ public:
     GameScene(ResourceManager& manager);
     virtual ~GameScene() {}
 
-    Chipmunk::Space& getGameSpace() { return gameSpace; }
-    const Chipmunk::Space& getGameSpace() const { return gameSpace; }
+    cp::Space& getGameSpace() { return gameSpace; }
+    const cp::Space& getGameSpace() const { return gameSpace; }
 
     Room& getCurrentRoom() { return room; }
     const Room& getCurrentRoom() const { return room; }

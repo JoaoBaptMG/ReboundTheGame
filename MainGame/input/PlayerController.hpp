@@ -8,11 +8,11 @@ class PlayerController final : util::non_copyable
 {
     InputManager::CallbackEntry leftEntry, rightEntry, upEntry, downEntry, jumpEntry, dashEntry, bombEntry;
 
-    bool isLeft, isRight, isUp, isDown;
-    bool curJump, lastJump1, lastJump2;
-    bool curDash, lastDash1, lastDash2;
-    bool curBomb, lastBomb1, lastBomb2;
-    sf::Vector2f moveVector;
+    bool isLeft = false, isRight = false, isUp = false, isDown = false;
+    bool curJump = false, lastJump1 = false, lastJump2 = false;
+    bool curDash = false, lastDash1 = false, lastDash2 = false;
+    bool curBomb = false, lastBomb1 = false, lastBomb2 = false;
+    sf::Vector2f moveVector{};
 
 public:
     enum Actions { Left, Right, Up, Down, Jump, Dash, Bomb };
@@ -32,6 +32,6 @@ public:
     
     inline sf::Vector2f getMovementVector() const { return moveVector; }
 
-    bool active;
+    bool active = true;
 };
 

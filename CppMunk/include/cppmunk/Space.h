@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 namespace cp
 {
@@ -155,9 +156,9 @@ namespace cp
         std::shared_ptr<Body> findBody(cpBody*) const;
         std::shared_ptr<Constraint> findConstraint(cpConstraint*) const;
 
-        std::vector<std::shared_ptr<Shape>> _shapes;
-        std::vector<std::shared_ptr<Body>> _bodies;
-        std::vector<std::shared_ptr<Constraint>> _constraints;
+        std::unordered_map<cpShape*, std::shared_ptr<Shape>> _shapes;
+        std::unordered_map<cpBody*, std::shared_ptr<Body>> _bodies;
+        std::unordered_map<cpConstraint*, std::shared_ptr<Constraint>> _constraints;
 
         struct SegmentQueryData
         {

@@ -20,7 +20,7 @@ namespace enemies
         cpBB wanderingArea;
 
         Sprite sprite;
-        std::shared_ptr<Chipmunk::Shape> collisionShapes[3];
+        std::shared_ptr<cp::Shape> collisionShapes[3];
 
     public:
         Rotator(GameScene& gameScene);

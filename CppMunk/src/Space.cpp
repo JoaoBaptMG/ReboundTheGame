@@ -19,7 +19,7 @@ namespace cp
         _staticBody->_body = nullptr;
         
         for (auto& shape : _shapes)
-            cpSpaceRemoveShape(_space, *shape);
+            cpSpaceRemoveShape(_space, shape.first);
         _shapes.clear();
         cpSpaceFree(_space);
     }
@@ -37,80 +37,60 @@ namespace cp
     void Space::add(std::shared_ptr<Shape> shape)
     {
         cpSpaceAddShape(_space, *shape);
-        _shapes.push_back(shape);
+        _shapes.emplace(*shape, shape);
     }
     
     void Space::add(std::shared_ptr<Body> body)
     {
         cpSpaceAddBody(_space, *body);
-        _bodies.push_back(body);
+        _bodies.emplace(*body, body);
     }
  
     void Space::add(std::shared_ptr<Constraint> constraint)
     {
         cpSpaceAddConstraint(_space, *constraint);
-        _constraints.push_back(constraint);
+        _constraints.emplace(*constraint, constraint);
     }
     
     void Space::remove(std::shared_ptr<Shape> shape)
     {
         cpSpaceRemoveShape(_space, *shape);
-        _shapes.erase(std::find(_shapes.begin(), _shapes.end(), shape));
+        _shapes.erase(*shape);
     }
     
     void Space::remove(std::shared_ptr<Body> body)
     {
         cpSpaceRemoveBody(_space, *body);
-        _bodies.erase(std::find(_bodies.begin(), _bodies.end(), body));
+        _bodies.erase(*body);
     }
 
     void Space::remove(std::shared_ptr<Constraint> constraint)
     {
         cpSpaceRemoveConstraint(_space, *constraint);
-        _constraints.erase(std::find(_constraints.begin(), _constraints.end(), constraint));
+        _constraints.erase(*constraint);
     }
     
     std::shared_ptr<Shape> Space::findShape(cpShape* shape) const
     {
-        if (!shape) {
-            return std::shared_ptr<Shape>((Shape*)0);
-        }
-        auto it = std::find_if(_shapes.begin(), _shapes.end(),
-                          [&shape](const std::shared_ptr<Shape>& s)
-                          {
-                              return *s == shape;
-                          });
+        if (!shape) return std::shared_ptr<Shape>();
+        auto it = _shapes.find(shape);
         assert(it != _shapes.end());
-        return *it;
+        return it->second;
     }
     
     std::shared_ptr<Body> Space::findBody(cpBody* body) const
     {
-        if (!body) {
-            return std::shared_ptr<Body>((Body*)0);
-        }
-        auto it = std::find_if(_bodies.begin(), _bodies.end(),
-                          [&body](const std::shared_ptr<Body>& b)
-                          {
-                              return *b == body;
-                          });
-        assert(it != _bodies.end());
-        return *it;
+        if (!body) return std::shared_ptr<Body>();
+        auto it = _bodies.find(body);
+        return it->second;
     }
     
     std::shared_ptr<Constraint> Space::findConstraint(cpConstraint* constraint) const
     {
-        if (!constraint)
-        {
-            return std::shared_ptr<Constraint>((Constraint*)0);
-        }
-        auto it = std::find_if(_constraints.begin(), _constraints.end(),
-                          [&constraint](const std::shared_ptr<Constraint>& c)
-        {
-                              return *c == constraint;
-                          });
+        if (!constraint) return std::shared_ptr<Constraint>();
+        auto it = _constraints.find(constraint);
         assert(it != _constraints.end());
-        return *it;
+        return it->second;
     }
        
     void Space::segmentQuery(cpVect a,

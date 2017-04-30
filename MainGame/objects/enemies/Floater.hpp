@@ -21,7 +21,7 @@ namespace enemies
         Sprite sprite;
 
         std::chrono::steady_clock::time_point initialTime;
-        std::shared_ptr<Chipmunk::Shape> collisionShapes[4];
+        std::shared_ptr<cp::Shape> collisionShapes[4];
 
     public:
         Floater(GameScene& gameScene);

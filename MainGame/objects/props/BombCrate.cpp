@@ -14,7 +14,7 @@
 #include <cppmunk/Arbiter.h>
 
 using namespace props;
-using namespace Chipmunk;
+using namespace cp;
 
 BombCrate::BombCrate(GameScene& gameScene) : GameObject(gameScene),
     sprite(gameScene.getResourceManager().load<sf::Texture>("bomb-crate.png"))

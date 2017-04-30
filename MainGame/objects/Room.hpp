@@ -14,7 +14,7 @@ class GameObject;
 
 class Room final : util::non_copyable
 {
-    std::vector<std::shared_ptr<Chipmunk::Shape>> roomShapes;
+    std::vector<std::shared_ptr<cp::Shape>> roomShapes;
 
     Tilemap mainLayerTilemap;
     GameScene& gameScene;

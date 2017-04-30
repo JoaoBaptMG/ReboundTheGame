@@ -13,10 +13,10 @@ class Player;
 
 class Enemy : public GameObject
 {
-    static void setupCollisionHandlers(Chipmunk::Space* space);
+    static void setupCollisionHandlers(cp::Space* space);
     
 protected:
-    std::shared_ptr<Chipmunk::Body> collisionBody;
+    std::shared_ptr<cp::Body> collisionBody;
     
 public:
     Enemy(GameScene& scene);

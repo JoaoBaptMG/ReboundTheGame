@@ -7,7 +7,7 @@
 #include "cppmunk/CircleShape.h"
 #include "cppmunk/Constraint.h"
 #include "cppmunk/DampedRotarySpring.h"
-#include "cppmunk/DampedString.h"
+#include "cppmunk/DampedSpring.h"
 #include "cppmunk/GearJoint.h"
 #include "cppmunk/GrooveJoint.h"
 #include "cppmunk/LayerMask.h"

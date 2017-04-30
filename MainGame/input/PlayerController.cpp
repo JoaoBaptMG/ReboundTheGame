@@ -1,7 +1,6 @@
 #include "PlayerController.hpp"
 
 PlayerController::PlayerController(InputManager &inputManager)
-    : active(true)
 {
     leftEntry = inputManager.registerCallback(Actions::Left,
         [this](ActionState state) { isLeft = state == ActionState::Down; });

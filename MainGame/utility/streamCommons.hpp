@@ -10,13 +10,16 @@
 
 namespace util
 {
+    template <typename T>
+    struct is_optimization_viable : public std::is_arithmetic<T> {};
+    
     struct VarLength
     {
         size_t& target;
         VarLength(size_t& t) : target(t) {}
     };
 
-    template <typename T, typename std::enable_if<std::is_pod<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, T& value)
     {
         return stream.read((void*)&value, sizeof(T)) == sizeof(T);
@@ -39,7 +42,7 @@ namespace util
     template <typename T>
     bool readFromStream(sf::InputStream &stream, std::basic_string<T> &value);
 
-    template <typename T, typename std::enable_if<std::is_pod<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
         size_t size;
@@ -55,7 +58,7 @@ namespace util
         return true;
     }
 
-    template <typename T, typename std::enable_if<!std::is_pod<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
         size_t size;
@@ -83,7 +86,7 @@ namespace util
         return true;
     }
 
-    template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, grid<T> &value)
     {
         size_t width, height;
@@ -101,7 +104,7 @@ namespace util
         return true;
     }
 
-    template <typename T, typename std::enable_if<!std::is_standard_layout<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, grid<T> &value)
     {
         size_t width, height;
@@ -114,7 +117,7 @@ namespace util
             if (!readFromStream(stream, val))
                 return false;
 
-        newVal.swap(value);
+        swap(newVal, value);
         return true;
     }
 
@@ -124,7 +127,7 @@ namespace util
         return readFromStream(stream, pair.first) && readFromStream(stream, pair.second);
     }
 
-    template <typename T, typename... Ts>
+    template <typename T, typename... Ts, typename std::enable_if_t<(sizeof...(Ts) > 0), int> = 0>
     bool readFromStream(sf::InputStream& stream, T&& val, Ts&&... nexts)
     {
         return readFromStream(stream, std::forward<T>(val)) && readFromStream(stream, std::forward<Ts>(nexts)...);

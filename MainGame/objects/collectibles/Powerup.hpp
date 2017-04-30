@@ -15,7 +15,7 @@ namespace collectibles
     {
         sf::VertexArray vertices;
         std::shared_ptr<sf::Texture> texture;
-        std::shared_ptr<Chipmunk::Shape> collisionShape;
+        std::shared_ptr<cp::Shape> collisionShape;
         size_t abilityLevel;
 
         float rotationAngle;

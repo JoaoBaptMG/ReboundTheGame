@@ -5,17 +5,16 @@
 
 #include <memory>
 #include <chipmunk.h>
-#include <cppmunk/Body.h>
-#include <cppmunk/Space.h>
+#include <cppmunk.h>
 
 class Player;
 
 class Collectible : public GameObject
 {
-    static void setupCollisionHandlers(Chipmunk::Space* space);
+    static void setupCollisionHandlers(cp::Space* space);
 
 protected:
-    std::shared_ptr<Chipmunk::Body> collisionBody;
+    std::shared_ptr<cp::Body> collisionBody;
 
 public:
     Collectible(GameScene& scene);

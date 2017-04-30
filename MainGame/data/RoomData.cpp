@@ -1,16 +1,16 @@
 #include "RoomData.hpp"
 #include <cstring>
 #include <cstdint>
-#include "../utility/streamCommons.hpp"
+#include "utility/streamCommons.hpp"
+#include "objects/GameObject.hpp"
 
 bool readFromStream(sf::InputStream& stream, GameObjectDescriptor& descriptor)
 {
     using namespace util;
 
-    size_t size;
-    if (!readFromStream(stream, descriptor.klass, VarLength(size))) return false;
-    descriptor.parameters = Memory(size);
-    return stream.read(descriptor.parameters.get_ptr(), size) == size;
+    if (!readFromStream(stream, descriptor.klass)) return false;
+    descriptor.parameters = readParametersFromStream(stream, descriptor.klass);
+    return !descriptor.parameters.empty();
 }
 
 bool readFromStream(sf::InputStream &stream, RoomData& room)

@@ -29,7 +29,7 @@ bool Floater::configure(const Floater::ConfigStruct& config)
 
 void Floater::setupPhysics()
 {
-    using namespace Chipmunk;
+    using namespace cp;
     
     collisionBody = std::make_shared<Body>(Body::Kinematic);
     

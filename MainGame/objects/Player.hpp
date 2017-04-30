@@ -23,7 +23,7 @@ extern size_t global_AbilityLevel;
 class Player final : public GameObject
 {
     Sprite sprite;
-    std::shared_ptr<Chipmunk::Shape> playerShape;
+    std::shared_ptr<cp::Shape> playerShape;
     
     float angle;
     bool wallJumpPressedBefore, doubleJumpConsumed;

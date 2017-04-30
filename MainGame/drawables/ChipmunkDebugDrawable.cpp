@@ -106,7 +106,7 @@ void ChipmunkDebugDrawable::draw(sf::RenderTarget& target, sf::RenderStates stat
     renderData{target, states};
 
     // hack
-    cpSpace* space = const_cast<Chipmunk::Space&>(debugSpace);
+    cpSpace* space = const_cast<cp::Space&>(debugSpace);
     cpSpaceEachShape(space, [](cpShape* shape, void* data)
     {
         RenderData& renderData = *(RenderData*)data;

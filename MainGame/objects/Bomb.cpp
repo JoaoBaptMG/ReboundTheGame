@@ -7,7 +7,7 @@
 
 using namespace std::literals::chrono_literals;
 
-constexpr auto DetonationTime = 150 * UpdateFrequency;
+constexpr auto DetonationTime = 48 * UpdateFrequency;
 
 Bomb::Bomb(GameScene& scene, cpVect pos, std::chrono::steady_clock::time_point initialTime)
     : GameObject(scene), position(pos), detonationTime(initialTime + DetonationTime),

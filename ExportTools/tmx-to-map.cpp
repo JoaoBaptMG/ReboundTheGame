@@ -20,6 +20,12 @@ auto findObjectLayer(XMLHandle map, const char* name)
     return XMLHandle(nullptr);
 }
 
+auto nextcsv(const char* ch)
+{
+    auto ptr = strchr(ch, ',');
+    return ptr ? ptr+1 : nullptr;
+}
+
 int tmxToMap(string inFile, string outFile)
 {
 	XMLDocument doc;
@@ -67,9 +73,9 @@ int tmxToMap(string inFile, string outFile)
 
 		while (isspace(*txt)) txt++;
 
-		for (auto ch = txt; ch-1; ch = strchr(ch, ',')+1)
+		for (auto ch = txt; ch; ch = nextcsv(ch))
 		{
-			uint8_t v = atoi(ch)-1;
+			uint8_t v = strtoul(ch, nullptr, 10)-1; // NOT UB!
             if (v > 13) v = 13;
 			out.write((const char*)&v, sizeof(uint8_t));
 		}
@@ -88,7 +94,6 @@ int tmxToMap(string inFile, string outFile)
         write_varlength(objects, tsize);
         objects.write(typeStr, tsize * sizeof(char));
 
-        uint32_t strSize = 2 * sizeof(int16_t);
         stringstream curObj(stringstream::binary | stringstream::out);
 
         int16_t posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
@@ -109,25 +114,21 @@ int tmxToMap(string inFile, string outFile)
             {
                 int32_t val = atol(str);
                 curObj.write((const char*)&val, sizeof(int32_t));
-                strSize += sizeof(int32_t);
             }
             else if (pelm->Attribute("type", "float"))
             {
                 float val = strtof(str, nullptr);
                 curObj.write((const char*)&val, sizeof(float));
-                strSize += sizeof(float);
             }
             else if (pelm->Attribute("type", "bool"))
             {
                 bool val = !strcmp(str, "true");
                 curObj.write((const char*)&val, sizeof(bool));
-                strSize += sizeof(bool);
             }
             else if (pelm->Attribute("type", "color"))
             {
                 uint32_t val = strtoul(str+1, nullptr, 16);
                 curObj.write((const char*)&val, sizeof(uint32_t));
-                strSize += sizeof(uint32_t);
             }
             else
             {
@@ -141,26 +142,21 @@ int tmxToMap(string inFile, string outFile)
                 {
                     int16_t width = elm->IntAttribute("width");
                     curObj.write((const char*)&width, sizeof(int16_t));
-                    strSize += sizeof(int16_t);
                 }
                 else if (!strcasecmp(str, "#height"))
                 {
                     int16_t height = elm->IntAttribute("height");
                     curObj.write((const char*)&height, sizeof(int16_t));
-                    strSize += sizeof(int16_t);
                 }
                 else
                 {
                     uint32_t size = strlen(str);
                     auto s = write_varlength(curObj, size);
                     curObj.write(str, size * sizeof(char));
-
-                    strSize += s + size * sizeof(char);
                 }
             }
         }
 
-        write_varlength(objects, strSize);
         objects << curObj.str();
         objTotal++;
     }
@@ -175,7 +171,7 @@ int tmxToMap(string inFile, string outFile)
     for (auto obj = warps.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
     {
         auto warp = obj.ToElement();
-        uint16_t id = atol(warp->Attribute("name"));
+        uint16_t id = strtoul(warp->Attribute("name"), nullptr, 10);
         if (maxId < id) maxId = id;
     }
 
@@ -204,19 +200,19 @@ int tmxToMap(string inFile, string outFile)
         if (dir == -1) continue;
 
         auto warpNameCode = warp->Attribute("name");
-        uint16_t id = atol(warpNameCode);
+        uint16_t id = strtoul(warpNameCode, nullptr, 10);
 
         auto warpRoomDest = strstr(warpNameCode, "->");
         if (warpRoomDest) warpRoomDest += 2;
         else continue;
 
-        uint16_t roomId = atol(warpRoomDest);
+        uint16_t roomId = strtoul(warpRoomDest, nullptr, 10);
 
         auto warpIdDest = strchr(warpRoomDest, '.');
         if (warpIdDest) warpIdDest += 1;
         else continue;
 
-        uint16_t warpId = atol(warpIdDest) | (dir << 14);
+        uint16_t warpId = strtoul(warpIdDest, nullptr, 10) | (dir << 14);
         
         int16_t c1, c2;
 

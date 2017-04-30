@@ -20,7 +20,7 @@ public:
 
     LevelData& operator=(LevelData&& other) noexcept { swap(*this, other); return *this; }
 
-    friend void swap(LevelData& r1, LevelData &r2)
+    friend void swap(LevelData& r1, LevelData &r2) noexcept
     {
         using std::swap;
         swap(r1.levelNumber, r2.levelNumber);

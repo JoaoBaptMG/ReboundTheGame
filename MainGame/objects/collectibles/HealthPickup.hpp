@@ -14,7 +14,7 @@ namespace collectibles
     class HealthPickup final : public ::Collectible
     {
         Sprite sprite;
-        std::shared_ptr<Chipmunk::Shape> collisionShape;
+        std::shared_ptr<cp::Shape> collisionShape;
         size_t healthAmount;
 
     public:

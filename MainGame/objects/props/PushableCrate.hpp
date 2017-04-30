@@ -16,10 +16,10 @@ namespace props
 {
     class PushableCrate final : public ::GameObject
     {
-        static void setupCollisionHandlers(Chipmunk::Space* space);
+        static void setupCollisionHandlers(cp::Space* space);
 
         sf::RectangleShape rect;
-        std::shared_ptr<Chipmunk::Shape> shape;
+        std::shared_ptr<cp::Shape> shape;
 
     public:
         PushableCrate(GameScene& scene);

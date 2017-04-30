@@ -5,7 +5,7 @@
 #include <cppmunk/Arbiter.h>
 #include <cppmunk/Space.h>
 
-using namespace Chipmunk;
+using namespace cp;
 
 void Enemy::setupCollisionHandlers(Space* space)
 {

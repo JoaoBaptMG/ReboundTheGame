@@ -29,7 +29,7 @@ bool HealthPickup::configure(const HealthPickup::ConfigStruct& config)
 
 void HealthPickup::setupPhysics()
 {
-    using namespace Chipmunk;
+    using namespace cp;
 
     collisionBody = std::make_shared<Body>(Body::Kinematic);
     collisionShape = std::make_shared<CircleShape>(collisionBody, 16, cpVect{ 0.0, 0.0 });
