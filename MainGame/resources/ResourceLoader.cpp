@@ -6,6 +6,7 @@
 
 #include "data/RoomData.hpp"
 #include "data/LevelData.hpp"
+#include "data/TileSet.hpp"
 
 using namespace util;
 using namespace ResourceLoader;
@@ -24,6 +25,7 @@ generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
 
 const std::unordered_map<std::string,loadFunc> loadFuncs =
 {
+    { "ts",  loadGenericResource<TileSet> },
     { "lvl", loadGenericResource<LevelData> },
     { "map", loadGenericResource<RoomData> },
     { "png", loadGenericResource<sf::Texture> },

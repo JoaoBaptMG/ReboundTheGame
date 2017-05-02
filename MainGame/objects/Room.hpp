@@ -2,6 +2,7 @@
 
 #include "drawables/Tilemap.hpp"
 #include "data/RoomData.hpp"
+#include "data/TileSet.hpp"
 #include "objects/Player.hpp"
 
 #include <cppmunk/Shape.h>
@@ -16,6 +17,7 @@ class Room final : util::non_copyable
 {
     std::vector<std::shared_ptr<cp::Shape>> roomShapes;
 
+    std::shared_ptr<TileSet> tileSet;
     Tilemap mainLayerTilemap;
     GameScene& gameScene;
 

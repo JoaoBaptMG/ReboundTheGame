@@ -8,11 +8,11 @@ size_t write_varlength(ostream& out, size_t val)
 {
     stack<uint8_t> chunks;
 
-    while (val)
+    do
     {
         chunks.push(val % 128);
         val /= 128;
-    }
+    } while (val);
 
     size_t ret = chunks.size() * sizeof(uint8_t);
 

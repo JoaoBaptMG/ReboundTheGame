@@ -43,26 +43,10 @@ static_assert(sizeof(WarpData) == 8*sizeof(char), "WarpData was not correctly pa
 
 struct RoomData final
 {
-public:
     util::grid<uint8_t> mainLayer;
-    std::string textureName;
+    std::string tilesetName;
     std::vector<GameObjectDescriptor> gameObjectDescriptors;
     std::vector<WarpData> warps;
-
-    RoomData() : mainLayer(), textureName() {}
-    RoomData(RoomData&& other) noexcept : RoomData() { swap(*this, other); }
-    ~RoomData() {}
-
-    RoomData& operator=(RoomData&& other) noexcept { swap(*this, other); return *this; }
-
-    friend void swap(RoomData& r1, RoomData &r2) noexcept
-    {
-        using std::swap;
-        swap(r1.mainLayer, r2.mainLayer);
-        swap(r1.textureName, r2.textureName);
-        swap(r1.gameObjectDescriptors, r2.gameObjectDescriptors);
-        swap(r1.warps, r2.warps);
-    }
 
     bool loadFromStream(sf::InputStream &stream);
 };

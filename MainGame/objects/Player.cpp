@@ -36,7 +36,7 @@ constexpr size_t HealthIncr = 8;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
-    dashDirection(DashDir::None), doubleJumpConsumed(false),
+    dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
 {
     isPersistent = true;
@@ -65,13 +65,23 @@ void Player::setupPhysics()
     playerShape = std::make_shared<CircleShape>(body, 32);
     playerShape->setDensity(1);
     playerShape->setElasticity(1);
-    playerShape->setCollisionType(Player::CollisionType);
+    playerShape->setCollisionType(CollisionType);
 
     gameScene.getGameSpace().add(body);
     gameScene.getGameSpace().add(playerShape);
 
     body->setMoment(std::numeric_limits<cpFloat>::infinity());
     body->setUserData((void*)this);
+
+    gameScene.getGameSpace().addWildcardCollisionHandler(CollisionType,
+        [] (Arbiter, Space&) { return true; },
+        [] (Arbiter arbiter, Space&)
+        {
+            cpFloat angle = cpvtoangle(arbiter.getNormal());
+            if (fabs(angle - 1.57079632679) < 0.52)
+                arbiter.setRestitution(0);
+            return true;
+        }, [] (Arbiter, Space&) {}, [] (Arbiter, Space&) {});
 }
 
 Player::~Player()
@@ -122,6 +132,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     if (onGround)
     {
         wallJumpPressedBefore = false;
+        dashConsumed = false;
         doubleJumpConsumed = false;
         if (controller.isJumpPressed()) jump();
     }
@@ -150,7 +161,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
         if (abilityLevel >= 3)
         {
-            if (controller.isDashPressed())
+            if (!dashConsumed && controller.isDashPressed())
             {
                 if (vec.x > 0.25) dashDirection = DashDir::Right;
                 else if (vec.x < -0.25) dashDirection = DashDir::Left;
@@ -158,7 +169,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
                 if (dashDirection != DashDir::None) dashTime = curTime;
             }
-            else if (controller.isDashReleased()) { reset(dashTime); dashDirection = DashDir::None; }
+            else if (controller.isDashReleased())
+            {
+                 reset(dashTime);
+                 dashDirection = DashDir::None;
+                 dashConsumed = true;
+            }
 
             auto dashInterval = (abilityLevel >= 10 ? 90 : 40) * UpdateFrequency;
             if (curTime - dashTime < dashInterval) dash();

@@ -26,7 +26,7 @@ class Player final : public GameObject
     std::shared_ptr<cp::Shape> playerShape;
     
     float angle;
-    bool wallJumpPressedBefore, doubleJumpConsumed;
+    bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
     
     std::chrono::steady_clock::time_point
         wallJumpTriggerTime, dashTime, curTime;

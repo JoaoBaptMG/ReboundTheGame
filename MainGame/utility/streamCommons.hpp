@@ -11,7 +11,10 @@
 namespace util
 {
     template <typename T>
-    struct is_optimization_viable : public std::is_arithmetic<T> {};
+    struct is_optimization_viable : public std::is_trivial<T> {};
+
+    template <typename T>
+    [[deprecated]] void PrintTemplateSpecializationFor() {}
     
     struct VarLength
     {
@@ -45,6 +48,8 @@ namespace util
     template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
+        PrintTemplateSpecializationFor<T>();
+        
         size_t size;
 
         if (!readFromStream(stream, VarLength(size)))
@@ -89,6 +94,8 @@ namespace util
     template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, grid<T> &value)
     {
+        PrintTemplateSpecializationFor<T>();
+        
         size_t width, height;
 
         if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))

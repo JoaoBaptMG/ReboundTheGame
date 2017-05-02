@@ -1,6 +1,5 @@
 #include "RoomData.hpp"
-#include <cstring>
-#include <cstdint>
+
 #include "utility/streamCommons.hpp"
 #include "objects/GameObject.hpp"
 
@@ -17,7 +16,7 @@ bool readFromStream(sf::InputStream &stream, RoomData& room)
 {
     using namespace util;
 
-    return readFromStream(stream, room.textureName, room.mainLayer, room.gameObjectDescriptors, room.warps);
+    return readFromStream(stream, room.tilesetName, room.mainLayer, room.gameObjectDescriptors, room.warps);
 }
 
 bool RoomData::loadFromStream(sf::InputStream& stream)

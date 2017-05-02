@@ -43,18 +43,22 @@ int tmxToMap(string inFile, string outFile)
 	auto map = docHandle.FirstChildElement("map");
 	auto tset = map.FirstChildElement("tileset");
 
-	const char* imgStr = nullptr;
-	auto img = tset.FirstChildElement("image");
-	if (img.ToElement()) imgStr = img.ToElement()->Attribute("source");
+	const char* tilesetName = nullptr;
+	auto props = map.FirstChildElement("properties");
+    for (auto prop = props.FirstChildElement("property"); prop.ToElement(); prop = prop.NextSiblingElement("property"))
+    {
+        if (prop.ToElement()->Attribute("name", "tileset"))
+        {
+            tilesetName = prop.ToElement()->Attribute("value");
+            break;
+        }
+    }
 
-	if (imgStr)
+	if (tilesetName)
 	{
-        auto str = strrchr(imgStr, '/');
-        if (str) imgStr = str+1;
-
-        auto s = strlen(imgStr);
+        auto s = strlen(tilesetName);
 		write_varlength(out, s);
-		out.write(imgStr, s * sizeof(char));
+		out.write(tilesetName, s * sizeof(char));
 	}
     else write_varlength(out, 0);
 
