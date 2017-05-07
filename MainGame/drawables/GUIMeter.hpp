@@ -6,7 +6,7 @@
 
 enum class MeterSize { Small, Normal };
 
-class GUIMeter : public sf::Drawable
+class GUIMeter final : public sf::Drawable
 {
     std::shared_ptr<sf::Texture> icon;
     
