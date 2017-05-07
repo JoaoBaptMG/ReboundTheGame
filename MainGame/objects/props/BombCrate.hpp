@@ -24,7 +24,7 @@ namespace props
 
     public:
         BombCrate(GameScene& scene);
-        ~BombCrate();
+        virtual ~BombCrate();
 
         void setupPhysics();
 

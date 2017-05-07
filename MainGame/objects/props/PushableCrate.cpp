@@ -27,20 +27,16 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
                 auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
                 auto crate = static_cast<PushableCrate*>(cpBodyGetUserData(arbiter.getBodyB()));
                 if (player->canPushCrates())
-                {
-                    arbiter.setRestitution(0);
                     space.addPostStepCallback(nullptr, [=]
                     {
                         crate->shape->getBody()->setBodyType(CP_BODY_TYPE_DYNAMIC);
                     });
-                }
                 else space.addPostStepCallback(nullptr, [=]
                 {
                     crate->shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);
                 });
-                return true;
-            }, [](Arbiter, Space&) { return true; },
-            [](Arbiter, Space&) {}, [](Arbiter arbiter, Space&) {});
+                return cpArbiterCallWildcardBeginA(arbiter, space);
+            }, cpArbiterCallWildcardPreSolveA, cpArbiterCallWildcardPostSolveA, cpArbiterCallWildcardSeparateA);
         
         lastSpaceSetup = space;
     }
@@ -100,7 +96,7 @@ void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
     auto body = shape->getBody();
     auto vel = body->getVelocity();
 
-    if (vel.x < 0.1)
+    if (std::abs(vel.x) < 1.0)
     {
         vel.x = 0;
         body->setVelocity(vel);
@@ -108,7 +104,7 @@ void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
     else
     {
         auto sgn = vel.x > 0 ? -1.0 : vel.x < 0 ? 1.0 : 0.0;
-        body->applyForceAtLocalPoint(cpVect{ sgn * body->getMass(), 0 }, cpVect{0, 0});
+        body->applyForceAtLocalPoint(cpVect{ 18 * sgn * body->getMass(), 0 }, cpVect{0, 0});
     }
 }
 

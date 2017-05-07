@@ -10,6 +10,7 @@
 
 // Objects
 #include "objects/Player.hpp"
+#include "objects/Water.hpp"
 #include "objects/enemies/Floater.hpp"
 #include "objects/enemies/Rotator.hpp"
 #include "objects/collectibles/HealthPickup.hpp"
@@ -75,6 +76,9 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
 {
     // the player
     DEFINE_FACTORY(Player),
+
+    // environment
+    DEFINE_FACTORY(Water),
 
     // enemies
     DEFINE_FACTORY(enemies::Floater),

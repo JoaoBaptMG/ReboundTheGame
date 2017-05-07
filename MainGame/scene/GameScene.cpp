@@ -6,6 +6,7 @@
 #include "data/RoomData.hpp"
 
 #include <functional>
+#include <iterator>
 #include <SFML/System.hpp>
 
 template <typename T>
@@ -49,7 +50,7 @@ void GameScene::loadRoom(size_t id)
 void GameScene::addObject(std::unique_ptr<GameObject> obj)
 {
     if (!obj) return;
-    gameObjects.push_back(std::move(obj));
+    objectsToAdd.push_back(std::move(obj));
 }
 
 GameObject* GameScene::getObjectByName(std::string str)
@@ -82,6 +83,9 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
+
+    std::move(objectsToAdd.begin(), objectsToAdd.end(), std::back_inserter(gameObjects));
+    objectsToAdd.clear();
 
     gui.update(curTime);
 

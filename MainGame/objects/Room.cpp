@@ -48,7 +48,7 @@ void Room::update(std::chrono::steady_clock::time_point curTime) {}
 
 void Room::render(Renderer& renderer)
 {
-    renderer.pushDrawable(mainLayerTilemap, {}, 1);
+    renderer.pushDrawable(mainLayerTilemap, {}, 25);
 }
 
 void Room::clearShapes()

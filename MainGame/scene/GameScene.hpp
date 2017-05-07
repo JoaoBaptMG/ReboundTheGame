@@ -34,7 +34,7 @@ class GameScene : public Scene
 
     ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
-    std::vector<std::unique_ptr<GameObject>> gameObjects;
+    std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
 
     const PlayerController* playerController;
     sf::Vector2f offsetPos;

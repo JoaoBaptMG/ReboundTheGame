@@ -24,7 +24,7 @@ public:
     sf::FloatRect getTextureBounds() const;
 
     auto getTexture() const { return texture; }
-    void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex; }
+    void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex; setupVertices(); }
 
     virtual ~Sprite() {}
 };

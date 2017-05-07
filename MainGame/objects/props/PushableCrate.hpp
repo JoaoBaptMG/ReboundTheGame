@@ -23,7 +23,7 @@ namespace props
 
     public:
         PushableCrate(GameScene& scene);
-        ~PushableCrate();
+        virtual ~PushableCrate();
 
         void setupPhysics(float width, float height);
 

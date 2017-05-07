@@ -18,7 +18,7 @@ class Bomb final : public GameObject
 
 public:
     Bomb(GameScene& scene, cpVect pos, std::chrono::steady_clock::time_point initialTime);
-    ~Bomb() {}
+    virtual ~Bomb() {}
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;

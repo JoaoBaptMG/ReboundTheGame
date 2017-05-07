@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <limits>
+#include <iostream>
 #include <cppmunk/Body.h>
 #include <cppmunk/CircleShape.h>
 #include <cppmunk/Space.h>
@@ -18,30 +19,38 @@
 
 using namespace std::literals::chrono_literals;
 
-size_t global_AbilityLevel = 0;
+size_t global_AbilityLevel = 0; // TODO: factor this global out
 
 constexpr float MaxHorSpeed = 400;
-constexpr float MaxHorSpeedEnhanced = 520;
+constexpr float MaxHorSpeedEnhanced = 560;
 constexpr float HorAcceleration = 800;
 
 constexpr float PeakJumpSpeed = 480;
-constexpr float PeakJumpSpeedEnhanced = 560;
+constexpr float PeakJumpSpeedEnhanced = 600;
 constexpr float DecayJumpSpeed = 300;
 
 constexpr float DashSpeed = 600;
 constexpr float DashSpeedEnhanced = 800;
+
+constexpr float HardballFactor = 4;
+
+const auto DashInterval = 40 * UpdateFrequency;
+const auto DashIntervalEnhanced = 90 * UpdateFrequency;
 
 constexpr size_t BaseHealth = 208;
 constexpr size_t HealthIncr = 8;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
-    dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false),
+    dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
+    chargingForHardball(false), hardballEnabled(false), hardballShape(PlayerRadius),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
 {
     isPersistent = true;
 
     setName("player");
+    hardballShape.setOrigin(PlayerRadius, PlayerRadius);
+    upgradeToAbilityLevel(6);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -62,7 +71,7 @@ void Player::setupPhysics()
     using namespace cp;
     
     auto body = std::make_shared<Body>(0.0, 0.0);
-    playerShape = std::make_shared<CircleShape>(body, 32);
+    playerShape = std::make_shared<CircleShape>(body, PlayerRadius);
     playerShape->setDensity(1);
     playerShape->setElasticity(1);
     playerShape->setCollisionType(CollisionType);
@@ -82,6 +91,8 @@ void Player::setupPhysics()
                 arbiter.setRestitution(0);
             return true;
         }, [] (Arbiter, Space&) {}, [] (Arbiter, Space&) {});
+
+    printf("mass = %g\n", body->getMass());
 }
 
 Player::~Player()
@@ -104,6 +115,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     auto vel = body->getVelocity();
     auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x;
+    if (hardballOnAir()) dest /= HardballFactor;
 
     if (std::abs(vel.x - dest) < 6.0)
     {
@@ -134,14 +146,44 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
-        if (controller.isJumpPressed()) jump();
+        if (controller.isJumpPressed() && !onWater()) jump();
+        
+        if (abilityLevel >= 7)
+        {
+            if (controller.isDashPressed() && vec.y > 0.5)
+            {
+                chargingForHardball = true;
+                hardballTime = curTime;
+            }
+            else if (controller.isDashReleased())
+            {
+                chargingForHardball = false;
+                reset(hardballTime);
+            }
+
+            if (chargingForHardball)
+            {
+                if (vec.y <= 0.5)
+                {
+                    reset(hardballTime);
+                    chargingForHardball = false;
+                }
+                else if (curTime - hardballTime >= 40 * UpdateFrequency)
+                {
+                    reset(hardballTime);
+                    hardballEnabled = !hardballEnabled;
+                    chargingForHardball = false;
+                    setHardballSprite();
+                }
+            }
+        }
     }
     else
     {
         if (controller.isJumpReleased()) decayJump();
         else if (controller.isJumpPressed())
         {
-            if (abilityLevel >= 1)
+            if (abilityLevel >= 1 && !hardballOnAir())
             {
                 if (!wallJumpPressedBefore && curTime - wallJumpTriggerTime < 4 * UpdateFrequency)
                     wallJump();
@@ -152,14 +194,14 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 }
             }
 
-            if (abilityLevel >= 4 && !doubleJumpConsumed)
+            if (abilityLevel >= 4 && !doubleJumpConsumed && !onWater() && !hardballOnAir())
             {
                 jump();
                 doubleJumpConsumed = true;
             }
         }
 
-        if (abilityLevel >= 3)
+        if (abilityLevel >= 3 && !hardballOnAir())
         {
             if (!dashConsumed && controller.isDashPressed())
             {
@@ -176,12 +218,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                  dashConsumed = true;
             }
 
-            auto dashInterval = (abilityLevel >= 10 ? 90 : 40) * UpdateFrequency;
+            auto dashInterval = abilityLevel >= 10 ? DashIntervalEnhanced : DashInterval;
             if (curTime - dashTime < dashInterval) dash();
         }
     }
 
-    if (wallHit && abilityLevel >= 1)
+    if (wallHit && abilityLevel >= 1 && !hardballOnAir())
     {
         if (wallJumpPressedBefore)
         {
@@ -196,6 +238,19 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (controller.isBombPressed() && abilityLevel >= 5) lieBomb(curTime);
 
+    if (onWater())
+    {
+        // buoyancy
+        auto force = -gameScene.getGameSpace().getGravity() * 1.6 * waterArea;
+        body->applyImpulseAtLocalPoint(force * toSeconds<cpFloat>(UpdateFrequency), { 0, 0 });
+
+        //drag
+        auto damping = exp(-3.3 * toSeconds<cpFloat>(UpdateFrequency) * (waterArea/PlayerArea));
+        body->applyImpulseAtLocalPoint(body->getVelocity() * (damping-1) * PlayerArea, { 0, 0 });
+
+        if (controller.isJumpPressed() && canWaterJump()) jump();
+    }
+
     angle += radiansToDegrees(body->getVelocity().x * toSeconds<float>(UpdateFrequency) / 32);
     angle -= 360 * roundf(angle/360);
 }
@@ -203,14 +258,18 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 void Player::jump()
 {
     auto body = playerShape->getBody();
-    auto y = -(abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed) - body->getVelocity().y;
+    auto dest = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
+    if (hardballOnAir()) dest /= sqrt(HardballFactor);
+    auto y = -dest - body->getVelocity().y;
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
 }
 
 void Player::decayJump()
 {
     auto body = playerShape->getBody();
-    auto y = std::max(-DecayJumpSpeed - body->getVelocity().y, 0.0);
+    auto dest = DecayJumpSpeed;
+    if (hardballOnAir()) dest /= HardballFactor;
+    auto y = std::max(-dest - body->getVelocity().y, 0.0);
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpVect{0, 0});
 }
 
@@ -254,6 +313,12 @@ void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
     gameScene.addObject(std::move(bomb));
 }
 
+void Player::setHardballSprite()
+{
+    auto name = hardballEnabled ? "player-hard.png" : "player.png";
+    sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
+}
+
 void Player::heal(size_t amount)
 {
     health += amount;
@@ -266,12 +331,35 @@ void Player::damage(size_t amount)
     else health -= amount;
 }
 
+bool Player::onWater() const
+{
+    return !hardballEnabled && waterArea > 0;
+}
+
+bool Player::canWaterJump() const
+{
+    return waterArea < 0.7 * PlayerArea;
+}
+
+bool Player::hardballOnAir() const
+{
+    return waterArea <= 0 && hardballEnabled;
+}
+
 void Player::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
     renderer.currentTransform.rotate(angle);
-    renderer.pushDrawable(sprite, {}, 22);
+    renderer.pushDrawable(sprite, {}, 16);
+
+    if (chargingForHardball)
+    {
+        auto blend = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(40 * UpdateFrequency);
+        hardballShape.setFillColor(sf::Color(255, 255, 255, 255 * blend));
+        renderer.pushDrawable(hardballShape, {}, 17);
+    }
+    
     renderer.popTransform();
 }
 

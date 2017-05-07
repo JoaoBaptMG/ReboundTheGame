@@ -20,25 +20,31 @@ void reset(T& val) { val = T(); }
 
 extern size_t global_AbilityLevel;
 
+constexpr cpFloat PlayerRadius = 32;
+constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
+
 class Player final : public GameObject
 {
     Sprite sprite;
+    sf::CircleShape hardballShape;
     std::shared_ptr<cp::Shape> playerShape;
     
     float angle;
     bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
+    bool chargingForHardball, hardballEnabled;
     
     std::chrono::steady_clock::time_point
-        wallJumpTriggerTime, dashTime, curTime;
+        wallJumpTriggerTime, dashTime, hardballTime, curTime;
 
     enum class DashDir { None, Left, Right, Up } dashDirection;
 
     size_t abilityLevel;
     size_t health, maxHealth;
+    cpFloat waterArea;
 
 public:
     Player(GameScene &scene);
-    ~Player();
+    virtual ~Player();
 
     void setupPhysics();
 
@@ -70,11 +76,18 @@ public:
         global_AbilityLevel = abilityLevel;
     }
 
+    bool onWater() const;
+    bool canWaterJump() const;
+    void addToWaterArea(cpFloat area) { waterArea += area; }
+
     void jump();
     void decayJump();
     void wallJump();
     void dash();
     void lieBomb(std::chrono::steady_clock::time_point curTime);
+
+    void setHardballSprite();
+    bool hardballOnAir() const;
 
     static constexpr cpCollisionType CollisionType = 'plyr';
 

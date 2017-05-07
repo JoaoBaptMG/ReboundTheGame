@@ -33,6 +33,8 @@ namespace cp
         cpVect getPointA(int i) const { return cpArbiterGetPointA(arbiter, i); }
         cpVect getPointB(int i) const { return cpArbiterGetPointB(arbiter, i); }
         cpFloat getDepth(int i) const { return cpArbiterGetDepth(arbiter, i); }
+
+        operator cpArbiter*() const { return arbiter; }
         
     private:
         cpArbiter* arbiter;

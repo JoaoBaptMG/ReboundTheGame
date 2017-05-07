@@ -3,4 +3,5 @@
 <level number="1" song="z3.breakout.ogg">
     <room id="0" name="room0" starting="true"/>
     <room id="1" name="room1"/>
+    <room id="2" name="room2"/>
 </level>
