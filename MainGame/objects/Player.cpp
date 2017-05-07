@@ -32,7 +32,8 @@ constexpr float DecayJumpSpeed = 300;
 constexpr float DashSpeed = 600;
 constexpr float DashSpeedEnhanced = 800;
 
-constexpr float HardballFactor = 4;
+constexpr float HardballAirFactor = 0.125;
+constexpr float HardballWaterFactor = 0.75;
 
 const auto DashInterval = 40 * UpdateFrequency;
 const auto DashIntervalEnhanced = 90 * UpdateFrequency;
@@ -43,13 +44,12 @@ constexpr size_t HealthIncr = 8;
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
-    chargingForHardball(false), hardballEnabled(false), hardballShape(PlayerRadius),
+    chargingForHardball(false), hardballEnabled(false),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
 {
     isPersistent = true;
 
     setName("player");
-    hardballShape.setOrigin(PlayerRadius, PlayerRadius);
     upgradeToAbilityLevel(6);
 }
 
@@ -114,8 +114,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto body = playerShape->getBody();
 
     auto vel = body->getVelocity();
-    auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x;
-    if (hardballOnAir()) dest /= HardballFactor;
+    auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x * hardballFactor();
 
     if (std::abs(vel.x - dest) < 6.0)
     {
@@ -146,7 +145,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
-        if (controller.isJumpPressed() && !onWater()) jump();
+        if (controller.isJumpPressed() && !onWaterNoHardball()) jump();
         
         if (abilityLevel >= 7)
         {
@@ -194,7 +193,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 }
             }
 
-            if (abilityLevel >= 4 && !doubleJumpConsumed && !onWater() && !hardballOnAir())
+            if (abilityLevel >= 4 && !doubleJumpConsumed && (hardballEnabled == onWater()))
             {
                 jump();
                 doubleJumpConsumed = true;
@@ -238,7 +237,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (controller.isBombPressed() && abilityLevel >= 5) lieBomb(curTime);
 
-    if (onWater())
+    if (onWaterNoHardball())
     {
         // buoyancy
         auto force = -gameScene.getGameSpace().getGravity() * 1.6 * waterArea;
@@ -259,17 +258,14 @@ void Player::jump()
 {
     auto body = playerShape->getBody();
     auto dest = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
-    if (hardballOnAir()) dest /= sqrt(HardballFactor);
-    auto y = -dest - body->getVelocity().y;
+    auto y = -(dest * sqrt(hardballFactor())) - body->getVelocity().y;
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
 }
 
 void Player::decayJump()
 {
     auto body = playerShape->getBody();
-    auto dest = DecayJumpSpeed;
-    if (hardballOnAir()) dest /= HardballFactor;
-    auto y = std::max(-dest - body->getVelocity().y, 0.0);
+    auto y = std::max(-(DecayJumpSpeed * sqrt(hardballFactor())) - body->getVelocity().y, 0.0);
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpVect{0, 0});
 }
 
@@ -284,7 +280,7 @@ void Player::wallJump()
     auto body = playerShape->getBody();
     auto sgn = body->getVelocity().x > 0 ? 1.0 : body->getVelocity().x < 0 ? -1.0 : 0.0;
     if (sgn == 0.0) return;
-    auto dv = cpVect{sgn * maxHorSpeed, -peakJumpSpeed} - body->getVelocity();
+    auto dv = cpVect{sgn*maxHorSpeed*hardballFactor(), -peakJumpSpeed*sqrt(hardballFactor())} - body->getVelocity();
     body->applyImpulseAtLocalPoint(dv * body->getMass(), cpVect{0, 0});
 }
 
@@ -333,17 +329,27 @@ void Player::damage(size_t amount)
 
 bool Player::onWater() const
 {
-    return !hardballEnabled && waterArea > 0;
+    return waterArea > 0.0011 * PlayerArea;
+}
+
+bool Player::onWaterNoHardball() const
+{
+    return !hardballEnabled && onWater();
 }
 
 bool Player::canWaterJump() const
 {
-    return waterArea < 0.7 * PlayerArea;
+    return !hardballEnabled && waterArea < 0.7 * PlayerArea;
 }
 
 bool Player::hardballOnAir() const
 {
-    return waterArea <= 0 && hardballEnabled;
+    return hardballEnabled && !onWater();
+}
+
+float Player::hardballFactor() const
+{
+    return hardballEnabled ? (onWater() ? HardballWaterFactor : HardballAirFactor) : 1;
 }
 
 void Player::render(Renderer& renderer)
@@ -351,14 +357,15 @@ void Player::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
     renderer.currentTransform.rotate(angle);
-    renderer.pushDrawable(sprite, {}, 16);
 
     if (chargingForHardball)
     {
-        auto blend = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(40 * UpdateFrequency);
-        hardballShape.setFillColor(sf::Color(255, 255, 255, 255 * blend));
-        renderer.pushDrawable(hardballShape, {}, 17);
+        auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(40 * UpdateFrequency);
+        sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
     }
+    else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
+
+    renderer.pushDrawable(sprite, {}, 16);
     
     renderer.popTransform();
 }

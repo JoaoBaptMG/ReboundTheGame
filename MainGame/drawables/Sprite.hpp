@@ -5,10 +5,14 @@
 
 class Sprite final : public sf::Drawable
 {
+    static sf::Shader& getSpriteShader();
+    
     std::shared_ptr<sf::Texture> texture;
     sf::Vector2f anchorPoint;
 
     sf::Vertex quad[4];
+    sf::Color flashColor, blendColor;
+    float opacity;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void setupVertices();
@@ -22,6 +26,15 @@ public:
 
     auto getTextureSize() const { return texture->getSize(); }
     sf::FloatRect getTextureBounds() const;
+
+    auto getFlashColor() const { return flashColor; }
+    void setFlashColor(sf::Color color) { flashColor = color; }
+
+    auto getBlendColor() const { return blendColor; }
+    void setBlendColor(sf::Color color) { blendColor = color; }
+
+    auto getOpacity() const { return opacity; }
+    void setOpacity(float op) { opacity = op; }
 
     auto getTexture() const { return texture; }
     void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex; setupVertices(); }

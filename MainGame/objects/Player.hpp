@@ -26,7 +26,6 @@ constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
 class Player final : public GameObject
 {
     Sprite sprite;
-    sf::CircleShape hardballShape;
     std::shared_ptr<cp::Shape> playerShape;
     
     float angle;
@@ -68,7 +67,7 @@ public:
     void heal(size_t amount);
     void damage(size_t amount);
 
-    auto canPushCrates() const { return abilityLevel >= 2; }
+    auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     void upgradeToAbilityLevel(size_t level)
     {
         if (abilityLevel < level)
@@ -77,7 +76,10 @@ public:
     }
 
     bool onWater() const;
+    bool onWaterNoHardball() const;
     bool canWaterJump() const;
+    bool hardballOnAir() const;
+    float hardballFactor() const;
     void addToWaterArea(cpFloat area) { waterArea += area; }
 
     void jump();
@@ -87,7 +89,6 @@ public:
     void lieBomb(std::chrono::steady_clock::time_point curTime);
 
     void setHardballSprite();
-    bool hardballOnAir() const;
 
     static constexpr cpCollisionType CollisionType = 'plyr';
 
