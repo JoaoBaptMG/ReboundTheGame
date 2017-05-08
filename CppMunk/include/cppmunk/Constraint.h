@@ -1,7 +1,7 @@
 #ifndef CHIPMUNK_CONSTRAINT_H
 #define CHIPMUNK_CONSTRAINT_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <memory>
 
 namespace cp

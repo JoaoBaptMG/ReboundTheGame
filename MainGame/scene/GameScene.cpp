@@ -30,7 +30,7 @@ void GameScene::loadLevel(std::string levelName)
     loadRoom(levelData->startingRoom);
 }
 
-void GameScene::loadRoom(size_t id)
+void GameScene::loadRoom(uintmax_t id)
 {
     auto roomName = levelData->roomResourceNames[id] + ".map";
     
@@ -168,7 +168,7 @@ void GameScene::render(Renderer& renderer)
     }
 
     gui.render(renderer);
-    renderer.currentTransform.translate(sf::Vector2f{ScreenWidth, ScreenHeight}/2.0f - offsetPos);
+    renderer.currentTransform.translate(sf::Vector2f{(float)ScreenWidth, (float)ScreenHeight}/2.0f - offsetPos);
     
     room.render(renderer);
     for (const auto& obj : gameObjects) obj->render(renderer);

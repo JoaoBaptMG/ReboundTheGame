@@ -33,7 +33,7 @@ public:
     friend class GameScene;
 };
 
-class GameObjectDescriptor;
+struct GameObjectDescriptor;
 
 util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass);
 std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, const GameObjectDescriptor& descriptor);

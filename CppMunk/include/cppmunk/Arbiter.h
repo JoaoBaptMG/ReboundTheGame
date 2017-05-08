@@ -2,7 +2,7 @@
 #define CHIPMUNK_ARBITER_H
 
 #include "Body.h"
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 namespace cp
 {

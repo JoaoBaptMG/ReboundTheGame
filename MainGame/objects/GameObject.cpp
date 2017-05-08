@@ -45,17 +45,17 @@ template <typename Obj>
 using ConfigStruct = typename detail::ConfigStructBase<Obj>::value;
 
 template <typename Obj>
-auto readerFor(sf::InputStream& stream)
+util::generic_shared_ptr readerFor(sf::InputStream& stream)
 {
-    using namespace util;
-    
+	using namespace util;
+
     auto config = std::make_shared<ConfigStruct<Obj>>();
-    if (!readFromStream(stream, *config)) return util::generic_shared_ptr{};
-    return util::generic_shared_ptr{config};
+    if (!readFromStream(stream, *config)) return generic_shared_ptr{};
+    return generic_shared_ptr{config};
 }
 
 template <typename Obj>
-auto factoryFor(GameScene& gameScene, util::generic_shared_ptr parameters)
+std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, util::generic_shared_ptr parameters)
 {
     auto params = parameters.try_convert<ConfigStruct<Obj>>();
     if (!params) return std::unique_ptr<GameObject>{};

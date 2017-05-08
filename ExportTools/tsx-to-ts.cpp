@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
@@ -7,6 +8,11 @@
 #include <vector>
 #include "tinyxml2.h"
 #include "varlength.hpp"
+
+#if _WIN32
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
 
 using namespace std;
 using namespace tinyxml2;
@@ -22,7 +28,7 @@ int tsxToTs(string inFile, string outFile)
 
     XMLHandle docHandle(doc);
 
-    ofstream out(outFile);
+    ofstream out(outFile, ios::out | ios::binary);
     out.write("TSET", 4);
 
     auto tset = docHandle.FirstChildElement("tileset");

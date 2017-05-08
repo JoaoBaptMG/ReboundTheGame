@@ -4,7 +4,7 @@
 #include "scene/GameScene.hpp"
 
 #include <memory>
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <cppmunk.h>
 
 class Player;

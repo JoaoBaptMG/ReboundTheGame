@@ -15,10 +15,10 @@ namespace collectibles
     {
         Sprite sprite;
         std::shared_ptr<cp::Shape> collisionShape;
-        size_t healthAmount;
+        uintmax_t healthAmount;
 
     public:
-        HealthPickup(GameScene& scene, size_t amount);
+        HealthPickup(GameScene& scene, uintmax_t amount);
         HealthPickup(GameScene& scene);
         virtual ~HealthPickup();
 

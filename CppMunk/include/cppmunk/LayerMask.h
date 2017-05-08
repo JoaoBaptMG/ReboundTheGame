@@ -1,7 +1,7 @@
 #ifndef CHIPMUNK_LAYERMASK_H
 #define CHIPMUNK_LAYERMASK_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 namespace cp
 {

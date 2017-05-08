@@ -3,7 +3,7 @@
 #include "objects/GameObject.hpp"
 #include "drawables/Sprite.hpp"
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 #include <chrono>
 

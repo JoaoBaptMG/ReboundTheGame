@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.11)
 
 project(MainGame)
 
+if(MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+endif()
+
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 find_package(Chipmunk REQUIRED)
 

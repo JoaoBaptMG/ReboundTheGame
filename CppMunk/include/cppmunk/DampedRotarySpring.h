@@ -2,7 +2,7 @@
 #define CHIPMUNK_DAMPED_ROTARY_SPRING_H
 
 #include "Constraint.h"
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 namespace cp
 {

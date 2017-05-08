@@ -18,7 +18,7 @@ class Renderer;
 template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
 void reset(T& val) { val = T(); }
 
-extern size_t global_AbilityLevel;
+extern uintmax_t global_AbilityLevel;
 
 constexpr cpFloat PlayerRadius = 32;
 constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
@@ -37,8 +37,8 @@ class Player final : public GameObject
 
     enum class DashDir { None, Left, Right, Up } dashDirection;
 
-    size_t abilityLevel;
-    size_t health, maxHealth;
+    uintmax_t abilityLevel;
+    uintmax_t health, maxHealth;
     cpFloat waterArea;
 
 public:
@@ -64,11 +64,11 @@ public:
     auto getHealth() const { return health; }
     auto getMaxHealth() const { return maxHealth; }
 
-    void heal(size_t amount);
-    void damage(size_t amount);
+    void heal(uintmax_t amount);
+    void damage(uintmax_t amount);
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
-    void upgradeToAbilityLevel(size_t level)
+    void upgradeToAbilityLevel(uintmax_t level)
     {
         if (abilityLevel < level)
             abilityLevel = level;

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <cppmunk/Body.h>
 #include <cppmunk/Space.h>
 

@@ -8,8 +8,8 @@
 #include "defaults.hpp"
 
 #include <cppmunk/PolyShape.h>
-#include <chipmunk.h>
-#include <chipmunk_unsafe.h>
+#include <chipmunk/chipmunk.h>
+#include <chipmunk/chipmunk_unsafe.h>
 
 constexpr float RotationSpeed = 240;
 

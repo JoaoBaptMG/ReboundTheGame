@@ -1,11 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
 #include "tinyxml2.h"
 #include "varlength.hpp"
+
+#if _WIN32
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
 
 using namespace std;
 using namespace tinyxml2;
@@ -37,11 +43,14 @@ int tmxToMap(string inFile, string outFile)
 
 	XMLHandle docHandle(doc);
 
-	ofstream out(outFile);
+	ofstream out(outFile, ios::out | ios::binary);
 	out.write("ROOM", 4);
 
 	auto map = docHandle.FirstChildElement("map");
 	auto tset = map.FirstChildElement("tileset");
+
+	auto maxTile = tset.ToElement()->UnsignedAttribute("tilecount")-1;
+	auto firstId = tset.ToElement()->UnsignedAttribute("firstgid");
 
 	const char* tilesetName = nullptr;
 	auto props = map.FirstChildElement("properties");
@@ -66,8 +75,8 @@ int tmxToMap(string inFile, string outFile)
 	auto layer = map.FirstChildElement("layer");
 	if (layer.ToElement())
 	{
-		width = atol(layer.ToElement()->Attribute("width"));
-		height = atol(layer.ToElement()->Attribute("height"));
+		width = layer.ToElement()->UnsignedAttribute("width");
+		height = layer.ToElement()->UnsignedAttribute("height");
 
 		write_varlength(out, width);
         write_varlength(out, height);
@@ -77,11 +86,14 @@ int tmxToMap(string inFile, string outFile)
 
 		while (isspace(*txt)) txt++;
 
+		unsigned long writtenTiles = 0;
 		for (auto ch = txt; ch; ch = nextcsv(ch))
 		{
-			uint8_t v = strtoul(ch, nullptr, 10)-1; // NOT UB!
-            if (v > 13) v = 13;
+			uint8_t v = strtoul(ch, nullptr, 10)-firstId; // NOT UB!
+			if (v > maxTile) v = maxTile;
 			out.write((const char*)&v, sizeof(uint8_t));
+
+			writtenTiles++;
 		}
 	}
 

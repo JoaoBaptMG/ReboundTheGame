@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <algorithm>
 #include <stdexcept>
 
@@ -14,12 +15,12 @@ namespace util
             class iterator final
             {
                 view* ref;
-                size_t i, j;
+                uintmax_t i, j;
 
-                iterator(view *ref, size_t i, size_t j) : ref(ref), i(i), j(j) {}
+                iterator(view *ref, uintmax_t i, uintmax_t j) : ref(ref), i(i), j(j) {}
 
             public:
-                using difference_type = ssize_t;
+                using difference_type = intmax_t;
                 using value_type = T;
                 using pointer = T*;
                 using reference = T&;
@@ -64,29 +65,29 @@ namespace util
                 }
                 bool operator!=(const iterator &other) const { return !(*this == other); }
 
-                iterator operator+(ssize_t val) const
+                iterator operator+(intmax_t val) const
                 {
-                    size_t offset = i + val;
+                    uintmax_t offset = i + val;
                     return iterator(ref, offset % ref->_width, j + offset / ref->_width);
                 }
 
-                iterator& operator+=(ssize_t val)
+                iterator& operator+=(intmax_t val)
                 {
-                    size_t offset = i + val;
+                    uintmax_t offset = i + val;
                     i = offset % ref->_width;
                     j += offset / ref->_width;
                     return *this;
                 }
 
-                iterator operator-(ssize_t val) const { return *this + (-val); }
-                iterator& operator-=(size_t val) { return *this += (-val); }
+                iterator operator-(intmax_t val) const { return *this + (-val); }
+                iterator& operator-=(uintmax_t val) { return *this += (-val); }
 
-                ssize_t operator-(const iterator& other) const
+                intmax_t operator-(const iterator& other) const
                 {
                     if (ref != other.ref) return 0;
 
-                    size_t ofs1 = j*ref->_width + i;
-                    size_t ofs2 = other.j*ref->_width + other.i;
+                    uintmax_t ofs1 = j*ref->_width + i;
+                    uintmax_t ofs2 = other.j*ref->_width + other.i;
 
                     return ofs1 - ofs2;
                 }
@@ -97,8 +98,8 @@ namespace util
                 T* operator->() { return &operator*(); }
                 const T* operator->() const { return &operator*(); }
 
-                T& operator[](ssize_t ind) { return *(*this + ind); }
-                const T& operator[](ssize_t ind) const { return *(*this + ind); }
+                T& operator[](intmax_t ind) { return *(*this + ind); }
+                const T& operator[](intmax_t ind) const { return *(*this + ind); }
 
                 bool operator<(const iterator& other) const { return other - *this > 0; }
                 bool operator>(const iterator& other) const { return other < *this; }
@@ -111,23 +112,23 @@ namespace util
             using const_iterator = const iterator;
 
             grid* ref;
-            size_t x, y, _width, _height;
+            uintmax_t x, y, _width, _height;
 
-            view (grid* ref, size_t x, size_t y, size_t w, size_t h)
+            view (grid* ref, uintmax_t x, uintmax_t y, uintmax_t w, uintmax_t h)
             : ref(ref), x(x), y(y), _width(w), _height(h) {}
 
         public:
-            T& operator()(size_t i, size_t j) { return (*ref)(x+i, y+j); }
-            const T& operator()(size_t i, size_t j) const { return (*ref)(x+i, y+j); }
+            T& operator()(uintmax_t i, uintmax_t j) { return (*ref)(x+i, y+j); }
+            const T& operator()(uintmax_t i, uintmax_t j) const { return (*ref)(x+i, y+j); }
 
-            T& at(size_t i, size_t j)
+            T& at(uintmax_t i, uintmax_t j)
             {
                 if (i >= _width || j >= _height)
                     throw std::out_of_range("Attempt to access element outside of bounds of the grid!");
                 return operator()(i, j);
             }
 
-            const T& at(size_t i, size_t j) const
+            const T& at(uintmax_t i, uintmax_t j) const
             {
                 if (i >= _width || j >= _height)
                     throw std::out_of_range("Attempt to access element outside of bounds of the grid!");
@@ -157,21 +158,21 @@ namespace util
             friend class grid<T>;
         };
 
-        size_t _width, _height;
+        uintmax_t _width, _height;
         T* elements;
 
     public:
         grid() noexcept : _width(0), _height(0), elements(nullptr) {}
-        grid(size_t w, size_t h) : _width(w), _height(h), elements(new T[w*h]) {}
-        grid(size_t w, size_t h, T* contents) : grid(w, h)
+        grid(uintmax_t w, uintmax_t h) : _width(w), _height(h), elements(new T[w*h]) {}
+        grid(uintmax_t w, uintmax_t h, T* contents) : grid(w, h)
         {
             std::copy(contents, contents+(w*h), elements);
         }
 
         template <typename I>
-        grid(size_t w, size_t h, I begin, I end) : grid(w, h)
+        grid(uintmax_t w, uintmax_t h, I begin, I end) : grid(w, h)
         {
-            size_t i = 0;
+            uintmax_t i = 0;
             for (auto it = begin; it != end; ++it)
             {
                 if (i >= w*h) break;
@@ -200,17 +201,17 @@ namespace util
 
         ~grid() { delete[] elements; }
 
-        T& operator()(size_t i, size_t j) { return elements[j*_width+i]; }
-        const T& operator()(size_t i, size_t j) const { return elements[j*_width+i]; }
+        T& operator()(uintmax_t i, uintmax_t j) { return elements[j*_width+i]; }
+        const T& operator()(uintmax_t i, uintmax_t j) const { return elements[j*_width+i]; }
 
-        T& at(size_t i, size_t j)
+        T& at(uintmax_t i, uintmax_t j)
         {
             if (i >= _width || j >= _height)
                 throw std::out_of_range("Attempt to access element outside of bounds of the grid!");
             return operator()(i, j);
         }
 
-        const T& at(size_t i, size_t j) const
+        const T& at(uintmax_t i, uintmax_t j) const
         {
             if (i >= _width || j >= _height)
                 throw std::out_of_range("Attempt to access element outside of bounds of the grid!");
@@ -229,7 +230,7 @@ namespace util
         T* begin() { return elements; }
         T* end() { return elements+(_width*_height); }
 
-        const view make_view(size_t x, size_t y, size_t _width, size_t _height) const
+        const view make_view(uintmax_t x, uintmax_t y, uintmax_t _width, uintmax_t _height) const
         {
             if (x + _width >= this->_width || y + _height >= this->_height)
                 throw std::out_of_range("Attempt to make a view that spans outside of the bounds of the grid!");
@@ -237,7 +238,7 @@ namespace util
             return view(this, x, y, _width, _height);
         }
 
-        view make_view(size_t x, size_t y, size_t _width, size_t _height)
+        view make_view(uintmax_t x, uintmax_t y, uintmax_t _width, uintmax_t _height)
         {
             if (x + _width >= this->_width || y + _height >= this->_height)
                 throw std::out_of_range("Attempt to make a view that spans outside of the bounds of the grid!");
@@ -245,12 +246,12 @@ namespace util
             return view(this, x, y, _width, _height);
         }
 
-        size_t width() const { return _width; }
-        size_t height() const { return _height; }
+        uintmax_t width() const { return _width; }
+        uintmax_t height() const { return _height; }
     };
 
     template <typename T>
-    typename grid<T>::view::iterator& operator+(ssize_t val, typename grid<T>::view::iterator &it)
+    typename grid<T>::view::iterator& operator+(intmax_t val, typename grid<T>::view::iterator &it)
     {
         return it + val;
     }

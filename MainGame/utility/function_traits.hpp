@@ -18,7 +18,7 @@ namespace util
 
         static constexpr auto arity = sizeof...(Args);
 
-        template <size_t N>
+        template <uintmax_t N>
         struct argument
         {
             static_assert(N < arity, "error: invalid parameter index.");

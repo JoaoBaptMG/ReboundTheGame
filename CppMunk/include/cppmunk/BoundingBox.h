@@ -1,7 +1,7 @@
 #ifndef CHIPMUNK_BOUNDINGBOX_H
 #define CHIPMUNK_BOUNDINGBOX_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 namespace cp
 {

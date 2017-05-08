@@ -11,27 +11,27 @@ class GUIMeter final : public sf::Drawable
     std::shared_ptr<sf::Texture> icon;
     
     MeterSize size;
-    size_t height = 0, current = 0, target = 0;
+    uintmax_t height = 0, current = 0, target = 0;
     sf::Color fillColor, targetColor, backdropColor;
 
     sf::Vertex vertices[20];
     sf::Vector2f position;
 
-    void setRect(size_t ind, sf::FloatRect rect);
-    void setQuadColor(size_t ind, sf::Color color);
+    void setRect(uintmax_t ind, sf::FloatRect rect);
+    void setQuadColor(uintmax_t ind, sf::Color color);
 
 public:
     GUIMeter(MeterSize size);
     virtual ~GUIMeter() {}
 
-    size_t getHeight() const { return height; }
-    void setHeight(size_t h) { height = h; }
+    uintmax_t getHeight() const { return height; }
+    void setHeight(uintmax_t h) { height = h; }
 
-    size_t getCurrent() const { return current; }
-    void setCurrent(size_t c) { current = c; }
+    uintmax_t getCurrent() const { return current; }
+    void setCurrent(uintmax_t c) { current = c; }
 
-    size_t getTarget() const { return target; }
-    void setTarget(size_t t) { target = t; }
+    uintmax_t getTarget() const { return target; }
+    void setTarget(uintmax_t t) { target = t; }
 
     void setColors(sf::Color fill, sf::Color target, sf::Color backdrop)
     {

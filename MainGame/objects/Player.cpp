@@ -19,7 +19,7 @@
 
 using namespace std::literals::chrono_literals;
 
-size_t global_AbilityLevel = 0; // TODO: factor this global out
+uintmax_t global_AbilityLevel = 0; // TODO: factor this global out
 
 constexpr float MaxHorSpeed = 400;
 constexpr float MaxHorSpeedEnhanced = 560;
@@ -38,8 +38,8 @@ constexpr float HardballWaterFactor = 0.75;
 const auto DashInterval = 40 * UpdateFrequency;
 const auto DashIntervalEnhanced = 90 * UpdateFrequency;
 
-constexpr size_t BaseHealth = 208;
-constexpr size_t HealthIncr = 8;
+constexpr uintmax_t BaseHealth = 208;
+constexpr uintmax_t HealthIncr = 8;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
@@ -50,7 +50,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     setName("player");
-    upgradeToAbilityLevel(6);
+    //upgradeToAbilityLevel(6);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -315,13 +315,13 @@ void Player::setHardballSprite()
     sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
 }
 
-void Player::heal(size_t amount)
+void Player::heal(uintmax_t amount)
 {
     health += amount;
     if (health > maxHealth) health = maxHealth;
 }
 
-void Player::damage(size_t amount)
+void Player::damage(uintmax_t amount)
 {
     if (health <= amount) health = 0;
     else health -= amount;

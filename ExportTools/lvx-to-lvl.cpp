@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
+#include <string>
 #include <memory>
 #include "tinyxml2.h"
 #include "varlength.hpp"
@@ -21,7 +22,7 @@ int lvxToLvl(string inFile, string outFile)
 
 	XMLHandle docHandle(doc);
 
-	ofstream out(outFile);
+	ofstream out(outFile, ios::out | ios::binary);
 	out.write("LEVEL", 5);
 
     auto lvl = docHandle.FirstChildElement("level");

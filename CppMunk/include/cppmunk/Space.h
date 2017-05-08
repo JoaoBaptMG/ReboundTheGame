@@ -1,7 +1,7 @@
 #ifndef CHIPMUNK_SPACE_H
 #define CHIPMUNK_SPACE_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include "LayerMask.h"
 #include <functional>
 #include <memory>

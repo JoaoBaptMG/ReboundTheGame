@@ -54,7 +54,7 @@ public:
     ResourceManager& getResourceManager() const { return resourceManager; }
 
     void loadLevel(std::string levelName);
-    void loadRoom(size_t id);
+    void loadRoom(uintmax_t id);
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);

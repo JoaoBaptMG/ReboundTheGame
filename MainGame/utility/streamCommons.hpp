@@ -18,8 +18,8 @@ namespace util
     
     struct VarLength
     {
-        size_t& target;
-        VarLength(size_t& t) : target(t) {}
+        uintmax_t& target;
+        VarLength(uintmax_t& t) : target(t) {}
     };
 
     template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
@@ -50,7 +50,7 @@ namespace util
     {
         PrintTemplateSpecializationFor<T>();
         
-        size_t size;
+        uintmax_t size;
 
         if (!readFromStream(stream, VarLength(size)))
             return false;
@@ -66,7 +66,7 @@ namespace util
     template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
-        size_t size;
+        uintmax_t size;
 
         if (!readFromStream(stream, VarLength(size)))
             return false;
@@ -96,7 +96,7 @@ namespace util
     {
         PrintTemplateSpecializationFor<T>();
         
-        size_t width, height;
+        uintmax_t width, height;
 
         if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))
             return false;
@@ -114,7 +114,7 @@ namespace util
     template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, grid<T> &value)
     {
-        size_t width, height;
+        uintmax_t width, height;
 
         if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))
             return false;
@@ -140,7 +140,7 @@ namespace util
         return readFromStream(stream, std::forward<T>(val)) && readFromStream(stream, std::forward<Ts>(nexts)...);
     }
 
-    template <typename Tp, std::size_t... Is>
+    template <typename Tp, std::uintmax_t... Is>
     bool __rtfsaux(sf::InputStream& stream, Tp& tuple, std::index_sequence<Is...>)
     {
         return readFromStream(stream, std::get<Is>(tuple)...);

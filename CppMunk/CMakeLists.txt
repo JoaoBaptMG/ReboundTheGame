@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 project(CppMunk)
 
-file(GLOB SRCS "src/*.cpp")
+file(GLOB SRCS "src/*.cpp" "include/cppmunk/*.h")
 set(INCS "${PROJECT_SOURCE_DIR}/include")
 set(CPPMUNK_INCLUDE_DIR ${INCS} PARENT_SCOPE)
 

@@ -13,7 +13,7 @@ GUIMeter::GUIMeter(MeterSize size) : size(size)
     setQuadColor(0, sf::Color::Black);
     setQuadColor(4, sf::Color::White);
 
-    for (size_t i = 0; i < 20; i++)
+    for (uintmax_t i = 0; i < 20; i++)
         vertices[i].texCoords = sf::Vector2f(0, 0);
 
     vertices[4].texCoords = sf::Vector2f(0, 0);
@@ -24,7 +24,7 @@ GUIMeter::GUIMeter(MeterSize size) : size(size)
     updateVertices();
 }
 
-void GUIMeter::setRect(size_t ind, sf::FloatRect rect)
+void GUIMeter::setRect(uintmax_t ind, sf::FloatRect rect)
 {
     vertices[ind].position = sf::Vector2f(rect.left, rect.top);
     vertices[ind+1].position = sf::Vector2f(rect.left + rect.width, rect.top);
@@ -32,7 +32,7 @@ void GUIMeter::setRect(size_t ind, sf::FloatRect rect)
     vertices[ind+3].position = sf::Vector2f(rect.left, rect.top + rect.height);
 }
 
-void GUIMeter::setQuadColor(size_t ind, sf::Color color)
+void GUIMeter::setQuadColor(uintmax_t ind, sf::Color color)
 {
     vertices[ind].color = color;
     vertices[ind+1].color = color;

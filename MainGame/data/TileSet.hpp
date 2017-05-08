@@ -11,7 +11,7 @@ struct TileSet final
     std::string textureName;
 
 #pragma pack(push, 1)
-    struct
+    struct PhysicalParameters
     {
         int16_t upperOffset, lowerOffset;
         int16_t leftOffset, rightOffset;
@@ -19,7 +19,7 @@ struct TileSet final
     } physicalParameters;
 #pragma pack(pop)
 
-    static_assert(sizeof(physicalParameters) == 5 * sizeof(int16_t), "Compiler did not pack physicalParameters correctly!");
+    static_assert(sizeof(PhysicalParameters) == 5 * sizeof(int16_t), "Compiler did not pack physicalParameters correctly!");
     
     std::vector<Mode> tileModes;
 

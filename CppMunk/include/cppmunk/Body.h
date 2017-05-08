@@ -1,8 +1,9 @@
 #ifndef CHIPMUNK_BODY_H
 #define CHIPMUNK_BODY_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <memory>
+#include <functional>
 
 namespace cp
 {

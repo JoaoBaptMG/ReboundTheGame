@@ -16,8 +16,8 @@ std::vector<std::shared_ptr<cp::Shape>>
 
 Room::Room(GameScene& scene) : gameScene(scene)
 {
-    sf::FloatRect drawingFrame{(ScreenWidth-PlayfieldWidth)/2, (ScreenHeight-PlayfieldHeight)/2,
-        PlayfieldWidth, PlayfieldHeight};
+    sf::FloatRect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
+        (float)PlayfieldWidth, (float)PlayfieldHeight};
     mainLayerTilemap.setDrawingFrame(drawingFrame);
 }
 

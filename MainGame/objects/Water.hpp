@@ -4,7 +4,7 @@
 #include "Player.hpp"
 
 #include <SFML/Graphics.hpp>
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <chrono>
 
 class GameScene;

@@ -1,7 +1,7 @@
 #ifndef CHIPMUNK_SHAPE_H
 #define CHIPMUNK_SHAPE_H
 
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 #include <memory>
 
 namespace cp

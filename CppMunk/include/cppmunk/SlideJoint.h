@@ -2,7 +2,7 @@
 #define CHIPMUNK_SLIDE_JOINT_H
 
 #include "Constraint.h"
-#include <chipmunk.h>
+#include <chipmunk/chipmunk.h>
 
 namespace cp
 {
