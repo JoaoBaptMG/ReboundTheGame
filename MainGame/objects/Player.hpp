@@ -53,6 +53,8 @@ public:
     auto getPosition() const { return playerShape->getBody()->getPosition(); }
     void setPosition(cpVect pos) { playerShape->getBody()->setPosition(pos); }
 
+    auto getVelocity() const { return playerShape->getBody()->getVelocity(); }
+
     auto getBody() const { return playerShape->getBody(); }
 
     auto getDisplayPosition() const

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="42" height="48" tilewidth="32" tileheight="32" nextobjectid="29">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="42" height="48" tilewidth="32" tileheight="32" nextobjectid="30">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -99,6 +99,13 @@
   <object id="25" name="powerup6" type="collectibles::Powerup" x="1224" y="1384" width="48" height="48">
    <properties>
     <property name="0" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="29" name="background" type="background::Parallax" x="286" y="224" width="2" height="2">
+   <properties>
+    <property name="0" value="background1.png"/>
+    <property name="1" type="int" value="1"/>
+    <property name="2" type="int" value="2"/>
    </properties>
   </object>
  </objectgroup>

@@ -39,6 +39,6 @@ void Bomb::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 18);
+    renderer.pushDrawable(sprite, {}, 14);
     renderer.popTransform();
 }

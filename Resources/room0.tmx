@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="88" height="44" tilewidth="32" tileheight="32" nextobjectid="65">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="88" height="44" tilewidth="32" tileheight="32" nextobjectid="8">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -71,25 +71,32 @@
 </data>
  </layer>
  <objectgroup name="object-layer">
-  <object id="23" name="player" type="Player" x="64" y="1248" width="64" height="64"/>
-  <object id="57" name="powerup2" type="collectibles::Powerup" x="2200" y="680" width="48" height="48">
+  <object id="1" name="player" type="Player" x="64" y="1248" width="64" height="64"/>
+  <object id="2" name="powerup2" type="collectibles::Powerup" x="2200" y="680" width="48" height="48">
    <properties>
     <property name="0" type="int" value="2"/>
    </properties>
   </object>
-  <object id="58" name="powerup4" type="collectibles::Powerup" x="1832" y="904" width="48" height="48">
+  <object id="3" name="powerup4" type="collectibles::Powerup" x="1832" y="904" width="48" height="48">
    <properties>
     <property name="0" type="int" value="4"/>
    </properties>
   </object>
-  <object id="61" name="powerup5" type="collectibles::Powerup" x="72" y="584" width="48" height="48">
+  <object id="4" name="powerup5" type="collectibles::Powerup" x="72" y="584" width="48" height="48">
    <properties>
     <property name="0" type="int" value="5"/>
    </properties>
   </object>
+  <object id="5" name="background" type="background::Parallax" x="247" y="82" width="2" height="2">
+   <properties>
+    <property name="0" value="background1.png"/>
+    <property name="1" type="int" value="1"/>
+    <property name="2" type="int" value="2"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="warp-layer">
-  <object id="56" name="0 -&gt; 1.0" type="right" x="2752" y="672" width="64" height="192"/>
-  <object id="62" name="1 -&gt; 2.0" type="left" x="0" y="32" width="64" height="96"/>
+  <object id="6" name="0 -&gt; 1.0" type="right" x="2752" y="672" width="64" height="192"/>
+  <object id="7" name="1 -&gt; 2.0" type="left" x="0" y="32" width="64" height="96"/>
  </objectgroup>
 </map>

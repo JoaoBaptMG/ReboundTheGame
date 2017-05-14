@@ -3,6 +3,8 @@
 #include "GameObject.hpp"
 #include "Player.hpp"
 
+#include "drawables/WaterBody.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chrono>
@@ -13,7 +15,7 @@ class Renderer;
 class Water final : public GameObject
 {
     cpBB rect;
-    sf::RectangleShape shape;
+    WaterBody shape;
 
     cpFloat oldArea;
 
@@ -23,6 +25,13 @@ public:
 
     void setRect(sf::IntRect rect);
 
+    auto getPosition() { return cpVect{rect.l, rect.b}; }
+    auto getDisplayPosition()
+    {
+        auto pos = getPosition();
+        return sf::Vector2f(std::floor(pos.x), std::floor(pos.y));
+    }
+    
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;
     

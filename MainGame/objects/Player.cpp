@@ -50,7 +50,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     setName("player");
-    //upgradeToAbilityLevel(6);
+    upgradeToAbilityLevel(6);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)

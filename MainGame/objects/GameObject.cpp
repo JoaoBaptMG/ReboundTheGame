@@ -17,6 +17,7 @@
 #include "objects/collectibles/Powerup.hpp"
 #include "objects/props/PushableCrate.hpp"
 #include "objects/props/BombCrate.hpp"
+#include "objects/background/Parallax.hpp"
 
 namespace detail
 {
@@ -34,7 +35,7 @@ namespace detail
         static_assert(std::is_lvalue_reference<ConfigArgument>::value &&
             std::is_const<typename std::remove_reference_t<ConfigArgument>>::value &&
             !std::is_volatile<typename std::remove_reference_t<ConfigArgument>>::value,
-            "Parameter of the configure method must be a const reference to a standard-layout struct!");
+            "Parameter of the configure method must be a const reference to a struct!");
 
     public:
         using value = std::remove_cv_t<std::remove_reference_t<ConfigArgument>>;
@@ -91,6 +92,9 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     // props
     DEFINE_FACTORY(props::PushableCrate),
     DEFINE_FACTORY(props::BombCrate),
+
+    // background
+    DEFINE_FACTORY(background::Parallax),
 };
 
 #undef DEFINE_FACTORY

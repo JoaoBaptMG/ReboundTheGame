@@ -128,7 +128,7 @@ int tmxToMap(string inFile, string outFile)
 
             if (pelm->Attribute("type", "int"))
             {
-                int32_t val = atol(str);
+                int32_t val = strtol(str, nullptr, 10);
                 curObj.write((const char*)&val, sizeof(int32_t));
             }
             else if (pelm->Attribute("type", "float"))
