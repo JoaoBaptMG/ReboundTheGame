@@ -10,7 +10,7 @@ namespace ResourceLoader
     util::generic_shared_ptr loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type);
 }
 
-class ResourceLoadingError : std::runtime_error
+class ResourceLoadingError : public std::runtime_error
 {
 public:
     inline ResourceLoadingError(std::string name)

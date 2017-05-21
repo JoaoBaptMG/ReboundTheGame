@@ -2,8 +2,11 @@
 
 #include "utility/non_copyable_movable.hpp"
 #include "utility/generic_ptrs.hpp"
+#include <chipmunk/chipmunk.h>
+
 #include <memory>
 #include <chrono>
+#include <functional>
 #include <SFML/System.hpp>
 
 class GameScene;
@@ -31,6 +34,9 @@ public:
     virtual ~GameObject() {}
 
     friend class GameScene;
+
+    static constexpr cpCollisionType Interactable = 'itbl';
+    using InteractionHandler = std::function<void(uint32_t,void*)>;
 };
 
 struct GameObjectDescriptor;

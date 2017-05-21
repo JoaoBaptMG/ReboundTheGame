@@ -62,7 +62,15 @@ sf::Vector2<T> fromRadiusAngleRadians(T radius, T angle)
 
 template <typename T>
 sf::Vector2<T> fromRadiusAngleDegrees(T radius, T angle)
-{ return fromRadiusAngleRadians(radius, degreesToRadians(angle)); }
+{
+    return fromRadiusAngleRadians(radius, degreesToRadians(angle));
+}
+
+template <typename T>
+auto angle(const sf::Vector2<T>& v)
+{
+    return std::atan2(v.y, v.x);
+}
 
 template <typename T>
 auto angleBetween(const T& v1, const T& v2)

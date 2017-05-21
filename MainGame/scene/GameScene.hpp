@@ -35,6 +35,7 @@ class GameScene : public Scene
     ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
+    bool objectsLoaded;
 
     const PlayerController* playerController;
     sf::Vector2f offsetPos;
@@ -55,6 +56,7 @@ public:
 
     void loadLevel(std::string levelName);
     void loadRoom(uintmax_t id);
+    void loadRoomObjects();
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
@@ -67,6 +69,8 @@ public:
     getObjectByName(std::string str) { return dynamic_cast<T*>(getObjectByName(str)); }
 
     std::vector<GameObject*> getObjectsByName(std::string str);
+
+    cpVect wrapPosition(cpVect pos);
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     void checkWarps();

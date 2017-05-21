@@ -25,19 +25,20 @@ constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
 
 class Player final : public GameObject
 {
-    Sprite sprite;
+    Sprite sprite, grappleSprite;
     std::shared_ptr<cp::Shape> playerShape;
     
-    float angle;
+    float angle, lastFade;
     bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled;
+    bool grappleEnabled;
     
     std::chrono::steady_clock::time_point
-        wallJumpTriggerTime, dashTime, hardballTime, curTime;
+        wallJumpTriggerTime, dashTime, hardballTime, grappleTime, curTime;
 
     enum class DashDir { None, Left, Right, Up } dashDirection;
 
-    uintmax_t abilityLevel;
+    uintmax_t abilityLevel, grapplePoints;
     uintmax_t health, maxHealth;
     cpFloat waterArea;
 
@@ -70,12 +71,16 @@ public:
     void damage(uintmax_t amount);
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
+    auto canBreakDash() const { return abilityLevel >= 8; }
+    
     void upgradeToAbilityLevel(uintmax_t level)
     {
         if (abilityLevel < level)
             abilityLevel = level;
         global_AbilityLevel = abilityLevel;
     }
+
+    bool isDashing() const;
 
     bool onWater() const;
     bool onWaterNoHardball() const;
@@ -88,11 +93,21 @@ public:
     void decayJump();
     void wallJump();
     void dash();
+    void observeHardballTrigger();
     void lieBomb(std::chrono::steady_clock::time_point curTime);
 
     void setHardballSprite();
 
+    auto canGrapple() const { return grappleEnabled; }
+    void setGrappling(bool val)
+    {
+        if (val) grapplePoints++;
+        else grapplePoints--;
+        grappleTime = curTime;
+    }
+
     static constexpr cpCollisionType CollisionType = 'plyr';
+    static constexpr uint32_t DashInteractionType = 'pdsh';
 
 #pragma pack(push, 1)
     struct ConfigStruct

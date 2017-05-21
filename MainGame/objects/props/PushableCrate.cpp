@@ -26,11 +26,10 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
             {
                 auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
                 auto crate = static_cast<PushableCrate*>(cpBodyGetUserData(arbiter.getBodyB()));
-                if (player->canPushCrates())
-                    space.addPostStepCallback(nullptr, [=]
-                    {
-                        crate->shape->getBody()->setBodyType(CP_BODY_TYPE_DYNAMIC);
-                    });
+                if (player->canPushCrates()) space.addPostStepCallback(nullptr, [=]
+                {
+                    crate->shape->getBody()->setBodyType(CP_BODY_TYPE_DYNAMIC);
+                });
                 else space.addPostStepCallback(nullptr, [=]
                 {
                     crate->shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);

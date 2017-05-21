@@ -10,13 +10,14 @@
 
 // Objects
 #include "objects/Player.hpp"
-#include "objects/Water.hpp"
 #include "objects/enemies/Floater.hpp"
 #include "objects/enemies/Rotator.hpp"
 #include "objects/collectibles/HealthPickup.hpp"
 #include "objects/collectibles/Powerup.hpp"
 #include "objects/props/PushableCrate.hpp"
-#include "objects/props/BombCrate.hpp"
+#include "objects/props/DestructibleCrate.hpp"
+#include "objects/props/Grapple.hpp"
+#include "objects/props/Water.hpp"
 #include "objects/background/Parallax.hpp"
 
 namespace detail
@@ -78,9 +79,6 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     // the player
     DEFINE_FACTORY(Player),
 
-    // environment
-    DEFINE_FACTORY(Water),
-
     // enemies
     DEFINE_FACTORY(enemies::Floater),
     DEFINE_FACTORY(enemies::Rotator),
@@ -92,6 +90,9 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     // props
     DEFINE_FACTORY(props::PushableCrate),
     DEFINE_FACTORY(props::BombCrate),
+    DEFINE_FACTORY(props::DashCrate),
+    DEFINE_FACTORY(props::Grapple),
+    DEFINE_FACTORY(props::Water),
 
     // background
     DEFINE_FACTORY(background::Parallax),

@@ -35,22 +35,26 @@ constexpr float DashSpeedEnhanced = 800;
 constexpr float HardballAirFactor = 0.125;
 constexpr float HardballWaterFactor = 0.75;
 
-const auto DashInterval = 40 * UpdateFrequency;
-const auto DashIntervalEnhanced = 90 * UpdateFrequency;
+constexpr auto DashInterval = 40 * UpdateFrequency;
+constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
+constexpr auto HardballChangeTime = 40 * UpdateFrequency;
+constexpr auto GrappleFade = 30 * UpdateFrequency;
 
 constexpr uintmax_t BaseHealth = 208;
 constexpr uintmax_t HealthIncr = 8;
 
 Player::Player(GameScene& scene)
-    : abilityLevel(0), angle(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
+    : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
-    chargingForHardball(false), hardballEnabled(false),
-    sprite(scene.getResourceManager().load<sf::Texture>("player.png"))
+    chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0),
+    sprite(scene.getResourceManager().load<sf::Texture>("player.png")),
+    grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
+    grappleSprite.setOpacity(0);
     setName("player");
-    upgradeToAbilityLevel(6);
+    //upgradeToAbilityLevel(10);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -112,10 +116,11 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     
     auto vec = controller.getMovementVector();
     auto body = playerShape->getBody();
-
+    auto pos = body->getPosition();
     auto vel = body->getVelocity();
+    auto dt = toSeconds<cpFloat>(UpdateFrequency);
+    
     auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x * hardballFactor();
-
     if (std::abs(vel.x - dest) < 6.0)
     {
         vel.x = dest;
@@ -124,8 +129,11 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     auto base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
 
-    auto pos = body->getPosition();
-    body->applyForceAtWorldPoint(base * body->getMass() * HorAcceleration, pos);
+    if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
+    angle += radiansToDegrees(vel.x * dt / 32);
+    angle -= 360 * roundf(angle/360);
+
+    body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     bool onGround = false, wallHit = false;
 
@@ -137,7 +145,18 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
             wallHit = true;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
+        {
+            if (isDashing())
+            {
+                auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                    arbiter.getShapeB() : arbiter.getShapeA();
+
+                if (cpShapeGetCollisionType(shp) == Interactable)
+                    (*(GameObject::InteractionHandler*)cpShapeGetUserData(shp))(DashInteractionType, (void*)this);
+            }
+            
             reset(dashTime);
+        }
     });
 
     if (onGround)
@@ -147,35 +166,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         doubleJumpConsumed = false;
         if (controller.isJumpPressed() && !onWaterNoHardball()) jump();
         
-        if (abilityLevel >= 7)
-        {
-            if (controller.isDashPressed() && vec.y > 0.5)
-            {
-                chargingForHardball = true;
-                hardballTime = curTime;
-            }
-            else if (controller.isDashReleased())
-            {
-                chargingForHardball = false;
-                reset(hardballTime);
-            }
-
-            if (chargingForHardball)
-            {
-                if (vec.y <= 0.5)
-                {
-                    reset(hardballTime);
-                    chargingForHardball = false;
-                }
-                else if (curTime - hardballTime >= 40 * UpdateFrequency)
-                {
-                    reset(hardballTime);
-                    hardballEnabled = !hardballEnabled;
-                    chargingForHardball = false;
-                    setHardballSprite();
-                }
-            }
-        }
+        if (abilityLevel >= 7) observeHardballTrigger();
     }
     else
     {
@@ -209,16 +200,15 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 else if (vec.y < -0.25 && abilityLevel >= 10) dashDirection = DashDir::Up;
 
                 if (dashDirection != DashDir::None) dashTime = curTime;
+                dashConsumed = true;
             }
             else if (controller.isDashReleased())
             {
                  reset(dashTime);
                  dashDirection = DashDir::None;
-                 dashConsumed = true;
             }
 
-            auto dashInterval = abilityLevel >= 10 ? DashIntervalEnhanced : DashInterval;
-            if (curTime - dashTime < dashInterval) dash();
+            if (isDashing()) dash();
         }
     }
 
@@ -237,21 +227,29 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (controller.isBombPressed() && abilityLevel >= 5) lieBomb(curTime);
 
-    if (onWaterNoHardball())
+    if (onWater())
     {
+        float density = hardballEnabled ? 0.4 : 1.6;
+        
         // buoyancy
-        auto force = -gameScene.getGameSpace().getGravity() * 1.6 * waterArea;
-        body->applyImpulseAtLocalPoint(force * toSeconds<cpFloat>(UpdateFrequency), { 0, 0 });
+        auto force = -gameScene.getGameSpace().getGravity() * density * waterArea;
+        body->applyForceAtLocalPoint(force, cpvzero);
 
-        //drag
-        auto damping = exp(-3.3 * toSeconds<cpFloat>(UpdateFrequency) * (waterArea/PlayerArea));
-        body->applyImpulseAtLocalPoint(body->getVelocity() * (damping-1) * PlayerArea, { 0, 0 });
+        // drag: this velocity minimum is required for double jumps to work on water
+        if (cpvlengthsq(body->getVelocity()) >= 18)
+        {
+            auto damping = exp(-2 * density * dt * (waterArea/PlayerArea));
+            body->applyImpulseAtLocalPoint(body->getVelocity() * (damping-1) * PlayerArea, cpvzero);
+        }
 
-        if (controller.isJumpPressed() && canWaterJump()) jump();
+        if (!hardballEnabled && controller.isJumpPressed() && canWaterJump()) jump();
     }
 
-    angle += radiansToDegrees(body->getVelocity().x * toSeconds<float>(UpdateFrequency) / 32);
-    angle -= 360 * roundf(angle/360);
+    if (abilityLevel >= 9 && (hardballEnabled == onWater()))
+    {
+        if (controller.isJumpPressed()) grappleEnabled = true;
+        else if (controller.isJumpReleased()) grappleEnabled = false;
+    }
 }
 
 void Player::jump()
@@ -259,14 +257,14 @@ void Player::jump()
     auto body = playerShape->getBody();
     auto dest = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
     auto y = -(dest * sqrt(hardballFactor())) - body->getVelocity().y;
-    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), { 0, 0 });
+    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpvzero);
 }
 
 void Player::decayJump()
 {
     auto body = playerShape->getBody();
     auto y = std::max(-(DecayJumpSpeed * sqrt(hardballFactor())) - body->getVelocity().y, 0.0);
-    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpVect{0, 0});
+    body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpvzero);
 }
 
 void Player::wallJump()
@@ -281,7 +279,7 @@ void Player::wallJump()
     auto sgn = body->getVelocity().x > 0 ? 1.0 : body->getVelocity().x < 0 ? -1.0 : 0.0;
     if (sgn == 0.0) return;
     auto dv = cpVect{sgn*maxHorSpeed*hardballFactor(), -peakJumpSpeed*sqrt(hardballFactor())} - body->getVelocity();
-    body->applyImpulseAtLocalPoint(dv * body->getMass(), cpVect{0, 0});
+    body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
 }
 
 void Player::dash()
@@ -300,13 +298,46 @@ void Player::dash()
     }
 
     auto dv = vel - body->getVelocity();
-    body->applyImpulseAtLocalPoint(dv * body->getMass(), cpVect{0, 0});
+    body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
 }
 
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
     auto bomb = std::make_unique<Bomb>(gameScene, getPosition(), curTime);
     gameScene.addObject(std::move(bomb));
+}
+
+void Player::observeHardballTrigger()
+{
+    const auto& controller = gameScene.getPlayerController();
+    auto vec = controller.getMovementVector();
+    
+    if (controller.isDashPressed() && vec.y > 0.5)
+    {
+        chargingForHardball = true;
+        hardballTime = curTime;
+    }
+    else if (controller.isDashReleased())
+    {
+        chargingForHardball = false;
+        reset(hardballTime);
+    }
+
+    if (chargingForHardball)
+    {
+        if (vec.y <= 0.5)
+        {
+            reset(hardballTime);
+            chargingForHardball = false;
+        }
+        else if (curTime - hardballTime >= HardballChangeTime)
+        {
+            reset(hardballTime);
+            hardballEnabled = !hardballEnabled;
+            chargingForHardball = false;
+            setHardballSprite();
+        }
+    }
 }
 
 void Player::setHardballSprite()
@@ -352,6 +383,12 @@ float Player::hardballFactor() const
     return hardballEnabled ? (onWater() ? HardballWaterFactor : HardballAirFactor) : 1;
 }
 
+bool Player::isDashing() const
+{
+    auto dashInterval = abilityLevel >= 10 ? DashIntervalEnhanced : DashInterval;
+    return curTime - dashTime < dashInterval;
+}
+
 void Player::render(Renderer& renderer)
 {
     renderer.pushTransform();
@@ -360,12 +397,19 @@ void Player::render(Renderer& renderer)
 
     if (chargingForHardball)
     {
-        auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(40 * UpdateFrequency);
+        auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
         sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
     }
     else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
 
+    auto fade = std::min(toSeconds<float>(curTime - grappleTime) / toSeconds<float>(GrappleFade), 1.0f);
+    if (grapplePoints == 0) fade = std::min(lastFade, 1.0f - fade);
+    else fade = std::max(lastFade, fade);
+    lastFade = fade;
+    grappleSprite.setOpacity(fade);
+
     renderer.pushDrawable(sprite, {}, 16);
+    if (fade != 0.0f) renderer.pushDrawable(grappleSprite, {}, 14);
     
     renderer.popTransform();
 }

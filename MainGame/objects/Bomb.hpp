@@ -34,5 +34,5 @@ public:
 
     void detonate();
 
-    static constexpr cpCollisionType Bombable = 'bomb';
+    static constexpr uint32_t InteractionType = 'bomb';
 };

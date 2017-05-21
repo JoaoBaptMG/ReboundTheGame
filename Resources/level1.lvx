@@ -4,4 +4,6 @@
     <room id="0" name="room0" starting="true"/>
     <room id="1" name="room1"/>
     <room id="2" name="room2"/>
+    <room id="3" name="room3"/>
+    <room id="4" name="room4"/>
 </level>

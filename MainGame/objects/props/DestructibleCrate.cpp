@@ -1,4 +1,4 @@
-#include "BombCrate.hpp"
+#include "DestructibleCrate.hpp"
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
@@ -16,21 +16,31 @@
 using namespace props;
 using namespace cp;
 
-BombCrate::BombCrate(GameScene& gameScene) : GameObject(gameScene),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("bomb-crate.png"))
+DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, uint32_t type)
+    : GameObject(gameScene), sprite(gameScene.getResourceManager().load<sf::Texture>(texture))
 {
     setupPhysics();
-    bombHandler = [this] (Bomb*) { remove(); };
+    interactionHandler = [this,type] (uint32_t ty, void* ptr)
+    {
+        if (ty == type) remove();
+    };
 }
 
-bool BombCrate::configure(const BombCrate::ConfigStruct& config)
+bool DestructibleCrate::configure(const DestructibleCrate::ConfigStruct& config)
 {
     setPosition(cpVect{(cpFloat)config.position.x, (cpFloat)config.position.y});
+
+    auto player = gameScene.getObjectByName<Player>("player");
+    if (player)
+    {
+        auto dif = gameScene.wrapPosition(player->getPosition()) - getPosition();
+        if (std::abs(dif.x) <= 48 && std::abs(dif.y) <= 48) return false;
+    }
 
     return true;
 }
 
-void BombCrate::setupPhysics()
+void DestructibleCrate::setupPhysics()
 {
     auto body = std::make_shared<Body>(Body::Kinematic);
     
@@ -39,8 +49,8 @@ void BombCrate::setupPhysics()
     
     shape->setDensity(1);
     shape->setElasticity(0.6);
-    shape->setCollisionType(Bomb::Bombable);
-    shape->setUserData(&bombHandler);
+    shape->setCollisionType(Interactable);
+    shape->setUserData(&interactionHandler);
 
     gameScene.getGameSpace().add(body);
     gameScene.getGameSpace().add(shape);
@@ -48,7 +58,7 @@ void BombCrate::setupPhysics()
     body->setUserData((void*)this);
 }
 
-BombCrate::~BombCrate()
+DestructibleCrate::~DestructibleCrate()
 {
     if (shape)
     {
@@ -58,11 +68,12 @@ BombCrate::~BombCrate()
     }
 }
 
-void BombCrate::update(std::chrono::steady_clock::time_point curTime)
+void DestructibleCrate::update(std::chrono::steady_clock::time_point curTime)
 {
+
 }
 
-void BombCrate::render(Renderer& renderer)
+void DestructibleCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());

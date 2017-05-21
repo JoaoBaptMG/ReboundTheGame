@@ -7,24 +7,25 @@
 #include <cppmunk/Body.h>
 
 #include "objects/GameObject.hpp"
+#include "objects/Bomb.hpp"
+#include "objects/Player.hpp"
 #include "scene/GameScene.hpp"
 #include "drawables/Sprite.hpp"
 
 class GameScene;
 class Renderer;
-class Bomb;
 
 namespace props
 {
-    class BombCrate final : public ::GameObject
+    class DestructibleCrate : public ::GameObject
     {
         Sprite sprite;
         std::shared_ptr<cp::Shape> shape;
-        std::function<void(Bomb*)> bombHandler;
+        InteractionHandler interactionHandler;
 
     public:
-        BombCrate(GameScene& scene);
-        virtual ~BombCrate();
+        DestructibleCrate(GameScene& scene, std::string texture, uint32_t type);
+        virtual ~DestructibleCrate();
 
         void setupPhysics();
 
@@ -49,5 +50,15 @@ namespace props
 #pragma pack(pop)
 
         bool configure(const ConfigStruct& config);
+    };
+
+    struct BombCrate final : public DestructibleCrate
+    {
+        BombCrate(GameScene& scene) : DestructibleCrate(scene, "bomb-crate.png", Bomb::InteractionType) {}
+    };
+
+    struct DashCrate final : public DestructibleCrate
+    {
+        DashCrate(GameScene& scene) : DestructibleCrate(scene, "dash-crate.png", Player::DashInteractionType) {}
     };
 }

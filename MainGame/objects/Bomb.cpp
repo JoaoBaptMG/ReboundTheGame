@@ -30,8 +30,8 @@ void Bomb::detonate()
     gameScene.getGameSpace().pointQuery(position, 48, CP_SHAPE_FILTER_ALL,
     [=](cpShape* shape, cpVect point, cpFloat distance, cpVect gradient)
     {
-        if (distance <= 48 && cpShapeGetCollisionType(shape) == Bombable)
-            (*(std::function<void(Bomb*)>*)cpShapeGetUserData(shape))(this);
+        if (distance <= 48 && cpShapeGetCollisionType(shape) == Interactable)
+            (*(GameObject::InteractionHandler*)cpShapeGetUserData(shape))(InteractionType, (void*)this);
     });
 }
 

@@ -1,6 +1,6 @@
 #include "Water.hpp"
 
-#include "Player.hpp"
+#include "objects/Player.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include <cmath>
@@ -65,13 +65,19 @@ cpFloat intersectionAreaForAABBCircle(cpBB bb, cpVect pos, cpFloat radius)
            intersectQuarterCircle({ pos.x - bb.r, pos.y - bb.t, pos.x - bb.l, pos.y - bb.b }, radius);
 }
 
+using namespace props;
+
 Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256))
 {
     shape.setColor(sf::Color(100, 100, 255, 128));
     shape.setCoastColor(sf::Color(255, 255, 255, 128));
 }
 
-Water::~Water() {}
+Water::~Water()
+{
+     auto player = gameScene.getObjectByName<Player>("player");
+     if (player) player->addToWaterArea(-oldArea);
+}
 
 bool Water::configure(const ConfigStruct& config)
 {
@@ -109,7 +115,7 @@ void Water::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
-    renderer.pushDrawable(shape, {}, 20);
+    renderer.pushDrawable(shape, {}, 21);
     renderer.popTransform();
 }
 

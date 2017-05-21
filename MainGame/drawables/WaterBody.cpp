@@ -29,7 +29,7 @@ void main()
     }
 
     float weight = step(staticDist, gl_TexCoord[0].y);
-    float mixed = smoothstep(0.0, 32.0, gl_TexCoord[0].y - staticDist);
+    float mixed = step(staticDist + 4.0, gl_TexCoord[0].y);
 
     gl_FragColor = mix(coastColor, color, mixed) * weight;
 }

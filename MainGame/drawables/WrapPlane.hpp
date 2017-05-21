@@ -11,13 +11,13 @@ class WrapPlane final : public sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    WrapPlane(sf::FloatRect area, std::shared_ptr<sf::Texture> tex = nullptr) : texture(tex), drawArea(area) {}
+    WrapPlane(sf::FloatRect area, std::shared_ptr<sf::Texture> tex = nullptr) : drawArea(area) { setTexture(tex); }
 
     auto getTexture() { return texture; }
     void setTexture(std::shared_ptr<sf::Texture> tex)
     {
         texture = tex;
-        texture->setRepeated(true);
+        if (texture) texture->setRepeated(true);
     }
 
     auto getDrawArea() { return drawArea; }
