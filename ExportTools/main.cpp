@@ -12,12 +12,14 @@ struct Descriptor
 int tmxToMap(std::string, std::string);
 int lvxToLvl(std::string, std::string);
 int tsxToTs(std::string, std::string);
+int pexToPe(std::string, std::string);
 
 const std::map<std::string,Descriptor> toolList =
 {
     { "tmxToMap", { tmxToMap, "converts a Tiled map into a form that can be consumed by the engine" } },
     { "lvxToLvl", { lvxToLvl, "converts a XML document describing a level into a form accessible by the engine" } },
     { "tsxToTs", { tsxToTs, "converts a XML document describing a tileset into a form accessible by the engine" } },
+    { "pexToPe", { pexToPe, "converts a XML document describing a particle emitter into a form accessible by the engine" } },
 };
 
 void printAllTools()
@@ -45,7 +47,7 @@ int main(int argc, char **argv)
     auto it = toolList.find(argv[1]);
     if (it == toolList.end())
     {
-        std::cout << "Tool " << argv[1] << " not found on the toolkit!";
+        std::cout << "Tool " << argv[1] << " not found on the toolkit! ";
         printAllTools();
         return -1;
     }

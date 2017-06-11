@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <tuple>
+#include <unordered_map>
 #include "grid.hpp"
 
 namespace util
@@ -48,8 +49,6 @@ namespace util
     template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
     {
-        PrintTemplateSpecializationFor<T>();
-        
         uintmax_t size;
 
         if (!readFromStream(stream, VarLength(size)))
@@ -94,8 +93,6 @@ namespace util
     template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
     bool readFromStream(sf::InputStream &stream, grid<T> &value)
     {
-        PrintTemplateSpecializationFor<T>();
-        
         uintmax_t width, height;
 
         if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))
@@ -128,10 +125,25 @@ namespace util
         return true;
     }
 
-    template <typename T1, typename T2>
-    bool readFromStream(sf::InputStream& stream, std::pair<T1,T2>& pair)
+    template <typename T, typename U>
+    bool readFromStream(sf::InputStream &stream, std::unordered_map<T,U> &value)
     {
-        return readFromStream(stream, pair.first) && readFromStream(stream, pair.second);
+        std::unordered_map<T,U> newVal;
+
+        uintmax_t size;
+        if (!readFromStream(stream, VarLength(size)))
+            return false;
+
+        for (uintmax_t i = 0; i < size; i++)
+        {
+            T first; U second;
+            if (!readFromStream(stream, first) || !readFromStream(stream, second))
+                return false;
+            newVal.emplace(first, second);
+        }
+
+        swap(newVal, value);
+        return true;
     }
 
     template <typename T, typename... Ts, typename std::enable_if_t<(sizeof...(Ts) > 0), int> = 0>

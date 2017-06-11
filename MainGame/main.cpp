@@ -3,6 +3,7 @@
 #include <thread>
 #include <utility>
 #include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 
 #include "input/InputManager.hpp"
 #include "input/PlayerController.hpp"
@@ -24,6 +25,8 @@ int main(int argc, char **argv)
 {
     sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game");
     renderWindow.setVerticalSyncEnabled(true);
+
+    glEnable(GL_PROGRAM_POINT_SIZE);
 
     Renderer renderer(renderWindow);
     InputManager inputManager;

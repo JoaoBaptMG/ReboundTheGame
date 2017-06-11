@@ -7,6 +7,7 @@
 #include "data/RoomData.hpp"
 #include "data/LevelData.hpp"
 #include "data/TileSet.hpp"
+#include "particles/ParticleEmitter.hpp"
 
 using namespace util;
 using namespace ResourceLoader;
@@ -27,6 +28,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
 {
     { "ts",  loadGenericResource<TileSet> },
     { "lvl", loadGenericResource<LevelData> },
+    { "pe",  loadParticleEmitterList },
     { "map", loadGenericResource<RoomData> },
     { "png", loadGenericResource<sf::Texture> },
     { "ttf", loadGenericResource<sf::Font> }

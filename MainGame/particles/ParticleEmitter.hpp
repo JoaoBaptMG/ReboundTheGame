@@ -1,0 +1,45 @@
+#pragma once
+
+#include <SFML/Graphics.hpp>
+#include <chrono>
+
+#include "utility/generic_ptrs.hpp"
+#include "utility/streamCommons.hpp"
+#include "particles/ParticleBatch.hpp"
+
+class ParticleEmitter final
+{
+    std::function<float()> generator;
+    
+    ParticleBatch::Duration totalLifetime;
+    ParticleBatch::Duration emissionPeriod;
+
+    sf::Vector2f emissionCenter;
+    sf::Vector2f emissionHalfSize;
+    sf::Vector2f acceleration;
+    float emissionInnerLimit;
+
+    float directionFirst, directionSecond, directionCenterWeight;
+    float speedFirst, speedSecond, speedWeight;
+    float sizeBeginFirst, sizeBeginSecond, sizeBeginWeight;
+    float sizeEndFirst, sizeEndSecond, sizeEndWeight;
+    
+    ParticleBatch::Duration lifetimeFirst, lifetimeSecond;
+
+    sf::Color colorBeginFirst, colorBeginSecond;
+    sf::Color colorEndFirst, colorEndSecond;
+    bool generateHSV;
+
+public:
+    ParticleEmitter();
+
+    void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last);
+    auto getTotalLifetime() const { return totalLifetime; }
+
+    bool loadFromStream(sf::InputStream& stream);
+    friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
+};
+
+using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
+
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream);

@@ -14,6 +14,7 @@ class PlayerController;
 class ResourceManager;
 class GameScene;
 class Renderer;
+class ParticleBatch;
 
 template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
 void reset(T& val) { val = T(); }
@@ -27,7 +28,9 @@ class Player final : public GameObject
 {
     Sprite sprite, grappleSprite;
     std::shared_ptr<cp::Shape> playerShape;
-    
+    ParticleBatch* dashBatch;
+    ParticleBatch* hardballBatch;
+
     float angle, lastFade;
     bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled;
@@ -81,6 +84,7 @@ public:
     }
 
     bool isDashing() const;
+    std::string getDashEmitterName() const;
 
     bool onWater() const;
     bool onWaterNoHardball() const;

@@ -82,6 +82,11 @@ std::vector<GameObject*> GameScene::getObjectsByName(std::string str)
     return objs;
 }
 
+void GameScene::removeObjectsByName(std::string str)
+{
+    for (auto obj : getObjectsByName(str)) obj->remove();
+}
+
 cpVect GameScene::wrapPosition(cpVect pos)
 {
     cpFloat width = DefaultTileSize * currentRoomData->mainLayer.width();
@@ -95,6 +100,8 @@ cpVect GameScene::wrapPosition(cpVect pos)
 
 void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
+    using std::swap;
+    
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
 
     room.update(curTime);

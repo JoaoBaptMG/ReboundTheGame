@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<particle-emitter-set>
+    <particle-emitter name="jump">
+        <total-lifetime value="0.02"/>
+        <emission-period value="0.0005"/>
+
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="32" y="32"/>
+
+        <direction first="0" second="180"/>
+        <speed value="160"/>
+        <acceleration x="0" y="1024"/>
+
+        <size-begin value="8"/>
+        <size-end value="8"/>
+
+        <lifetime value="0.9"/>
+        <color-begin value="#000000ff"/>
+        <color-end value="#00000000"/>
+    </particle-emitter>
+
+    <particle-emitter name="wall-jump-right" extends="jump">
+        <emission-center x="28" y="0"/>
+        <emission-half-size x="4" y="4"/>
+        <direction first="135" second="225"/>
+        <speed first="120" second="200"/>
+    </particle-emitter>
+
+    <particle-emitter name="wall-jump-left" extends="wall-jump-right">
+        <emission-center x="-28" y="0"/>
+        <emission-half-size x="4" y="4"/>
+        <direction first="-45" second="45"/>
+    </particle-emitter>
+
+    <particle-emitter name="bomb">
+        <total-lifetime value="0.02"/>
+        <emission-period value="0.0001"/>
+
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="12" y="12"/>
+        <emission-inner-limit value="0.9"/>
+
+        <direction first="0" second="360"/>
+        <speed first="200" second="480"/>
+        <acceleration x="0" y="1024"/>
+
+        <size-begin value="16"/>
+        <size-end value="16"/>
+
+        <lifetime value="1.6"/>
+        <color-begin value="#6666ffff"/>
+        <color-end value="#6666ff00"/>
+    </particle-emitter>
+
+    <particle-emitter name="dash-right">
+        <total-lifetime value="infinity"/>
+        <emission-period value="0.01"/>
+
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="0" y="0"/>
+
+        <direction first="170" second="190"/>
+        <speed value="600"/>
+        <acceleration x="256" y="0"/>
+
+        <size-begin value="64"/>
+        <size-end value="128"/>
+
+        <lifetime value="1.5"/>
+        <color-begin value="#33ffff80"/>
+        <color-end value="#33ffff00"/>
+    </particle-emitter>
+
+    <particle-emitter name="dash-left" extends="dash-right">
+        <direction first="-10" second="10"/>
+        <acceleration x="-256" y="0"/>
+    </particle-emitter>
+
+    <particle-emitter name="enhanced-dash-right" extends="dash-right">
+        <emission-period value="0.003"/>
+        <lifetime value="1.5"/>
+        <color-begin value="#ff220080"/>
+        <color-end value="#ff220000"/>
+    </particle-emitter>
+
+    <particle-emitter name="enhanced-dash-left" extends="enhanced-dash-right">
+        <direction first="-10" second="10"/>
+        <acceleration x="-256" y="0"/>
+    </particle-emitter>
+
+    <particle-emitter name="enhanced-dash-up" extends="enhanced-dash-right">
+        <direction first="80" second="100"/>
+        <acceleration x="0" y="-256"/>
+    </particle-emitter>
+
+    <particle-emitter name="hardball-spark">
+        <total-lifetime value="infinity"/>
+        <emission-period value="0.001"/>
+
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="0" y="0"/>
+
+        <direction first="0" second="360"/>
+        <speed value="400"/>
+
+        <size-begin value="12"/>
+        <size-end value="12"/>
+
+        <lifetime value="0.2"/>
+        <color-begin value="#ffffffff"/>
+        <color-end value="#ffffff00"/>
+    </particle-emitter>
+</particle-emitter-set>

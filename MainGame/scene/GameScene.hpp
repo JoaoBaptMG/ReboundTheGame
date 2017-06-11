@@ -69,6 +69,7 @@ public:
     getObjectByName(std::string str) { return dynamic_cast<T*>(getObjectByName(str)); }
 
     std::vector<GameObject*> getObjectsByName(std::string str);
+    void removeObjectsByName(std::string str);
 
     cpVect wrapPosition(cpVect pos);
 

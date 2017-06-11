@@ -8,6 +8,7 @@
 #include "utility/assert.hpp"
 #include "utility/vector_math.hpp"
 #include "objects/Bomb.hpp"
+#include "particles/ParticleBatch.hpp"
 
 #include <functional>
 #include <limits>
@@ -16,6 +17,8 @@
 #include <cppmunk/CircleShape.h>
 #include <cppmunk/Space.h>
 #include <cppmunk/Arbiter.h>
+
+#include <random>
 
 using namespace std::literals::chrono_literals;
 
@@ -47,6 +50,7 @@ Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0),
+    dashBatch(nullptr), hardballBatch(nullptr),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png")),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
@@ -54,7 +58,7 @@ Player::Player(GameScene& scene)
 
     grappleSprite.setOpacity(0);
     setName("player");
-    //upgradeToAbilityLevel(10);
+    upgradeToAbilityLevel(9);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -95,8 +99,6 @@ void Player::setupPhysics()
                 arbiter.setRestitution(0);
             return true;
         }, [] (Arbiter, Space&) {}, [] (Arbiter, Space&) {});
-
-    printf("mass = %g\n", body->getMass());
 }
 
 Player::~Player()
@@ -119,21 +121,25 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto pos = body->getPosition();
     auto vel = body->getVelocity();
     auto dt = toSeconds<cpFloat>(UpdateFrequency);
-    
-    auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x * hardballFactor();
-    if (std::abs(vel.x - dest) < 6.0)
-    {
-        vel.x = dest;
-        body->setVelocity(vel);
-    }
 
-    auto base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
+    cpVect base;
+    if (grapplePoints == 0)
+    {
+        auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x * hardballFactor();
+        if (std::abs(vel.x - dest) < 6.0)
+        {
+            vel.x = dest;
+            body->setVelocity(vel);
+        }
+        
+        base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
+    }
+    else base.x = vec.x, base.y = vec.y;
+    body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
     angle += radiansToDegrees(vel.x * dt / 32);
     angle -= 360 * roundf(angle/360);
-
-    body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     bool onGround = false, wallHit = false;
 
@@ -208,7 +214,23 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                  dashDirection = DashDir::None;
             }
 
-            if (isDashing()) dash();
+            if (isDashing())
+            {
+                dash();
+                
+                if (!dashBatch)
+                {
+                    auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe",
+                        getDashEmitterName(), true);
+                    dashBatch = batch.get();
+                    gameScene.addObject(std::move(batch));
+                }
+            }
+            if (!isDashing() && dashBatch)
+            {
+                dashBatch->abort();
+                dashBatch = nullptr;
+            }
         }
     }
 
@@ -250,10 +272,17 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         if (controller.isJumpPressed()) grappleEnabled = true;
         else if (controller.isJumpReleased()) grappleEnabled = false;
     }
+
+    if (dashBatch) dashBatch->setPosition(getDisplayPosition());
+    if (hardballBatch) hardballBatch->setPosition(getDisplayPosition());
 }
 
 void Player::jump()
 {
+    auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "jump");
+    batch->setPosition(getDisplayPosition());
+    gameScene.addObject(std::move(batch));
+    
     auto body = playerShape->getBody();
     auto dest = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
     auto y = -(dest * sqrt(hardballFactor())) - body->getVelocity().y;
@@ -280,6 +309,22 @@ void Player::wallJump()
     if (sgn == 0.0) return;
     auto dv = cpVect{sgn*maxHorSpeed*hardballFactor(), -peakJumpSpeed*sqrt(hardballFactor())} - body->getVelocity();
     body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
+
+    auto name = body->getVelocity().x > 0 ? "wall-jump-left" : "wall-jump-right";
+    auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", name);
+    batch->setPosition(getDisplayPosition());
+    gameScene.addObject(std::move(batch));
+}
+
+std::string Player::getDashEmitterName() const
+{
+    switch (dashDirection)
+    {
+        case DashDir::Left: return abilityLevel >= 10 ? "enhanced-dash-left" : "dash-left";
+        case DashDir::Right: return abilityLevel >= 10 ? "enhanced-dash-right" : "dash-right";
+        case DashDir::Up: return "enhanced-dash-up";
+        default: return "";
+    }
 }
 
 void Player::dash()
@@ -303,8 +348,7 @@ void Player::dash()
 
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
-    auto bomb = std::make_unique<Bomb>(gameScene, getPosition(), curTime);
-    gameScene.addObject(std::move(bomb));
+    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), curTime));
 }
 
 void Player::observeHardballTrigger()
@@ -337,6 +381,18 @@ void Player::observeHardballTrigger()
             chargingForHardball = false;
             setHardballSprite();
         }
+    }
+
+    if (chargingForHardball && !hardballBatch)
+    {
+        auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "hardball-spark");
+        hardballBatch = batch.get();
+        gameScene.addObject(std::move(batch));
+    }
+    else if (!chargingForHardball && hardballBatch)
+    {
+        hardballBatch->abort();
+        hardballBatch = nullptr;
     }
 }
 

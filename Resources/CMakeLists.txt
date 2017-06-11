@@ -8,9 +8,9 @@ list(REMOVE_ITEM RESOURCES "CMakeLists.txt")
 set(OUTPUTS "")
 
 function(add_resource fname)
-    set(EXTENSIONS ".tmx" ".lvx" ".tsx")
-    set(TOOLS tmxToMap lvxToLvl tsxToTs)
-    set(TOOL_OUTPUTS ".map" ".lvl" ".ts")
+    set(EXTENSIONS ".tmx" ".lvx" ".tsx" ".pex")
+    set(TOOLS tmxToMap lvxToLvl tsxToTs pexToPe)
+    set(TOOL_OUTPUTS ".map" ".lvl" ".ts" ".pe")
 
     get_filename_component(ext ${fname} EXT)
     list(FIND EXTENSIONS ${ext} toolIndex)
