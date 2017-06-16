@@ -16,7 +16,7 @@ namespace collectibles
         sf::VertexArray vertices;
         std::shared_ptr<sf::Texture> texture;
         std::shared_ptr<cp::Shape> collisionShape;
-        uintmax_t abilityLevel;
+        size_t abilityLevel;
 
         float rotationAngle;
         void makeRotatedRect();

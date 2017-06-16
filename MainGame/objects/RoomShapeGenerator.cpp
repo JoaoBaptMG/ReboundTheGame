@@ -128,7 +128,7 @@ std::vector<std::shared_ptr<cp::Shape>>
         }                                                                                             \
     } while (0)
 
-    uintmax_t bounds = layer.width();
+    size_t bounds = layer.width();
     CONVERT_SHAPES(y, x, upperOffset, lowerOffset, leftOffset, rightOffset, horizontalSegments, isSolid);
 
     bounds = layer.height();

@@ -31,7 +31,7 @@ void GameScene::loadLevel(std::string levelName)
     loadRoomObjects();
 }
 
-void GameScene::loadRoom(uintmax_t id)
+void GameScene::loadRoom(size_t id)
 {
     auto roomName = levelData->roomResourceNames.at(id) + ".map";
     

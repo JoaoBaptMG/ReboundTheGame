@@ -22,7 +22,7 @@ auto pointsForShape(cpShape* shape, sf::Color color)
             auto radius = cpCircleShapeGetRadius(shape);
             auto vpos = pos + cpvrotate(rvec, cpCircleShapeGetOffset(shape));
 
-            uintmax_t partitions = floor(4.2*radius);
+            size_t partitions = floor(4.2*radius);
             for (int i = 0; i < partitions; i++)
             {
                 auto vec = vpos + cpvforangle(6.28318530718 * i / partitions) * radius;
@@ -37,7 +37,7 @@ auto pointsForShape(cpShape* shape, sf::Color color)
             auto b = pos + cpvrotate(rvec, cpSegmentShapeGetB(shape));
             auto prp = cpvnormalize(cpvrperp(b-a)) * radius;
 
-            uintmax_t partitions = floor(2.1*radius);
+            size_t partitions = floor(2.1*radius);
 
             for (int i = 0; i < partitions; i++)
             {
@@ -81,7 +81,7 @@ auto pointsForShape(cpShape* shape, sf::Color color)
                     t2 -= floor(t2/6.28318530718) * 6.28318530718;
                     if (t2 < t1) t2 += 6.28318530718;
 
-                    uintmax_t partitions = floor((t2-t1)*radius / 3);
+                    size_t partitions = floor((t2-t1)*radius / 3);
 
                     for (int i = 0; i < partitions; i++)
                     {

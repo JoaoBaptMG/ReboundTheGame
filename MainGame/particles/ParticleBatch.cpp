@@ -8,6 +8,7 @@
 #include "utility/assert.hpp"
 
 constexpr auto ParticleVertexShader = R"vertex(
+#version 130
 void main()
 {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;

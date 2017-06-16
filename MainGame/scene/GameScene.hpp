@@ -19,8 +19,9 @@
 
 class Player;
 class Renderer;
-class RoomData;
 class ResourceManager;
+
+struct RoomData;
 
 class GameScene : public Scene
 {
@@ -55,7 +56,7 @@ public:
     ResourceManager& getResourceManager() const { return resourceManager; }
 
     void loadLevel(std::string levelName);
-    void loadRoom(uintmax_t id);
+    void loadRoom(size_t id);
     void loadRoomObjects();
 
     void addObject(std::unique_ptr<GameObject> obj);

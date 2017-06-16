@@ -11,11 +11,11 @@ class Tilemap final : public sf::Drawable
     std::shared_ptr<sf::Texture> texture;
 
     mutable std::unique_ptr<sf::Vertex[]> vertices;
-    mutable uintmax_t vertexSize;
+    mutable size_t vertexSize;
     mutable sf::Vector2i lastPoint;
 
     sf::FloatRect drawingFrame;
-    uintmax_t tileSize;
+    size_t tileSize;
 
     util::grid<uint8_t> tileData;
 
@@ -23,10 +23,10 @@ class Tilemap final : public sf::Drawable
     void mutableUpdateVertexMap(sf::Transform transform) const;
 
 public:
-    explicit Tilemap(sf::FloatRect drawingFrame, uintmax_t tileSize = DefaultTileSize)
+    explicit Tilemap(sf::FloatRect drawingFrame, size_t tileSize = DefaultTileSize)
     : texture(nullptr), vertices(nullptr), vertexSize(0), drawingFrame(drawingFrame),
       tileSize(tileSize), tileData(), lastPoint(0,0) {}
-    explicit Tilemap(uintmax_t tileSize = DefaultTileSize) : Tilemap(sf::FloatRect{}, tileSize) {}
+    explicit Tilemap(size_t tileSize = DefaultTileSize) : Tilemap(sf::FloatRect{}, tileSize) {}
       
     virtual ~Tilemap() {}
 

@@ -19,13 +19,16 @@
 #include "rendering/Renderer.hpp"
 #include "utility/chronoUtils.hpp"
 
+#if _WIN32
+#define GL_PROGRAM_POINT_SIZE 0x8642
+#endif
+
 using namespace std::literals::chrono_literals;
 
 int main(int argc, char **argv)
 {
     sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game");
     renderWindow.setVerticalSyncEnabled(true);
-
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     Renderer renderer(renderWindow);

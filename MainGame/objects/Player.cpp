@@ -22,7 +22,7 @@
 
 using namespace std::literals::chrono_literals;
 
-uintmax_t global_AbilityLevel = 0; // TODO: factor this global out
+size_t global_AbilityLevel = 0; // TODO: factor this global out
 
 constexpr float MaxHorSpeed = 400;
 constexpr float MaxHorSpeedEnhanced = 560;
@@ -43,8 +43,8 @@ constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
 constexpr auto HardballChangeTime = 40 * UpdateFrequency;
 constexpr auto GrappleFade = 30 * UpdateFrequency;
 
-constexpr uintmax_t BaseHealth = 208;
-constexpr uintmax_t HealthIncr = 8;
+constexpr size_t BaseHealth = 208;
+constexpr size_t HealthIncr = 8;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
@@ -402,13 +402,13 @@ void Player::setHardballSprite()
     sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
 }
 
-void Player::heal(uintmax_t amount)
+void Player::heal(size_t amount)
 {
     health += amount;
     if (health > maxHealth) health = maxHealth;
 }
 
-void Player::damage(uintmax_t amount)
+void Player::damage(size_t amount)
 {
     if (health <= amount) health = 0;
     else health -= amount;

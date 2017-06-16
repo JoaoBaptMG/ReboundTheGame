@@ -9,7 +9,7 @@
 
 using namespace collectibles;
 
-HealthPickup::HealthPickup(GameScene& scene, uintmax_t amount) : Collectible(scene), healthAmount(amount),
+HealthPickup::HealthPickup(GameScene& scene, size_t amount) : Collectible(scene), healthAmount(amount),
     sprite(gameScene.getResourceManager().load<sf::Texture>("health-pickup.png"))
 {
     setupPhysics();

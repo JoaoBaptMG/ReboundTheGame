@@ -6,14 +6,14 @@
 #include "../utility/non_copyable_movable.hpp"
 #include "../utility/ContainerEntry.hpp"
 
-using Action = uintmax_t;
+using Action = size_t;
 enum class ActionState { Down, Up };
 
 struct KeyHash
 {
-    uintmax_t operator()(sf::Keyboard::Key key) const noexcept
+    size_t operator()(sf::Keyboard::Key key) const noexcept
     {
-        return std::hash<uintmax_t>()(key);
+        return std::hash<size_t>()(key);
     }
 };
 

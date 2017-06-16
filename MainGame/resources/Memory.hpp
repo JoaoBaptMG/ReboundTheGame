@@ -6,11 +6,11 @@
 class Memory
 {
     uint8_t* ptr;
-    uintmax_t size;
+    size_t size;
 
 public:
     inline Memory() : ptr(nullptr), size(0) {}
-    inline Memory(uintmax_t size) : ptr(new uint8_t[size]), size(size) {}
+    inline Memory(size_t size) : ptr(new uint8_t[size]), size(size) {}
     inline Memory(const Memory &other) : Memory(other.size)
     {
         std::copy(other.ptr, other.ptr+size, ptr);
@@ -27,7 +27,7 @@ public:
 
     inline const void* get_ptr() const { return ptr; }
     inline void* get_ptr() { return ptr; }
-    inline uintmax_t get_size() const { return size; }
+    inline size_t get_size() const { return size; }
 
     friend inline void swap(Memory &m1, Memory &m2) noexcept
     {

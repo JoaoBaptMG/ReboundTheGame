@@ -19,7 +19,7 @@ class ParticleBatch;
 template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
 void reset(T& val) { val = T(); }
 
-extern uintmax_t global_AbilityLevel;
+extern size_t global_AbilityLevel;
 
 constexpr cpFloat PlayerRadius = 32;
 constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
@@ -41,8 +41,8 @@ class Player final : public GameObject
 
     enum class DashDir { None, Left, Right, Up } dashDirection;
 
-    uintmax_t abilityLevel, grapplePoints;
-    uintmax_t health, maxHealth;
+    size_t abilityLevel, grapplePoints;
+    size_t health, maxHealth;
     cpFloat waterArea;
 
 public:
@@ -70,13 +70,13 @@ public:
     auto getHealth() const { return health; }
     auto getMaxHealth() const { return maxHealth; }
 
-    void heal(uintmax_t amount);
-    void damage(uintmax_t amount);
+    void heal(size_t amount);
+    void damage(size_t amount);
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     auto canBreakDash() const { return abilityLevel >= 8; }
     
-    void upgradeToAbilityLevel(uintmax_t level)
+    void upgradeToAbilityLevel(size_t level)
     {
         if (abilityLevel < level)
             abilityLevel = level;

@@ -8,7 +8,7 @@
 #include <vector>
 #include <SFML/System.hpp>
 
-template <uintmax_t size> struct Print;
+template <size_t size> struct Print;
 
 struct GameObjectDescriptor final
 {
