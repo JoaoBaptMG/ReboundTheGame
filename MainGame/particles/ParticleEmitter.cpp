@@ -3,22 +3,10 @@
 #include "utility/chronoUtils.hpp"
 #include "utility/vector_math.hpp"
 
-#include <random>
-#include <functional>
 #include <utility>
 #include <limits>
 
 using namespace std::literals::chrono_literals;
-
-ParticleEmitter::ParticleEmitter()
-{
-    std::random_device init;
-
-    std::mt19937 rgen(init());
-    std::uniform_real_distribution<float> distribution;
-
-    generator = std::bind(distribution, rgen);
-}
 
 bool ParticleEmitter::loadFromStream(sf::InputStream& stream)
 {
@@ -139,8 +127,10 @@ float signedPowf(float x, float y)
 }
 
 void ParticleEmitter::generateNewParticles(ParticleBatch& batch,
-    ParticleBatch::Duration cur, ParticleBatch::Duration last)
+    ParticleBatch::Duration cur, ParticleBatch::Duration last) const
 {
+	auto& generator = batch.generator;
+
     size_t numParticles = cur/emissionPeriod - last/emissionPeriod;
 
     for (size_t i = 0; i < numParticles; i++)

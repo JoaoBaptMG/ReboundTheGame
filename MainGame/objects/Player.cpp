@@ -57,8 +57,8 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
+	upgradeToAbilityLevel(7);
     setName("player");
-    upgradeToAbilityLevel(9);
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -165,14 +165,14 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         }
     });
 
+	if (abilityLevel >= 7) observeHardballTrigger();
+
     if (onGround)
     {
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
         if (controller.isJumpPressed() && !onWaterNoHardball()) jump();
-        
-        if (abilityLevel >= 7) observeHardballTrigger();
     }
     else
     {

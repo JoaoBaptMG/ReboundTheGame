@@ -18,8 +18,8 @@ template <typename T>
 generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
 {
     std::shared_ptr<T> content{new T()};
-    if (content->loadFromStream(*stream))
-        return generic_shared_ptr{content};
+	if (content->loadFromStream(*stream))
+		return generic_shared_ptr{content};
 
     return generic_shared_ptr{};
 }
@@ -37,7 +37,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
 generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)
 {
     auto it = loadFuncs.find(type);
-    if (it != loadFuncs.end())
-        return it->second(stream);
+	if (it != loadFuncs.end())
+		return it->second(stream);
     return generic_shared_ptr{};
 }

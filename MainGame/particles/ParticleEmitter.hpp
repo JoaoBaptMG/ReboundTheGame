@@ -9,8 +9,6 @@
 
 class ParticleEmitter final
 {
-    std::function<float()> generator;
-    
     ParticleBatch::Duration totalLifetime;
     ParticleBatch::Duration emissionPeriod;
 
@@ -31,9 +29,9 @@ class ParticleEmitter final
     bool generateHSV;
 
 public:
-    ParticleEmitter();
+	ParticleEmitter() {}
 
-    void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last);
+    void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last) const;
     auto getTotalLifetime() const { return totalLifetime; }
 
     bool loadFromStream(sf::InputStream& stream);

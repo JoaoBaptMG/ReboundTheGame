@@ -40,6 +40,8 @@ public:
     };
 
 private:
+	std::function<float()> generator;
+
     sf::VertexArray vertices;
 
     std::vector<PositionInfo> positionAttributes;
@@ -79,4 +81,6 @@ public:
 
     auto getPosition() { return position; }
     void setPosition(sf::Vector2f pos) { position = pos; }
+
+	friend class ParticleEmitter;
 };

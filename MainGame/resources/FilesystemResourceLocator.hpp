@@ -16,7 +16,7 @@ public:
     virtual std::unique_ptr<sf::InputStream> getResource(std::string name) override;
 };
 
-class FileNotFound : std::runtime_error
+class FileNotFound : public std::runtime_error
 {
 public:
     inline FileNotFound(std::string name)

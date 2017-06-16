@@ -1,5 +1,8 @@
 #include "ParticleBatch.hpp"
 
+#include <random>
+#include <functional>
+
 #include "particles/ParticleEmitter.hpp"
 #include "rendering/Renderer.hpp"
 #include "utility/chronoUtils.hpp"
@@ -60,6 +63,11 @@ ParticleBatch::ParticleBatch(GameScene &scene, std::string emitterSetName, std::
     : GameObject(scene), vertices(sf::Points), drawingDepth(depth), aborted(false),
       emitterSet(scene.getResourceManager().load<ParticleEmitterSet>(emitterSetName))
 {
+	std::random_device init;
+	std::mt19937 rgen(init());
+	std::uniform_real_distribution<float> distribution;
+	generator = std::bind(distribution, rgen);
+
     isPersistent = persistent;
     emitter = &emitterSet->at(emitterName);
 }
