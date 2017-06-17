@@ -40,14 +40,6 @@ int main(int argc, char **argv)
     InputManager inputManager;
     PlayerController controller(inputManager);
 
-    inputManager.setMapping(sf::Keyboard::Key::A, PlayerController::Actions::Left);
-    inputManager.setMapping(sf::Keyboard::Key::D, PlayerController::Actions::Right);
-    inputManager.setMapping(sf::Keyboard::Key::W, PlayerController::Actions::Up);
-    inputManager.setMapping(sf::Keyboard::Key::S, PlayerController::Actions::Down);
-    inputManager.setMapping((sf::Keyboard::Key)80, PlayerController::Actions::Jump);
-    inputManager.setMapping((sf::Keyboard::Key)79, PlayerController::Actions::Dash);
-    inputManager.setMapping((sf::Keyboard::Key)81, PlayerController::Actions::Bomb);
-
     ResourceManager manager;
     manager.setResourceLocator(new FilesystemResourceLocator());
 
@@ -66,17 +58,13 @@ int main(int argc, char **argv)
 
         while (renderWindow.pollEvent(event))
         {
+            if (inputManager.handleEvent(event)) continue;
             switch (event.type)
             {
                 case sf::Event::EventType::Closed:
                     renderWindow.close();
                     break;
-                case sf::Event::KeyPressed:
-                    inputManager.handleKeyEvent(event.key.code, ActionState::Down);
-                    break;
-                case sf::Event::KeyReleased:
-                    inputManager.handleKeyEvent(event.key.code, ActionState::Up);
-                    break;
+                default: break;
             }
         }
 

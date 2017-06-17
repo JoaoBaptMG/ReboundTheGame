@@ -31,7 +31,7 @@ static inline bool writeToStream(std::ostream &stream, const VarLength value)
     {
         uint8_t b = chunks[i-1];
         if (i == 1) b += 128;
-        if (!stream.put().good()) return false;
+        if (!stream.put(b).good()) return false;
     }
 
     return true;

@@ -1,34 +1,21 @@
 #include "PlayerController.hpp"
 
 PlayerController::PlayerController(InputManager &inputManager)
+    : dash(active), jump(active), bomb(active), movement(active)
 {
-    leftEntry = inputManager.registerCallback(Actions::Left,
-        [this](ActionState state) { isLeft = state == ActionState::Down; });
-    rightEntry = inputManager.registerCallback(Actions::Right,
-        [this](ActionState state) { isRight = state == ActionState::Down; });
-    upEntry = inputManager.registerCallback(Actions::Up,
-        [this](ActionState state) { isUp = state == ActionState::Down; });
-    downEntry = inputManager.registerCallback(Actions::Down,
-        [this](ActionState state) { isDown = state == ActionState::Down; });
-    jumpEntry = inputManager.registerCallback(Actions::Jump,
-        [this](ActionState state) { curJump = state == ActionState::Down; });
-    dashEntry = inputManager.registerCallback(Actions::Dash,
-        [this](ActionState state) { curDash = state == ActionState::Down; });
-    bombEntry = inputManager.registerCallback(Actions::Bomb,
-        [this](ActionState state) { curBomb = state == ActionState::Down; });
+    dash.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)79));
+    jump.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)80));
+    bomb.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)81));
+
+    movement.registerButtonForX(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::A), AxisDirection::Negative);
+    movement.registerButtonForX(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::D), AxisDirection::Positive);
+    movement.registerButtonForY(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::W), AxisDirection::Negative);
+    movement.registerButtonForY(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::S), AxisDirection::Positive);
 }
 
 void PlayerController::update()
 {
-    moveVector.x = isRight ? 1 : isLeft ? -1 : 0;
-    moveVector.y = isDown ? 1 : isUp ? -1 : 0;
-
-    lastJump2 = lastJump1;
-    lastJump1 = curJump;
-
-    lastDash2 = lastDash1;
-    lastDash1 = curDash;
-
-    lastBomb2 = lastBomb1;
-    lastBomb1 = curBomb;
+    dash.update();
+    jump.update();
+    bomb.update();
 }

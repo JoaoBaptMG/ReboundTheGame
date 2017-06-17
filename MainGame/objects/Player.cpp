@@ -57,7 +57,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(7);
+	//upgradeToAbilityLevel(7);
     setName("player");
 }
 
@@ -116,7 +116,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     this->curTime = curTime;
     const auto& controller = gameScene.getPlayerController();
     
-    auto vec = controller.getMovementVector();
+    auto vec = controller.movement.getValue();
     if (chargingForHardball) vec.x = vec.y = 0;
     
     auto body = playerShape->getBody();
@@ -148,7 +148,6 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
         cpFloat angle = cpvtoangle(arbiter.getNormal());
-        printf("angle = %g\n", angle);
         if (fabs(angle - 1.57079632679) < 0.52) onGround = true;
         if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06 || fabs(angle + 3.14159265359) < 0.06)
             wallHit = true;
@@ -178,12 +177,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
-        if (controller.isJumpPressed() && !onWaterNoHardball() && !chargingForHardball) jump();
+        if (controller.jump.isTriggered() && !onWaterNoHardball() && !chargingForHardball) jump();
     }
     else
     {
-        if (controller.isJumpReleased()) decayJump();
-        else if (controller.isJumpPressed())
+        if (controller.jump.isReleased()) decayJump();
+        else if (controller.jump.isTriggered())
         {
             if (abilityLevel >= 1 && !hardballOnAir())
             {
@@ -205,7 +204,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
         if (abilityLevel >= 3 && !hardballOnAir())
         {
-            if (!dashConsumed && controller.isDashPressed())
+            if (!dashConsumed && controller.dash.isTriggered())
             {
                 if (vec.x > 0.25) dashDirection = DashDir::Right;
                 else if (vec.x < -0.25) dashDirection = DashDir::Left;
@@ -214,7 +213,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 if (dashDirection != DashDir::None) dashTime = curTime;
                 dashConsumed = true;
             }
-            else if (controller.isDashReleased())
+            else if (controller.dash.isReleased())
             {
                  reset(dashTime);
                  dashDirection = DashDir::None;
@@ -253,7 +252,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         else wallJumpTriggerTime = curTime;
     }
 
-    if (controller.isBombPressed() && abilityLevel >= 5) lieBomb(curTime);
+    if (controller.bomb.isTriggered() && abilityLevel >= 5) lieBomb(curTime);
 
     if (onWater())
     {
@@ -275,14 +274,14 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
             wallJumpPressedBefore = false;
             dashConsumed = false;
             doubleJumpConsumed = false;
-            if (controller.isJumpPressed()) jump();
+            if (controller.jump.isTriggered()) jump();
         }
     }
 
     if (abilityLevel >= 9 && (hardballEnabled == onWater()))
     {
-        if (controller.isJumpPressed()) grappleEnabled = true;
-        else if (controller.isJumpReleased()) grappleEnabled = false;
+        if (controller.jump.isTriggered()) grappleEnabled = true;
+        else if (controller.jump.isReleased()) grappleEnabled = false;
     }
 
     if (dashBatch) dashBatch->setPosition(getDisplayPosition());
@@ -366,14 +365,14 @@ void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 void Player::observeHardballTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
-    auto vec = controller.getMovementVector();
+    auto vec = controller.movement.getValue();
 
-    if (controller.isDashPressed() && vec.y > 0.5)
+    if (controller.dash.isTriggered() && vec.y > 0.5)
     {
         chargingForHardball = true;
         hardballTime = curTime;
     }
-    else if (controller.isDashReleased())
+    else if (controller.dash.isReleased())
     {
         chargingForHardball = false;
         reset(hardballTime);

@@ -1,41 +1,47 @@
 #include "InputManager.hpp"
 
-InputManager::InputManager()
+void InputManager::dispatchData(InputSource source, float val)
 {
+    auto iters = callbacks.equal_range(source);
+    for (auto it = iters.first; it != iters.second; ++it)
+        it->second(source, val);
 }
 
-InputManager::~InputManager()
+bool InputManager::handleEvent(const sf::Event& event)
 {
-}
-
-void InputManager::handleKeyEvent(sf::Keyboard::Key key, ActionState state)
-{
-    auto mapIt = keyMappings.find(key);
-
-    if (mapIt != keyMappings.end())
+    switch (event.type)
     {
-        auto itPair = mapCallbacks.equal_range(mapIt->second);
-        for (auto it = itPair.first; it != itPair.second; ++it)
-            it->second(state);
+        case sf::Event::KeyPressed:
+            dispatchData(InputSource::keyboardKey(event.key.code), 1.0f);
+            return true;
+        case sf::Event::KeyReleased:
+            dispatchData(InputSource::keyboardKey(event.key.code), 0.0f);
+            return true;
+        case sf::Event::MouseWheelScrolled:   
+            dispatchData(InputSource::mouseWheel(event.mouseWheelScroll.wheel), event.mouseWheelScroll.delta);
+            return true;
+        case sf::Event::MouseButtonPressed:   
+            dispatchData(InputSource::mouseButton(event.mouseButton.button), 1.0f);
+            return true;
+        case sf::Event::MouseButtonReleased:   
+            dispatchData(InputSource::mouseButton(event.mouseButton.button), 0.0f);
+            return true;
+        case sf::Event::MouseMoved:
+            dispatchData(InputSource::mouseX, event.mouseMove.x);
+            dispatchData(InputSource::mouseY, event.mouseMove.y);
+            return true;
+        case sf::Event::JoystickButtonPressed:
+            dispatchData(InputSource::joystickButton(event.joystickButton.joystickId,
+                         event.joystickButton.button), 1.0f);
+            return true;
+        case sf::Event::JoystickButtonReleased:
+            dispatchData(InputSource::joystickButton(event.joystickButton.joystickId,
+                         event.joystickButton.button), 0.0f);
+            return true;
+        case sf::Event::JoystickMoved:
+            dispatchData(InputSource::joystickAxis(event.joystickMove.joystickId,
+                         event.joystickMove.axis), event.joystickMove.position);
+            return true;
+        default: return false;
     }
-
-    auto itPair = rawCallbacks.equal_range(key);
-    for (auto it = itPair.first; it != itPair.second; ++it)
-        it->second(state);
-}
-
-void InputManager::setMapping(sf::Keyboard::Key key, Action action)
-{
-    keyMappings[key] = action;
-}
-
-InputManager::CallbackEntry InputManager::registerCallback(Action action, InputManager::CallbackFunction callback)
-{
-    return CallbackEntry(mapCallbacks, mapCallbacks.emplace(action, callback));
-}
-
-InputManager::RawCallbackEntry InputManager::registerRawCallback(
-    sf::Keyboard::Key key, InputManager::CallbackFunction callback)
-{
-    return RawCallbackEntry(rawCallbacks, rawCallbacks.emplace(key, callback));
 }
