@@ -3,8 +3,8 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
-#include "../utility/generic_ptrs.hpp"
-#include "../utility/non_copyable_movable.hpp"
+#include <generic_ptrs.hpp>
+#include <non_copyable_movable.hpp>
 #include "ResourceLocator.hpp"
 
 class ResourceManager : util::non_copyable_movable
@@ -26,4 +26,3 @@ public:
     ResourceLocator* getResourceLocator() { return locator.get(); }
     void setResourceLocator(ResourceLocator* loc) { locator.reset(loc); }
 };
-

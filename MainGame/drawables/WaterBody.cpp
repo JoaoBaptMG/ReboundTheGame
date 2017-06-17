@@ -4,8 +4,8 @@
 #include <functional>
 #include <SFML/OpenGL.hpp>
 
-#include "utility/assert.hpp"
-#include "utility/chronoUtils.hpp"
+#include <assert.hpp>
+#include <chronoUtils.hpp>
 
 constexpr float MaxSineWaveHeight = 4;
 constexpr float MaxSineWaveK = 0.08;

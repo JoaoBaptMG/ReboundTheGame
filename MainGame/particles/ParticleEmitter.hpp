@@ -3,8 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <chrono>
 
-#include "utility/generic_ptrs.hpp"
-#include "utility/streamCommons.hpp"
+#include <generic_ptrs.hpp>
+#include <streamReaders.hpp>
 #include "particles/ParticleBatch.hpp"
 
 class ParticleEmitter final
@@ -34,10 +34,9 @@ public:
     void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last) const;
     auto getTotalLifetime() const { return totalLifetime; }
 
-    bool loadFromStream(sf::InputStream& stream);
-    friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
+    friend bool readFromStream(std::istream& stream, ParticleEmitter& in);
 };
 
 using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream);
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<std::istream>& stream);

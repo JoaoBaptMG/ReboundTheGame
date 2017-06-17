@@ -4,7 +4,7 @@
 #include <memory>
 #include <map>
 #include <stack>
-#include "../utility/non_copyable_movable.hpp"
+#include <non_copyable_movable.hpp>
 
 using RenderData = std::pair<std::reference_wrapper<const sf::Drawable>,sf::RenderStates>;
 

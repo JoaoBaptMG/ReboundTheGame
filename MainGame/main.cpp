@@ -8,16 +8,16 @@
 #include "input/InputManager.hpp"
 #include "input/PlayerController.hpp"
 #include "scene/Scene.hpp"
-#include "utility/assert.hpp"
+#include <assert.hpp>
 #include "resources/ResourceManager.hpp"
 #include "resources/FilesystemResourceLocator.hpp"
 #include "drawables/Tilemap.hpp"
-#include "utility/grid.hpp"
+#include <grid.hpp>
 #include "scene/SceneManager.hpp"
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
-#include "utility/chronoUtils.hpp"
+#include <chronoUtils.hpp>
 
 #if _WIN32
 #include <Windows.h>

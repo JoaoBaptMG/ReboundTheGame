@@ -39,4 +39,4 @@ namespace background
     };
 }
 
-bool readFromStream(sf::InputStream& stream, background::Parallax::ConfigStruct& config);
+bool readFromStream(std::istream& stream, background::Parallax::ConfigStruct& config);

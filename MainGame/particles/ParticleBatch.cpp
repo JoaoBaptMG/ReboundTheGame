@@ -5,10 +5,10 @@
 
 #include "particles/ParticleEmitter.hpp"
 #include "rendering/Renderer.hpp"
-#include "utility/chronoUtils.hpp"
+#include <chronoUtils.hpp>
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
-#include "utility/assert.hpp"
+#include <assert.hpp>
 
 constexpr auto ParticleVertexShader = R"vertex(
 #version 130

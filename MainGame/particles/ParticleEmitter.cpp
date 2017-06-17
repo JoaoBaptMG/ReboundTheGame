@@ -1,24 +1,15 @@
 #include "ParticleEmitter.hpp"
 
-#include "utility/chronoUtils.hpp"
-#include "utility/vector_math.hpp"
+#include <chronoUtils.hpp>
+#include <vector_math.hpp>
 
 #include <utility>
 #include <limits>
 
 using namespace std::literals::chrono_literals;
 
-bool ParticleEmitter::loadFromStream(sf::InputStream& stream)
+bool readFromStream(std::istream& stream, ParticleEmitter& in)
 {
-    using namespace util;
-    
-    return checkMagic(stream, "PEMIT") && readFromStream(stream, *this);
-}
-
-bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
-{
-    using namespace util;
-    
     float lifetimeSeconds, emissionPeriodSeconds;
     float firstSeconds, secondSeconds;
     uint8_t hsv;
@@ -44,17 +35,15 @@ bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
     return true;
 }
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream)
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<std::istream>& stream)
 {
-    using namespace util;
-    
     using T = ParticleEmitterSet;
     std::shared_ptr<T> content{new T};
 
     if (checkMagic(*stream, "PEMIT") && readFromStream(*stream, *content))
-        return generic_shared_ptr{content};
+        return util::generic_shared_ptr{content};
 
-    return generic_shared_ptr{};
+    return util::generic_shared_ptr{};
 }
 
 std::tuple<float,float,float> RGBtoHSV(sf::Color c)

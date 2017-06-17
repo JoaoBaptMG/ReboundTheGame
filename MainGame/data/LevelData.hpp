@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utility/non_copyable_movable.hpp"
-#include "utility/streamCommons.hpp"
+#include <non_copyable_movable.hpp>
+#include <streamReaders.hpp>
 
 #include <vector>
 #include <SFML/System.hpp>
@@ -14,7 +14,7 @@ public:
     std::string songResourceName;
     std::vector<std::string> roomResourceNames;
 
-    bool loadFromStream(sf::InputStream& stream);
+    static constexpr auto ReadMagic = "LEVEL";
 };
 
-bool readFromStream(sf::InputStream& stream, LevelData& level);
+bool readFromStream(std::istream& stream, LevelData& level);

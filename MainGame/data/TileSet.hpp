@@ -23,7 +23,7 @@ struct TileSet final
     
     std::vector<Mode> tileModes;
 
-    bool loadFromStream(sf::InputStream& stream);
+    static constexpr auto ReadMagic = "TSET";
 };
 
-bool readFromStream(sf::InputStream &stream, TileSet& tileSet);
+bool readFromStream(std::istream &stream, TileSet& tileSet);

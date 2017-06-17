@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "utility/non_copyable_movable.hpp"
-#include "utility/grid.hpp"
+#include <non_copyable_movable.hpp>
+#include <grid.hpp>
 #include "defaults.hpp"
 
 class Tilemap final : public sf::Drawable

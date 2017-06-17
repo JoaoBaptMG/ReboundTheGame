@@ -4,9 +4,9 @@
 #include <unordered_map>
 
 #include "data/RoomData.hpp"
-#include "utility/function_traits.hpp"
-#include "utility/generic_ptrs.hpp"
-#include "utility/streamCommons.hpp"
+#include <function_traits.hpp>
+#include <generic_ptrs.hpp>
+#include <streamReaders.hpp>
 
 // Objects
 #include "objects/Player.hpp"
@@ -47,7 +47,7 @@ template <typename Obj>
 using ConfigStruct = typename detail::ConfigStructBase<Obj>::value;
 
 template <typename Obj>
-util::generic_shared_ptr readerFor(sf::InputStream& stream)
+util::generic_shared_ptr readerFor(std::istream& stream)
 {
 	using namespace util;
 
@@ -68,7 +68,7 @@ std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, util::generic_share
 
 struct FactoryParams
 {
-    util::generic_shared_ptr (*reader)(sf::InputStream&);
+    util::generic_shared_ptr (*reader)(std::istream&);
     std::unique_ptr<GameObject> (*factory)(GameScene&, util::generic_shared_ptr);
 };
 
@@ -100,7 +100,7 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
 
 #undef DEFINE_FACTORY
 
-util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass)
+util::generic_shared_ptr readParametersFromStream(std::istream& stream, std::string klass)
 {
     auto it = factoryParams.find(klass);
 

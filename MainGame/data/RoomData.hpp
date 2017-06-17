@@ -1,8 +1,8 @@
 #pragma once
 
-#include "utility/grid.hpp"
-#include "utility/generic_ptrs.hpp"
-#include "utility/non_copyable_movable.hpp"
+#include <grid.hpp>
+#include <generic_ptrs.hpp>
+#include <non_copyable_movable.hpp>
 #include "resources/Memory.hpp"
 
 #include <vector>
@@ -48,8 +48,8 @@ struct RoomData final
     std::vector<GameObjectDescriptor> gameObjectDescriptors;
     std::vector<WarpData> warps;
 
-    bool loadFromStream(sf::InputStream &stream);
+    static constexpr auto ReadMagic = "ROOM";
 };
 
-bool readFromStream(sf::InputStream &stream, RoomData& room);
+bool readFromStream(std::istream &stream, RoomData& room);
 

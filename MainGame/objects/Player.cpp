@@ -4,9 +4,9 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "utility/chronoUtils.hpp"
-#include "utility/assert.hpp"
-#include "utility/vector_math.hpp"
+#include <chronoUtils.hpp>
+#include <assert.hpp>
+#include <vector_math.hpp>
 #include "objects/Bomb.hpp"
 #include "particles/ParticleBatch.hpp"
 
@@ -117,6 +117,8 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     const auto& controller = gameScene.getPlayerController();
     
     auto vec = controller.getMovementVector();
+    if (chargingForHardball) vec.x = vec.y = 0;
+    
     auto body = playerShape->getBody();
     auto pos = body->getPosition();
     auto vel = body->getVelocity();
@@ -141,14 +143,16 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     angle += radiansToDegrees(vel.x * dt / 32);
     angle -= 360 * roundf(angle/360);
 
-    bool onGround = false, wallHit = false;
+    bool onGround = false, wallHit = false, onWaterCeiling = false;
 
     body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
         cpFloat angle = cpvtoangle(arbiter.getNormal());
+        printf("angle = %g\n", angle);
         if (fabs(angle - 1.57079632679) < 0.52) onGround = true;
-        if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06)
+        if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06 || fabs(angle + 3.14159265359) < 0.06)
             wallHit = true;
+        if (onWaterNoHardball() && fabs(angle + 1.57079632679) < 0.06) onWaterCeiling = true;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
         {
@@ -165,14 +169,16 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         }
     });
 
-	if (abilityLevel >= 7) observeHardballTrigger();
-
+	if (abilityLevel >= 7 && (onGround || onWaterCeiling))
+        if (cpvlengthsq(vel) < 36)
+            observeHardballTrigger();
+    
     if (onGround)
     {
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
-        if (controller.isJumpPressed() && !onWaterNoHardball()) jump();
+        if (controller.isJumpPressed() && !onWaterNoHardball() && !chargingForHardball) jump();
     }
     else
     {
@@ -264,7 +270,13 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
             body->applyImpulseAtLocalPoint(body->getVelocity() * (damping-1) * PlayerArea, cpvzero);
         }
 
-        if (!hardballEnabled && controller.isJumpPressed() && canWaterJump()) jump();
+        if (!hardballEnabled && canWaterJump())
+        {
+            wallJumpPressedBefore = false;
+            dashConsumed = false;
+            doubleJumpConsumed = false;
+            if (controller.isJumpPressed()) jump();
+        }
     }
 
     if (abilityLevel >= 9 && (hardballEnabled == onWater()))
@@ -355,7 +367,7 @@ void Player::observeHardballTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
     auto vec = controller.getMovementVector();
-    
+
     if (controller.isDashPressed() && vec.y > 0.5)
     {
         chargingForHardball = true;

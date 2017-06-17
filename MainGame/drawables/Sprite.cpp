@@ -1,6 +1,6 @@
 #include "Sprite.hpp"
 
-#include "utility/assert.hpp"
+#include <assert.hpp>
 
 constexpr auto SpriteFragmentShader = R"fragment(
 uniform sampler2D tex;

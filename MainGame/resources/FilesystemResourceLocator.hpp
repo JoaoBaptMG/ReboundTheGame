@@ -1,19 +1,18 @@
 #pragma once
 
 #include "ResourceLocator.hpp"
+#include "execDir.hpp"
 #include <stdexcept>
-
-std::string getResourceDirectory();
 
 class FilesystemResourceLocator : public ResourceLocator
 {
     std::string basename;
 
 public:
-    FilesystemResourceLocator() : basename(getResourceDirectory()) {}
+    FilesystemResourceLocator() : basename(getExecutableDirectory() + "/Resources") {}
     virtual ~FilesystemResourceLocator() {}
 
-    virtual std::unique_ptr<sf::InputStream> getResource(std::string name) override;
+    virtual std::unique_ptr<std::istream> getResource(std::string name) override;
 };
 
 class FileNotFound : public std::runtime_error

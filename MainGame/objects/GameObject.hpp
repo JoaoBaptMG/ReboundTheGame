@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utility/non_copyable_movable.hpp"
-#include "utility/generic_ptrs.hpp"
+#include <non_copyable_movable.hpp>
+#include <generic_ptrs.hpp>
 #include <chipmunk/chipmunk.h>
 
 #include <memory>
@@ -41,5 +41,5 @@ public:
 
 struct GameObjectDescriptor;
 
-util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass);
+util::generic_shared_ptr readParametersFromStream(std::istream& stream, std::string klass);
 std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, const GameObjectDescriptor& descriptor);

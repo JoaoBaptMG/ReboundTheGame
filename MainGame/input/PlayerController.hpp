@@ -1,7 +1,7 @@
 #pragma once
 
 #include "InputManager.hpp"
-#include "../utility/non_copyable_movable.hpp"
+#include <non_copyable_movable.hpp>
 #include <SFML/System.hpp>
 
 class PlayerController final : util::non_copyable

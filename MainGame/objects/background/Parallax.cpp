@@ -17,11 +17,12 @@ Parallax::Parallax(GameScene& scene, std::string textureName) : Parallax(scene)
     plane.setTexture(scene.getResourceManager().load<sf::Texture>(textureName));
 }
 
-bool readFromStream(sf::InputStream& stream, Parallax::ConfigStruct& config)
+bool readFromStream(std::istream& stream, Parallax::ConfigStruct& config)
 {
     using namespace util;
 
-    return readFromStream(stream, config.dummy, config.textureName, config.parallaxNumerator, config.parallaxDenominator);
+    return readFromStream(stream, config.dummy, config.textureName,
+        config.parallaxNumerator, config.parallaxDenominator);
 }
 
 bool Parallax::configure(const ConfigStruct& config)

@@ -5,7 +5,7 @@
 #include "rendering/Renderer.hpp"
 #include <cmath>
 
-#include "utility/assert.hpp"
+#include <assert.hpp>
 
 cpFloat catet(cpFloat h, cpFloat c) { ASSERT(h*h - c*c >= 0); return sqrt(h*h - c*c); }
 

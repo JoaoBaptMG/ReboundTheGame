@@ -3,7 +3,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "utility/vector_math.hpp"
+#include <vector_math.hpp>
 
 #include <functional>
 #include <limits>

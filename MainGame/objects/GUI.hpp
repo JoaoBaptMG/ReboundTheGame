@@ -2,7 +2,7 @@
 
 #include "drawables/Sprite.hpp"
 #include "drawables/GUIMeter.hpp"
-#include "utility/chronoUtils.hpp"
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;

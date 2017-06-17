@@ -3,7 +3,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "utility/chronoUtils.hpp"
+#include <chronoUtils.hpp>
 
 #include <cppmunk/CircleShape.h>
 

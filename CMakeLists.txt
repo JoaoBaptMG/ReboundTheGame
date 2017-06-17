@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 set(SFML_STATIC_LIBRARIES ON)
 
+set(COMMONS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Commons)
+
 add_subdirectory(CppMunk)
 add_subdirectory(ExportTools)
 add_subdirectory(MainGame)

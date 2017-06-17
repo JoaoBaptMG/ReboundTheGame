@@ -3,8 +3,8 @@
 #include <SFML/Window.hpp>
 #include <unordered_map>
 #include <functional>
-#include "../utility/non_copyable_movable.hpp"
-#include "../utility/ContainerEntry.hpp"
+#include <non_copyable_movable.hpp>
+#include <ContainerEntry.hpp>
 
 using Action = size_t;
 enum class ActionState { Down, Up };

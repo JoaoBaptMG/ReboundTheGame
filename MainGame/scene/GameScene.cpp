@@ -2,7 +2,7 @@
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "utility/chronoUtils.hpp"
+#include <chronoUtils.hpp>
 #include "data/RoomData.hpp"
 
 #include <functional>
