@@ -35,6 +35,8 @@ namespace props
         auto getPosition() const { return shape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { shape->getBody()->setPosition(pos); }
 
+        void explode();
+
         auto getDisplayPosition() const
         {
             auto vec = getPosition();

@@ -17,4 +17,4 @@ public:
     static constexpr auto ReadMagic = "LEVEL";
 };
 
-bool readFromStream(std::istream& stream, LevelData& level);
+bool readFromStream(sf::InputStream& stream, LevelData& level);

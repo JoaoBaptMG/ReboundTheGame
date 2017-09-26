@@ -57,7 +57,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	//upgradeToAbilityLevel(7);
+	upgradeToAbilityLevel(7);
     setName("player");
 }
 

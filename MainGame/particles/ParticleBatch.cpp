@@ -12,10 +12,12 @@
 
 constexpr auto ParticleVertexShader = R"vertex(
 #version 130
+uniform float ScalingFactor;
+
 void main()
 {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_PointSize = gl_MultiTexCoord0.x;
+    gl_PointSize = ScalingFactor * gl_MultiTexCoord0.x;
     gl_FrontColor = gl_Color;
 }
 )vertex";
@@ -29,7 +31,7 @@ void main()
 }
 )fragment";
 
-sf::Shader& ParticleBatch::getParticleShader()
+sf::Shader& ParticleBatch::getParticleShader(float scalingFactor)
 {
     static sf::Shader shader;
     static bool shaderLoaded = false;
@@ -37,6 +39,7 @@ sf::Shader& ParticleBatch::getParticleShader()
     if (!shaderLoaded)
     {
         ASSERT(shader.loadFromMemory(ParticleVertexShader, ParticleFragmentShader));
+        shader.setUniform("ScalingFactor", scalingFactor);
         shaderLoaded = true;
     }
 
@@ -150,6 +153,6 @@ void ParticleBatch::render(Renderer& renderer)
 
     sf::RenderStates states;
     states.blendMode = sf::BlendAlpha;
-    states.shader = &getParticleShader();
+    states.shader = &getParticleShader(renderer.windowScalingFactor);
     renderer.pushDrawable(vertices, states, drawingDepth);
 }

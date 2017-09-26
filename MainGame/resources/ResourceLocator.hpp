@@ -1,7 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <memory>
+#include <SFML/System.hpp>
 
 class ResourceLocator
 {
@@ -12,6 +11,6 @@ public:
     ResourceLocator() {}
     virtual ~ResourceLocator() {}
 
-    virtual std::unique_ptr<std::istream> getResource(std::string name) = 0;
+    virtual std::unique_ptr<sf::InputStream> getResource(std::string name) = 0;
 };
 

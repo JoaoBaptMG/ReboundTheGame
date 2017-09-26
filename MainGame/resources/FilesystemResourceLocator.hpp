@@ -12,7 +12,7 @@ public:
     FilesystemResourceLocator() : basename(getExecutableDirectory() + "/Resources") {}
     virtual ~FilesystemResourceLocator() {}
 
-    virtual std::unique_ptr<std::istream> getResource(std::string name) override;
+    virtual std::unique_ptr<sf::InputStream> getResource(std::string name) override;
 };
 
 class FileNotFound : public std::runtime_error

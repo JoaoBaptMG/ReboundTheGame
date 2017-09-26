@@ -1,16 +1,21 @@
 #include "PlayerController.hpp"
 
-PlayerController::PlayerController(InputManager &inputManager)
+PlayerController::PlayerController(InputManager &inputManager, const InputSettings &settings)
     : dash(active), jump(active), bomb(active), movement(active)
 {
-    dash.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)79));
-    jump.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)80));
-    bomb.registerSource(inputManager, InputSource::keyboardKey((sf::Keyboard::Key)81));
+    dash.registerSource(inputManager, settings.keyboardSettings.dashInput);
+    jump.registerSource(inputManager, settings.keyboardSettings.jumpInput);
+    bomb.registerSource(inputManager, settings.keyboardSettings.bombInput);
+    movement.registerButtonForX(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative);
+    movement.registerButtonForX(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive);
+    movement.registerButtonForY(inputManager, settings.keyboardSettings.moveUp,    AxisDirection::Negative);
+    movement.registerButtonForY(inputManager, settings.keyboardSettings.moveDown,  AxisDirection::Positive);
 
-    movement.registerButtonForX(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::A), AxisDirection::Negative);
-    movement.registerButtonForX(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::D), AxisDirection::Positive);
-    movement.registerButtonForY(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::W), AxisDirection::Negative);
-    movement.registerButtonForY(inputManager, InputSource::keyboardKey(sf::Keyboard::Key::S), AxisDirection::Positive);
+    dash.registerSource(inputManager, settings.joystickSettings.dashInput);
+    jump.registerSource(inputManager, settings.joystickSettings.jumpInput);
+    bomb.registerSource(inputManager, settings.joystickSettings.bombInput);
+    movement.registerAxisForX(inputManager, settings.joystickSettings.movementAxisX);
+    movement.registerAxisForY(inputManager, settings.joystickSettings.movementAxisY);
 }
 
 void PlayerController::update()

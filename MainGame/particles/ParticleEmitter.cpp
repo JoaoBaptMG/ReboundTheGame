@@ -8,7 +8,7 @@
 
 using namespace std::literals::chrono_literals;
 
-bool readFromStream(std::istream& stream, ParticleEmitter& in)
+bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
 {
     float lifetimeSeconds, emissionPeriodSeconds;
     float firstSeconds, secondSeconds;
@@ -35,7 +35,7 @@ bool readFromStream(std::istream& stream, ParticleEmitter& in)
     return true;
 }
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<std::istream>& stream)
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream)
 {
     using T = ParticleEmitterSet;
     std::shared_ptr<T> content{new T};

@@ -2,7 +2,7 @@
 
 #include <streamReaders.hpp>
 
-bool readFromStream(std::istream& stream, TileSet& tileSet)
+bool readFromStream(sf::InputStream& stream, TileSet& tileSet)
 {
     return readFromStream(stream, tileSet.textureName, tileSet.physicalParameters, tileSet.tileModes);
 }

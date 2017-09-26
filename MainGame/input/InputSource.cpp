@@ -42,12 +42,12 @@ bool operator<(InputSource in1, InputSource in2)
     return in1.type == in2.type ? in1.attribute < in2.attribute : in1.type < in2.type;
 }
 
-bool readFromStream(std::istream& stream, InputSource& in)
+bool readFromStream(sf::InputStream& stream, InputSource& in)
 {
     return readFromStream(stream, in.type, in.attribute);
 }
 
-bool writeToStream(std::ostream& stream, const InputSource& in)
+bool writeToStream(OutputStream& stream, const InputSource& in)
 {
     return writeToStream(stream, in.type, in.attribute);
 }

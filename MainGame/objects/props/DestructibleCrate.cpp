@@ -5,6 +5,7 @@
 #include "resources/ResourceManager.hpp"
 #include <vector_math.hpp>
 #include "objects/Bomb.hpp"
+#include "particles/TextureExplosion.hpp"
 
 #include <functional>
 #include <limits>
@@ -15,6 +16,10 @@
 
 using namespace props;
 using namespace cp;
+using namespace std::literals::chrono_literals;
+
+const sf::FloatRect velocityRect(-64, -384, 128, 128);
+constexpr auto ExplosionDuration = 2s;
 
 DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, uint32_t type)
     : GameObject(gameScene), sprite(gameScene.getResourceManager().load<sf::Texture>(texture))
@@ -22,7 +27,11 @@ DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, 
     setupPhysics();
     interactionHandler = [this,type] (uint32_t ty, void* ptr)
     {
-        if (ty == type) remove();
+        if (ty == type)
+        {
+            explode();
+            remove();
+        }
     };
 }
 
@@ -71,6 +80,17 @@ DestructibleCrate::~DestructibleCrate()
 void DestructibleCrate::update(std::chrono::steady_clock::time_point curTime)
 {
 
+}
+
+void DestructibleCrate::explode()
+{
+    auto grav = gameScene.getGameSpace().getGravity();
+    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    
+    auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
+        velocityRect, displayGravity, TextureExplosion::Density, 8, 8, 25);
+    explosion->setPosition(getDisplayPosition());
+    gameScene.addObject(std::move(explosion));
 }
 
 void DestructibleCrate::render(Renderer& renderer)

@@ -51,5 +51,5 @@ struct RoomData final
     static constexpr auto ReadMagic = "ROOM";
 };
 
-bool readFromStream(std::istream &stream, RoomData& room);
+bool readFromStream(sf::InputStream &stream, RoomData& room);
 

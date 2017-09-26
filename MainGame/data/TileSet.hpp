@@ -26,4 +26,4 @@ struct TileSet final
     static constexpr auto ReadMagic = "TSET";
 };
 
-bool readFromStream(std::istream &stream, TileSet& tileSet);
+bool readFromStream(sf::InputStream &stream, TileSet& tileSet);

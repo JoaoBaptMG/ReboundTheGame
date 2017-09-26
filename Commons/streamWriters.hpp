@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include "OutputStream.hpp"
 #include <type_traits>
 #include <vector>
 #include <string>
@@ -11,12 +11,12 @@
 #include "grid.hpp"
 
 template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
-bool writeToStream(std::ostream &stream, const T& value)
+bool writeToStream(OutputStream &stream, const T& value)
 {
-    return stream.write((const char*)&value, sizeof(T)).good();
+    return stream.write(&value, sizeof(T));
 }
 
-static inline bool writeToStream(std::ostream &stream, const VarLength value)
+static inline bool writeToStream(OutputStream &stream, const VarLength value)
 {
     std::vector<uint8_t> chunks;
     auto val = value.target;
@@ -30,32 +30,31 @@ static inline bool writeToStream(std::ostream &stream, const VarLength value)
     for (size_t i = chunks.size(); i != 0; i--)
     {
         uint8_t b = chunks[i-1];
-        if (i == 1) b += 128;
-        if (!stream.put(b).good()) return false;
+        if (i > 1) b += 128;
+        if (!stream.write(&b, sizeof(uint8_t))) return false;
     }
 
     return true;
 }
 
 template <typename T>
-bool writeToStream(std::ostream &stream, const std::basic_string<T> &value);
+bool writeToStream(OutputStream &stream, const std::basic_string<T> &value);
 
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
-bool writeToStream(std::ostream &stream, const std::vector<T> &value)
+bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 {
     size_t size = value.size();
 
     if (!writeToStream(stream, VarLength(size)))
         return false;
-
-    if (!stream.write((char*)value.data(), size*sizeof(T)).good())
+    if (!stream.write(value.data(), size*sizeof(T)))
         return false;
     
     return true;
 }
 
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
-bool writeToStream(std::ostream &stream, const std::vector<T> &value)
+bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 {
     size_t size = value.size();
 
@@ -70,7 +69,7 @@ bool writeToStream(std::ostream &stream, const std::vector<T> &value)
 }
 
 template <typename T>
-bool writeToStream(std::ostream &stream, const std::basic_string<T> &value)
+bool writeToStream(OutputStream &stream, const std::basic_string<T> &value)
 {
     std::vector<T> val(value.begin(), value.end());
     
@@ -81,7 +80,7 @@ bool writeToStream(std::ostream &stream, const std::basic_string<T> &value)
 }
 
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
-bool writeToStream(std::ostream &stream, const util::grid<T> &value)
+bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 {
     size_t width = value.width(), height = value.height();
 
@@ -89,14 +88,14 @@ bool writeToStream(std::ostream &stream, const util::grid<T> &value)
         return false;
 
     auto size = width*height;
-    if (!stream.write((char*)value.data(), size*sizeof(T)).good())
+    if (!stream.write(value.data(), size*sizeof(T)))
         return false;
 
     return true;
 }
 
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
-bool writeToStream(std::ostream &stream, const util::grid<T> &value)
+bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 {
     size_t width = value.width(), height = value.height();
 
@@ -110,7 +109,7 @@ bool writeToStream(std::ostream &stream, const util::grid<T> &value)
 }
 
 template <typename T, typename U>
-bool writeToStream(std::ostream &stream, const std::unordered_map<T,U> &value)
+bool writeToStream(OutputStream &stream, const std::unordered_map<T,U> &value)
 {
     size_t size = value.size();
     if (!writeToStream(stream, VarLength(size)))
@@ -124,20 +123,26 @@ bool writeToStream(std::ostream &stream, const std::unordered_map<T,U> &value)
 }
 
 template <typename T, typename... Ts, typename std::enable_if_t<(sizeof...(Ts) > 0), int> = 0>
-bool writeToStream(std::ostream& stream, T&& val, Ts&&... nexts)
+bool writeToStream(OutputStream& stream, T&& val, Ts&&... nexts)
 {
     return writeToStream(stream, std::forward<T>(val)) && writeToStream(stream, std::forward<Ts>(nexts)...);
 }
 
 template <typename Tp, std::size_t... Is>
-bool __wttsaux(std::ostream& stream, Tp& tuple, std::index_sequence<Is...>)
+bool __wttsaux(OutputStream& stream, Tp& tuple, std::index_sequence<Is...>)
 {
     return writeToStream(stream, std::get<Is>(tuple)...);
 }
 
 template <typename... Ts>
-bool writeToStream(std::ostream& stream, std::tuple<Ts...>& tuple)
+bool writeToStream(OutputStream& stream, std::tuple<Ts...>& tuple)
 {
     return __wttsaux(stream, tuple, std::index_sequence_for<Ts...>());
 }
 
+inline static bool writeMagic(OutputStream& stream, const char *val)
+{
+    for (const char *p = val; *p; p++)
+        if (!writeToStream(stream, *p)) return false;
+    return true;
+}

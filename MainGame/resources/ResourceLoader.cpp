@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "resources/SFMLStreamWrapper.hpp"
 #include "data/RoomData.hpp"
 #include "data/LevelData.hpp"
 #include "data/TileSet.hpp"
@@ -14,10 +13,10 @@
 using namespace util;
 using namespace ResourceLoader;
 
-using loadFunc = generic_shared_ptr (*)(std::unique_ptr<std::istream>&);
+using loadFunc = generic_shared_ptr (*)(std::unique_ptr<sf::InputStream>&);
 
 template <typename T>
-generic_shared_ptr loadGenericResource(std::unique_ptr<std::istream>& stream)
+generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
 {
     std::shared_ptr<T> content{new T()};
 	if (checkMagic(*stream, T::ReadMagic) && readFromStream(*stream, *content))
@@ -27,11 +26,10 @@ generic_shared_ptr loadGenericResource(std::unique_ptr<std::istream>& stream)
 }
 
 template <typename T>
-generic_shared_ptr loadSFMLResource(std::unique_ptr<std::istream>& stream)
+generic_shared_ptr loadSFMLResource(std::unique_ptr<sf::InputStream>& stream)
 {
-    STLStream wrapper(*stream);
     std::shared_ptr<T> content{new T()};
-	if (content->loadFromStream(wrapper))
+	if (content->loadFromStream(*stream))
 		return generic_shared_ptr{content};
 
     return generic_shared_ptr{};
@@ -47,7 +45,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "ttf", loadSFMLResource<sf::Font> }
 };
 
-generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<std::istream> stream, std::string type)
+generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)
 {
     auto it = loadFuncs.find(type);
 	if (it != loadFuncs.end())

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
-#include <iostream>
+#include <SFML/System.hpp>
 
 #include <generic_ptrs.hpp>
 
 namespace ResourceLoader
 {
-    util::generic_shared_ptr loadFromStream(std::unique_ptr<std::istream> stream, std::string type);
+    util::generic_shared_ptr loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type);
 }
 
 class ResourceLoadingError : public std::runtime_error

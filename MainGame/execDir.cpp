@@ -8,7 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-std::string getResourceDirectory()
+std::string getExecutableDirectory()
 {
 	static std::string dir;
 
@@ -60,7 +60,7 @@ std::string getExecutableDirectory()
         {
             size *= 2;
             buffer.resize(size, 0);
-            size = readlink("/proc/self/exe", buffer.data(), buffer.size());
+            size = readlink("/proc/self/exe", buffer.data(), size);
         } while (size == buffer.size());
 
         if (size < 0) return std::string{};

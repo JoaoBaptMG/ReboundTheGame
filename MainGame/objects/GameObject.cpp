@@ -47,7 +47,7 @@ template <typename Obj>
 using ConfigStruct = typename detail::ConfigStructBase<Obj>::value;
 
 template <typename Obj>
-util::generic_shared_ptr readerFor(std::istream& stream)
+util::generic_shared_ptr readerFor(sf::InputStream& stream)
 {
 	using namespace util;
 
@@ -68,7 +68,7 @@ std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, util::generic_share
 
 struct FactoryParams
 {
-    util::generic_shared_ptr (*reader)(std::istream&);
+    util::generic_shared_ptr (*reader)(sf::InputStream&);
     std::unique_ptr<GameObject> (*factory)(GameScene&, util::generic_shared_ptr);
 };
 
@@ -100,7 +100,7 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
 
 #undef DEFINE_FACTORY
 
-util::generic_shared_ptr readParametersFromStream(std::istream& stream, std::string klass)
+util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass)
 {
     auto it = factoryParams.find(klass);
 

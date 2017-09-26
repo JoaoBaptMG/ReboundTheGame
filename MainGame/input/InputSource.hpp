@@ -30,8 +30,8 @@ public:
     friend bool operator==(InputSource in1, InputSource in2);
     friend bool operator<(InputSource in1, InputSource in2);
 
-    friend bool readFromStream(std::istream& stream, InputSource& in);
-    friend bool writeToStream(std::ostream& stream, const InputSource& in);
+    friend bool readFromStream(sf::InputStream& stream, InputSource& in);
+    friend bool writeToStream(OutputStream& stream, const InputSource& in);
 
     friend class std::hash<InputSource>;
 };

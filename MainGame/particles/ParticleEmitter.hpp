@@ -34,9 +34,9 @@ public:
     void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last) const;
     auto getTotalLifetime() const { return totalLifetime; }
 
-    friend bool readFromStream(std::istream& stream, ParticleEmitter& in);
+    friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
 };
 
 using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<std::istream>& stream);
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream);

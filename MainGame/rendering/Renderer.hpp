@@ -16,7 +16,7 @@ class Renderer final : util::non_copyable_movable
     std::stack<sf::Transform> transformStack;
 
 public:
-    explicit Renderer(sf::RenderTarget& target) : target(target), currentTransform() {}
+    explicit Renderer(sf::RenderTarget& target) : target(target), currentTransform(), windowScalingFactor(1) {}
 
     void pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth = 0);
 
@@ -27,5 +27,6 @@ public:
     void clearState();
 
     sf::Transform currentTransform;
+    float windowScalingFactor;
 };
 

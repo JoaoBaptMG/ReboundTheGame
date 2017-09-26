@@ -17,6 +17,7 @@
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
+#include "settings/Settings.hpp"
 #include <chronoUtils.hpp>
 
 #if _WIN32
@@ -27,18 +28,31 @@
 
 using namespace std::literals::chrono_literals;
 
+float configureViewForFullscreen(sf::RenderWindow& renderWindow);
+
 int main(int argc, char **argv)
 {
-    sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game");
-    renderWindow.setVerticalSyncEnabled(true);
+    bool success;
+    auto settings = loadSettingsFile(&success);
+    if (!success) std::cout << "WARNING! Settings file not loaded properly!" << std::endl;
+    
+    sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game",
+        settings.videoSettings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
+    renderWindow.setVerticalSyncEnabled(settings.videoSettings.vsyncEnabled);
+
+    float scalingFactor = 1.0f;
+    if (settings.videoSettings.fullscreen)
+        scalingFactor = configureViewForFullscreen(renderWindow);
+    
     glEnable(GL_PROGRAM_POINT_SIZE);
 #if _WIN32
 	glEnable(GL_POINT_SPRITE);
 #endif
 
     Renderer renderer(renderWindow);
+    renderer.windowScalingFactor = scalingFactor;
     InputManager inputManager;
-    PlayerController controller(inputManager);
+    PlayerController controller(inputManager, settings.inputSettings);
 
     ResourceManager manager;
     manager.setResourceLocator(new FilesystemResourceLocator());
@@ -77,12 +91,45 @@ int main(int argc, char **argv)
             sceneManager.update(updateTime);
         }
 
-        renderWindow.clear(sf::Color::White);
+        renderWindow.clear(sf::Color::Black);
         renderer.clearState();
         sceneManager.render(renderer);
         renderer.render();
         renderWindow.display();
     }
 
+    if (!storeSettingsFile(settings))
+        std::cout << "WARNING! Settings file not stored properly!" << std::endl;
+
     return 0;
+}
+
+float configureViewForFullscreen(sf::RenderWindow& renderWindow)
+{
+    renderWindow.clear(sf::Color::Black);
+    renderWindow.display();
+    
+    auto windowSize = renderWindow.getSize();
+    auto screen = sf::Vector2u(ScreenWidth, ScreenHeight); 
+    
+    std::cout << windowSize.x << ' ' << windowSize.y << std::endl;
+
+    sf::View view(sf::FloatRect(0.0, 0.0, screen.x, screen.y));
+    float scalingFactor;
+    if (screen.x * windowSize.y < screen.y * windowSize.x)
+    {
+        float ratio = ((float)screen.x/screen.y)*((float)windowSize.y/windowSize.x);
+        view.setViewport(sf::FloatRect(0.5f - 0.5f * ratio, 0.0f, ratio, 1.0f));
+        scalingFactor = (float)windowSize.y/screen.y;
+    }
+    else if (screen.x * windowSize.y > screen.y * windowSize.x)
+    {
+        float ratio = ((float)screen.y/screen.x)*((float)windowSize.x/windowSize.y);
+        view.setViewport(sf::FloatRect(0.0f, 0.5f - 0.5f * ratio, 1.0f, ratio));
+        scalingFactor = (float)windowSize.x/screen.x;
+    }
+    else scalingFactor = (float)windowSize.y/screen.y;
+    renderWindow.setView(view);
+
+    return scalingFactor;
 }

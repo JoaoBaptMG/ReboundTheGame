@@ -16,7 +16,7 @@ using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
 
 class ParticleBatch final : public GameObject
 {
-    static sf::Shader& getParticleShader();
+    static sf::Shader& getParticleShader(float scalingFactor);
     
 public:
     using TimePoint = std::chrono::steady_clock::time_point;
