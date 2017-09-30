@@ -1,5 +1,7 @@
 #include "TextureExplosion.hpp"
 
+#include <random>
+
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 
@@ -12,6 +14,11 @@ TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture
     width(width), height(height), drawingDepth(depth), globalPosition(), globalAcceleration(acceleration),
     duration(duration)
 {
+	std::random_device init;
+	std::mt19937 rgen(init());
+	std::uniform_real_distribution<float> distribution;
+	auto generator = std::bind(distribution, rgen);
+    
     auto texSize = tex->getSize();
     float pieceWidth = (float)texSize.x/width;
     float pieceHeight = (float)texSize.y/height;
@@ -22,8 +29,8 @@ TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture
             texturePieces[j*width+i].position.x = texSize.x * ((i + 0.5)/width - 0.5);
             texturePieces[j*width+i].position.y = texSize.y * ((j + 0.5)/width - 0.5);
 
-            float xVel = velocityRect.left + (float)i/(width-1) * velocityRect.width;
-            float yVel = velocityRect.top + (float)j/(height-1) * velocityRect.height;
+            float xVel = velocityRect.left + generator() * velocityRect.width;
+            float yVel = velocityRect.top + generator() * velocityRect.height;
             texturePieces[j*width+i].velocity = sf::Vector2f(xVel, yVel);
 
             vertices[4*(j*width+i)].texCoords = sf::Vector2f(pieceWidth*i, pieceHeight*j);

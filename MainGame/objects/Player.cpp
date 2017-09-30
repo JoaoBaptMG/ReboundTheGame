@@ -22,8 +22,6 @@
 
 using namespace std::literals::chrono_literals;
 
-size_t global_AbilityLevel = 0; // TODO: factor this global out
-
 constexpr float MaxHorSpeed = 400;
 constexpr float MaxHorSpeedEnhanced = 560;
 constexpr float HorAcceleration = 800;
@@ -38,26 +36,34 @@ constexpr float DashSpeedEnhanced = 800;
 constexpr float HardballAirFactor = 0.125;
 constexpr float HardballWaterFactor = 0.75;
 
+
 constexpr auto DashInterval = 40 * UpdateFrequency;
 constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
 constexpr auto HardballChangeTime = 40 * UpdateFrequency;
 constexpr auto GrappleFade = 30 * UpdateFrequency;
 
+constexpr auto Invincibility = 50 * UpdateFrequency;
+
+constexpr auto SpikeRespawnTime = 25 * UpdateFrequency;
+constexpr auto SpikeInvincibilityTime = 180 * UpdateFrequency;
+
 constexpr size_t BaseHealth = 208;
 constexpr size_t HealthIncr = 8;
+constexpr size_t MaxBombs = 4;
+constexpr size_t SpikeDamage = 40;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
-    dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
+    numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0),
-    dashBatch(nullptr), hardballBatch(nullptr),
+    dashBatch(nullptr), hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png")),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(7);
+	upgradeToAbilityLevel(10);
     setName("player");
 }
 
@@ -165,15 +171,18 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
             }
             
             reset(dashTime);
+            dashDirection = DashDir::None;
         }
     });
 
 	if (abilityLevel >= 7 && (onGround || onWaterCeiling))
-        if (cpvlengthsq(vel) < 36)
-            observeHardballTrigger();
+        if (cpvlengthsq(vel) < 1144) observeHardballTrigger();
     
     if (onGround)
     {
+        lastSafePosition = getPosition();
+        lastSafeRoomID = gameScene.getCurrentRoomID();
+        
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
@@ -237,6 +246,17 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 dashBatch = nullptr;
             }
         }
+
+        if (hardballOnAir() && isDashing())
+        {
+            reset(dashTime);
+            dashDirection = DashDir::None;
+            if (dashBatch)
+            {
+                dashBatch->abort();
+                dashBatch = nullptr;
+            }
+        }
     }
 
     if (wallHit && abilityLevel >= 1 && !hardballOnAir())
@@ -252,7 +272,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         else wallJumpTriggerTime = curTime;
     }
 
-    if (controller.bomb.isTriggered() && abilityLevel >= 5) lieBomb(curTime);
+    if (controller.bomb.isTriggered() && abilityLevel >= 5 && numBombs > 0) lieBomb(curTime);
 
     if (onWater())
     {
@@ -286,6 +306,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (dashBatch) dashBatch->setPosition(getDisplayPosition());
     if (hardballBatch) hardballBatch->setPosition(getDisplayPosition());
+
+    if (invincibilityTime != decltype(invincibilityTime)() && invincibilityTime > curTime)
+        reset(invincibilityTime);
+
+    if (spikeTime != decltype(spikeTime)() && spikeTime > curTime)
+        respawnFromSpikes();
 }
 
 void Player::jump()
@@ -359,7 +385,8 @@ void Player::dash()
 
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
-    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), curTime));
+    numBombs--;
+    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), this, curTime));
 }
 
 void Player::observeHardballTrigger()
@@ -413,16 +440,38 @@ void Player::setHardballSprite()
     sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
 }
 
+void Player::hitSpikes()
+{
+    damage(SpikeDamage);
+    spikeTime = curTime + SpikeRespawnTime;
+
+    // TODO: add particle system here
+}
+
+void Player::respawnFromSpikes()
+{
+    reset(spikeTime);
+    setPosition(lastSafePosition);
+    if (gameScene.getCurrentRoomID() != lastSafeRoomID)
+        gameScene.loadRoom(lastSafeRoomID);
+
+    invincibilityTime = curTime + SpikeInvincibilityTime;
+}
+
 void Player::heal(size_t amount)
 {
     health += amount;
     if (health > maxHealth) health = maxHealth;
 }
 
-void Player::damage(size_t amount)
+void Player::damage(size_t amount, bool overrideInvincibility)
 {
+    if (!overrideInvincibility && invincibilityTime != decltype(invincibilityTime)()) return;
+    
     if (health <= amount) health = 0;
     else health -= amount;
+
+    invincibilityTime = curTime + Invincibility;
 }
 
 bool Player::onWater() const
@@ -458,26 +507,29 @@ bool Player::isDashing() const
 
 void Player::render(Renderer& renderer)
 {
-    renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.currentTransform.rotate(angle);
-
-    if (chargingForHardball)
+    if (spikeTime == decltype(spikeTime)())
     {
-        auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
-        sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
+        renderer.pushTransform();
+        renderer.currentTransform.translate(getDisplayPosition());
+        renderer.currentTransform.rotate(angle);
+
+        if (chargingForHardball)
+        {
+            auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
+            sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
+        }
+        else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
+
+        auto fade = std::min(toSeconds<float>(curTime - grappleTime) / toSeconds<float>(GrappleFade), 1.0f);
+        if (grapplePoints == 0) fade = std::min(lastFade, 1.0f - fade);
+        else fade = std::max(lastFade, fade);
+        lastFade = fade;
+        grappleSprite.setOpacity(fade);
+
+        renderer.pushDrawable(sprite, {}, 16);
+        if (fade != 0.0f) renderer.pushDrawable(grappleSprite, {}, 14);
+        
+        renderer.popTransform();
     }
-    else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
-
-    auto fade = std::min(toSeconds<float>(curTime - grappleTime) / toSeconds<float>(GrappleFade), 1.0f);
-    if (grapplePoints == 0) fade = std::min(lastFade, 1.0f - fade);
-    else fade = std::max(lastFade, fade);
-    lastFade = fade;
-    grappleSprite.setOpacity(fade);
-
-    renderer.pushDrawable(sprite, {}, 16);
-    if (fade != 0.0f) renderer.pushDrawable(grappleSprite, {}, 14);
-    
-    renderer.popTransform();
 }
 

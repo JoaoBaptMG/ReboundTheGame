@@ -6,12 +6,14 @@
 #include "resources/ResourceManager.hpp"
 #include "particles/ParticleBatch.hpp"
 
+#include "objects/Player.hpp"
+
 using namespace std::literals::chrono_literals;
 
 constexpr auto DetonationTime = 48 * UpdateFrequency;
 
-Bomb::Bomb(GameScene& scene, cpVect pos, std::chrono::steady_clock::time_point initialTime)
-    : GameObject(scene), position(pos), detonationTime(initialTime + DetonationTime),
+Bomb::Bomb(GameScene& scene, cpVect pos, Player* player, std::chrono::steady_clock::time_point initialTime)
+    : GameObject(scene), position(pos), player(player), detonationTime(initialTime + DetonationTime),
     sprite(scene.getResourceManager().load<sf::Texture>("bomb.png"))
 {
     
@@ -21,6 +23,7 @@ void Bomb::update(std::chrono::steady_clock::time_point curTime)
 {
     if (curTime > detonationTime)
     {
+        player->numBombs++;
         detonate();
         remove();
     }

@@ -36,6 +36,7 @@ class GameScene : public Scene
     ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
+    size_t curRoomID;
     bool objectsLoaded;
 
     const PlayerController* playerController;
@@ -50,6 +51,7 @@ public:
     cp::Space& getGameSpace() { return gameSpace; }
     const cp::Space& getGameSpace() const { return gameSpace; }
 
+    size_t getCurrentRoomID() { return curRoomID; }
     Room& getCurrentRoom() { return room; }
     const Room& getCurrentRoom() const { return room; }
     

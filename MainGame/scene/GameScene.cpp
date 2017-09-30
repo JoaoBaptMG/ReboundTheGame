@@ -16,7 +16,7 @@ T clamp(T cur, T min, T max)
 }
 
 GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager), playerController(nullptr),
-    gui(*this), objectsLoaded(false)
+    gui(*this), objectsLoaded(false), curRoomID(-1)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -33,6 +33,7 @@ void GameScene::loadLevel(std::string levelName)
 
 void GameScene::loadRoom(size_t id)
 {
+    curRoomID = 1;
     auto roomName = levelData->roomResourceNames.at(id) + ".map";
     
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),

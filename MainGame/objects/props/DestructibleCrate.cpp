@@ -18,8 +18,9 @@ using namespace props;
 using namespace cp;
 using namespace std::literals::chrono_literals;
 
-const sf::FloatRect velocityRect(-64, -384, 128, 128);
+const sf::FloatRect FixedVelocityRect(-64, -192, 128, 128);
 constexpr auto ExplosionDuration = 2s;
+constexpr float CrateHalfSize = 48, CrateBevel = 16;
 
 DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, uint32_t type)
     : GameObject(gameScene), sprite(gameScene.getResourceManager().load<sf::Texture>(texture))
@@ -27,9 +28,9 @@ DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, 
     setupPhysics();
     interactionHandler = [this,type] (uint32_t ty, void* ptr)
     {
-        if (ty == type)
+        if (ty == type && isDestructionViable())
         {
-            explode();
+            explode(ptr);
             remove();
         }
     };
@@ -43,7 +44,7 @@ bool DestructibleCrate::configure(const DestructibleCrate::ConfigStruct& config)
     if (player)
     {
         auto dif = gameScene.wrapPosition(player->getPosition()) - getPosition();
-        if (std::abs(dif.x) <= 48 && std::abs(dif.y) <= 48) return false;
+        if (std::abs(dif.x) <= CrateHalfSize && std::abs(dif.y) <= CrateHalfSize) return false;
     }
 
     return true;
@@ -52,9 +53,11 @@ bool DestructibleCrate::configure(const DestructibleCrate::ConfigStruct& config)
 void DestructibleCrate::setupPhysics()
 {
     auto body = std::make_shared<Body>(Body::Kinematic);
-    
+
+    constexpr auto Offset = CrateHalfSize - CrateBevel;
     shape = std::make_shared<PolyShape>(body, std::vector<cpVect>
-        { cpVect{-32, -32}, cpVect{+32, -32}, cpVect{+32, +32}, cpVect{-32, +32} }, 16);
+        { cpVect{-Offset, -Offset}, cpVect{+Offset, -Offset},
+          cpVect{+Offset, +Offset}, cpVect{-Offset, +Offset} }, CrateBevel);
     
     shape->setDensity(1);
     shape->setElasticity(0.6);
@@ -65,6 +68,47 @@ void DestructibleCrate::setupPhysics()
     gameScene.getGameSpace().add(shape);
 
     body->setUserData((void*)this);
+}
+
+void DestructibleCrate::explode(void* ptr)
+{
+    explode(FixedVelocityRect);
+}
+
+void BombCrate::explode(void* ptr)
+{
+    auto bomb = static_cast<Bomb*>(ptr);
+    auto velPtr = getDisplayPosition() - bomb->getDisplayPosition();
+    auto dirPtr = normalize(velPtr) * 128.0f;
+
+    auto rect = FixedVelocityRect;
+    rect.left += dirPtr.x;
+    rect.top += dirPtr.y;
+    DestructibleCrate::explode(rect);
+}
+
+void DashCrate::explode(void* ptr)
+{
+    auto rect = FixedVelocityRect;
+    auto player = static_cast<Player*>(ptr);
+
+    auto ppos = player->getDisplayPosition(), pos = getDisplayPosition();
+    if (ppos.x - pos.x < -0.5 * (PlayerRadius + CrateHalfSize)) rect.left += 256;
+    else if (ppos.x - pos.x > 0.5 * (PlayerRadius + CrateHalfSize)) rect.left -= 256;
+    else if (ppos.y - pos.y > 0.5 * (PlayerRadius + CrateHalfSize)) rect.top -= 256;
+
+    DestructibleCrate::explode(rect);
+}
+
+void DestructibleCrate::explode(sf::FloatRect velocityRect)
+{
+    auto grav = gameScene.getGameSpace().getGravity();
+    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    
+    auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
+        velocityRect, displayGravity, TextureExplosion::Density, 8, 8, 25);
+    explosion->setPosition(getDisplayPosition());
+    gameScene.addObject(std::move(explosion));
 }
 
 DestructibleCrate::~DestructibleCrate()
@@ -82,21 +126,16 @@ void DestructibleCrate::update(std::chrono::steady_clock::time_point curTime)
 
 }
 
-void DestructibleCrate::explode()
-{
-    auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
-    
-    auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
-        velocityRect, displayGravity, TextureExplosion::Density, 8, 8, 25);
-    explosion->setPosition(getDisplayPosition());
-    gameScene.addObject(std::move(explosion));
-}
-
 void DestructibleCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
+}
+
+bool DashCrate::isDestructionViable() const
+{
+    auto player = gameScene.getObjectByName<Player>("player");
+    return player && player->canBreakDash();
 }

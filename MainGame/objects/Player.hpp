@@ -15,17 +15,22 @@ class ResourceManager;
 class GameScene;
 class Renderer;
 class ParticleBatch;
+class Bomb;
+namespace collectibles
+{
+    class Powerup;
+}
 
 template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
 void reset(T& val) { val = T(); }
-
-extern size_t global_AbilityLevel;
 
 constexpr cpFloat PlayerRadius = 32;
 constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
 
 class Player final : public GameObject
 {
+    using TimePoint = std::chrono::steady_clock::time_point;
+    
     Sprite sprite, grappleSprite;
     std::shared_ptr<cp::Shape> playerShape;
     ParticleBatch* dashBatch;
@@ -36,14 +41,17 @@ class Player final : public GameObject
     bool chargingForHardball, hardballEnabled;
     bool grappleEnabled;
     
-    std::chrono::steady_clock::time_point
-        wallJumpTriggerTime, dashTime, hardballTime, grappleTime, curTime;
+    TimePoint wallJumpTriggerTime, dashTime, hardballTime,
+         grappleTime, spikeTime, invincibilityTime, curTime;
 
     enum class DashDir { None, Left, Right, Up } dashDirection;
 
     size_t abilityLevel, grapplePoints;
-    size_t health, maxHealth;
+    size_t health, maxHealth, numBombs;
     cpFloat waterArea;
+
+    cpVect lastSafePosition;
+    size_t lastSafeRoomID;
 
 public:
     Player(GameScene &scene);
@@ -71,7 +79,7 @@ public:
     auto getMaxHealth() const { return maxHealth; }
 
     void heal(size_t amount);
-    void damage(size_t amount);
+    void damage(size_t amount, bool overrideInvincibility = false);
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     auto canBreakDash() const { return abilityLevel >= 8; }
@@ -80,7 +88,6 @@ public:
     {
         if (abilityLevel < level)
             abilityLevel = level;
-        global_AbilityLevel = abilityLevel;
     }
 
     bool isDashing() const;
@@ -100,6 +107,9 @@ public:
     void observeHardballTrigger();
     void lieBomb(std::chrono::steady_clock::time_point curTime);
 
+    void hitSpikes();
+    void respawnFromSpikes();
+
     void setHardballSprite();
 
     auto canGrapple() const { return grappleEnabled; }
@@ -110,6 +120,8 @@ public:
         grappleTime = curTime;
     }
 
+    friend class ::collectibles::Powerup;
+    friend class Bomb;
     static constexpr cpCollisionType CollisionType = 'plyr';
     static constexpr uint32_t DashInteractionType = 'pdsh';
 

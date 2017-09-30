@@ -35,7 +35,9 @@ namespace props
         auto getPosition() const { return shape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { shape->getBody()->setPosition(pos); }
 
-        void explode();
+        virtual bool isDestructionViable() const = 0;
+        void explode(sf::FloatRect velocityRect);
+        virtual void explode(void* ptr);
 
         auto getDisplayPosition() const
         {
@@ -57,10 +59,14 @@ namespace props
     struct BombCrate final : public DestructibleCrate
     {
         BombCrate(GameScene& scene) : DestructibleCrate(scene, "bomb-crate.png", Bomb::InteractionType) {}
+        virtual bool isDestructionViable() const override { return true; }
+        virtual void explode(void* ptr) override;
     };
 
     struct DashCrate final : public DestructibleCrate
     {
         DashCrate(GameScene& scene) : DestructibleCrate(scene, "dash-crate.png", Player::DashInteractionType) {}
+        virtual bool isDestructionViable() const override;
+        virtual void explode(void* ptr) override;
     };
 }

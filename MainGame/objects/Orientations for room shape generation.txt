@@ -1,0 +1,19 @@
+Tileset: terrains and single objects
+    Terrains: parameters
+        9 tile categories, to define terrain boundaries
+        Rectangular terrain, adjustable corner radius
+        Terrain attributes: none, solid, no-walljump
+    Degenerate terrains: parameters
+        Only 3 tile categories, which function depends on the terrain attribute
+        Terrain attribute: left-solid, right-solid, up-solid, down-solid, left-no-walljump, right-no-walljump
+        No adjustable corner radius
+    Single object (aka lone objects)
+        Single tile, with adjustable body (arbitrary number of shapes)
+        Or then single square
+        Body attributes:
+            none, solid, no-walljump, spike, left-solid, right-solid, up-solid, down-solid, left-no-walljump, right-no-walljump
+        
+Dynamic tile generation
+    Detect each of the 9 tile categories and adapt accordingly
+    Create the "terrain spans"
+    Generate the terrain body from it

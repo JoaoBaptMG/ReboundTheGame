@@ -63,7 +63,6 @@ bool Powerup::configure(const Powerup::ConfigStruct& config)
     collisionBody->setPosition(pos);
 
     abilityLevel = config.abilityLevel;
-    if (abilityLevel <= global_AbilityLevel) return false;
     if (abilityLevel > 10) return false;
 
     std::string name = "powerup" + std::to_string(abilityLevel) + ".png";
@@ -103,6 +102,9 @@ void Powerup::onCollect(Player& player)
 
 void Powerup::update(std::chrono::steady_clock::time_point curTime)
 {
+    auto player = gameScene.getObjectByName<Player>("player");
+    if (player && abilityLevel <= player->abilityLevel) remove();
+    
     rotationAngle += degreesToRadians(RotationSpeed) * toSeconds<float>(UpdateFrequency);
     makeRotatedRect();
 }
