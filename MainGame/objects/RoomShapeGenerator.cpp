@@ -1,10 +1,14 @@
+#include "Room.hpp"
+
 #include <vector>
 #include <memory>
+#include <utility>
 
 #include <cppmunk/Space.h>
 #include <cppmunk/Body.h>
 #include <cppmunk/SegmentShape.h>
 #include <cppmunk/CircleShape.h>
+#include <cppmunk/PolyShape.h>
 #include "data/RoomData.hpp"
 #include "data/TileSet.hpp"
 #include "defaults.hpp"
@@ -13,132 +17,262 @@
 using ssize_t = intmax_t;
 #endif
 
+enum NodeType { TerrainBoundary, TerrainAnkle, TerrainCorner, LevelEdge };
+    
+struct Segment // Generic segments
+{
+    NodeType end1, end2;
+    bool isOtherEnd;
+    bool isSemiTerrain;
+    size_t terrain, j, i1, i2;
+};
+
+template <bool Vertical>
+inline void generateSegments(std::vector<Segment>& segments, const TileSet& tileSet, const util::grid<uint8_t>& layer)
+{
+    auto jSize = Vertical ? layer.width() : layer.height();
+    auto iSize = Vertical ? layer.height() : layer.width();
+
+    Segment curSegment;
+    bool newSegment = false;
+    for (size_t j = 0; j < jSize; j++)
+    {
+        const TileSet::TileIdentity* lastIdentity = nullptr;
+        for (size_t i = 0; i < iSize; i++)
+        {
+            auto curTile = Vertical ? layer(j, i) : layer(i, j);
+            const auto &identity = tileSet.tileIdentities[curTile];
+
+            bool isViableSemiTerrain = TileSet::isSemiTerrain(identity.type) &&
+                (Vertical ? TileSet::isIdHorizontalSemiTerrain(identity.id) :
+                            TileSet::isIdVerticalSemiTerrain(identity.id));
+            TileSet::Attribute terrainAttr = tileSet.getTileAttribute(curTile);
+            
+            if (TileSet::isTerrain(identity.type) || isViableSemiTerrain)
+            {
+                if (newSegment && !TileSet::refersToSame(*lastIdentity, identity))
+                {
+                    curSegment.i2 = i-1;
+                    curSegment.end2 = TerrainBoundary;
+                    segments.push_back(curSegment);
+                    newSegment = false;
+                }
+
+// Replacement rule to help in the annoying things
+#define TT TileSet::TileType
+#define At TileSet::Attribute
+            repeatNewSegmentPhase: // People will spank me, but...
+                if (!newSegment && (isViableSemiTerrain ?
+                    isContained(identity.type, TT::SemiTerrain1, TT::SemiTerrain2) :
+                    isContained(identity.type, TT::TerrainUpperLeft, TT::TerrainUpperRight, TT::TerrainLowerLeft,
+                    TT::TerrainLowerRight, Vertical ? TT::TerrainLeft : TT::TerrainUp,
+                    Vertical ? TT::TerrainRight : TT::TerrainDown)))
+                {
+                    bool isTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain1 :
+                        isContained(identity.type, TT::TerrainUpperLeft,
+                        Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft);
+                    bool isOtherEnd = isViableSemiTerrain ?
+                        (Vertical ? isContained(terrainAttr, At::RightSolid, At::RightNoWalljump)
+                                  : terrainAttr == At::DownSolid) :
+                        isContained(identity.type, TT::TerrainLowerRight,
+                            Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft,
+                            Vertical ? TT::TerrainRight : TT::TerrainDown);
+
+                    newSegment = true;
+                    curSegment.j = j;
+                    curSegment.i1 = i;
+                    curSegment.end1 = isTerrainCorner ? TerrainCorner : i == 0 ? LevelEdge :
+                        TileSet::refersToSame(*lastIdentity, identity) ? TerrainAnkle : TerrainBoundary;
+                    curSegment.isOtherEnd = isOtherEnd;
+
+                    curSegment.isSemiTerrain = isViableSemiTerrain;
+                    curSegment.terrain = identity.id;
+
+                    if (isTerrainCorner) goto skipSegmentTermination;
+                }
+                
+                if (newSegment && identity.type != (isViableSemiTerrain ? TT::SemiTerrain2 :
+                    (curSegment.isOtherEnd ? (Vertical ? TT::TerrainRight : TT::TerrainDown) :
+                        (Vertical ? TT::TerrainLeft : TT::TerrainUp))))
+                {
+                    bool isTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain3 :
+                        isContained(identity.type, TT::TerrainLowerRight,
+                        Vertical ? TT::TerrainLowerLeft : TT::TerrainUpperRight);
+                    
+                    curSegment.i2 = isTerrainCorner ? i : i-1;
+                    curSegment.end2 = isTerrainCorner ? TerrainCorner : TerrainAnkle;
+                    segments.push_back(curSegment);
+                    newSegment = false;
+
+                    bool isNewTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain1 :
+                        isContained(identity.type, TT::TerrainUpperLeft,
+                        Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft);
+                    // In order to avoid code duplication
+                    if (isNewTerrainCorner) goto repeatNewSegmentPhase;
+                }
+#undef At
+#undef TT
+            }
+            else if (newSegment)
+            {
+                curSegment.i2 = i-1;
+                curSegment.end2 = TerrainBoundary;
+                segments.push_back(curSegment);
+                newSegment = false;
+            }
+
+        skipSegmentTermination:
+            lastIdentity = &identity;
+        }
+
+        if (newSegment)
+        {
+            curSegment.i2 = iSize-1;
+            curSegment.end2 = LevelEdge;
+            segments.push_back(curSegment);
+            newSegment = false;
+        }
+    }
+}
+
+template <bool Vertical>
+void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_ptr<cp::Body> body,
+    const TileSet& tileSet, const std::vector<Segment>& segments, TileSet::Attribute* attributes)
+{
+    auto pi = Vertical ? &cpVect::y : &cpVect::x;
+    auto pj = Vertical ? &cpVect::x : &cpVect::y;
+
+    size_t i = 0;
+    for (const Segment& segment : segments)
+    {
+        auto physicalParams = segment.isSemiTerrain ? TileSet::PhysicalParameters() :
+            tileSet.terrains[segment.terrain].physicalParameters;
+
+        auto perpnOffset = Vertical ? physicalParams.upperOffset : physicalParams.leftOffset,
+             perppOffset = Vertical ? physicalParams.lowerOffset : physicalParams.rightOffset,
+             parnOffset  = Vertical ? physicalParams.leftOffset  : physicalParams.upperOffset,
+             parpOffset  = Vertical ? physicalParams.rightOffset : physicalParams.lowerOffset,
+             cornerRadius = physicalParams.cornerRadius;
+
+        cpVect endPoint1, endPoint2;
+        endPoint1.*pj = endPoint2.*pj = DefaultTileSize * segment.j +
+            (segment.isOtherEnd ? DefaultTileSize + perpnOffset - cornerRadius
+                                : -perppOffset + cornerRadius);
+
+        endPoint1.*pi = DefaultTileSize * segment.i1;
+        switch (segment.end1)
+        {
+            case LevelEdge: endPoint1.*pi -= 4.0 * DefaultTileSize; break;
+            case TerrainAnkle: endPoint1.*pi += parpOffset - cornerRadius; break;
+            case TerrainCorner: endPoint1.*pi -= parnOffset - cornerRadius; break;
+            default: break;
+        } 
+        
+        endPoint2.*pi = DefaultTileSize * (segment.i2+1);
+        switch (segment.end2)
+        {
+            case LevelEdge: endPoint2.*pi += 4.0 * DefaultTileSize; break;
+            case TerrainAnkle: endPoint2.*pi -= parnOffset - cornerRadius; break;
+            case TerrainCorner: endPoint2.*pi += parpOffset - cornerRadius; break;
+            default: break;
+        }
+
+        attributes[i] = segment.isSemiTerrain ? TileSet::getSemiTerrainAttribute(segment.terrain) :
+            tileSet.terrains[segment.terrain].terrainAttribute;
+        auto shape = std::make_shared<cp::SegmentShape>(body, endPoint1, endPoint2, cornerRadius);
+        shape->setUserData(attributes+i);
+        shapes.push_back(shape);
+        i++;
+    }
+}
+
+inline void collectSingleObjects(std::vector<std::pair<size_t,size_t>>& singleObjectLocations,
+    const TileSet& tileSet, const util::grid<uint8_t>& layer)
+{
+    auto height = layer.height();
+    auto width = layer.width();
+
+    for (size_t j = 0; j < height; j++)
+        for (size_t i = 0; i < width; i++)
+            if (TileSet::isSingleObject(tileSet.tileIdentities[layer(i, j)].type))
+                singleObjectLocations.emplace_back(i, j);
+}
+
+inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_ptr<cp::Body> body,
+    const TileSet& tileSet, const util::grid<uint8_t>& layer,
+    const std::vector<std::pair<size_t,size_t>>& singleObjectLocations, TileSet::Attribute* attributes)
+{
+    size_t i = 0;
+    for (const auto& p : singleObjectLocations)
+    {
+        size_t x = p.first, y = p.second;
+        auto curTile = layer(x, y);
+        const auto& identity = tileSet.tileIdentities[curTile];
+        if (!TileSet::isSingleObject(identity.type)) continue;
+
+        std::shared_ptr<cp::Shape> shape;
+        cpVect dp = { (cpFloat)DefaultTileSize * x, (cpFloat)DefaultTileSize * y };
+        const auto& pts = tileSet.singleObjects[identity.id].points;
+        auto radius = tileSet.singleObjects[identity.id].radius;
+        switch (tileSet.singleObjects[identity.id].objectMode)
+        {
+            case TileSet::SingleObject::ObjectMode::TileMultiple:
+            {
+                cpFloat width = DefaultTileSize * pts[0].x - radius;
+                cpFloat height = DefaultTileSize * pts[0].y - radius;
+                shape = std::make_shared<cp::PolyShape>(body, std::vector<cpVect>
+                    { cpVect{dp.x-width/2, dp.y-height/2}, cpVect{dp.x+width/2, dp.y-height/2},
+                      cpVect{dp.x+width/2, dp.y+height/2}, cpVect{dp.x-width/2, dp.y+height/2} }, radius);
+            } break;
+            case TileSet::SingleObject::ObjectMode::Circle:
+                shape = std::make_shared<cp::CircleShape>(body, radius, dp);
+            break;
+            case TileSet::SingleObject::ObjectMode::Segment:
+            {
+                cpVect pt1 = { dp.x+pts[0].x, dp.y+pts[0].y };
+                cpVect pt2 = { dp.x+pts[1].x, dp.y+pts[1].y };
+                shape = std::make_shared<cp::SegmentShape>(body, pt1, pt2, radius);
+            } break;
+            case TileSet::SingleObject::ObjectMode::Polygon:
+            {
+                std::vector<cpVect> cpPoints;
+                cpPoints.reserve(pts.size());
+                for (auto p : pts) cpPoints.push_back({ dp.x+p.x, dp.y+p.y });
+                shape = std::make_shared<cp::PolyShape>(body, cpPoints, radius);
+            } break;
+        }
+
+        attributes[i] = tileSet.singleObjects[identity.id].objectAttribute;
+        shape->setUserData(attributes+i);
+        shapes.push_back(shape);
+        i++;
+    }
+}
+
 std::vector<std::shared_ptr<cp::Shape>>
-    generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body)
+    generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body,
+    ShapeGeneratorDataOpaque& shapeGeneratorData)
 {
     const auto& layer = data.mainLayer;
 
-    enum NodeType { None, Knee, Ankle };
-    struct HorSegment { ssize_t y, x1, x2; };
-    struct VertSegment { ssize_t x, y1, y2; };
+    std::vector<Segment> horizontalSegments, verticalSegments;
+    generateSegments<false>(horizontalSegments, tileSet, layer);
+    generateSegments<true>(verticalSegments, tileSet, layer);
 
-    auto isSolid = [&](ssize_t x, ssize_t y) -> bool
-    {
-        return tileSet.tileModes[std::min<uint8_t>(layer(x, y),
-            tileSet.tileModes.size()-1)] == TileSet::Mode::Solid;
-    };
-    auto horizontalFootprint = [&](ssize_t j, ssize_t i) -> ssize_t
-    {
-        return (ssize_t(isSolid(i, j-1)) << 1) | ssize_t(isSolid(i, j));
-    };
-    auto verticalFootprint = [&](ssize_t j, ssize_t i) -> ssize_t
-    {
-        return (ssize_t(isSolid(j-1, i)) << 1) | ssize_t(isSolid(j, i));
-    };
+    std::vector<std::pair<size_t,size_t>> singleObjectLocations;
+    collectSingleObjects(singleObjectLocations, tileSet, layer); 
 
-    std::vector<HorSegment> horizontalSegments;
-    std::vector<VertSegment> verticalSegments;
-
-/*#define GEN_SEGMENTS(perp, par, dir)                                                 \
-    do                                                                               \
-    {                                                                                \
-        for (ssize_t j = 1; j < layer.perp(); j++)                                   \
-        {                                                                            \
-            ssize_t i = 0;                                                           \
-                                                                                     \
-            while (i < layer.par())                                                  \
-            {                                                                        \
-                auto previ = i;                                                      \
-                auto curFootprint = dir##Footprint(j, i);                            \
-                while (i < layer.par() && curFootprint == dir##Footprint(j, i)) i++; \
-                                                                                     \
-                if (curFootprint == 1 || curFootprint == 2)                          \
-                    dir##Segments.push_back({ j, previ, i });                        \
-            }                                                                        \
-        }                                                                            \
-    } while(0)
-
-    GEN_SEGMENTS(height, width, horizontal);
-    GEN_SEGMENTS(width, height, vertical);
-#undef GEN_SEGMENTS*/
-
-    do
-    {
-        for (ssize_t j = 1; j < layer.height(); j++)
-        {
-            ssize_t i = 0;
-            while (i < layer.width())
-            {
-                auto previ = i;
-                auto curFootprint = horizontalFootprint(j, i);
-                while (i < layer.width() && curFootprint == horizontalFootprint(j, i)) i++;
-                if (curFootprint == 1 || curFootprint == 2)
-                    horizontalSegments.push_back({ j, previ, i });
-            }
-        }
-    } while(0);
-    
-    do
-    {
-        for (ssize_t j = 1; j < layer.width(); j++)
-        {
-            ssize_t i = 0;
-            while (i < layer.height())
-            {
-                auto previ = i;
-                auto curFootprint = verticalFootprint(j, i);
-                while (i < layer.height() && curFootprint == verticalFootprint(j, i)) i++;
-                if (curFootprint == 1 || curFootprint == 2)
-                    verticalSegments.push_back({ j, previ, i });
-            }
-        }
-    } while(0);
+    auto totalSize = horizontalSegments.size() + verticalSegments.size() + singleObjectLocations.size();
+    TileSet::Attribute* attrs = new TileSet::Attribute[totalSize];
 
     std::vector<std::shared_ptr<cp::Shape>> shapes;
-    const auto& params = tileSet.physicalParameters;
+    convertShapes<false>(shapes, body, tileSet, horizontalSegments, attrs);
+    convertShapes<true>(shapes, body, tileSet, verticalSegments, attrs + horizontalSegments.size());
+    convertSingleObjects(shapes, body, tileSet, layer, singleObjectLocations,
+        attrs + (horizontalSegments.size() + verticalSegments.size()));
 
-#define CONVERT_SHAPES(j, i, perpnOffset, perppOffset, parnOffset, parpOffset, segments, solid)       \
-    do                                                                                                \
-    {                                                                                                 \
-        for (auto seg : segments)                                                                     \
-        {                                                                                             \
-            cpVect endPoint1, endPoint2;                                                              \
-                                                                                                      \
-            bool isDown = solid(seg.i##1, seg.j);                                                     \
-            endPoint1.j = endPoint2.j = DefaultTileSize * seg.j +                                     \
-                (isDown ? -params.perpnOffset + params.cornerRadius                                   \
-                        :  params.perppOffset - params.cornerRadius);                                 \
-                                                                                                      \
-            if (seg.i##1 == 0) endPoint1.i = -(ssize_t)DefaultTileSize;                               \
-            else                                                                                      \
-            {                                                                                         \
-                endPoint1.i = DefaultTileSize * seg.i##1;                                             \
-                if (isDown ? solid(seg.i##1-1, seg.j) : solid(seg.i##1-1, seg.j-1))                   \
-                    endPoint1.i += params.parpOffset - params.cornerRadius;                           \
-                else endPoint1.i -= params.parnOffset - params.cornerRadius;                          \
-            }                                                                                         \
-                                                                                                      \
-            if (seg.i##2 == bounds) endPoint2.i = (bounds + 1) * DefaultTileSize;                     \
-            else                                                                                      \
-            {                                                                                         \
-                endPoint2.i = DefaultTileSize * seg.i##2;                                             \
-                if (isDown ? solid(seg.i##2, seg.j) : solid(seg.i##2, seg.j-1))                       \
-                    endPoint2.i -= params.parnOffset - params.cornerRadius;                           \
-                else endPoint2.i += params.parpOffset - params.cornerRadius;                          \
-            }                                                                                         \
-                                                                                                      \
-            shapes.push_back(std::make_shared<cp::SegmentShape>                                       \
-                (body, endPoint1, endPoint2, params.cornerRadius));                                   \
-        }                                                                                             \
-    } while (0)
-
-    size_t bounds = layer.width();
-    CONVERT_SHAPES(y, x, upperOffset, lowerOffset, leftOffset, rightOffset, horizontalSegments, isSolid);
-
-    bounds = layer.height();
-    auto isReverseSolid = [&](ssize_t i, ssize_t j) { return isSolid(j, i); };
-    CONVERT_SHAPES(x, y, leftOffset, rightOffset, upperOffset, lowerOffset, verticalSegments, isReverseSolid);
+    shapeGeneratorData = ShapeGeneratorDataOpaque(static_cast<void*>(attrs),
+        [](void* ptr) { delete[] static_cast<TileSet::Attribute*>(ptr); });
 
     return shapes;
-#undef CONVERT_SHAPES
 }

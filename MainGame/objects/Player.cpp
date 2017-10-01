@@ -9,6 +9,8 @@
 #include <vector_math.hpp>
 #include "objects/Bomb.hpp"
 #include "particles/ParticleBatch.hpp"
+#include "objects/Room.hpp"
+#include "data/TileSet.hpp"
 
 #include <functional>
 #include <limits>
@@ -36,21 +38,21 @@ constexpr float DashSpeedEnhanced = 800;
 constexpr float HardballAirFactor = 0.125;
 constexpr float HardballWaterFactor = 0.75;
 
-
 constexpr auto DashInterval = 40 * UpdateFrequency;
 constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
 constexpr auto HardballChangeTime = 40 * UpdateFrequency;
 constexpr auto GrappleFade = 30 * UpdateFrequency;
 
-constexpr auto Invincibility = 50 * UpdateFrequency;
+constexpr auto Invincibility = 60 * UpdateFrequency;
+constexpr auto InvincPeriod = 20 * UpdateFrequency;
 
 constexpr auto SpikeRespawnTime = 25 * UpdateFrequency;
-constexpr auto SpikeInvincibilityTime = 180 * UpdateFrequency;
+constexpr auto SpikeInvincibilityTime = 200 * UpdateFrequency;
 
 constexpr size_t BaseHealth = 208;
 constexpr size_t HealthIncr = 8;
 constexpr size_t MaxBombs = 4;
-constexpr size_t SpikeDamage = 40;
+constexpr size_t SpikeDamage = 50;
 
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
@@ -63,7 +65,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(10);
+	//upgradeToAbilityLevel(10);
     setName("player");
 }
 
@@ -130,6 +132,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     auto vel = body->getVelocity();
     auto dt = toSeconds<cpFloat>(UpdateFrequency);
 
+    if (spikeTime != decltype(spikeTime)())
+    {
+        if (curTime > spikeTime) respawnFromSpikes();
+        return;
+    }
+
     cpVect base;
     if (grapplePoints == 0)
     {
@@ -149,31 +157,48 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     angle += radiansToDegrees(vel.x * dt / 32);
     angle -= 360 * roundf(angle/360);
 
-    bool onGround = false, wallHit = false, onWaterCeiling = false;
+    bool onGround = false, wallHit = false, onWaterCeiling = false, spikesHit = false;
 
     body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
+        bool walljump = true;
+        
         cpFloat angle = cpvtoangle(arbiter.getNormal());
         if (fabs(angle - 1.57079632679) < 0.52) onGround = true;
-        if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06 || fabs(angle + 3.14159265359) < 0.06)
-            wallHit = true;
         if (onWaterNoHardball() && fabs(angle + 1.57079632679) < 0.06) onWaterCeiling = true;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
         {
-            if (isDashing())
-            {
-                auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
-                    arbiter.getShapeB() : arbiter.getShapeA();
-
-                if (cpShapeGetCollisionType(shp) == Interactable)
+            auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                arbiter.getShapeB() : arbiter.getShapeA();
+            
+            if (isDashing() && cpShapeGetCollisionType(shp) == Interactable)
                     (*(GameObject::InteractionHandler*)cpShapeGetUserData(shp))(DashInteractionType, (void*)this);
+
+            if (cpShapeGetCollisionType(shp) == Room::CollisionType)
+            {
+                switch (*(TileSet::Attribute*)cpShapeGetUserData(shp))
+                {
+                    case TileSet::Attribute::NoWalljump: walljump = false; break;
+                    case TileSet::Attribute::Spike: spikesHit = true; break;
+                    default: break;
+                }
             }
             
             reset(dashTime);
             dashDirection = DashDir::None;
         }
+
+        if (walljump)
+            if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06 || fabs(angle + 3.14159265359) < 0.06)
+                wallHit = true;
     });
+
+    if (spikesHit)
+    {
+        hitSpikes();
+        return;
+    }
 
 	if (abilityLevel >= 7 && (onGround || onWaterCeiling))
         if (cpvlengthsq(vel) < 1144) observeHardballTrigger();
@@ -307,11 +332,8 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     if (dashBatch) dashBatch->setPosition(getDisplayPosition());
     if (hardballBatch) hardballBatch->setPosition(getDisplayPosition());
 
-    if (invincibilityTime != decltype(invincibilityTime)() && invincibilityTime > curTime)
+    if (invincibilityTime != decltype(invincibilityTime)() && curTime > invincibilityTime)
         reset(invincibilityTime);
-
-    if (spikeTime != decltype(spikeTime)() && spikeTime > curTime)
-        respawnFromSpikes();
 }
 
 void Player::jump()
@@ -394,6 +416,13 @@ void Player::observeHardballTrigger()
     const auto& controller = gameScene.getPlayerController();
     auto vec = controller.movement.getValue();
 
+    if (invincibilityTime != decltype(invincibilityTime)())
+    {
+        chargingForHardball = false;
+        reset(hardballTime);
+        return;
+    }
+
     if (controller.dash.isTriggered() && vec.y > 0.5)
     {
         chargingForHardball = true;
@@ -442,7 +471,8 @@ void Player::setHardballSprite()
 
 void Player::hitSpikes()
 {
-    damage(SpikeDamage);
+    damage(SpikeDamage, true);
+    gameScene.getGameSpace().remove(playerShape->getBody());
     spikeTime = curTime + SpikeRespawnTime;
 
     // TODO: add particle system here
@@ -452,6 +482,9 @@ void Player::respawnFromSpikes()
 {
     reset(spikeTime);
     setPosition(lastSafePosition);
+    playerShape->getBody()->setVelocity(cpvzero);
+    gameScene.getGameSpace().add(playerShape->getBody());
+    
     if (gameScene.getCurrentRoomID() != lastSafeRoomID)
         gameScene.loadRoom(lastSafeRoomID);
 
@@ -513,7 +546,13 @@ void Player::render(Renderer& renderer)
         renderer.currentTransform.translate(getDisplayPosition());
         renderer.currentTransform.rotate(angle);
 
-        if (chargingForHardball)
+        if (invincibilityTime != decltype(invincibilityTime)())
+        {
+            auto phase = toSeconds<float>(invincibilityTime - curTime) / toSeconds<float>(InvincPeriod);
+            auto amp = fabsf(sinf(M_PI * phase));
+            sprite.setFlashColor(sf::Color(255, 0, 0, 128 * amp));
+        }
+        else if (chargingForHardball)
         {
             auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
             sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));

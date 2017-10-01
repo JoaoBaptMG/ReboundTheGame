@@ -12,9 +12,10 @@
 #include <cppmunk/CircleShape.h>
 
 std::vector<std::shared_ptr<cp::Shape>>
-    generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body);
+    generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body,
+    ShapeGeneratorDataOpaque& shaderGeneratorData);
 
-Room::Room(GameScene& scene) : gameScene(scene)
+Room::Room(GameScene& scene) : gameScene(scene), shapeGeneratorData(nullptr, [](void*){})
 {
     sf::FloatRect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
         (float)PlayfieldWidth, (float)PlayfieldHeight};
@@ -35,7 +36,7 @@ void Room::loadRoom(const RoomData& data)
 
     clearShapes();
 
-    roomShapes = generateShapesForTilemap(data, *tileSet, gameScene.getGameSpace().getStaticBody());
+    roomShapes = generateShapesForTilemap(data, *tileSet, gameScene.getGameSpace().getStaticBody(), shapeGeneratorData);
     for (auto& shape : roomShapes)
     {
         shape->setElasticity(0.6);
@@ -57,4 +58,6 @@ void Room::clearShapes()
         gameScene.getGameSpace().remove(shp);
 
     roomShapes.clear();
+
+    
 }

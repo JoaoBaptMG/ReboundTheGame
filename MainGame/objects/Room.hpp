@@ -13,9 +13,12 @@ class ResourceManager;
 class Renderer;
 class GameObject;
 
+using ShapeGeneratorDataOpaque = std::unique_ptr<void, void(*)(void*)>;
+
 class Room final : util::non_copyable
 {
     std::vector<std::shared_ptr<cp::Shape>> roomShapes;
+    ShapeGeneratorDataOpaque shapeGeneratorData;
 
     std::shared_ptr<TileSet> tileSet;
     Tilemap mainLayerTilemap;

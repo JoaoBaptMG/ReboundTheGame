@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include "tinyxml2.h"
 #include "varlength.hpp"
 
@@ -16,6 +17,236 @@
 
 using namespace std;
 using namespace tinyxml2;
+
+const unordered_map<string,size_t> Attributes =
+{
+    { "none", 0 },
+    { "solid", 1 },
+    { "no-walljump", 2 },
+    { "spike", 3 },
+    { "crumbling", 4 },
+    { "left-solid", 5 },
+    { "right-solid", 6 },
+    { "up-solid", 7 },
+    { "down-solid", 8 },
+    { "left-no-walljump", 9 },
+    { "right-no-walljumṕ", 10 }
+};
+
+constexpr auto AttributesHelpStr = "none, solid, no-walljump, spike, crumbling, "
+    "left-solid, right-solid, up-solid, down-solid, left-no-walljump, right-no-walljumṕ";
+
+const unordered_map<string,size_t> TileTypes =
+{
+    { "none", 0 },
+    { "terrain-upper-left", 1 },
+    { "terrain-up", 2 },
+    { "terrain-upper-right", 3 },
+    { "terrain-left", 4 },
+    { "terrain-center", 5 },
+    { "terrain-right", 6 },
+    { "terrain-lower-left", 7 },
+    { "terrain-down", 8 },
+    { "terrain-lower-right", 9 },
+    { "semi-terrain1", 10 },
+    { "semi-terrain2", 11 },
+    { "semi-terrain3", 12 },
+    { "single-object", 13 }
+};
+constexpr auto TilesHelpStr = "none, terrain-upper-left, terrain-up, terrain-upper-right, "
+    "terrain-left, terrain-center, terrain-right, terrain-down, terrain-lower-right, "
+    "semi-terrain1, semi-terrain2, semi-terrain3, single-object";
+
+const unordered_map<string,size_t> ObjectModes =
+{
+    { "tile-multiple", 0 },
+    { "circle", 1 },
+    { "segment", 2 },
+    { "polygon", 3 }
+};
+
+#pragma pack(push, 1)
+struct terrain_params
+{
+    uint8_t attribute;
+    int16_t physParams[5];
+};
+#pragma pack(pop)
+
+struct single_object_params
+{
+    uint8_t attribute, mode;
+    int16_t radius;
+    vector<int16_t> points;
+};
+
+bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_params>& terrains,
+    unordered_map<string,single_object_params>& singleObjects)
+{
+    for (auto importer = tset.FirstChildElement("import-from"); importer.ToElement();
+        importer = importer.NextSiblingElement("import-from"))
+    {
+        string file = importer.ToElement()->Attribute("file");
+
+        auto pos = inFile.find_last_of("\\/");
+        if (pos != string::npos)
+            file = inFile.substr(0, pos+1) + file;
+
+        XMLDocument subDoc;
+        if (subDoc.LoadFile(file.c_str()) != XML_SUCCESS)
+        {
+            cout << "Error while trying to read file " << file;
+            cout << " requested by " << inFile << ": " << subDoc.ErrorName() << "." << endl;
+            return false;
+        }
+
+        XMLHandle subHandle(subDoc);
+        if (!loadTerrains(subHandle.FirstChildElement("tileset"), file, terrains, singleObjects))
+        {
+            cout << "Error while loading imported file " << file << " requested by " << inFile << "." << endl;
+            return false;
+        }
+    }
+
+    for (auto terrain = tset.FirstChildElement("terrain"); terrain.ToElement();
+        terrain = terrain.NextSiblingElement("terrain"))
+    {
+        auto telem = terrain.ToElement();
+        
+        auto name = telem->Attribute("name");
+        if (!name)
+        {
+            cout << "Warning: nameless terrain ignored!" << endl;
+            continue;
+        }
+
+        if (terrains.find(name) != terrains.end())
+        {
+            cout << "Error: terrain " << name << " being redefined." << endl;
+            return false;
+        }
+
+        auto attribute = telem->Attribute("attribute");
+        if (!attribute)
+        {
+            cout << "Error: terrain " << name << " must define an attribute (solid, no-walljump)." << endl;
+            return false;
+        }
+
+        auto attrId = Attributes.find(attribute);
+        if (attrId == Attributes.end() || !(attrId->second == 2 || attrId->second == 1))
+        {
+            cout << "Error: invalid attribute " << attribute << " for terrain " << name;
+            cout << " (valid attributes: solid, no-walljump)." << endl;
+            return false;
+        }
+
+        auto& terr = terrains[name];
+        terr.attribute = attrId->second;
+        
+        terr.physParams[0] = telem->IntAttribute("upper-offset");
+        terr.physParams[1] = telem->IntAttribute("lower-offset");
+        terr.physParams[2] = telem->IntAttribute("left-offset");
+        terr.physParams[3] = telem->IntAttribute("right-offset");
+        terr.physParams[4] = telem->IntAttribute("corner-radius");
+    }
+
+    for (auto object = tset.FirstChildElement("single-object"); object.ToElement();
+        object = object.NextSiblingElement("single-object"))
+    {
+        auto oelem = object.ToElement();
+
+        auto name = oelem->Attribute("name");
+        if (!name)
+        {
+            cout << "Warning: nameless single object ignored!" << endl;
+            continue;
+        }
+
+        if (singleObjects.find(name) != singleObjects.end())
+        {
+            cout << "Error: single object " << name << " being redefined." << endl;
+            return false;
+        }
+
+        auto attribute = oelem->Attribute("attribute");
+        if (!attribute)
+        {
+            cout << "Error: single object " << name << " must define an attribute";
+            cout << " (" << AttributesHelpStr << ")." << endl;
+            return false;
+        }
+
+        auto attrId = Attributes.find(attribute);
+        if (attrId == Attributes.end())
+        {
+            cout << "Error: invalid attribute " << attribute << " for single object " << name;
+            cout << " (valid attributes: " << AttributesHelpStr << ")." << endl;
+            return false;
+        }
+
+        auto mode = oelem->Attribute("mode");
+        if (!oelem)
+        {
+            cout << "Error: single object " << name << " must have a mode";
+            cout << " (tile-multiple, circle, segment, polygon)." << endl;
+            return false;
+        }
+
+        auto modeId = ObjectModes.find(mode);
+        if (modeId == ObjectModes.end())
+        {
+            cout << "Error: invalid mode " << mode << " for single object " << name;
+            cout << " (valid attributes: tile-multiple, circle, segment, polygon)." << endl;
+            return false;
+        }
+
+        auto& obj = singleObjects[name];
+        obj.attribute = attrId->second;
+        obj.mode = modeId->second;
+
+        auto radius = oelem->IntAttribute("radius");
+        if (radius < 0 || (modeId->second == 1 && radius == 0))
+        {
+            cout << "Error: provide a valid radius for";
+            const char* names[] = { "tile-multiple", "circle", "segment", "polygon" };
+            cout << names[modeId->second];
+            cout << " single object " << name << "." << endl;
+            return false;
+        }
+        obj.radius = radius;
+
+        if (modeId->second == 0)
+        {
+            auto width = oelem->IntAttribute("width", 1);
+            auto height = oelem->IntAttribute("height", 1);
+
+            obj.points.push_back(width);
+            obj.points.push_back(height);
+        }
+        else if (modeId->second != 1)
+        {
+            for (auto point = object.FirstChildElement("point"); point.ToElement();
+                point = point.NextSiblingElement("point"))
+            {
+                auto x = point.ToElement()->IntAttribute("x");
+                auto y = point.ToElement()->IntAttribute("y");
+                obj.points.push_back(x);
+                obj.points.push_back(y);
+            }
+
+            if (modeId->second == 2 && obj.points.size() != 4)
+            {
+                cout << "Error: provide exactly two points for segment single object " << name << "." << endl;
+                return false;
+            }
+            else if (obj.points.size() == 0)
+                cout << "Warning: polygon single object " << name << " does not have any points." << endl;
+        }
+    }
+
+    return true;
+}
 
 int tsxToTs(string inFile, string outFile)
 {
@@ -28,10 +259,12 @@ int tsxToTs(string inFile, string outFile)
 
     XMLHandle docHandle(doc);
 
+    auto tset = docHandle.FirstChildElement("tileset");
+    if (tset.ToElement()->Attribute("only-includes", "true"))
+        return true;
+
     ofstream out(outFile, ios::out | ios::binary);
     out.write("TSET", 4);
-
-    auto tset = docHandle.FirstChildElement("tileset");
 
     auto textureName = tset.ToElement()->Attribute("texture");
     if (textureName)
@@ -42,19 +275,40 @@ int tsxToTs(string inFile, string outFile)
     }
     else write_varlength(out, 0);
 
-    int16_t physicalProperties[5] = { 0, 0, 0, 0, 0 };
+    unordered_map<string,terrain_params> terrains;
+    unordered_map<string,single_object_params> singleObjects;
 
-    auto params = tset.FirstChildElement("physical-parameters").ToElement();
-    if (params)
+    if (!loadTerrains(tset, inFile, terrains, singleObjects))
     {
-        physicalProperties[0] = params->IntAttribute("upper-offset");
-        physicalProperties[1] = params->IntAttribute("lower-offset");
-        physicalProperties[2] = params->IntAttribute("left-offset");
-        physicalProperties[3] = params->IntAttribute("right-offset");
-        physicalProperties[4] = params->IntAttribute("corner-radius");
+        cout << "Error while parsing terrain data for " << inFile << "." << endl;
+        return -1;
     }
 
-    out.write((const char*)physicalProperties, 5 * sizeof(int16_t));
+    write_varlength(out, terrains.size());
+    for (const auto& pair : terrains)
+        out.write((const char*)&pair.second, sizeof(terrain_params));
+
+    write_varlength(out, singleObjects.size());
+    for (const auto& pair : singleObjects)
+    {
+        const auto& object = pair.second;
+
+        out.write((const char*)&object.attribute, sizeof(uint8_t));
+        out.write((const char*)&object.mode, sizeof(uint8_t));
+        
+        switch (object.mode)
+        {
+            case 0: out.write((const char*)object.points.data(), 2*sizeof(int16_t)); break;
+            case 1: break;
+            case 2: out.write((const char*)object.points.data(), 4*sizeof(int16_t)); break;
+            case 3:
+                write_varlength(out, object.points.size()/2);
+                out.write((const char*)object.points.data(), object.points.size()*sizeof(int16_t));
+                break;
+        }
+
+        out.write((const char*)&object.radius, sizeof(int16_t));
+    }
 
     uint32_t maxId = 0;
     for (auto tobj = tset.FirstChildElement("tile"); tobj.ToElement(); tobj = tobj.NextSiblingElement("tile"))
@@ -67,27 +321,99 @@ int tsxToTs(string inFile, string outFile)
     maxId++;
     write_varlength(out, maxId);
 
-    unique_ptr<uint8_t[]> tileModes { new uint8_t[maxId] };
+    struct tile_params
+    {
+        uint8_t type = 0;
+        size_t id = 0;
+    };
+
+    unique_ptr<tile_params[]> tileModes { new tile_params[maxId] };
 
     for (auto tobj = tset.FirstChildElement("tile"); tobj.ToElement(); tobj = tobj.NextSiblingElement("tile"))
     {
         auto obj = tobj.ToElement();
         auto id = obj->UnsignedAttribute("id");
 
-        const char* attr = obj->Attribute("mode");
-
-        uint8_t mode = 0;
-
-        if (attr)
+        // We'll get back here in a minute
+        auto type = obj->Attribute("type");
+        if (!type)
         {
-            if (!strncasecmp(attr, "solid", 5)) mode = 1;
-            else if (!strncasecmp(attr, "water", 5)) mode = 2;
+            cout << "Error: tile " << id << " must define a type";
+            cout << " (" << TilesHelpStr << ")." << endl;
+            return -1;
         }
 
-        tileModes[id] = mode;
+        auto typeId = TileTypes.find(type);
+        if (typeId == TileTypes.end())
+        {
+            cout << "Error: invalid type " << type << " for tile " << id;
+            cout << " (valid types: " << TilesHelpStr << ")." << endl;
+            return -1;
+        }
+
+        tileModes[id].type = typeId->second;
+
+        if (typeId->second >= 1 && typeId->second <= 9)
+        {
+            auto name = obj->Attribute("name");
+            if (!name)
+            {
+                cout << "Error: provide a terrain name for tile " << id << "." << endl;
+                return -1;
+            }
+
+            auto terrain = terrains.find(name);
+            if (terrain == terrains.end())
+            {
+                cout << "Error: terrain name " << name << " not found for tile " << id << "." << endl;
+                return -1;
+            }
+
+            tileModes[id].id = distance(terrains.begin(), terrain);
+        }
+        else if (typeId->second >= 10 && typeId->second <= 12)
+        {
+            auto name = obj->Attribute("name");
+            if (!name)
+            {
+                cout << "Error: provide a semi-terrain object name for tile " << id << "." << endl;
+                return -1;
+            }
+
+            auto semiTerrainId = Attributes.find(name);
+            if (semiTerrainId == Attributes.end() || !(semiTerrainId->second >= 5 || semiTerrainId->second <= 10))
+            {
+                cout << "Error: invalid semi-terrain name " << name << " for tile " << id << "." << endl;
+                return -1;
+            }
+
+            tileModes[id].id = semiTerrainId->second - 5;
+        }
+        else if (typeId->second == 13)
+        {
+            auto name = obj->Attribute("name");
+            if (!name)
+            {
+                cout << "Error: provide a single object name for tile " << id << "." << endl;
+                return -1;
+            }
+
+            auto object = singleObjects.find(name);
+            if (object == singleObjects.end())
+            {
+                cout << "Error: single object name " << name << " not found for tile " << id << "." << endl;
+                return -1;
+            }
+
+            tileModes[id].id = distance(singleObjects.begin(), object);
+        }
     }
 
-    out.write((const char*)tileModes.get(), maxId * sizeof(uint8_t));
+    for (size_t i = 0; i < maxId; i++)
+    {
+        out.write((const char*)&tileModes[i].type, sizeof(uint8_t));
+        write_varlength(out, tileModes[i].id);
+    }
 
     return 0;
 }
