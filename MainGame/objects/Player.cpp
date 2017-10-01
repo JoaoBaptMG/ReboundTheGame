@@ -11,6 +11,7 @@
 #include "particles/ParticleBatch.hpp"
 #include "objects/Room.hpp"
 #include "data/TileSet.hpp"
+#include "particles/TextureExplosion.hpp"
 
 #include <functional>
 #include <limits>
@@ -48,6 +49,8 @@ constexpr auto InvincPeriod = 20 * UpdateFrequency;
 
 constexpr auto SpikeRespawnTime = 25 * UpdateFrequency;
 constexpr auto SpikeInvincibilityTime = 200 * UpdateFrequency;
+
+constexpr auto ExplosionDuration = 2 * SpikeRespawnTime;
 
 constexpr size_t BaseHealth = 208;
 constexpr size_t HealthIncr = 8;
@@ -475,7 +478,13 @@ void Player::hitSpikes()
     gameScene.getGameSpace().remove(playerShape->getBody());
     spikeTime = curTime + SpikeRespawnTime;
 
-    // TODO: add particle system here
+    auto grav = gameScene.getGameSpace().getGravity();
+    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    
+    auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
+        sf::FloatRect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
+    explosion->setPosition(getDisplayPosition());
+    gameScene.addObject(std::move(explosion));
 }
 
 void Player::respawnFromSpikes()
