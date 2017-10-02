@@ -25,7 +25,7 @@ struct TileSet final
     static bool isAttributeValid(Attribute attr) { return (uint8_t)attr < (uint8_t)Attribute::NumAttrs; }
 
 #pragma pack(push, 1)
-    struct PhysicalParameters
+    struct PhysicalParameters final
     {
         int16_t upperOffset, lowerOffset;
         int16_t leftOffset, rightOffset;
@@ -37,7 +37,7 @@ struct TileSet final
 
     static_assert(sizeof(PhysicalParameters) == 5 * sizeof(int16_t), "Compiler did not pack PhysicalParameters correctly!");
 
-    struct Terrain
+    struct Terrain final
     {
         enum TileCategory : uint8_t { UpperLeft, Up, UpperRight, Left, Center, Right, LowerLeft, Down, LowerRight };
         
@@ -50,7 +50,7 @@ struct TileSet final
         }
     };
 
-    struct SingleObject
+    struct SingleObject final
     {
         enum class ObjectMode : uint8_t { TileMultiple, Circle, Segment, Polygon };
 

@@ -259,12 +259,12 @@ int tsxToTs(string inFile, string outFile)
 
     XMLHandle docHandle(doc);
 
-    auto tset = docHandle.FirstChildElement("tileset");
-    if (tset.ToElement()->Attribute("only-includes", "true"))
-        return true;
-
     ofstream out(outFile, ios::out | ios::binary);
     out.write("TSET", 4);
+
+    auto tset = docHandle.FirstChildElement("tileset");
+    if (tset.ToElement()->Attribute("only-includes", "true"))
+        return 0;
 
     auto textureName = tset.ToElement()->Attribute("texture");
     if (textureName)
