@@ -1,7 +1,17 @@
 #pragma once
 
+#if _WIN32
+#include <typeindex>
+#endif
+
 namespace util
 {
+#if _WIN32
+	using type_id_t = std::type_index;
+
+	template <typename T>
+	type_id_t type_id() { return std::type_index(typeid(T));  }
+#else
     ///
     /// \brief Class to encapsulate type_id
     /// Its implementation is by iavr (http://codereview.stackexchange.com/users/39083/iavr)
@@ -28,6 +38,7 @@ namespace util
     ///
     template<typename T>
     inline type_id_t type_id() { return &type_id<T>; }
+#endif
 
     const type_id_t notype = type_id<void>();
 }

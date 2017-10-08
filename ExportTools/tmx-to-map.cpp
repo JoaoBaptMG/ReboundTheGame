@@ -89,7 +89,7 @@ int tmxToMap(string inFile, string outFile)
 		unsigned long writtenTiles = 0;
 		for (auto ch = txt; ch; ch = nextcsv(ch))
 		{
-			uint8_t v = strtoul(ch, nullptr, 10)-firstId; // NOT UB!
+			uint8_t v = (uint8_t)strtoul(ch, nullptr, 10)-firstId; // NOT UB!
 			if (v > maxTile) v = maxTile;
 			out.write((const char*)&v, sizeof(uint8_t));
 
@@ -112,8 +112,8 @@ int tmxToMap(string inFile, string outFile)
 
         stringstream curObj(stringstream::binary | stringstream::out);
 
-        int16_t posX = elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width");
-        int16_t posY = elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height");
+        int16_t posX = (int16_t)(elm->FloatAttribute("x") + 0.5f * elm->FloatAttribute("width"));
+        int16_t posY = (int16_t)(elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height"));
         curObj.write((const char*)&posX, sizeof(int16_t));
         curObj.write((const char*)&posY, sizeof(int16_t));
 
@@ -187,7 +187,7 @@ int tmxToMap(string inFile, string outFile)
     for (auto obj = warps.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
     {
         auto warp = obj.ToElement();
-        uint16_t id = strtoul(warp->Attribute("name"), nullptr, 10);
+        uint16_t id = (uint16_t)strtoul(warp->Attribute("name"), nullptr, 10);
         if (maxId < id) maxId = id;
     }
 
@@ -216,19 +216,19 @@ int tmxToMap(string inFile, string outFile)
         if (dir == -1) continue;
 
         auto warpNameCode = warp->Attribute("name");
-        uint16_t id = strtoul(warpNameCode, nullptr, 10);
+        uint16_t id = (uint16_t)strtoul(warpNameCode, nullptr, 10);
 
         auto warpRoomDest = strstr(warpNameCode, "->");
         if (warpRoomDest) warpRoomDest += 2;
         else continue;
 
-        uint16_t roomId = strtoul(warpRoomDest, nullptr, 10);
+        uint16_t roomId = (uint16_t)strtoul(warpRoomDest, nullptr, 10);
 
         auto warpIdDest = strchr(warpRoomDest, '.');
         if (warpIdDest) warpIdDest += 1;
         else continue;
 
-        uint16_t warpId = strtoul(warpIdDest, nullptr, 10) | (dir << 14);
+        uint16_t warpId = (uint16_t)strtoul(warpIdDest, nullptr, 10) | (dir << 14);
         
         int16_t c1, c2;
 

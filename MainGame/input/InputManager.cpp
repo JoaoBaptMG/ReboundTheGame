@@ -27,8 +27,8 @@ bool InputManager::handleEvent(const sf::Event& event)
             dispatchData(InputSource::mouseButton(event.mouseButton.button), 0.0f);
             return true;
         case sf::Event::MouseMoved:
-            dispatchData(InputSource::mouseX, event.mouseMove.x);
-            dispatchData(InputSource::mouseY, event.mouseMove.y);
+            dispatchData(InputSource::mouseX, (float)event.mouseMove.x);
+            dispatchData(InputSource::mouseY, (float)event.mouseMove.y);
             return true;
         case sf::Event::JoystickButtonPressed:
             dispatchData(InputSource::joystickButton(event.joystickButton.joystickId,

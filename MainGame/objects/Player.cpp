@@ -22,22 +22,25 @@
 #include <cppmunk/Arbiter.h>
 
 #include <random>
+#include <cmath>
 
 using namespace std::literals::chrono_literals;
 
-constexpr float MaxHorSpeed = 400;
-constexpr float MaxHorSpeedEnhanced = 560;
-constexpr float HorAcceleration = 800;
+constexpr cpFloat MaxHorSpeed = 400;
+constexpr cpFloat MaxHorSpeedEnhanced = 560;
+constexpr cpFloat HorAcceleration = 800;
 
-constexpr float PeakJumpSpeed = 480;
-constexpr float PeakJumpSpeedEnhanced = 600;
-constexpr float DecayJumpSpeed = 300;
+constexpr cpFloat PeakJumpSpeed = 480;
+constexpr cpFloat PeakJumpSpeedEnhanced = 600;
+constexpr cpFloat DecayJumpSpeed = 300;
 
-constexpr float DashSpeed = 600;
-constexpr float DashSpeedEnhanced = 800;
+constexpr cpFloat NullSpeed = 36;
 
-constexpr float HardballAirFactor = 0.125;
-constexpr float HardballWaterFactor = 0.75;
+constexpr cpFloat DashSpeed = 600;
+constexpr cpFloat DashSpeedEnhanced = 800;
+
+constexpr cpFloat HardballAirFactor = 0.125;
+constexpr cpFloat HardballWaterFactor = 0.75;
 
 constexpr auto DashInterval = 40 * UpdateFrequency;
 constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
@@ -60,8 +63,8 @@ constexpr size_t SpikeDamage = 50;
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
-    chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0),
-    dashBatch(nullptr), hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1),
+    chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), wallJumpFromRight(false),
+	grapplePoints(0), dashBatch(nullptr), hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png")),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
@@ -69,7 +72,7 @@ Player::Player(GameScene& scene)
 
     grappleSprite.setOpacity(0);
 	//upgradeToAbilityLevel(10);
-    setName("player");
+	setName("player");
 }
 
 bool Player::configure(const Player::ConfigStruct& config)
@@ -158,17 +161,25 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
     angle += radiansToDegrees(vel.x * dt / 32);
-    angle -= 360 * roundf(angle/360);
+    angle -= 360 * round(angle/360);
 
     bool onGround = false, wallHit = false, onWaterCeiling = false, spikesHit = false;
 
     body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
+		enum { None, Left, Top, Right, Bottom } dir = None;
+
+		{
+			auto normal = arbiter.getNormal();
+			if (fabs(normal.x) * 0.75 >= fabs(normal.y))
+				dir = normal.x > 0 ? Right : Left;
+			else if (fabs(normal.y) * 0.75 >= fabs(normal.x))
+				dir = normal.y > 0 ? Bottom : Top;
+		}
+
         bool walljump = true;
-        
-        cpFloat angle = cpvtoangle(arbiter.getNormal());
-        if (fabs(angle - 1.57079632679) < 0.52) onGround = true;
-        if (onWaterNoHardball() && fabs(angle + 1.57079632679) < 0.06) onWaterCeiling = true;
+        if (dir == Bottom) onGround = true;
+        if (onWaterNoHardball() && dir == Top) onWaterCeiling = true;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
         {
@@ -192,9 +203,14 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
             dashDirection = DashDir::None;
         }
 
-        if (walljump)
-            if (fabs(angle) < 0.06 || fabs(angle - 3.14159265359) < 0.06 || fabs(angle + 3.14159265359) < 0.06)
-                wallHit = true;
+		if (walljump)
+		{
+			if (dir == Left || dir == Right)
+			{
+				wallHit = true;
+				wallJumpFromRight = dir == Right;
+			}
+		}
     });
 
     if (spikesHit)
@@ -204,13 +220,13 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     }
 
 	if (abilityLevel >= 7 && (onGround || onWaterCeiling))
-        if (cpvlengthsq(vel) < 1144) observeHardballTrigger();
+        if (cpvlengthsq(vel) < NullSpeed*NullSpeed) observeHardballTrigger();
     
     if (onGround)
     {
-        lastSafePosition = getPosition();
-        lastSafeRoomID = gameScene.getCurrentRoomID();
-        
+		lastSafePosition = getPosition();
+		lastSafeRoomID = gameScene.getCurrentRoomID();
+
         wallJumpPressedBefore = false;
         dashConsumed = false;
         doubleJumpConsumed = false;
@@ -304,7 +320,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (onWater())
     {
-        float density = hardballEnabled ? 0.4 : 1.6;
+        cpFloat density = hardballEnabled ? 0.4 : 1.6;
         
         // buoyancy
         auto force = -gameScene.getGameSpace().getGravity() * density * waterArea;
@@ -367,8 +383,7 @@ void Player::wallJump()
     auto peakJumpSpeed = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
     
     auto body = playerShape->getBody();
-    auto sgn = body->getVelocity().x > 0 ? 1.0 : body->getVelocity().x < 0 ? -1.0 : 0.0;
-    if (sgn == 0.0) return;
+	auto sgn = wallJumpFromRight ? -1.0 : 1.0;
     auto dv = cpVect{sgn*maxHorSpeed*hardballFactor(), -peakJumpSpeed*sqrt(hardballFactor())} - body->getVelocity();
     body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
 
@@ -449,7 +464,7 @@ void Player::observeHardballTrigger()
             reset(hardballTime);
             hardballEnabled = !hardballEnabled;
             chargingForHardball = false;
-            setHardballSprite();
+            setPlayerSprite();
         }
     }
 
@@ -466,10 +481,12 @@ void Player::observeHardballTrigger()
     }
 }
 
-void Player::setHardballSprite()
+extern std::string CurrentIcon;
+void Player::setPlayerSprite()
 {
-    auto name = hardballEnabled ? "player-hard.png" : "player.png";
+    auto name = hardballEnabled ? "player-hard.png" : abilityLevel >= 6 ? "player-enhanced.png" : "player.png";
     sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
+	CurrentIcon = name;
 }
 
 void Player::hitSpikes()
@@ -479,7 +496,7 @@ void Player::hitSpikes()
     spikeTime = curTime + SpikeRespawnTime;
 
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    auto displayGravity = sf::Vector2f((float)grav.x, (float)grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
         sf::FloatRect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
@@ -536,7 +553,7 @@ bool Player::hardballOnAir() const
     return hardballEnabled && !onWater();
 }
 
-float Player::hardballFactor() const
+cpFloat Player::hardballFactor() const
 {
     return hardballEnabled ? (onWater() ? HardballWaterFactor : HardballAirFactor) : 1;
 }
@@ -553,12 +570,12 @@ void Player::render(Renderer& renderer)
     {
         renderer.pushTransform();
         renderer.currentTransform.translate(getDisplayPosition());
-        renderer.currentTransform.rotate(angle);
+        renderer.currentTransform.rotate((float)angle);
 
         if (invincibilityTime != decltype(invincibilityTime)())
         {
-            auto phase = toSeconds<float>(invincibilityTime - curTime) / toSeconds<float>(InvincPeriod);
-            auto amp = fabsf(sinf(M_PI * phase));
+            auto phase = toSeconds<cpFloat>(invincibilityTime - curTime) / toSeconds<cpFloat>(InvincPeriod);
+            auto amp = fabsf(sin(M_PI * phase));
             sprite.setFlashColor(sf::Color(255, 0, 0, 128 * amp));
         }
         else if (chargingForHardball)
@@ -568,8 +585,8 @@ void Player::render(Renderer& renderer)
         }
         else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
 
-        auto fade = std::min(toSeconds<float>(curTime - grappleTime) / toSeconds<float>(GrappleFade), 1.0f);
-        if (grapplePoints == 0) fade = std::min(lastFade, 1.0f - fade);
+        auto fade = std::min(toSeconds<cpFloat>(curTime - grappleTime) / toSeconds<cpFloat>(GrappleFade), 1.0);
+        if (grapplePoints == 0) fade = std::min(lastFade, 1.0 - fade);
         else fade = std::max(lastFade, fade);
         lastFade = fade;
         grappleSprite.setOpacity(fade);

@@ -8,8 +8,8 @@
 #include <chronoUtils.hpp>
 
 constexpr float MaxSineWaveHeight = 4;
-constexpr float MaxSineWaveK = 0.08;
-constexpr float MaxSineWaveOmega = 0.08;
+constexpr float MaxSineWaveK = 0.08f;
+constexpr float MaxSineWaveOmega = 0.08f;
 
 constexpr auto WaveDrawingShader = R"wavedraw(
 
@@ -78,10 +78,10 @@ void WaterBody::resetWaves()
 
     for (auto& wave : generatedWaves)
     {
-        wave.ofs = MaxSineWaveHeight * (2.0 * random() - 1.0);
+        wave.ofs = MaxSineWaveHeight * (2.0f * random() - 1.0f);
         wave.amp = MaxSineWaveHeight * random();
         wave.k = MaxSineWaveK * random();
-        wave.omega = MaxSineWaveOmega * (2.0 * random() - 1.0);
+        wave.omega = MaxSineWaveOmega * (2.0f * random() - 1.0f);
     }
 }
 

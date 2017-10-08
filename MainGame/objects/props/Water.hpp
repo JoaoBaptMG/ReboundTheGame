@@ -31,7 +31,7 @@ namespace props
         auto getDisplayPosition()
         {
             auto pos = getPosition();
-            return sf::Vector2f(std::floor(pos.x), std::floor(pos.y));
+            return sf::Vector2f((float)std::floor(pos.x), (float)std::floor(pos.y));
         }
         
         virtual void update(std::chrono::steady_clock::time_point curTime) override;

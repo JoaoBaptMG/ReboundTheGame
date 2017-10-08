@@ -60,9 +60,9 @@ void GUIMeter::updateVertices()
     float frameOffset = width + 2*border;
     setRect(0, sf::FloatRect(0, -frameHeight, width + 2*border, frameHeight));
     setRect(4, sf::FloatRect(border, -border-width, width, width));
-    setRect(8, sf::FloatRect(border, -frameOffset-height, width, height));
-    setRect(12, sf::FloatRect(border, -frameOffset-current, width, current));
-    setRect(16, sf::FloatRect(border, -frameOffset-target, width, target));
+    setRect(8, sf::FloatRect(border, -frameOffset-(float)height, width, (float)height));
+    setRect(12, sf::FloatRect(border, -frameOffset-(float)current, width, (float)current));
+    setRect(16, sf::FloatRect(border, -frameOffset-(float)target, width, (float)target));
 
     setQuadColor(8, backdropColor);
     setQuadColor(12, targetColor);

@@ -142,7 +142,7 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
         }
 
         auto& terr = terrains[name];
-        terr.attribute = attrId->second;
+        terr.attribute = (uint8_t)attrId->second;
         
         terr.physParams[0] = telem->IntAttribute("upper-offset");
         terr.physParams[1] = telem->IntAttribute("lower-offset");
@@ -202,8 +202,8 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
         }
 
         auto& obj = singleObjects[name];
-        obj.attribute = attrId->second;
-        obj.mode = modeId->second;
+        obj.attribute = (uint8_t)attrId->second;
+        obj.mode = (uint8_t)modeId->second;
 
         auto radius = oelem->IntAttribute("radius");
         if (radius < 0 || (modeId->second == 1 && radius == 0))
@@ -351,7 +351,7 @@ int tsxToTs(string inFile, string outFile)
             return -1;
         }
 
-        tileModes[id].type = typeId->second;
+        tileModes[id].type = (uint8_t)typeId->second;
 
         if (typeId->second >= 1 && typeId->second <= 9)
         {

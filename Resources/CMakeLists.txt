@@ -11,15 +11,19 @@ function(add_resource fname)
     set(EXTENSIONS ".tmx" ".lvx" ".tsx" ".pex")
     set(TOOLS tmxToMap lvxToLvl tsxToTs pexToPe)
     set(TOOL_OUTPUTS ".map" ".lvl" ".ts" ".pe")
+	set(COPY_EXTENSIONS ".png")
 
     get_filename_component(ext ${fname} EXT)
     list(FIND EXTENSIONS ${ext} toolIndex)
 
     if(toolIndex EQUAL -1)
-        add_custom_command(OUTPUT ${fname}
-                           COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${fname} ${PROJECT_BINARY_DIR}/${fname}
-                           MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/${fname})
-        set(OUTPUTS ${OUTPUTS} ${PROJECT_BINARY_DIR}/${fname} PARENT_SCOPE)
+		list(FIND COPY_EXTENSIONS ${ext} toolIndex)
+		if (NOT toolIndex EQUAL -1)
+			add_custom_command(OUTPUT ${fname}
+								COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${fname} ${PROJECT_BINARY_DIR}/${fname}
+								MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/${fname})
+			set(OUTPUTS ${OUTPUTS} ${PROJECT_BINARY_DIR}/${fname} PARENT_SCOPE)
+		endif()
     else()
         list(GET TOOLS ${toolIndex} tool)
         list(GET TOOL_OUTPUTS ${toolIndex} output)

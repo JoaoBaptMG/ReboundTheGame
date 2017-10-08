@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <tileset texture="tilemap1.png">
-    <import-from file="common-defs.tsx"/>
+    <import-from file="common-defs.tsxinc"/>
     
     <terrain name="basic" attribute="solid" corner-radius="10"/>
 

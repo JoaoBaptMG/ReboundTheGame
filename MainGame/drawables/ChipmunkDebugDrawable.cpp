@@ -22,8 +22,8 @@ auto pointsForShape(cpShape* shape, sf::Color color)
             auto radius = cpCircleShapeGetRadius(shape);
             auto vpos = pos + cpvrotate(rvec, cpCircleShapeGetOffset(shape));
 
-            size_t partitions = floor(4.2*radius);
-            for (int i = 0; i < partitions; i++)
+            size_t partitions = (size_t)floor(4.2*radius);
+            for (size_t i = 0; i < partitions; i++)
             {
                 auto vec = vpos + cpvforangle(6.28318530718 * i / partitions) * radius;
                 vertices.emplace_back(toVec(vec), color);
@@ -37,9 +37,9 @@ auto pointsForShape(cpShape* shape, sf::Color color)
             auto b = pos + cpvrotate(rvec, cpSegmentShapeGetB(shape));
             auto prp = cpvnormalize(cpvrperp(b-a)) * radius;
 
-            size_t partitions = floor(2.1*radius);
+            size_t partitions = (size_t)floor(2.1*radius);
 
-            for (int i = 0; i < partitions; i++)
+            for (size_t i = 0; i < partitions; i++)
             {
                 auto avec = cpvforangle(6.28318530718/2 * i / partitions);
                 auto vec = a - cpvrotate(prp, avec);
@@ -47,7 +47,7 @@ auto pointsForShape(cpShape* shape, sf::Color color)
             }
             vertices.emplace_back(toVec(a + prp), color);
 
-            for (int i = 0; i < partitions; i++)
+            for (size_t i = 0; i < partitions; i++)
             {
                 auto bvec = cpvforangle(6.28318530718/2 * i / partitions);
                 auto vec = b + cpvrotate(prp, bvec);
@@ -77,13 +77,13 @@ auto pointsForShape(cpShape* shape, sf::Color color)
                     auto t1 = cpvtoangle(cpvrperp(vcur - vprev));
                     auto t2 = cpvtoangle(cpvperp(vcur - vnext));
 
-                    t1 -= floor(t1/6.28318530718) * 6.28318530718;
-                    t2 -= floor(t2/6.28318530718) * 6.28318530718;
-                    if (t2 < t1) t2 += 6.28318530718;
+                    t1 -= floor(t1/(2*M_PI)) * 2 * M_PI;
+                    t2 -= floor(t2/(2*M_PI)) * 2 * M_PI;
+                    if (t2 < t1) t2 += 2 * M_PI;
 
-                    size_t partitions = floor((t2-t1)*radius / 3);
+                    size_t partitions = (size_t)floor((t2-t1)*radius / 3);
 
-                    for (int i = 0; i < partitions; i++)
+                    for (size_t i = 0; i < partitions; i++)
                     {
                         auto vec = vcur + cpvforangle(t1 + (t2-t1) * i / partitions) * radius;
                         vertices.emplace_back(toVec(vec), color);

@@ -36,10 +36,10 @@ class Player final : public GameObject
     ParticleBatch* dashBatch;
     ParticleBatch* hardballBatch;
 
-    float angle, lastFade;
+    cpFloat angle, lastFade;
     bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled;
-    bool grappleEnabled;
+    bool grappleEnabled, wallJumpFromRight;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
          grappleTime, spikeTime, invincibilityTime, curTime;
@@ -72,7 +72,7 @@ public:
     auto getDisplayPosition() const
     {
         auto vec = getPosition();
-        return sf::Vector2f(std::floor(vec.x), std::floor(vec.y));
+        return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
     }
 
     auto getHealth() const { return health; }
@@ -86,8 +86,11 @@ public:
     
     void upgradeToAbilityLevel(size_t level)
     {
-        if (abilityLevel < level)
-            abilityLevel = level;
+		if (abilityLevel < level)
+		{
+			abilityLevel = level;
+			setPlayerSprite();
+		}
     }
 
     bool isDashing() const;
@@ -97,7 +100,7 @@ public:
     bool onWaterNoHardball() const;
     bool canWaterJump() const;
     bool hardballOnAir() const;
-    float hardballFactor() const;
+    cpFloat hardballFactor() const;
     void addToWaterArea(cpFloat area) { waterArea += area; }
 
     void jump();
@@ -110,7 +113,7 @@ public:
     void hitSpikes();
     void respawnFromSpikes();
 
-    void setHardballSprite();
+    void setPlayerSprite();
 
     auto canGrapple() const { return grappleEnabled; }
     void setGrappling(bool val)

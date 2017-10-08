@@ -29,6 +29,8 @@
 using namespace std::literals::chrono_literals;
 
 float configureViewForFullscreen(sf::RenderWindow& renderWindow);
+std::string CurrentIcon = "player.png";
+static std::string LastIcon = ""; // TODO: remove this hack
 
 int main(int argc, char **argv)
 {
@@ -54,10 +56,10 @@ int main(int argc, char **argv)
     InputManager inputManager;
     PlayerController controller(inputManager, settings.inputSettings);
 
-    ResourceManager manager;
-    manager.setResourceLocator(new FilesystemResourceLocator());
+    ResourceManager resourceManager;
+    resourceManager.setResourceLocator(new FilesystemResourceLocator());
 
-    auto scene = new GameScene(manager);
+    auto scene = new GameScene(resourceManager);
     scene->setPlayerController(controller);
     scene->loadLevel("level1.lvl");
 
@@ -84,7 +86,13 @@ int main(int argc, char **argv)
 
         auto curTime = std::chrono::steady_clock::now();
 
-        while (curTime - updateTime > UpdateFrequency)
+		while (curTime <= updateTime)
+		{
+			std::this_thread::sleep_until(updateTime);
+			curTime = std::chrono::steady_clock::now();
+		}
+
+        while (curTime > updateTime)
         {
             controller.update();
             updateTime += UpdateFrequency;
@@ -96,6 +104,16 @@ int main(int argc, char **argv)
         sceneManager.render(renderer);
         renderer.render();
         renderWindow.display();
+
+		if (CurrentIcon != LastIcon)
+		{
+			if (!CurrentIcon.empty())
+			{
+				auto img = resourceManager.load<sf::Texture>(CurrentIcon)->copyToImage();
+				renderWindow.setIcon(img.getSize().x, img.getSize().y, img.getPixelsPtr());
+			}
+			LastIcon = CurrentIcon;
+		}
     }
 
     if (!storeSettingsFile(settings))
@@ -114,7 +132,7 @@ float configureViewForFullscreen(sf::RenderWindow& renderWindow)
     
     std::cout << windowSize.x << ' ' << windowSize.y << std::endl;
 
-    sf::View view(sf::FloatRect(0.0, 0.0, screen.x, screen.y));
+    sf::View view(sf::FloatRect(0.0, 0.0, (float)screen.x, (float)screen.y));
     float scalingFactor;
     if (screen.x * windowSize.y < screen.y * windowSize.x)
     {

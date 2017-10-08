@@ -17,7 +17,7 @@ void main()
 
 static inline auto toVec3(sf::Color color)
 {
-    return sf::Glsl::Vec3(color.r/255.0, color.g/255.0, color.b/255.0);
+    return sf::Glsl::Vec3(color.r/255.0f, color.g/255.0f, color.b/255.0f);
 }
 
 sf::Shader& Sprite::getSpriteShader()
@@ -77,7 +77,7 @@ void Sprite::setupVertices()
     auto size = getTextureSize();
 
     quad[0].position = quad[0].texCoords = sf::Vector2f(0, 0);
-    quad[1].position = quad[1].texCoords = sf::Vector2f(size.x, 0);
-    quad[2].position = quad[2].texCoords = sf::Vector2f(size.x, size.y);
-    quad[3].position = quad[3].texCoords = sf::Vector2f(0, size.y);
+    quad[1].position = quad[1].texCoords = sf::Vector2f((float)size.x, 0);
+    quad[2].position = quad[2].texCoords = sf::Vector2f((float)size.x, (float)size.y);
+    quad[3].position = quad[3].texCoords = sf::Vector2f(0, (float)size.y);
 }

@@ -11,6 +11,13 @@ set(SFML_STATIC_LIBRARIES ON)
 
 set(COMMONS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Commons)
 
+if(MSVC)
+	add_definitions(-D_USE_MATH_DEFINES -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS /wd4244)
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		add_definitions(/SAFESEH:no)
+	endif()
+endif()
+
 add_subdirectory(CppMunk)
 add_subdirectory(ExportTools)
 add_subdirectory(MainGame)

@@ -33,7 +33,7 @@ public:
     friend bool readFromStream(sf::InputStream& stream, InputSource& in);
     friend bool writeToStream(OutputStream& stream, const InputSource& in);
 
-    friend class std::hash<InputSource>;
+    friend struct std::hash<InputSource>;
 };
 
 inline bool operator!=(InputSource in1, InputSource in2) { return !operator==(in1, in2); }

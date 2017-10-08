@@ -36,7 +36,7 @@ namespace props
         auto getDisplayPosition() const
         {
             auto vec = getPosition();
-            return sf::Vector2f(std::floor(vec.x), std::floor(vec.y));
+            return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
         }
 
 #pragma pack(push, 1)

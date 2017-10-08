@@ -13,7 +13,7 @@
 
 constexpr float RotationSpeed = 240;
 
-constexpr float PerspectiveFactor = 1.2071067811865475244008443621; // 1/(2*tan(pi/8))
+constexpr float PerspectiveFactor = 1.2071067811865475244008443621f; // 1/(2*tan(pi/8))
 constexpr float PerspectiveDistance = PerspectiveFactor * PlayfieldHeight;
 
 using namespace collectibles;
