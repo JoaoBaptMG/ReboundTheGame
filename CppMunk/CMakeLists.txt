@@ -11,3 +11,4 @@ find_package(Chipmunk REQUIRED)
 include_directories(${INCS}/cppmunk ${CHIPMUNK_INCLUDE_DIR})
 
 add_library(CppMunk STATIC ${SRCS})
+

@@ -19,6 +19,7 @@ if(MSVC)
 endif()
 
 add_subdirectory(CppMunk)
+add_subdirectory(Coroutine)
 add_subdirectory(ExportTools)
 add_subdirectory(MainGame)
 add_subdirectory(Resources)
