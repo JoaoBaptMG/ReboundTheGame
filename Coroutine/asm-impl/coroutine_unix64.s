@@ -5,8 +5,8 @@
 # the System V ABI
 #
  
-    .set context_rip, 0
-    .set context_rsp, context_rip + 8
+    .set context_entry_point, 0
+    .set context_rsp, context_entry_point + 8
     .set context_rbp, context_rsp + 8
     .set context_rbx, context_rbp + 8
     .set context_r12, context_rbx + 8
@@ -40,7 +40,7 @@ coroutine_new:
     test rax, rax
     jz early_return
     
-    mov [rax + context_rip], rdi             # move the entry_point into place
+    mov [rax + context_entry_point], rdi     # move the entry_point into place
     mov [rax + context_stack_size], rsi      # move the stack_size into its place 
     mov qword ptr [rax + context_rsp], 0     # set the rsp to 0 (for not initialized)
     
@@ -58,17 +58,12 @@ coroutine_resume:
     test rdi, rdi # Careful with nullptr's
     jz return_nullptr
 
-    cmp qword ptr [rdi + context_rip], 0
+    cmp qword ptr [rdi + context_entry_point], 0
     jz dont_resume_ended_coroutine
     
     # If the coroutine is initialized, just yield to it
     cmp qword ptr [rdi + context_rsp], 0
     jnz coroutine_yield
-
-    # move the saved IP to context
-    mov r8, [rdi + context_rip]
-    mov r9, [rsp-4]
-    mov [rdi + context_rip], r9
 
     # move callee-preserved registers to context
     mov [rdi + context_rbp], rbp
@@ -89,18 +84,14 @@ coroutine_resume:
     
     # call the coroutine entry point
     push rdi
-    call r8
+    call [rdi + context_entry_point]
     pop rdi
     
     # unexchange the stack
     mov rsp, [rdi + context_rsp]
     
-    # update the return pointer
-    mov r8, [rdi + context_rip]
-    mov [rsp-4], r8
-    
     # end the coroutine
-    mov qword ptr [rdi + context_rip], 0
+    mov qword ptr [rdi + context_entry_point], 0
     
     # return the same value as the last coroutine return
     ret
@@ -120,13 +111,6 @@ dont_resume_ended_coroutine:
 coroutine_yield:
     test rdi, rdi # Careful with nullptr's
     jz return_nullptr
-
-    # Here, we are going to save the last saved instruction to memory
-    mov r8, [rdi + context_rip]
-    mov r9, [rsp-4]
-    
-    mov [rsp-4], r8 
-    mov [rdi + context_rip], r9
     
     # Exchange callee-saved registers
     xchg [rdi + context_rsp], rsp
@@ -151,7 +135,7 @@ is_coroutine_ended:
     test rax, rax
     jz coroutine_is_ended
 
-    cmp qword ptr [rdi + context_rip], 0
+    cmp qword ptr [rdi + context_entry_point], 0
     jz coroutine_is_ended
     mov rax, 0
     ret
@@ -169,7 +153,7 @@ coroutine_destroy:
     test rdi, rdi
     jz dont_delete_unended_coroutine
 
-    cmp qword ptr [rdi + context_rip], 0
+    cmp qword ptr [rdi + context_entry_point], 0
     jnz dont_delete_unended_coroutine
     call free
 dont_delete_unended_coroutine:
