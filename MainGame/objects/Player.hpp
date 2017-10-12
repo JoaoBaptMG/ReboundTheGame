@@ -83,6 +83,7 @@ public:
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     auto canBreakDash() const { return abilityLevel >= 8; }
+    bool isEnhanced() const { return abilityLevel >= 6; }
     
     void upgradeToAbilityLevel(size_t level)
     {
@@ -96,6 +97,7 @@ public:
     bool isDashing() const;
     std::string getDashEmitterName() const;
 
+    bool isHardballEnabled() const { return hardballEnabled; }
     bool onWater() const;
     bool onWaterNoHardball() const;
     bool canWaterJump() const;

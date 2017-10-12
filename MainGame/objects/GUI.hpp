@@ -12,6 +12,7 @@ class GUI
     Sprite guiLeft, guiRight;
     GUIMeter playerMeter;
 
+    std::string lastIconName;
     GameScene& gameScene;
     
 public:

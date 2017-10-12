@@ -71,7 +71,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	//upgradeToAbilityLevel(10);
+	upgradeToAbilityLevel(10);
 	setName("player");
 }
 
@@ -507,12 +507,13 @@ void Player::hitSpikes()
 void Player::respawnFromSpikes()
 {
     reset(spikeTime);
-    setPosition(lastSafePosition);
-    playerShape->getBody()->setVelocity(cpvzero);
-    gameScene.getGameSpace().add(playerShape->getBody());
     
     if (gameScene.getCurrentRoomID() != lastSafeRoomID)
         gameScene.loadRoom(lastSafeRoomID);
+        
+    setPosition(lastSafePosition - cpVect{0, 12});
+    playerShape->getBody()->setVelocity(cpvzero);
+    gameScene.getGameSpace().add(playerShape->getBody());
 
     invincibilityTime = curTime + SpikeInvincibilityTime;
 }
@@ -575,7 +576,7 @@ void Player::render(Renderer& renderer)
         if (invincibilityTime != decltype(invincibilityTime)())
         {
             auto phase = toSeconds<cpFloat>(invincibilityTime - curTime) / toSeconds<cpFloat>(InvincPeriod);
-            auto amp = fabsf(sin(M_PI * phase));
+            auto amp = fabs(sin(M_PI * phase));
             sprite.setFlashColor(sf::Color(255, 0, 0, 128 * amp));
         }
         else if (chargingForHardball)

@@ -11,7 +11,7 @@
 GUI::GUI(GameScene& scene) : gameScene(scene),
     guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
     guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), sf::Vector2f(0, 0)),
-    playerMeter(MeterSize::Normal)
+    playerMeter(MeterSize::Normal), lastIconName("")
 {
     playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
     playerMeter.setPosition(4, 484);
@@ -20,8 +20,22 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
 void GUI::update(std::chrono::steady_clock::time_point curTime)
 {
     auto player = gameScene.getObjectByName<Player>("player");
-    playerMeter.setHeight(player->getMaxHealth());
-    playerMeter.setTarget(player->getHealth());
+    
+    if (player)
+    {
+        playerMeter.setHeight(player->getMaxHealth());
+        playerMeter.setTarget(player->getHealth());
+        
+        auto iconName = player->isHardballEnabled() ? "icon-player-hard.png" :
+            player->isEnhanced() ? "icon-player-enhanced.png" : "icon-player.png";
+            
+        if (iconName != lastIconName)
+        {
+            playerMeter.setIcon(gameScene.getResourceManager().load<sf::Texture>(iconName));
+            lastIconName = iconName;
+        }
+    }
+    else playerMeter.setTarget(0);
     
     playerMeter.update(curTime);
 }

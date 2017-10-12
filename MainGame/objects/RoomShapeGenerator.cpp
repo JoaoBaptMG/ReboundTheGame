@@ -30,6 +30,40 @@ struct Segment // Generic segments
 template <bool Vertical>
 inline void generateSegments(std::vector<Segment>& segments, const TileSet& tileSet, const util::grid<uint8_t>& layer)
 {
+// Replacement rule to help in the annoying things
+#define TT TileSet::TileType
+#define At TileSet::Attribute
+    
+    auto terrainCanMakeNewSegment = [](TileSet::TileType type)
+    {
+        return isContained(type, TT::TerrainUpperLeft, TT::TerrainUpperRight, TT::TerrainLowerLeft,
+            TT::TerrainLowerRight, Vertical ? TT::TerrainLeft : TT::TerrainUp,
+            Vertical ? TT::TerrainRight : TT::TerrainDown);
+    };
+    
+    auto isCornerTerrain = [](TileSet::TileType type)
+    {
+        return isContained(type, TT::TerrainUpperLeft, Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft);
+    };
+
+    auto isTerrainOtherEnd = [](TileSet::TileType type)
+    {
+        return isContained(type, TT::TerrainLowerRight, Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft,
+            Vertical ? TT::TerrainRight : TT::TerrainDown);
+    };
+    
+    auto isTerrainSegmentCorner = [](TileSet::TileType type)
+    {
+        return isContained(type, TT::TerrainLowerRight, Vertical ? TT::TerrainLowerLeft : TT::TerrainUpperRight);
+    };
+    
+    auto getViableContinuation = [](bool semiterrain, bool otherEnd)
+    {
+        if (semiterrain) return TT::SemiTerrain2;
+        else if (otherEnd) return Vertical ? TT::TerrainRight : TT::TerrainDown;
+        else return Vertical ? TT::TerrainLeft : TT::TerrainUp;
+    };
+    
     auto jSize = Vertical ? layer.width() : layer.height();
     auto iSize = Vertical ? layer.height() : layer.width();
 
@@ -58,25 +92,14 @@ inline void generateSegments(std::vector<Segment>& segments, const TileSet& tile
                     newSegment = false;
                 }
 
-// Replacement rule to help in the annoying things
-#define TT TileSet::TileType
-#define At TileSet::Attribute
             repeatNewSegmentPhase: // People will spank me, but...
-                if (!newSegment && (isViableSemiTerrain ?
-                    isContained(identity.type, TT::SemiTerrain1, TT::SemiTerrain2) :
-                    isContained(identity.type, TT::TerrainUpperLeft, TT::TerrainUpperRight, TT::TerrainLowerLeft,
-                    TT::TerrainLowerRight, Vertical ? TT::TerrainLeft : TT::TerrainUp,
-                    Vertical ? TT::TerrainRight : TT::TerrainDown)))
+                if (!newSegment && (isViableSemiTerrain || terrainCanMakeNewSegment(identity.type)))
                 {
                     bool isTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain1 :
-                        isContained(identity.type, TT::TerrainUpperLeft,
-                        Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft);
+                        isCornerTerrain(identity.type);
                     bool isOtherEnd = isViableSemiTerrain ?
-                        (Vertical ? isContained(terrainAttr, At::RightSolid, At::RightNoWalljump)
-                                  : terrainAttr == At::DownSolid) :
-                        isContained(identity.type, TT::TerrainLowerRight,
-                            Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft,
-                            Vertical ? TT::TerrainRight : TT::TerrainDown);
+                        (Vertical ? isContained(terrainAttr, At::RightSolid, At::RightNoWalljump) :
+                        terrainAttr == At::DownSolid) : isTerrainOtherEnd(identity.type);
 
                     newSegment = true;
                     curSegment.j = j;
@@ -91,13 +114,10 @@ inline void generateSegments(std::vector<Segment>& segments, const TileSet& tile
                     if (isTerrainCorner) goto skipSegmentTermination;
                 }
                 
-                if (newSegment && identity.type != (isViableSemiTerrain ? TT::SemiTerrain2 :
-                    (curSegment.isOtherEnd ? (Vertical ? TT::TerrainRight : TT::TerrainDown) :
-                        (Vertical ? TT::TerrainLeft : TT::TerrainUp))))
+                if (newSegment && identity.type != getViableContinuation(isViableSemiTerrain, curSegment.isOtherEnd))
                 {
                     bool isTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain3 :
-                        isContained(identity.type, TT::TerrainLowerRight,
-                        Vertical ? TT::TerrainLowerLeft : TT::TerrainUpperRight);
+                        isTerrainSegmentCorner(identity.type);
                     
                     curSegment.i2 = isTerrainCorner ? i : i-1;
                     curSegment.end2 = isTerrainCorner ? TerrainCorner : TerrainAnkle;
@@ -105,8 +125,7 @@ inline void generateSegments(std::vector<Segment>& segments, const TileSet& tile
                     newSegment = false;
 
                     bool isNewTerrainCorner = isViableSemiTerrain ? identity.type == TT::SemiTerrain1 :
-                        isContained(identity.type, TT::TerrainUpperLeft,
-                        Vertical ? TT::TerrainUpperRight : TT::TerrainLowerLeft);
+                        isCornerTerrain(identity.type);
                     // In order to avoid code duplication
                     if (isNewTerrainCorner) goto repeatNewSegmentPhase;
                 }

@@ -11,15 +11,15 @@ GUIMeter::GUIMeter(MeterSize size) : size(size)
     float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
 
     setQuadColor(0, sf::Color::Black);
-    setQuadColor(4, sf::Color::White);
+    setQuadColor(4, sf::Color(200, 200, 200));
 
-    for (size_t i = 0; i < 20; i++)
+    for (size_t i = 0; i < 16; i++)
         vertices[i].texCoords = sf::Vector2f(0, 0);
 
-    vertices[4].texCoords = sf::Vector2f(0, 0);
-    vertices[5].texCoords = sf::Vector2f(width, 0);
-    vertices[6].texCoords = sf::Vector2f(width, width);
-    vertices[7].texCoords = sf::Vector2f(0, width);
+    vertices[16].texCoords = sf::Vector2f(0, 0);
+    vertices[17].texCoords = sf::Vector2f(width, 0);
+    vertices[18].texCoords = sf::Vector2f(width, width);
+    vertices[19].texCoords = sf::Vector2f(0, width);
 
     updateVertices();
 }
@@ -59,19 +59,27 @@ void GUIMeter::updateVertices()
     float frameHeight = height + width + 3*border;
     float frameOffset = width + 2*border;
     setRect(0, sf::FloatRect(0, -frameHeight, width + 2*border, frameHeight));
-    setRect(4, sf::FloatRect(border, -border-width, width, width));
-    setRect(8, sf::FloatRect(border, -frameOffset-(float)height, width, (float)height));
-    setRect(12, sf::FloatRect(border, -frameOffset-(float)current, width, (float)current));
-    setRect(16, sf::FloatRect(border, -frameOffset-(float)target, width, (float)target));
+    setRect(4, sf::FloatRect(border, -frameOffset-(float)height, width, (float)height));
+    setRect(8, sf::FloatRect(border, -frameOffset-(float)current, width, (float)current));
+    setRect(12, sf::FloatRect(border, -frameOffset-(float)target, width, (float)target));
+    setRect(16, sf::FloatRect(border, -border-width, width, width));
 
-    setQuadColor(8, backdropColor);
-    setQuadColor(12, targetColor);
-    setQuadColor(16, fillColor);
+    setQuadColor(4, backdropColor);
+    setQuadColor(8, targetColor);
+    setQuadColor(12, fillColor);
 }
 
 void GUIMeter::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform.translate(position);
-    states.texture = icon.get();
     target.draw(vertices, 20, sf::Quads, states);
+    
+    if (icon)
+    {
+        bool wasSmooth = icon->isSmooth();
+        if (!wasSmooth) icon->setSmooth(true);
+        states.texture = icon.get();
+        target.draw(vertices+16, 4, sf::Quads, states);
+        if (wasSmooth) icon->setSmooth(false);
+    }
 }

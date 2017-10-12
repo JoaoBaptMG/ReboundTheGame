@@ -3,6 +3,7 @@
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
 #include <chronoUtils.hpp>
+#include <assert.hpp>
 #include "data/RoomData.hpp"
 
 #include <functional>
@@ -66,7 +67,7 @@ void GameScene::addObject(std::unique_ptr<GameObject> obj)
 GameObject* GameScene::getObjectByName(std::string str)
 {
     for (const auto& obj : gameObjects)
-        if (obj->getName() == str)
+        if (obj && obj->getName() == str)
             return obj.get();
 
     return nullptr;
@@ -77,7 +78,7 @@ std::vector<GameObject*> GameScene::getObjectsByName(std::string str)
     std::vector<GameObject*> objs;
 
     for (const auto& obj : gameObjects)
-        if (obj->getName() == str)
+        if (obj && obj->getName() == str)
             objs.push_back(obj.get());
 
     return objs;
@@ -85,7 +86,7 @@ std::vector<GameObject*> GameScene::getObjectsByName(std::string str)
 
 void GameScene::removeObjectsByName(std::string str)
 {
-    for (auto obj : getObjectsByName(str)) obj->remove();
+    for (auto obj : getObjectsByName(str)) if (obj) obj->remove();
 }
 
 cpVect GameScene::wrapPosition(cpVect pos)
