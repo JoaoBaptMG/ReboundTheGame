@@ -21,8 +21,9 @@
     .extern free
     
     #
-    # coroutine_t* coroutine_new(coroutine_entry_point point)#
+    # coroutine_t coroutine_new(coroutine_entry_point point, size_t stack_size)
     # - rdi: point
+    # - rsi: stack_size
     # - rax: new coroutine_t*
     #
     .global coroutine_new
@@ -55,7 +56,7 @@ early_return:
     .global coroutine_resume
 coroutine_resume:
     test rdi, rdi # Careful with nullptr's
-    jz early_return
+    jz return_nullptr
 
     cmp qword ptr [rdi + context_rip], 0
     jz dont_resume_ended_coroutine
@@ -103,7 +104,8 @@ coroutine_resume:
     
     # return the same value as the last coroutine return
     ret
-    
+
+return_nullptr:
 dont_resume_ended_coroutine:
     mov rax, 0
     ret
@@ -116,6 +118,9 @@ dont_resume_ended_coroutine:
     #
     .global coroutine_yield
 coroutine_yield:
+    test rdi, rdi # Careful with nullptr's
+    jz return_nullptr
+
     # Here, we are going to save the last saved instruction to memory
     mov r8, [rdi + context_rip]
     mov r9, [rsp-4]
@@ -124,6 +129,7 @@ coroutine_yield:
     mov [rdi + context_rip], r9
     
     # Exchange callee-saved registers
+    xchg [rdi + context_rsp], rsp
     xchg [rdi + context_rbp], rbp
     xchg [rdi + context_rbx], rbx
     xchg [rdi + context_r12], r12
