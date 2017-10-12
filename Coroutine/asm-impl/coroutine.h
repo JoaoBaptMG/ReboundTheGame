@@ -4,14 +4,20 @@
 extern "C" {
 #endif
 
-typedef void* coroutine_t;
-typedef void* (*coroutine_entry_point)(coroutine_t, void*);
+typedef volatile void* coroutine_t;
+typedef const void* (*coroutine_entry_point)(coroutine_t, const void*);
 
-coroutine_t coroutine_new(coroutine_entry_point point, size_t stack_size);
-void* coroutine_resume(coroutine_t coro, void* param);
-void* coroutine_yield(coroutine_t coro, void* param);
-int is_coroutine_ended(coroutine_t coro);
-void coroutine_destroy(coroutine_t coro);
+#if _WIN32 && _M_IX86
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+
+coroutine_t CDECL coroutine_new(coroutine_entry_point point, size_t stack_size);
+const void* CDECL coroutine_resume(coroutine_t coro, const void* param);
+const void* CDECL coroutine_yield(coroutine_t coro, const void* param);
+int CDECL is_coroutine_ended(coroutine_t coro);
+void CDECL coroutine_destroy(coroutine_t coro);
 
 #ifdef __cplusplus
 }
