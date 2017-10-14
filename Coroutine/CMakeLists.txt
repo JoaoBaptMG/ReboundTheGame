@@ -2,24 +2,18 @@ cmake_minimum_required(VERSION 2.8.11)
 
 project(Coroutine C CXX)
 
-file(GLOB_RECURSE SRCS "*.c" "*.cpp" "*.h" "*.hpp")
+file(GLOB SRCS "*.c" "*.cpp" "*.h" "*.hpp")
+list(APPEND SRCS "asm-impl/coroutine.h")
 
 include("./TargetArch.cmake")
 target_architecture(ARCH)
 
-if (WIN32)
-	enable_language(ASM_MASM)
-else()
+if (NOT WIN32)
 	enable_language(ASM)
 endif()
 
 if (WIN32)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:no")
-	if (ARCH STREQUAL "i386")
-        list(APPEND SRCS "asm-impl/coroutine-win-i386.asm")
-    else()
-        list(APPEND SRCS "asm-impl/coroutine-win-x64.asm")
-    endif()
+	list(APPEND SRCS "asm-impl/coroutine-win-fiber.c")
 elseif (UNIX)
 	if (ARCH STREQUAL "i386")
         list(APPEND SRCS "asm-impl/coroutine-unix-i386.s")
