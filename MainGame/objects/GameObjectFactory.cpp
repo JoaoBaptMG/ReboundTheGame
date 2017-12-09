@@ -14,6 +14,7 @@
 #include "objects/enemies/Rotator.hpp"
 #include "objects/collectibles/HealthPickup.hpp"
 #include "objects/collectibles/Powerup.hpp"
+#include "objects/collectibles/GoldenToken.hpp"
 #include "objects/props/PushableCrate.hpp"
 #include "objects/props/DestructibleCrate.hpp"
 #include "objects/props/Grapple.hpp"
@@ -57,11 +58,12 @@ util::generic_shared_ptr readerFor(sf::InputStream& stream)
 }
 
 template <typename Obj>
-std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, util::generic_shared_ptr parameters)
+std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, std::string name, util::generic_shared_ptr parameters)
 {
     auto params = parameters.try_convert<ConfigStruct<Obj>>();
     if (!params) return std::unique_ptr<GameObject>{};
     auto obj = std::make_unique<Obj>(gameScene);
+    obj->setName(name);
     if (!obj->configure(*params)) return std::unique_ptr<GameObject>{};
     return std::unique_ptr<GameObject>(obj.release());
 }
@@ -69,7 +71,7 @@ std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, util::generic_share
 struct FactoryParams
 {
     util::generic_shared_ptr (*reader)(sf::InputStream&);
-    std::unique_ptr<GameObject> (*factory)(GameScene&, util::generic_shared_ptr);
+    std::unique_ptr<GameObject> (*factory)(GameScene&, std::string, util::generic_shared_ptr);
 };
 
 #define DEFINE_FACTORY(cls) { #cls, { readerFor<cls>, factoryFor<cls> } }
@@ -86,6 +88,7 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     // collectibles
     DEFINE_FACTORY(collectibles::HealthPickup),
     DEFINE_FACTORY(collectibles::Powerup),
+    DEFINE_FACTORY(collectibles::GoldenToken),
 
     // props
     DEFINE_FACTORY(props::PushableCrate),
@@ -117,5 +120,6 @@ std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, con
     if (it == factoryParams.end())
         return std::unique_ptr<GameObject>{};
 
-    return it->second.factory(gameScene, descriptor.parameters);
+    auto obj = it->second.factory(gameScene, descriptor.name, descriptor.parameters);
+    return obj;
 }

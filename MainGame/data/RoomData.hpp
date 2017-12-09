@@ -12,7 +12,7 @@ template <size_t size> struct Print;
 
 struct GameObjectDescriptor final
 {
-    std::string klass;
+    std::string klass, name;
     util::generic_shared_ptr parameters;
 };
 

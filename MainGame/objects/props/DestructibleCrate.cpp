@@ -25,7 +25,6 @@ constexpr float CrateHalfSize = 48, CrateBevel = 16;
 DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, uint32_t type)
     : GameObject(gameScene), sprite(gameScene.getResourceManager().load<sf::Texture>(texture))
 {
-    setupPhysics();
     interactionHandler = [this,type] (uint32_t ty, void* ptr)
     {
         if (ty == type && isDestructionViable())
@@ -38,14 +37,14 @@ DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, 
 
 bool DestructibleCrate::configure(const DestructibleCrate::ConfigStruct& config)
 {
-    setPosition(cpVect{(cpFloat)config.position.x, (cpFloat)config.position.y});
+    belongingRoomID = gameScene.getCurrentRoomID();
+    
+    if (gameScene.getLevelPersistentData().existsDataOfType<bool>(getDestroyedKey()) &&
+        gameScene.getLevelPersistentData().getData<bool>(getDestroyedKey()))
+        return false;
 
-    auto player = gameScene.getObjectByName<Player>("player");
-    if (player)
-    {
-        auto dif = gameScene.wrapPosition(player->getPosition()) - getPosition();
-        if (std::abs(dif.x) <= CrateHalfSize && std::abs(dif.y) <= CrateHalfSize) return false;
-    }
+    setupPhysics();
+    setPosition(cpVect{(cpFloat)config.position.x, (cpFloat)config.position.y});
 
     return true;
 }
@@ -109,6 +108,8 @@ void DestructibleCrate::explode(sf::FloatRect velocityRect)
         velocityRect, displayGravity, TextureExplosion::Density, 8, 8, 25);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
+    
+    gameScene.getLevelPersistentData().setData(getDestroyedKey(), true);
 }
 
 DestructibleCrate::~DestructibleCrate()
@@ -132,6 +133,12 @@ void DestructibleCrate::render(Renderer& renderer)
     renderer.currentTransform.translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
+}
+
+bool DestructibleCrate::notifyScreenTransition(cpVect displacement)
+{
+    shape->getBody()->setPosition(shape->getBody()->getPosition() + displacement);
+    return true;
 }
 
 bool DashCrate::isDestructionViable() const

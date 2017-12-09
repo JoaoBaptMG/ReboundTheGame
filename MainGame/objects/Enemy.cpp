@@ -44,3 +44,9 @@ void Enemy::setupPhysics()
 {
     if (collisionBody) collisionBody->setUserData((void*)this);
 }
+
+bool Enemy::notifyScreenTransition(cpVect displacement)
+{
+    collisionBody->setPosition(collisionBody->getPosition() + displacement);
+    return true;
+}

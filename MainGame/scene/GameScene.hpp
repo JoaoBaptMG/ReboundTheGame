@@ -5,11 +5,13 @@
 #include "drawables/Sprite.hpp"
 #include "data/LevelData.hpp"
 #include "objects/GUI.hpp"
+#include "gameplay/LevelPersistentData.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
 #include <chrono>
 #include <type_traits>
+#include <exception>
 
 #define CP_DEBUG 0
 
@@ -32,17 +34,21 @@ class GameScene : public Scene
     cp::Space gameSpace;
     Room room;
     std::shared_ptr<LevelData> levelData;
+    LevelPersistentData levelPersistentData;
 
     ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
-    size_t curRoomID;
+    size_t curRoomID, requestedID;
     bool objectsLoaded;
 
     const PlayerController* playerController;
     sf::Vector2f offsetPos;
 
     GUI gui;
+    
+    std::chrono::steady_clock::time_point curTime, transitionBeginTime, transitionEndTime;
+    sf::Vector2f transitionTargetBegin, transitionTargetEnd;
 
 public:
     GameScene(ResourceManager& manager);
@@ -56,10 +62,12 @@ public:
     const Room& getCurrentRoom() const { return room; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
+    LevelPersistentData& getLevelPersistentData() { return levelPersistentData; }
 
     void loadLevel(std::string levelName);
-    void loadRoom(size_t id);
+    void loadRoom(size_t id, bool transition = false, cpVect displacement = cpVect{0,0});
     void loadRoomObjects();
+    void requestRoomLoad(size_t id) { requestedID = id; }
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
@@ -75,10 +83,11 @@ public:
     void removeObjectsByName(std::string str);
 
     cpVect wrapPosition(cpVect pos);
+    sf::Vector2f fitIntoRoom(sf::Vector2f vec);
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     void checkWarps();
-    void checkWarp(Player* player, WarpData::Dir direction, cpVect &pos);
+    void checkWarp(Player* player, WarpData::Dir direction, cpVect pos);
     
     virtual void render(Renderer& renderer) override;
 };

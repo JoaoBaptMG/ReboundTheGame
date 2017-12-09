@@ -16,15 +16,15 @@ class Bomb final : public GameObject
 {
     Sprite sprite;
     cpVect position;
-    std::chrono::steady_clock::time_point detonationTime;
-    Player* player;
+    std::chrono::steady_clock::time_point curTime, detonationTime;
 
 public:
-    Bomb(GameScene& scene, cpVect pos, Player* player, std::chrono::steady_clock::time_point initialTime);
-    virtual ~Bomb() {}
+    Bomb(GameScene& scene, cpVect pos, std::chrono::steady_clock::time_point initialTime);
+    virtual ~Bomb();
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;
+    virtual bool notifyScreenTransition(cpVect displacement) override;
 
     void setPosition(cpVect pos) { position = pos; }
     cpVect getPosition() const { return position; }

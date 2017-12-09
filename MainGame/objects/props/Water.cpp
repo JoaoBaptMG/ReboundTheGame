@@ -111,6 +111,15 @@ void Water::update(std::chrono::steady_clock::time_point curTime)
     shape.update(curTime);
 }
 
+bool Water::notifyScreenTransition(cpVect displacement)
+{
+    rect.l += displacement.x;
+    rect.r += displacement.x;
+    rect.t += displacement.y;
+    rect.b += displacement.y;
+    return true;
+}
+
 void Water::render(Renderer& renderer)
 {
     renderer.pushTransform();

@@ -96,6 +96,15 @@ void Rotator::update(std::chrono::steady_clock::time_point curTime)
     collisionBody->setVelocity(spd);
 }
 
+bool Rotator::notifyScreenTransition(cpVect displacement)
+{
+    wanderingArea.l += displacement.x;
+    wanderingArea.r += displacement.x;
+    wanderingArea.b += displacement.y;
+    wanderingArea.t += displacement.y;
+    return Enemy::notifyScreenTransition(displacement);
+}
+
 void Rotator::render(Renderer& renderer)
 {
     renderer.pushTransform();

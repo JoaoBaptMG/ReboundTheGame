@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<particle-emitter-set>
+    <particle-emitter name="golden-token">
+        <total-lifetime value="infinity"/>
+        <emission-period value="0.002"/>
+
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="16" y="16"/>
+
+        <direction first="0" second="360"/>
+        <speed first="100" second="120"/>
+        <acceleration x="0" y="0"/>
+
+        <size-begin value="16"/>
+        <size-end value="16"/>
+
+        <lifetime value="1.1"/>
+        <color-begin value="#ffff00ff"/>
+        <color-end value="#ffff0000"/>
+    </particle-emitter>
+</particle-emitter-set>

@@ -24,6 +24,8 @@ public:
 
     virtual void onCollect(Player& player) = 0;
 
+    virtual bool notifyScreenTransition(cpVect displacement);
+
     auto getPosition() const { return collisionBody->getPosition(); }
     auto getDisplayPosition() const
     {

@@ -37,8 +37,7 @@ bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
 
 util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream)
 {
-    using T = ParticleEmitterSet;
-    std::shared_ptr<T> content{new T};
+    std::shared_ptr<ParticleEmitterSet> content{new ParticleEmitterSet};
 
     if (checkMagic(*stream, "PEMIT") && readFromStream(*stream, *content))
         return util::generic_shared_ptr{content};
@@ -128,7 +127,7 @@ void ParticleEmitter::generateNewParticles(ParticleBatch& batch,
 
         float insq = emissionInnerLimit * emissionInnerLimit;
         float radius = sqrtf(insq + generator()*(1 - insq));
-        float angle = generator() * 6.28318530718f;
+        float angle = generator() * 2 * M_PI;
         posInfo.position = fromRadiusAngleRadians(radius, angle);
         posInfo.position.x *= emissionHalfSize.x;
         posInfo.position.y *= emissionHalfSize.y;

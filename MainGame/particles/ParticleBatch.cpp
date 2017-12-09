@@ -35,12 +35,18 @@ sf::Shader& ParticleBatch::getParticleShader(float scalingFactor)
 {
     static sf::Shader shader;
     static bool shaderLoaded = false;
+    static float lastScalingFactor = 0;
 
     if (!shaderLoaded)
     {
         ASSERT(shader.loadFromMemory(ParticleVertexShader, ParticleFragmentShader));
-        shader.setUniform("ScalingFactor", scalingFactor);
         shaderLoaded = true;
+    }
+
+    if (lastScalingFactor != scalingFactor)
+    {
+        shader.setUniform("ScalingFactor", scalingFactor);
+        lastScalingFactor = scalingFactor;
     }
 
     return shader;
@@ -137,6 +143,14 @@ void ParticleBatch::update(std::chrono::steady_clock::time_point curTime)
     else if (positionAttributes.empty()) remove();
 
     lastTime = curTime;
+}
+
+bool ParticleBatch::notifyScreenTransition(cpVect displacement)
+{
+    for (auto& data : positionAttributes)
+        data.position += sf::Vector2f(displacement.x, displacement.y);
+    
+    return true;
 }
 
 void ParticleBatch::render(Renderer& renderer)

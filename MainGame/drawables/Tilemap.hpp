@@ -35,6 +35,9 @@ public:
     void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex; }
     void setTileData(const util::grid<uint8_t>& data) { tileData = data; }
     void setTileData(util::grid<uint8_t>&& data) { tileData = std::move(data); }
+    
+    auto getTexture() { return texture; }
+    const auto& getTileData() { return tileData; }
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

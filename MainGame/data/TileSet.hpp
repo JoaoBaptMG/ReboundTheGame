@@ -52,12 +52,16 @@ struct TileSet final
 
     struct SingleObject final
     {
-        enum class ObjectMode : uint8_t { TileMultiple, Circle, Segment, Polygon };
+        enum class ShapeType : uint8_t { Tile, Circle, Segment, Polygon };
+        struct Shape final
+        {
+            ShapeType type;
+            int16_t radius; // multifunctional
+            std::vector<sf::Vector2<int16_t>> points; // also multifunctional
+        };
 
         Attribute objectAttribute;
-        ObjectMode objectMode;
-        int16_t radius; // multifunctional
-        std::vector<sf::Vector2<int16_t>> points; // also multifunctional
+        std::vector<Shape> shapes;
     };
 
     enum class TileType : uint8_t

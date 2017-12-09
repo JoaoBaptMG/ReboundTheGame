@@ -35,3 +35,9 @@ void Collectible::setupPhysics()
 {
     if (collisionBody) collisionBody->setUserData((void*)this);
 }
+
+bool Collectible::notifyScreenTransition(cpVect displacement)
+{
+    collisionBody->setPosition(collisionBody->getPosition() + displacement);
+    return true;
+}

@@ -22,6 +22,7 @@ namespace props
         Sprite sprite;
         std::shared_ptr<cp::Shape> shape;
         InteractionHandler interactionHandler;
+        size_t belongingRoomID;
 
     public:
         DestructibleCrate(GameScene& scene, std::string texture, uint32_t type);
@@ -31,6 +32,8 @@ namespace props
 
         virtual void update(std::chrono::steady_clock::time_point curTime) override;
         virtual void render(Renderer& renderer) override;
+
+        virtual bool notifyScreenTransition(cpVect displacement) override;
 
         auto getPosition() const { return shape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { shape->getBody()->setPosition(pos); }
@@ -43,6 +46,11 @@ namespace props
         {
             auto vec = getPosition();
             return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
+        }
+        
+        auto getDestroyedKey() const
+        {
+            return std::to_string(belongingRoomID) + "." + getName() + ".destroyed";
         }
 
 #pragma pack(push, 1)

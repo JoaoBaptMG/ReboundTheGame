@@ -16,6 +16,7 @@ class GameScene;
 class Renderer;
 class ParticleBatch;
 class Bomb;
+class GUI;
 namespace collectibles
 {
     class Powerup;
@@ -23,6 +24,8 @@ namespace collectibles
 
 template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
 void reset(T& val) { val = T(); }
+
+constexpr size_t MaxBombs = 4;
 
 constexpr cpFloat PlayerRadius = 32;
 constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
@@ -65,6 +68,8 @@ public:
     auto getPosition() const { return playerShape->getBody()->getPosition(); }
     void setPosition(cpVect pos) { playerShape->getBody()->setPosition(pos); }
 
+    virtual bool notifyScreenTransition(cpVect displacement) override;
+
     auto getVelocity() const { return playerShape->getBody()->getVelocity(); }
 
     auto getBody() const { return playerShape->getBody(); }
@@ -84,6 +89,8 @@ public:
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     auto canBreakDash() const { return abilityLevel >= 8; }
     bool isEnhanced() const { return abilityLevel >= 6; }
+
+    float getDashDisplay() const;
     
     void upgradeToAbilityLevel(size_t level)
     {
@@ -93,6 +100,8 @@ public:
 			setPlayerSprite();
 		}
     }
+    
+    void upgradeHealth();
 
     bool isDashing() const;
     std::string getDashEmitterName() const;
@@ -127,6 +136,7 @@ public:
 
     friend class ::collectibles::Powerup;
     friend class Bomb;
+    friend class GUI;
     static constexpr cpCollisionType CollisionType = 'plyr';
     static constexpr uint32_t DashInteractionType = 'pdsh';
 

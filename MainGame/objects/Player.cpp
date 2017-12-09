@@ -55,9 +55,8 @@ constexpr auto SpikeInvincibilityTime = 200 * UpdateFrequency;
 
 constexpr auto ExplosionDuration = 2 * SpikeRespawnTime;
 
-constexpr size_t BaseHealth = 208;
+constexpr size_t BaseHealth = 200;
 constexpr size_t HealthIncr = 8;
-constexpr size_t MaxBombs = 4;
 constexpr size_t SpikeDamage = 50;
 
 Player::Player(GameScene& scene)
@@ -71,7 +70,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(10);
+	//upgradeToAbilityLevel(10);
 	setName("player");
 }
 
@@ -263,8 +262,11 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                 else if (vec.x < -0.25) dashDirection = DashDir::Left;
                 else if (vec.y < -0.25 && abilityLevel >= 10) dashDirection = DashDir::Up;
 
-                if (dashDirection != DashDir::None) dashTime = curTime;
-                dashConsumed = true;
+                if (dashDirection != DashDir::None)
+                {
+                    dashTime = curTime;
+                    dashConsumed = true;
+                }
             }
             else if (controller.dash.isReleased())
             {
@@ -355,6 +357,12 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         reset(invincibilityTime);
 }
 
+bool Player::notifyScreenTransition(cpVect displacement)
+{
+    setPosition(getPosition() + displacement);
+    return true;
+}
+
 void Player::jump()
 {
     auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "jump");
@@ -426,7 +434,7 @@ void Player::dash()
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
     numBombs--;
-    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), this, curTime));
+    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), curTime));
 }
 
 void Player::observeHardballTrigger()
@@ -509,7 +517,7 @@ void Player::respawnFromSpikes()
     reset(spikeTime);
     
     if (gameScene.getCurrentRoomID() != lastSafeRoomID)
-        gameScene.loadRoom(lastSafeRoomID);
+        gameScene.requestRoomLoad(lastSafeRoomID);
         
     setPosition(lastSafePosition - cpVect{0, 12});
     playerShape->getBody()->setVelocity(cpvzero);
@@ -563,6 +571,19 @@ bool Player::isDashing() const
 {
     auto dashInterval = abilityLevel >= 10 ? DashIntervalEnhanced : DashInterval;
     return curTime - dashTime < dashInterval;
+}
+
+float Player::getDashDisplay() const
+{
+    auto dashInterval = abilityLevel >= 10 ? DashIntervalEnhanced : DashInterval;
+    
+    if (!dashConsumed) return 1;
+    else return std::max(1.0f - toSeconds<float>(curTime - dashTime)/toSeconds<float>(dashInterval), 0.0f);
+}
+
+void Player::upgradeHealth()
+{
+    maxHealth += HealthIncr;
 }
 
 void Player::render(Renderer& renderer)

@@ -89,6 +89,12 @@ void Floater::update(std::chrono::steady_clock::time_point curTime)
     collisionBody->setVelocity(dx * (1.0 / toSeconds<cpFloat>(UpdateFrequency)));
 }
 
+bool Floater::notifyScreenTransition(cpVect displacement)
+{
+    originalPos = originalPos + displacement;
+    return Enemy::notifyScreenTransition(displacement);
+}
+
 void Floater::render(Renderer& renderer)
 {
     renderer.pushTransform();

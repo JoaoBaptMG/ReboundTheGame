@@ -181,7 +181,7 @@ void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_
         endPoint1.*pi = DefaultTileSize * segment.i1;
         switch (segment.end1)
         {
-            case LevelEdge: endPoint1.*pi -= 4.0 * DefaultTileSize; break;
+            case LevelEdge: endPoint1.*pi -= DefaultTileSize; break;
             case TerrainAnkle: endPoint1.*pi += parpOffset - cornerRadius; break;
             case TerrainCorner: endPoint1.*pi -= parnOffset - cornerRadius; break;
             default: break;
@@ -190,7 +190,7 @@ void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_
         endPoint2.*pi = DefaultTileSize * (segment.i2+1);
         switch (segment.end2)
         {
-            case LevelEdge: endPoint2.*pi += 4.0 * DefaultTileSize; break;
+            case LevelEdge: endPoint2.*pi += DefaultTileSize; break;
             case TerrainAnkle: endPoint2.*pi -= parnOffset - cornerRadius; break;
             case TerrainCorner: endPoint2.*pi += parpOffset - cornerRadius; break;
             default: break;
@@ -205,16 +205,24 @@ void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_
     }
 }
 
-inline void collectSingleObjects(std::vector<std::pair<size_t,size_t>>& singleObjectLocations,
+inline size_t collectSingleObjects(std::vector<std::pair<size_t,size_t>>& singleObjectLocations,
     const TileSet& tileSet, const util::grid<uint8_t>& layer)
 {
+    size_t numShapes = 0;
+    
     auto height = layer.height();
     auto width = layer.width();
 
     for (size_t j = 0; j < height; j++)
         for (size_t i = 0; i < width; i++)
             if (TileSet::isSingleObject(tileSet.tileIdentities[layer(i, j)].type))
+            {
                 singleObjectLocations.emplace_back(i, j);
+                const auto& identity = tileSet.tileIdentities[layer(i, j)];
+                numShapes += tileSet.singleObjects[identity.id].shapes.size();
+            }
+            
+    return numShapes;
 }
 
 inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_ptr<cp::Body> body,
@@ -229,42 +237,44 @@ inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes
         const auto& identity = tileSet.tileIdentities[curTile];
         if (!TileSet::isSingleObject(identity.type)) continue;
 
-        std::shared_ptr<cp::Shape> shape;
-        cpVect dp = { (cpFloat)DefaultTileSize * x, (cpFloat)DefaultTileSize * y };
-        const auto& pts = tileSet.singleObjects[identity.id].points;
-        auto radius = tileSet.singleObjects[identity.id].radius;
-        switch (tileSet.singleObjects[identity.id].objectMode)
-        {
-            case TileSet::SingleObject::ObjectMode::TileMultiple:
-            {
-                cpFloat width = DefaultTileSize * pts[0].x - radius;
-                cpFloat height = DefaultTileSize * pts[0].y - radius;
-                shape = std::make_shared<cp::PolyShape>(body, std::vector<cpVect>
-                    { cpVect{dp.x-width/2, dp.y-height/2}, cpVect{dp.x+width/2, dp.y-height/2},
-                      cpVect{dp.x+width/2, dp.y+height/2}, cpVect{dp.x-width/2, dp.y+height/2} }, radius);
-            } break;
-            case TileSet::SingleObject::ObjectMode::Circle:
-                shape = std::make_shared<cp::CircleShape>(body, radius, dp);
-            break;
-            case TileSet::SingleObject::ObjectMode::Segment:
-            {
-                cpVect pt1 = { dp.x+pts[0].x, dp.y+pts[0].y };
-                cpVect pt2 = { dp.x+pts[1].x, dp.y+pts[1].y };
-                shape = std::make_shared<cp::SegmentShape>(body, pt1, pt2, radius);
-            } break;
-            case TileSet::SingleObject::ObjectMode::Polygon:
-            {
-                std::vector<cpVect> cpPoints;
-                cpPoints.reserve(pts.size());
-                for (auto p : pts) cpPoints.push_back({ dp.x+p.x, dp.y+p.y });
-                shape = std::make_shared<cp::PolyShape>(body, cpPoints, radius);
-            } break;
-        }
+        cpVect dp = cpVect{ (cpFloat)x, (cpFloat)y } * (cpFloat)DefaultTileSize;
 
-        attributes[i] = tileSet.singleObjects[identity.id].objectAttribute;
-        shape->setUserData(attributes+i);
-        shapes.push_back(shape);
-        i++;
+        for (const auto& shp : tileSet.singleObjects[identity.id].shapes)
+        {
+            std::shared_ptr<cp::Shape> shape;
+            switch (shp.type)
+            {
+                case TileSet::SingleObject::ShapeType::Tile:
+                {
+                    cpFloat width = DefaultTileSize - shp.radius;
+                    cpFloat height = DefaultTileSize - shp.radius;
+                    shape = std::make_shared<cp::PolyShape>(body, std::vector<cpVect>
+                        { cpVect{dp.x-width/2, dp.y-height/2}, cpVect{dp.x+width/2, dp.y-height/2},
+                          cpVect{dp.x+width/2, dp.y+height/2}, cpVect{dp.x-width/2, dp.y+height/2} }, shp.radius);
+                } break;
+                case TileSet::SingleObject::ShapeType::Circle:
+                    shape = std::make_shared<cp::CircleShape>(body, shp.radius, dp);
+                break;
+                case TileSet::SingleObject::ShapeType::Segment:
+                {
+                    cpVect pt1 = { dp.x+shp.points[0].x, dp.y+shp.points[0].y };
+                    cpVect pt2 = { dp.x+shp.points[1].x, dp.y+shp.points[1].y };
+                    shape = std::make_shared<cp::SegmentShape>(body, pt1, pt2, shp.radius);
+                } break;
+                case TileSet::SingleObject::ShapeType::Polygon:
+                {
+                    std::vector<cpVect> cpPoints;
+                    cpPoints.reserve(shp.points.size());
+                    for (auto p : shp.points) cpPoints.push_back({ dp.x+p.x, dp.y+p.y });
+                    shape = std::make_shared<cp::PolyShape>(body, cpPoints, shp.radius);
+                } break;
+            }
+
+            attributes[i] = tileSet.singleObjects[identity.id].objectAttribute;
+            shape->setUserData(attributes+i);
+            shapes.push_back(shape);
+            i++;
+        }
     }
 }
 
@@ -279,9 +289,9 @@ std::vector<std::shared_ptr<cp::Shape>>
     generateSegments<true>(verticalSegments, tileSet, layer);
 
     std::vector<std::pair<size_t,size_t>> singleObjectLocations;
-    collectSingleObjects(singleObjectLocations, tileSet, layer); 
+    auto totalShapes = collectSingleObjects(singleObjectLocations, tileSet, layer); 
 
-    auto totalSize = horizontalSegments.size() + verticalSegments.size() + singleObjectLocations.size();
+    auto totalSize = horizontalSegments.size() + verticalSegments.size() + totalShapes;
     TileSet::Attribute* attrs = new TileSet::Attribute[totalSize];
 
     std::vector<std::shared_ptr<cp::Shape>> shapes;

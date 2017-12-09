@@ -1,9 +1,9 @@
 #include "GUIMeter.hpp"
 
-constexpr float MeterWidthNormal = 28;
+constexpr float MeterWidthNormal = 32;
 constexpr float MeterBorderNormal = 4;
 
-constexpr float MeterWidthSmall = 18;
+constexpr float MeterWidthSmall = 14;
 constexpr float MeterBorderSmall = 2;
 
 GUIMeter::GUIMeter(MeterSize size) : size(size)

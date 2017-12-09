@@ -25,7 +25,7 @@ public:
     virtual ~GUIMeter() {}
 
     size_t getHeight() const { return height; }
-    void setHeight(size_t h) { height = h; }
+    void setHeight(size_t h) { height = h; updateVertices(); }
 
     size_t getCurrent() const { return current; }
     void setCurrent(size_t c) { current = c; }

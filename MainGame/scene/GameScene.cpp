@@ -5,10 +5,13 @@
 #include <chronoUtils.hpp>
 #include <assert.hpp>
 #include "data/RoomData.hpp"
+#include "defaults.hpp"
 
 #include <functional>
 #include <iterator>
 #include <SFML/System.hpp>
+
+constexpr auto TransitionDuration = 20 * UpdateFrequency;
 
 template <typename T>
 T clamp(T cur, T min, T max)
@@ -17,7 +20,7 @@ T clamp(T cur, T min, T max)
 }
 
 GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager), playerController(nullptr),
-    gui(*this), objectsLoaded(false), curRoomID(-1)
+    gui(*this), objectsLoaded(false), curRoomID(-1), requestedID(-1), transitionBeginTime(), transitionEndTime()
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -28,20 +31,46 @@ GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(ma
 void GameScene::loadLevel(std::string levelName)
 {
     levelData = resourceManager.load<LevelData>(levelName);
+    levelPersistentData.clear();
     loadRoom(levelData->startingRoom);
     loadRoomObjects();
 }
 
-void GameScene::loadRoom(size_t id)
+void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
 {
-    curRoomID = 1;
+    curRoomID = id;
     auto roomName = levelData->roomResourceNames.at(id) + ".map";
     
-    gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
-        [](const auto& obj) { return !obj->isPersistent; }), gameObjects.end());
+    if (!transition)
+    {
+        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+            [](const auto& obj) { return !obj->isPersistent; }), gameObjects.end());
+    }
+    else
+    {
+        room.clearTransition();
+        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+            [](const auto& obj) { return obj->transitionState; }), gameObjects.end());
+        
+        for (auto& obj : gameObjects)
+        {
+            bool shouldKeep = obj->notifyScreenTransition(displacement);
+            if (!obj->isPersistent)
+            {
+                if (shouldKeep) obj->transitionState = true;
+                else obj.reset(nullptr);
+            }
+        }
+        
+        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+            [](const auto& obj) { return !obj; }), gameObjects.end());
+            
+        transitionBeginTime = curTime;
+        transitionEndTime = curTime + TransitionDuration;
+    }
     
     currentRoomData = resourceManager.load<RoomData>(roomName);
-    room.loadRoom(*currentRoomData);
+    room.loadRoom(*currentRoomData, transition, displacement);
     objectsLoaded = false;
 }
 
@@ -100,8 +129,19 @@ cpVect GameScene::wrapPosition(cpVect pos)
     return pos;
 }
 
+sf::Vector2f GameScene::fitIntoRoom(sf::Vector2f vec)
+{
+    vec.x = clamp<float>(vec.x, PlayfieldWidth/2,
+        DefaultTileSize * currentRoomData->mainLayer.width() - PlayfieldWidth/2);
+    vec.y = clamp<float>(vec.y, PlayfieldHeight/2,
+        DefaultTileSize * currentRoomData->mainLayer.height() - PlayfieldHeight/2);
+    return vec;
+}
+
 void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
+    this->curTime = curTime;
+    
     using std::swap;
     
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
@@ -119,6 +159,22 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     gui.update(curTime);
 
     checkWarps();
+    
+    if (transitionEndTime != decltype(transitionEndTime)() && curTime > transitionEndTime)
+    {
+        reset(transitionBeginTime);
+        reset(transitionEndTime);
+        room.clearTransition();
+        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+            [](const auto& obj) { return obj->transitionState; }), gameObjects.end());
+    }
+    
+    if (requestedID != -1)
+    {
+        loadRoom(requestedID);
+        loadRoomObjects();
+        requestedID = -1;
+    }
 }
 
 void GameScene::checkWarps()
@@ -128,37 +184,42 @@ void GameScene::checkWarps()
     if (player)
     {
         auto pos = player->getPosition();
-
+        
         if (pos.x >= DefaultTileSize * currentRoomData->mainLayer.width())
         {
-            pos.x -= DefaultTileSize * currentRoomData->mainLayer.width();
+            transitionTargetBegin.x = -(float)PlayfieldWidth/2;
+            transitionTargetEnd.x = (float)PlayfieldWidth/2;
             checkWarp(player, WarpData::Dir::Right, pos);
-            player->setPosition(pos);
+            transitionTargetBegin.y = transitionTargetEnd.y = NAN;
         }
         else if (pos.y >= DefaultTileSize * currentRoomData->mainLayer.height())
         {
-            pos.y -= DefaultTileSize * currentRoomData->mainLayer.height();
+            transitionTargetBegin.y = -(float)PlayfieldHeight/2;
+            transitionTargetEnd.y = (float)PlayfieldHeight/2;
             checkWarp(player, WarpData::Dir::Down, pos);
-            player->setPosition(pos);
+            transitionTargetBegin.x = transitionTargetEnd.x = NAN;
         }
         else if (pos.x < 0)
         {
             checkWarp(player, WarpData::Dir::Left, pos);
-            pos.x += DefaultTileSize * currentRoomData->mainLayer.width();
-            player->setPosition(pos);
+            transitionTargetBegin.y = transitionTargetEnd.y = NAN;
+            transitionTargetBegin.x = (float)DefaultTileSize * currentRoomData->mainLayer.width() + 
+                (float)PlayfieldWidth/2;
+            transitionTargetEnd.x = transitionTargetBegin.x - PlayfieldWidth;
         }
         else if (pos.y < 0)
         {
             checkWarp(player, WarpData::Dir::Up, pos);
-            pos.y += DefaultTileSize * currentRoomData->mainLayer.height();
-            player->setPosition(pos);
+            transitionTargetBegin.x = transitionTargetEnd.x = NAN;
+            transitionTargetBegin.y = (float)DefaultTileSize * currentRoomData->mainLayer.height() + 
+                (float)PlayfieldHeight/2;
+            transitionTargetEnd.y = transitionTargetBegin.y - PlayfieldHeight;
         }
-
         if (!objectsLoaded) loadRoomObjects();
     }
 }
 
-void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect &pos)
+void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect pos)
 {
     bool isHorizontal = direction == WarpData::Dir::Right || direction == WarpData::Dir::Left;
     auto c = isHorizontal ? pos.y : pos.x;
@@ -173,10 +234,28 @@ void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect &pos)
 
     if (warp.roomId != (uint16_t)-1)
     {
-        loadRoom(warp.roomId);
-        auto delta = currentRoomData->warps[warp.warpId].c1 - warp.c1;
-        if (isHorizontal) pos.y += delta;
-        else pos.x += delta;
+        cpVect displacement = { 0, 0 };
+        auto roomName = levelData->roomResourceNames.at(warp.roomId) + ".map";
+        auto destRoomData = resourceManager.load<RoomData>(roomName);
+        auto delta = destRoomData->warps[warp.warpId].c1 - warp.c1;
+        
+        switch (direction)
+        {
+            case WarpData::Dir::Right:
+                displacement.x = -(cpFloat)DefaultTileSize * currentRoomData->mainLayer.width();
+                displacement.y = delta; break;
+            case WarpData::Dir::Down:
+                displacement.y = -(cpFloat)DefaultTileSize * currentRoomData->mainLayer.height();
+                displacement.x = delta; break;
+            case WarpData::Dir::Left:
+                displacement.x = (cpFloat)DefaultTileSize * destRoomData->mainLayer.width();
+                displacement.y = delta; break;
+            case WarpData::Dir::Up:
+                displacement.y = (cpFloat)DefaultTileSize * destRoomData->mainLayer.height();
+                displacement.x = delta; break;
+        }
+        
+        loadRoom(warp.roomId, true, displacement);
     }
 }
 
@@ -185,22 +264,21 @@ void GameScene::render(Renderer& renderer)
     renderer.pushTransform();
 
     auto player = getObjectByName<Player>("player");
-
-    if (player)
+    if (player) offsetPos = fitIntoRoom(player->getDisplayPosition());
+    if (transitionEndTime != decltype(transitionEndTime)())
     {
-        auto vec = player->getDisplayPosition();
-        vec.x = clamp<float>(vec.x, PlayfieldWidth/2,
-            DefaultTileSize * currentRoomData->mainLayer.width() - PlayfieldWidth/2);
-        vec.y = clamp<float>(vec.y, PlayfieldHeight/2,
-            DefaultTileSize * currentRoomData->mainLayer.height() - PlayfieldHeight/2);
-
-        offsetPos = vec;
+        float dt = toSeconds<float>(curTime - transitionBeginTime) /
+            toSeconds<float>(transitionEndTime - transitionBeginTime);
+         
+        sf::Vector2f transPos = transitionTargetBegin + dt * (transitionTargetEnd - transitionTargetBegin);
+        if (!isnan(transPos.x)) offsetPos.x = transPos.x;
+        if (!isnan(transPos.y)) offsetPos.y = transPos.y;
     }
-
+    
     gui.render(renderer);
     renderer.currentTransform.translate(sf::Vector2f{(float)ScreenWidth, (float)ScreenHeight}/2.0f - offsetPos);
     
-    room.render(renderer);
+    room.render(renderer, transitionEndTime != decltype(transitionEndTime)());
     for (const auto& obj : gameObjects) obj->render(renderer);
 
 #if CP_DEBUG

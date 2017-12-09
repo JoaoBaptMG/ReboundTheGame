@@ -82,6 +82,12 @@ void Grapple::update(std::chrono::steady_clock::time_point curTime)
     }
 }
 
+bool Grapple::notifyScreenTransition(cpVect displacement)
+{
+    pos = pos + displacement;
+    return true;
+}
+
 void Grapple::render(Renderer& renderer)
 {
     renderer.pushTransform();
@@ -90,7 +96,7 @@ void Grapple::render(Renderer& renderer)
     renderer.pushTransform();
 
     auto phases = toSeconds<float>(curTime - initialTime) / toSeconds<float>(WobblePeriod);
-    auto scaleFactor = 0.875f + 0.125f * cosf(6.28318530718f * phases);
+    auto scaleFactor = 0.875f + 0.125f * cosf(2 * M_PI * phases);
     renderer.currentTransform.scale(scaleFactor, scaleFactor);
     renderer.pushDrawable(sprite, {}, 20);
     renderer.popTransform();

@@ -6,7 +6,7 @@
 
 using namespace background;
 
-Parallax::Parallax(GameScene& scene) : GameObject(scene), parallaxFactor(1.0f),
+Parallax::Parallax(GameScene& scene) : GameObject(scene), parallaxFactor(1.0f), internalDisplacement(0, 0),
     plane(sf::FloatRect((float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
                         (float)PlayfieldWidth, (float)PlayfieldHeight))
 {
@@ -27,8 +27,16 @@ bool readFromStream(sf::InputStream& stream, Parallax::ConfigStruct& config)
 
 bool Parallax::configure(const ConfigStruct& config)
 {
+    auto texture = gameScene.getResourceManager().load<sf::Texture>(config.textureName);
+    auto other = gameScene.getObjectByName<Parallax>(getName());
+    if (other && other->plane.getTexture() == texture)
+    {
+        other->transitionState = false;
+        return false;
+    }
+
     parallaxFactor = (float)config.parallaxNumerator/(float)config.parallaxDenominator;
-    plane.setTexture(gameScene.getResourceManager().load<sf::Texture>(config.textureName));
+    plane.setTexture(texture);
 
     return true;
 }
@@ -43,6 +51,13 @@ void Parallax::render(Renderer& renderer)
 
     renderer.pushTransform();
     renderer.currentTransform.translate(trans);
+    renderer.currentTransform.translate(internalDisplacement);
     renderer.pushDrawable(plane, {}, 0);
     renderer.popTransform();
+}
+
+bool Parallax::notifyScreenTransition(cpVect displacement)
+{
+    internalDisplacement += sf::Vector2f(displacement.x, displacement.y) * (1.0f - parallaxFactor);
+    return true;
 }

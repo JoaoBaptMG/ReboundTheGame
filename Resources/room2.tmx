@@ -3,8 +3,8 @@
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
- <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="15" columns="5">
-  <image source="tilemap1.png" width="160" height="96"/>
+ <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="20" columns="5">
+  <image source="tilemap1.png" width="160" height="128"/>
   <terraintypes>
    <terrain name="ground" tile="-1"/>
   </terraintypes>
@@ -77,7 +77,7 @@
 </data>
  </layer>
  <objectgroup name="object-layer">
-  <object id="34" name="water1" type="props::Water" x="-64" y="352" width="2336" height="1216">
+  <object id="34" name="water1" type="props::Water" x="0" y="352" width="2272" height="1216">
    <properties>
     <property name="0" value="#width"/>
     <property name="1" value="#height"/>

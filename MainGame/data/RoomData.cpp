@@ -5,7 +5,7 @@
 
 bool readFromStream(sf::InputStream& stream, GameObjectDescriptor& descriptor)
 {
-    if (!readFromStream(stream, descriptor.klass)) return false;
+    if (!readFromStream(stream, descriptor.klass, descriptor.name)) return false;
     descriptor.parameters = readParametersFromStream(stream, descriptor.klass);
     return !descriptor.parameters.empty();
 }

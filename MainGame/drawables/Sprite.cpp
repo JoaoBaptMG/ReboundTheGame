@@ -38,16 +38,26 @@ sf::Shader& Sprite::getSpriteShader()
 Sprite::Sprite(std::shared_ptr<sf::Texture> texture, sf::Vector2f anchor) : texture(texture), anchorPoint(anchor),
     blendColor(sf::Color::White), flashColor(sf::Color(0, 0, 0, 0)), opacity(1)
 {
+    texRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
     setupVertices();
 }
 
 Sprite::Sprite(std::shared_ptr<sf::Texture> texture) : Sprite(texture, sf::Vector2f(texture->getSize())/2.0f)
 {
+    
+}
+
+Sprite::Sprite() : Sprite(nullptr, sf::Vector2f(0, 0))
+{
+    
 }
 
 sf::FloatRect Sprite::getTextureBounds() const
 {
-    return sf::FloatRect(-anchorPoint, (sf::Vector2f)getTextureSize());
+    sf::FloatRect bounds(texRect);
+    bounds.left -= anchorPoint.x;
+    bounds.top -= anchorPoint.y;
+    return bounds;
 }
 
 void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -74,10 +84,8 @@ void Sprite::setupVertices()
 {
     for (auto& vtx : quad) vtx.color = sf::Color::White;
 
-    auto size = getTextureSize();
-
-    quad[0].position = quad[0].texCoords = sf::Vector2f(0, 0);
-    quad[1].position = quad[1].texCoords = sf::Vector2f((float)size.x, 0);
-    quad[2].position = quad[2].texCoords = sf::Vector2f((float)size.x, (float)size.y);
-    quad[3].position = quad[3].texCoords = sf::Vector2f(0, (float)size.y);
+    quad[0].position = quad[0].texCoords = sf::Vector2f(texRect.left, texRect.top);
+    quad[1].position = quad[1].texCoords = sf::Vector2f(texRect.left + texRect.width, texRect.top);
+    quad[2].position = quad[2].texCoords = sf::Vector2f(texRect.left + texRect.width, texRect.top + texRect.height);
+    quad[3].position = quad[3].texCoords = sf::Vector2f(texRect.left, texRect.top + texRect.height);
 }

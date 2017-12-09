@@ -14,25 +14,28 @@ bool readFromStream(sf::InputStream& stream, TileSet::Terrain& terrain)
     return readFromStream(stream, terrain.terrainAttribute, terrain.physicalParameters) && terrain.isValid();
 }
 
-bool readFromStream(sf::InputStream& stream, TileSet::SingleObject& object)
+bool readFromStream(sf::InputStream& stream, TileSet::SingleObject::Shape& shape)
 {
-    if (!readFromStream(stream, object.objectAttribute, object.objectMode)) return false;
-    if (!TileSet::isAttributeValid(object.objectAttribute)) return false;
-
-    switch (object.objectMode)
+    if (!readFromStream(stream, shape.type)) return false;
+    
+    switch (shape.type)
     {
-        case TileSet::SingleObject::ObjectMode::TileMultiple:
-            object.points.resize(1);
-            return readFromStream(stream, object.points[0], object.radius);
-        case TileSet::SingleObject::ObjectMode::Circle:
-            return readFromStream(stream, object.radius);
-        case TileSet::SingleObject::ObjectMode::Segment:
-            object.points.resize(2);
-            return readFromStream(stream, object.points[0], object.points[1], object.radius);
-        case TileSet::SingleObject::ObjectMode::Polygon:
-            return readFromStream(stream, object.points, object.radius);
+        case TileSet::SingleObject::ShapeType::Tile:
+        case TileSet::SingleObject::ShapeType::Circle:
+            return readFromStream(stream, shape.radius);
+        case TileSet::SingleObject::ShapeType::Segment:
+            shape.points.resize(2);
+            return readFromStream(stream, shape.points[0], shape.points[1], shape.radius);
+        case TileSet::SingleObject::ShapeType::Polygon:
+            return readFromStream(stream, shape.points, shape.radius);
         default: return false;
     }
+}
+
+bool readFromStream(sf::InputStream& stream, TileSet::SingleObject& object)
+{
+    if (!readFromStream(stream, object.objectAttribute, object.shapes)) return false;
+    return TileSet::isAttributeValid(object.objectAttribute);
 }
 
 bool readFromStream(sf::InputStream& stream, TileSet& tileSet)

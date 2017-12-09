@@ -75,6 +75,7 @@ public:
 
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;
+    virtual bool notifyScreenTransition(cpVect displacement) override;
 
     void abort() { aborted = true; }
     void unabort() { aborted = false; }

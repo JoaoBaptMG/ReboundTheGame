@@ -34,6 +34,8 @@ public:
         return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
     }
 
+    virtual bool notifyScreenTransition(cpVect displacement);
+
     static constexpr cpCollisionType CollisionType = 'enmy';
     static constexpr cpCollisionType HitCollisionType = 'ehit';
 };

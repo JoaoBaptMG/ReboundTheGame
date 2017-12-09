@@ -8,6 +8,7 @@
 
 #include "objects/GameObject.hpp"
 #include "scene/GameScene.hpp"
+#include "drawables/Tilemap.hpp"
 
 class GameScene;
 class Renderer;
@@ -18,8 +19,9 @@ namespace props
     {
         static void setupCollisionHandlers(cp::Space* space);
 
-        sf::RectangleShape rect;
+        Tilemap tilemap;
         std::shared_ptr<cp::Shape> shape;
+        size_t belongingRoomID;
 
     public:
         PushableCrate(GameScene& scene);
@@ -29,6 +31,8 @@ namespace props
 
         virtual void update(std::chrono::steady_clock::time_point curTime) override;
         virtual void render(Renderer& renderer) override;
+        
+        virtual bool notifyScreenTransition(cpVect displacement) override;
 
         auto getPosition() const { return shape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { shape->getBody()->setPosition(pos); }
@@ -37,6 +41,11 @@ namespace props
         {
             auto vec = getPosition();
             return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
+        }
+
+        auto getPositionKey() const
+        {
+            return std::to_string(belongingRoomID) + "." + getName() + ".position";
         }
 
 #pragma pack(push, 1)

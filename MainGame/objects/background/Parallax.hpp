@@ -15,6 +15,7 @@ namespace background
     class Parallax final : public ::GameObject
     {
         WrapPlane plane;
+        sf::Vector2f internalDisplacement;
         float parallaxFactor;
 
     public:
@@ -24,6 +25,7 @@ namespace background
 
         virtual void update(std::chrono::steady_clock::time_point curTime);
         virtual void render(Renderer& renderer);
+        virtual bool notifyScreenTransition(cpVect displacement);
 
         auto getParallaxFactor() { return parallaxFactor; }
         void setParallaxFactor(float factor) { parallaxFactor = factor; }
