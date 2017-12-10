@@ -55,7 +55,7 @@ constexpr auto SpikeInvincibilityTime = 200 * UpdateFrequency;
 
 constexpr auto ExplosionDuration = 2 * SpikeRespawnTime;
 
-constexpr size_t BaseHealth = 200;
+constexpr size_t BaseHealth = 192;
 constexpr size_t HealthIncr = 8;
 constexpr size_t SpikeDamage = 50;
 
@@ -70,7 +70,8 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	//upgradeToAbilityLevel(10);
+	//upgradeToAbilityLevel(5);
+    //maxHealth += 30 * HealthIncr;
 	setName("player");
 }
 

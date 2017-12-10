@@ -33,10 +33,10 @@ namespace collectibles
         struct ConfigStruct
         {
             sf::Vector2<int16_t> position;
-            int32_t tokenId;
+            uint8_t tokenId;
         };
 
-        static_assert(sizeof(ConfigStruct) == 8*sizeof(char), "Packing failed!");
+        static_assert(sizeof(ConfigStruct) == 5*sizeof(char), "Packing failed!");
 #pragma pack(pop)
 
         bool configure(const ConfigStruct& config);

@@ -12,7 +12,7 @@ class GUI final
 {
     Sprite guiLeft, guiRight;
     GUIMeter playerMeter, dashMeter;
-    std::vector<Sprite> abilitySprites;
+    //std::vector<Sprite> abilitySprites;
     Sprite bombSprites[MaxBombs];
     bool drawDash;
 

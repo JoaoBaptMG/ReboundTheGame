@@ -1,12 +1,12 @@
 #include "GUIMeter.hpp"
 
-constexpr float MeterWidthNormal = 32;
+constexpr float MeterWidthNormal = 36;
 constexpr float MeterBorderNormal = 4;
 
 constexpr float MeterWidthSmall = 14;
 constexpr float MeterBorderSmall = 2;
 
-GUIMeter::GUIMeter(MeterSize size) : size(size)
+GUIMeter::GUIMeter(MeterSize size, bool useCurrentAnimation) : size(size), useCurrentAnimation(useCurrentAnimation)
 {
     float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
 
@@ -44,7 +44,8 @@ void GUIMeter::update(std::chrono::steady_clock::time_point)
 {
     if (current != target)
     {
-        if (current < target) current = target;
+        if (!useCurrentAnimation || current < target)
+            current = target;
         else current--;
 
         updateVertices();
@@ -67,6 +68,13 @@ void GUIMeter::updateVertices()
     setQuadColor(4, backdropColor);
     setQuadColor(8, targetColor);
     setQuadColor(12, fillColor);
+}
+
+float GUIMeter::getFrameHeight() const
+{
+    float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
+    float border = size == MeterSize::Normal ? MeterBorderNormal : MeterBorderSmall;
+    return height + width + 3*border;
 }
 
 void GUIMeter::draw(sf::RenderTarget& target, sf::RenderStates states) const

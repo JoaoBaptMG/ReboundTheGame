@@ -21,8 +21,7 @@ bool readFromStream(sf::InputStream& stream, Parallax::ConfigStruct& config)
 {
     using namespace util;
 
-    return readFromStream(stream, config.dummy, config.textureName,
-        config.parallaxNumerator, config.parallaxDenominator);
+    return readFromStream(stream, config.dummy, config.textureName, config.parallaxFactor);
 }
 
 bool Parallax::configure(const ConfigStruct& config)
@@ -35,7 +34,7 @@ bool Parallax::configure(const ConfigStruct& config)
         return false;
     }
 
-    parallaxFactor = (float)config.parallaxNumerator/(float)config.parallaxDenominator;
+    parallaxFactor = config.parallaxFactor;
     plane.setTexture(texture);
 
     return true;

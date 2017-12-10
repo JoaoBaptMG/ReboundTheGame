@@ -11,6 +11,7 @@ class GUIMeter final : public sf::Drawable
     std::shared_ptr<sf::Texture> icon;
     
     MeterSize size;
+    bool useCurrentAnimation;
     size_t height = 0, current = 0, target = 0;
     sf::Color fillColor, targetColor, backdropColor;
 
@@ -21,7 +22,7 @@ class GUIMeter final : public sf::Drawable
     void setQuadColor(size_t ind, sf::Color color);
 
 public:
-    GUIMeter(MeterSize size);
+    GUIMeter(MeterSize size, bool useCurrentAnimation = true);
     virtual ~GUIMeter() {}
 
     size_t getHeight() const { return height; }
@@ -32,6 +33,8 @@ public:
 
     size_t getTarget() const { return target; }
     void setTarget(size_t t) { target = t; }
+    
+    float getFrameHeight() const;
 
     void setColors(sf::Color fill, sf::Color target, sf::Color backdrop)
     {

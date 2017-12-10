@@ -11,14 +11,13 @@
 GUI::GUI(GameScene& scene) : gameScene(scene),
     guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
     guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), sf::Vector2f(0, 0)),
-    playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small), lastIconName(""), drawDash(false)
+    playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small, false), lastIconName(""), drawDash(false)
 {
     playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
     playerMeter.setPosition(4, 484);
     
     dashMeter.setColors(sf::Color(162, 0, 255, 255), sf::Color::Yellow, sf::Color(80, 80, 80, 255));
-    dashMeter.setPosition(48, 116);
-    dashMeter.setHeight(48);
+    dashMeter.setPosition(52, 484);
     dashMeter.setIcon(scene.getResourceManager().load<sf::Texture>("icon-dash.png"));
     
     for (auto& sprite : bombSprites)
@@ -34,6 +33,7 @@ void GUI::update(std::chrono::steady_clock::time_point curTime)
         playerMeter.setHeight(player->getMaxHealth());
         playerMeter.setTarget(player->getHealth());
         
+        dashMeter.setHeight(player->getMaxHealth() - 62);
         dashMeter.setTarget(dashMeter.getHeight() * player->getDashDisplay());
         
         auto iconName = player->isHardballEnabled() ? "icon-player-hard.png" :
@@ -45,7 +45,7 @@ void GUI::update(std::chrono::steady_clock::time_point curTime)
             lastIconName = iconName;
         }
         
-        auto prevSize = abilitySprites.size();
+        /*auto prevSize = abilitySprites.size();
         abilitySprites.resize(player->abilityLevel);
         if (abilitySprites.size() > prevSize)
         {
@@ -55,7 +55,7 @@ void GUI::update(std::chrono::steady_clock::time_point curTime)
                 abilitySprites[i].setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
                 abilitySprites[i].setTextureRect(sf::FloatRect(4, 4, 40, 40));
             }
-        }
+        }*/
         
         for (size_t i = 0; i < MaxBombs; i++)
         {
@@ -88,7 +88,7 @@ void GUI::render(Renderer& renderer)
     renderer.pushDrawable(guiRight, {}, 1000);
     renderer.popTransform();
     
-    if (!abilitySprites.empty())
+    /*if (!abilitySprites.empty())
     {
         renderer.pushTransform();
         renderer.currentTransform.translate(44, 440);
@@ -100,14 +100,17 @@ void GUI::render(Renderer& renderer)
         }
         
         renderer.popTransform();
-    }
+    }*/
+    
+    renderer.pushTransform();
+    renderer.currentTransform.translate(52, 484 - dashMeter.getFrameHeight() - 22);
     
     for (size_t i = 0; i < MaxBombs; i++)
     {
-        renderer.pushTransform();
-        renderer.currentTransform.translate(48 + 22 * (i%2), 4 + 22 * (i/2));
         renderer.pushDrawable(bombSprites[i], {}, 1100);
-        renderer.popTransform();
+        renderer.currentTransform.translate(0, -22);
     }
+    
+    renderer.popTransform();
 }
  

@@ -34,7 +34,7 @@ namespace background
         {
             sf::Vector2<int16_t> dummy;
             std::string textureName;
-            int32_t parallaxNumerator, parallaxDenominator;
+            float parallaxFactor;
         };
 
         bool configure(const ConfigStruct& config);
