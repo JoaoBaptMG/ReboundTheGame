@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="18" height="66" tilewidth="32" tileheight="32" nextobjectid="13">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="18" height="66" tilewidth="32" tileheight="32" nextobjectid="14">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -93,22 +93,21 @@
 </data>
  </layer>
  <objectgroup name="object-layer">
-  <object id="5" name="background" type="background::Parallax" x="213" y="1066" width="19" height="15">
-   <properties>
-    <property name="0" value="background2.png"/>
-    <property name="1" type="int" value="1"/>
-    <property name="2" type="int" value="4"/>
-   </properties>
-  </object>
   <object id="8" name="powerup9" type="collectibles::Powerup" x="264" y="1704" width="48" height="48">
    <properties>
-    <property name="0" type="int" value="9"/>
+    <property name="level" type="int" value="9"/>
    </properties>
   </object>
   <object id="9" name="dashcrate1" type="props::DashCrate" x="256" y="608" width="96" height="96"/>
   <object id="12" name="golden-token" type="collectibles::GoldenToken" x="472" y="56" width="48" height="48">
    <properties>
-    <property name="0" type="int" value="0"/>
+    <property name="id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="13" name="background" type="background::Parallax" x="295" y="1080" width="2" height="2">
+   <properties>
+    <property name="factor" type="float" value="0.5"/>
+    <property name="name" type="file" value="background2.png"/>
    </properties>
   </object>
  </objectgroup>

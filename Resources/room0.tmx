@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="88" height="45" tilewidth="32" tileheight="32" nextobjectid="10">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="88" height="45" tilewidth="32" tileheight="32" nextobjectid="21">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -75,29 +75,49 @@
   <object id="1" name="player" type="Player" x="64" y="1280" width="64" height="64"/>
   <object id="2" name="powerup2" type="collectibles::Powerup" x="2200" y="712" width="48" height="48">
    <properties>
-    <property name="0" type="int" value="2"/>
+    <property name="level" type="int" value="2"/>
    </properties>
   </object>
   <object id="3" name="powerup4" type="collectibles::Powerup" x="1832" y="936" width="48" height="48">
    <properties>
-    <property name="0" type="int" value="4"/>
+    <property name="level" type="int" value="4"/>
    </properties>
   </object>
   <object id="4" name="powerup5" type="collectibles::Powerup" x="72" y="616" width="48" height="48">
    <properties>
-    <property name="0" type="int" value="5"/>
+    <property name="level" type="int" value="5"/>
    </properties>
   </object>
   <object id="5" name="background" type="background::Parallax" x="247" y="114" width="2" height="2">
    <properties>
-    <property name="0" value="background1.png"/>
-    <property name="1" type="int" value="1"/>
-    <property name="2" type="int" value="2"/>
+    <property name="factor" type="float" value="0.5"/>
+    <property name="name" type="file" value="background1.png"/>
    </properties>
   </object>
  </objectgroup>
  <objectgroup name="warp-layer">
   <object id="6" name="0 -&gt; 1.0" type="right" x="2752" y="704" width="64" height="192"/>
   <object id="7" name="1 -&gt; 2.0" type="left" x="0" y="64" width="64" height="96"/>
+ </objectgroup>
+ <objectgroup name="test-layer">
+  <object id="12" name="rect-example" x="651" y="541" width="142.5" height="97"/>
+  <object id="13" name="oval-example" x="869" y="555" width="128" height="164">
+   <properties>
+    <property name="exam" type="bool" value="false"/>
+    <property name="exam2" type="color" value="#40102030"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="16" name="polygon-example" x="636" y="773">
+   <properties>
+    <property name="ex3" type="file" value="bomb.png"/>
+    <property name="example1" type="int" value="2"/>
+    <property name="example2" type="float" value="3.6"/>
+   </properties>
+   <polygon points="6.5,-7 193,-25 235.182,140.273 155,214 -44,248 -126,174 -121,73 -98,-59"/>
+  </object>
+  <object id="17" name="polyline-example" x="900" y="789">
+   <polyline points="0,0 152,-19 51,83 155,113 124,182 1,175"/>
+  </object>
  </objectgroup>
 </map>

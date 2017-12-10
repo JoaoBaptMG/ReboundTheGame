@@ -57,9 +57,9 @@ constexpr auto TilesHelpStr = "none, terrain-upper-left, terrain-up, terrain-upp
     "terrain-left, terrain-center, terrain-right, terrain-down, terrain-lower-right, "
     "semi-terrain1, semi-terrain2, semi-terrain3, single-object";
 
-const unordered_map<string,size_t> ObjectModes =
+const unordered_map<string,size_t> ShapeTypes =
 {
-    { "tile-multiple", 0 },
+    { "tile", 0 },
     { "circle", 1 },
     { "segment", 2 },
     { "polygon", 3 }
@@ -75,9 +75,16 @@ struct terrain_params
 
 struct single_object_params
 {
-    uint8_t attribute, mode;
-    int16_t radius;
-    vector<int16_t> points;
+    uint8_t attribute;
+    
+    struct shape_params
+    {
+        uint8_t type;
+        int16_t radius;
+        vector<int16_t> points;
+    };
+    
+    vector<shape_params> shapes;
 };
 
 bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_params>& terrains,
@@ -185,64 +192,68 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
             return false;
         }
 
-        auto mode = oelem->Attribute("mode");
-        if (!oelem)
-        {
-            cout << "Error: single object " << name << " must have a mode";
-            cout << " (tile-multiple, circle, segment, polygon)." << endl;
-            return false;
-        }
-
-        auto modeId = ObjectModes.find(mode);
-        if (modeId == ObjectModes.end())
-        {
-            cout << "Error: invalid mode " << mode << " for single object " << name;
-            cout << " (valid attributes: tile-multiple, circle, segment, polygon)." << endl;
-            return false;
-        }
-
         auto& obj = singleObjects[name];
         obj.attribute = (uint8_t)attrId->second;
-        obj.mode = (uint8_t)modeId->second;
 
-        auto radius = oelem->IntAttribute("radius");
-        if (radius < 0 || (modeId->second == 1 && radius == 0))
+        for (auto shape = object.FirstChildElement("shape"); shape.ToElement();
+            shape = shape.NextSiblingElement("shape"))
         {
-            cout << "Error: provide a valid radius for";
-            const char* names[] = { "tile-multiple", "circle", "segment", "polygon" };
-            cout << names[modeId->second];
-            cout << " single object " << name << "." << endl;
-            return false;
-        }
-        obj.radius = radius;
-
-        if (modeId->second == 0)
-        {
-            auto width = oelem->IntAttribute("width", 1);
-            auto height = oelem->IntAttribute("height", 1);
-
-            obj.points.push_back(width);
-            obj.points.push_back(height);
-        }
-        else if (modeId->second != 1)
-        {
-            for (auto point = object.FirstChildElement("point"); point.ToElement();
-                point = point.NextSiblingElement("point"))
+            auto selem = shape.ToElement();
+            
+            auto type = selem->Attribute("type");
+            if (!type)
             {
-                auto x = point.ToElement()->IntAttribute("x");
-                auto y = point.ToElement()->IntAttribute("y");
-                obj.points.push_back(x);
-                obj.points.push_back(y);
-            }
-
-            if (modeId->second == 2 && obj.points.size() != 4)
-            {
-                cout << "Error: provide exactly two points for segment single object " << name << "." << endl;
+                cout << "Error: single object " << name << "'s shape must have a type";
+                cout << " (tile, circle, segment, polygon)." << endl;
                 return false;
             }
-            else if (obj.points.size() == 0)
-                cout << "Warning: polygon single object " << name << " does not have any points." << endl;
+
+            auto typeId = ShapeTypes.find(type);
+            if (typeId == ShapeTypes.end())
+            {
+                cout << "Error: invalid type " << type << " for single object " << name << "'s shape";
+                cout << " (valid attributes: tile, circle, segment, polygon)." << endl;
+                return false;
+            }
+
+            single_object_params::shape_params shp;
+            shp.type = (uint8_t)typeId->second;
+
+            auto radius = oelem->IntAttribute("radius");
+            if (radius < 0 || (typeId->second == 1 && radius == 0))
+            {
+                cout << "Error: provide a valid radius for single object ";
+                const char* names[] = { "tile", "circle", "segment", "polygon" };
+                cout << name << "'s " << names[typeId->second] << " shape." << endl;
+                return false;
+            }
+            shp.radius = radius;
+
+            if (typeId->second > 1)
+            {
+                for (auto point = shape.FirstChildElement("point"); point.ToElement();
+                    point = point.NextSiblingElement("point"))
+                {
+                    auto x = point.ToElement()->IntAttribute("x");
+                    auto y = point.ToElement()->IntAttribute("y");
+                    shp.points.push_back(x);
+                    shp.points.push_back(y);
+                }
+
+                if (typeId->second == 2 && shp.points.size() != 4)
+                {
+                    cout << "Error: provide exactly two points for segment single object " << name << "'s shape." << endl;
+                    return false;
+                }
+                else if (shp.points.size() == 0)
+                    cout << "Warning: single object " << name << "'s polyhgon shape does not have any points." << endl;
+            }
+            
+            obj.shapes.push_back(shp);
         }
+        
+        if (obj.shapes.empty())
+            cout << "Warning: single object " << name << " does not have any shapes." << endl;
     }
 
     return true;
@@ -294,20 +305,24 @@ int tsxToTs(string inFile, string outFile)
         const auto& object = pair.second;
 
         out.write((const char*)&object.attribute, sizeof(uint8_t));
-        out.write((const char*)&object.mode, sizeof(uint8_t));
         
-        switch (object.mode)
+        write_varlength(out, object.shapes.size());
+        for (const auto& shape : object.shapes)
         {
-            case 0: out.write((const char*)object.points.data(), 2*sizeof(int16_t)); break;
-            case 1: break;
-            case 2: out.write((const char*)object.points.data(), 4*sizeof(int16_t)); break;
-            case 3:
-                write_varlength(out, object.points.size()/2);
-                out.write((const char*)object.points.data(), object.points.size()*sizeof(int16_t));
-                break;
-        }
+            out.write((const char*)&shape.type, sizeof(uint8_t));
+            
+            switch (shape.type)
+            {
+                case 0: case 1: break;
+                case 2: out.write((const char*)shape.points.data(), 4*sizeof(int16_t)); break;
+                case 3:
+                    write_varlength(out, shape.points.size()/2);
+                    out.write((const char*)shape.points.data(), shape.points.size()*sizeof(int16_t));
+                    break;
+            }
 
-        out.write((const char*)&object.radius, sizeof(int16_t));
+            out.write((const char*)&shape.radius, sizeof(int16_t));
+        }
     }
 
     uint32_t maxId = 0;

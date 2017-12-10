@@ -5,6 +5,8 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
+#include <unordered_map>
+#include "object-writers-helpers.hpp"
 #include "tinyxml2.h"
 #include "varlength.hpp"
 
@@ -15,6 +17,8 @@
 
 using namespace std;
 using namespace tinyxml2;
+
+extern unordered_map<string,bool(*)(Object,ostream&)> objectWriters;
 
 auto findObjectLayer(XMLHandle map, const char* name)
 {
@@ -109,6 +113,11 @@ int tmxToMap(string inFile, string outFile)
         uint32_t tsize = strlen(typeStr);
         write_varlength(objects, tsize);
         objects.write(typeStr, tsize * sizeof(char));
+        
+        auto nameStr = elm->Attribute("name");
+        uint32_t nsize = strlen(nameStr);
+        write_varlength(objects, nsize);
+        objects.write(nameStr, nsize * sizeof(char));
 
         stringstream curObj(stringstream::binary | stringstream::out);
 
@@ -116,61 +125,17 @@ int tmxToMap(string inFile, string outFile)
         int16_t posY = (int16_t)(elm->FloatAttribute("y") + 0.5f * elm->FloatAttribute("height"));
         curObj.write((const char*)&posX, sizeof(int16_t));
         curObj.write((const char*)&posY, sizeof(int16_t));
-
-        auto props = obj.FirstChildElement("properties");
-        for (auto prop = props.FirstChildElement("property"); prop.ToElement(); prop = prop.NextSiblingElement("property"))
+        
+        auto it = objectWriters.find(typeStr);
+        if (it == objectWriters.end())
         {
-            auto pelm = prop.ToElement();
-
-            const char* str;
-            if (!(str = pelm->Attribute("value")))
-                str = pelm->GetText();
-
-            if (pelm->Attribute("type", "int"))
-            {
-                int32_t val = strtol(str, nullptr, 10);
-                curObj.write((const char*)&val, sizeof(int32_t));
-            }
-            else if (pelm->Attribute("type", "float"))
-            {
-                float val = strtof(str, nullptr);
-                curObj.write((const char*)&val, sizeof(float));
-            }
-            else if (pelm->Attribute("type", "bool"))
-            {
-                bool val = !strcmp(str, "true");
-                curObj.write((const char*)&val, sizeof(bool));
-            }
-            else if (pelm->Attribute("type", "color"))
-            {
-                uint32_t val = strtoul(str+1, nullptr, 16);
-                curObj.write((const char*)&val, sizeof(uint32_t));
-            }
-            else
-            {
-                if (pelm->Attribute("type", "file"))
-                {
-                    auto cstr = strrchr(str, '/');
-                    if (cstr) str = cstr+1;
-                }
-
-                if (!strcasecmp(str, "#width"))
-                {
-                    int16_t width = elm->IntAttribute("width");
-                    curObj.write((const char*)&width, sizeof(int16_t));
-                }
-                else if (!strcasecmp(str, "#height"))
-                {
-                    int16_t height = elm->IntAttribute("height");
-                    curObj.write((const char*)&height, sizeof(int16_t));
-                }
-                else
-                {
-                    uint32_t size = strlen(str);
-                    auto s = write_varlength(curObj, size);
-                    curObj.write(str, size * sizeof(char));
-                }
-            }
+            cout << "Unrecognized object type " << typeStr << " of object " << nameStr << '.' << endl;
+            return false;
+        }
+        if (!it->second(Object(elm), curObj))
+        {
+            cout << "Failed to write object " << nameStr << '.' << endl;
+            return false;
         }
 
         objects << curObj.str();
