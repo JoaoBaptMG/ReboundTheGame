@@ -141,12 +141,12 @@
             <tt>&gt;</tt> (greater than), <tt>&lt;=</tt> (less than or equal) and
             <tt>&gt;=</tt> (greater than or equal). The allowed logic operators are
             <tt>&amp;&amp;</tt> (and), <tt>||</tt> (or) and <tt>!</tt> (not).</p>
-            <p>A type described in the <tt>type</tt> attribute must consist of ASCII characters and hyphens
+            <p>A type described in the <tt>type</tt> attribute must consist of ASCII alphanumeric characters and hyphens
             (<tt>-</tt>). Failure to provide a valid type results in an export error.</p>
             <p>The plural form can be supplied a <tt>category</tt> attribute, which is matched by the <tt>category</tt>
             attribute to supply different plural rules for different contexts. If the <tt>category</tt> attribute isn't
             supplied, it is assumed to take the default value of <tt>default</tt>. A category name must consist of
-            ASCII characters and hyphes (<tt>-</tt>). Failure to provide a category name results in an export
+            ASCII alphanumeric characters and hyphes (<tt>-</tt>). Failure to provide a category name results in an export
             error.</p>
 
             <p>In order to use the plural forms in the context, a <i>pterm</i> is used. It represents a single term that
@@ -227,7 +227,7 @@
             <p>A <i>variant form</i> uses the tag <tt>&lt;variant-forms&gt;</tt> and <tt>&lt;variant-form&gt;</tt>
             to describe this variant category and its types. The <tt>&lt;variant-forms&gt;</tt> tag <i>must</i>
             have a <tt>category</tt> attribute. The category name and the type names must be consisted only by
-            ASCII characters and hyphens (<tt>-</tt>). Failure to provide a correct category or type name
+            ASCII alphanumeric characters and hyphens (<tt>-</tt>). Failure to provide a correct category or type name
             will result in a export error, and the final language descriptor file will not be generated. Example
             for English:</p>
             <pre>&lt;variant-forms category="word-init"&gt;
