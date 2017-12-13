@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Language Descriptor File Description - Rebound</title>
+        <meta charset="utf-8"/>
+    </head>
+    <body>
+        <h1>Language Descriptor File Description - extension <tt>.lnx</tt></h1>
+
+        <h2>Introduction</h2>
+            <p>This document describes the structure of the <i>Language Descriptor</i> file, which will
+            be parsed to an internal binary file format and then used by the software to provide localized
+            strings based on language. This file is intended to be written by people in translation work
+            and read by this exporter tool.</p>
+
+        <h2>Format</h2>
+            <p>This file uses XML in order to achieve the requirement to be both machine-readable and
+            human-writable. For it is a localization file, it is expected to be received in lots of
+            different encodings, so the XML declaration is mandatory:</p>
+            <pre>&lt;?xml version="1.0" encoding="<i>encoding</i>"?&gt;</pre>
+            <p>Differently from other XML descriptors used in the software, this one will fail to export
+            if the declaration is not present. Usually, for languages that use the Latin alphabet, it suffices
+            to use the encoding UTF-8.</p>
+
+        <h3>The Root Element: <tt>&lt;language&gt;</tt></h3>
+            <p>The root element is the tag <tt>&lt;language&gt;</tt>. It encloses the entire file and describes
+            properties important for the first-time auto-detection of the language by the software.</p>
+            <pre>&lt;language name="<i>pt-br</i>" posix-locale="<i>pt_BR</i>" windows-locale="<i>Portuguese_Brazil</i>"&gt;
+&lt;/language&gt;</pre>
+            <ul>
+                <li><tt>name</tt>: an internal name for the language, used for reference. Should be the same name
+                    of the file sans the extension (i.e. this tag is located on a file named <i>pt-br.lnx</i>)</li>
+                <li><tt>posix-locale</tt>: the locale name (up to the first <tt>.</tt>) used on POSIX systems
+                    for auto-detection.</li>
+                <li><tt>windows-locale</tt>: the locale name (up to the first <tt>.</tt>) used on Windows systems
+                    for auto-detection.</li>
+            </ul>
+            <p><i>Note:</i> the default language (in this case, <i>English US</i>) does not need to be tagged
+            with its respective locale names. Instead, there should be an attribute <tt>default</tt>:</p>
+            <pre>&lt;language name="en-us" default="true"&gt;
+&lt;/language&gt;</pre>
+
+        <h2>Strings and Formatters</h2>
+            <p>The main bridge between the software and the language descriptor are the <i>strings</i> and the
+            <i>formatters</i>. They are called by the software to be displayed where text is necessary.</p>
+
+        <h3>Strings: <tt>&lt;string&gt;</tt></h3>
+            <p>A string, described in the file by the tag <tt>&lt;string&gt;</tt>, is a piece of text that is
+            displayed verbatim by the software, either directly or as part of the substitution process given
+            by a formatter. The tag takes this structure:</p>
+            <pre>&lt;string name="<i>newgame-dialog-enabletut</i>"&gt;
+    Do you want to enable tutorial messages for this game?
+&lt;/string&gt;</pre>
+            <ul>
+                <li><tt>name</tt>: the internal name of the string, as it will be called by the software.</li>
+            </ul>
+            <p>Strings can also be categorized using variant categories and types, which will be given more detail
+            on their separate section. Example in English:</p>
+            <pre>&lt;string name="sword" variant="word-init:consonant"&gt;sword&lt;/string&gt;
+&lt;string name="axe" variant="word-init:vowel"&gt;axe&lt;/string&gt;</pre>
+            <p>And in Portuguese Brazilian:</p>
+            <pre>&lt;string name="sword" variant="gender:female"&gt;espada&lt;/string&gt;
+&lt;string name="axe" variant="gender:male"&gt;machado&lt;/string&gt;</pre>
+
+        <h3>Formatters: <tt>&lt;formatter&gt;</tt></h3>
+            <p>A formatter provides a kind of <i>skeleton</i> from which a full localized string is formed, based
+            on raw pieces of text and <i>format specifiers</i>, which can be number, string, pterm, vterm or pvterm
+            specifiers (which are described on their own sections). When the software uses the formatter, it also
+            provides substitution names for its format specifiers as parameters, which are then looked up on the
+            language descriptor. Those specifiers are typed on the formatter as a combination of a symbol and names
+            enclosed in <tt>{}</tt>. Example of a formatter:</p>
+            <pre>&lt;formatter name="item-desc"&gt;
+    Name of item: <i>{$item-name}</i>; count: <i>{#item-count}</i>.
+&lt;/formatter&gt;</pre>
+            <pre>&lt;formatter name="item-desc"&gt;
+    Nome do item: <i>{$item-name}</i>; n&uacute;mero: <i>{#item-count}</i>.
+&lt;/formatter&gt;</pre>
+            <ul>
+                <li><b>String specifiers</b>: specifiers that are substituted by a <i>string</i> extracted from the
+                language descriptor. The software substitutes the specifier for the adequate string for the context.
+                They are described enclosing a dollar (<tt>$</tt>) then the name of the specifier in <tt>{}</tt>.
+                For example, if the language descriptor has this content:<br/>
+                <pre>&lt;string name="sword"&gt;sword&lt;/string&gt;
+&lt;string name="axe"&gt;axe&lt;/string&gt;
+&lt;formatter name="item-desc"&gt;
+    Name of item: {$item-name}.
+&lt;/formatter&gt;</pre>
+                the software can call the formatter <tt>item-desc</tt> with <tt>item-name</tt> substituted for
+                <tt>sword</tt> (and then the composed string is <i>Name of item: sword.</i>) or substituted for
+                <tt>axe</tt> (forming the string <i>Name of item: axe.</i>).</li>
+                <li><b>Number specifiers</b>: specifiers that are substituted by a <i>number</i> provided by the
+                language descriptor. The number replaces verbatim the specifier on the composed string.
+                They are describet enclosing a number sign (<tt>#</tt>) then the name of the specifier in <tt>{}</tt>
+                For example, if the language descriptor has this content:<br/>
+                <pre>&lt;formatter name="item-cdesc"&gt;
+    Number of items: {#item-count}.
+&lt;/formatter&gt;</pre></li>
+                and the software calls the formatter <tt>item-cdesc</tt> with <tt>item-count</tt> substituted for 15,
+                the composed string will be <i>Number of items: 15.</i>.
+                <li><b>Pterm specifiers</b>: specifiers for <i>plural terms</i>, described in their own section.</li>
+                <li><b>Vterm specifiers</b>: specifiers for <i>variant terms</i>, described in their own section.</li>
+                <li><b>Pvterm specifiers</b>: specifiers for <i>plural variant terms</i>, described in their own
+                section.</li>
+            </ul>
+        
+        <h2>Language specific rules: pterms, vterms, pvterms</h2>
+            <p>Those constructions allow the translator to describe rules and terms specific to certain contexts
+            on the destination language. They can be used to inflect articles and pronouns based on context, describe
+            custom plural forms (for example, the three plural forms in Russian) and modify other strings.</p>
+            
+        <h3>Plural forms and plural terms</h3>
+            <p>These are used to pluralize some strings on the formatters, in order to comply to plural rules of the
+            destination language.</p>
+            
+            <p>A <i>plural form</i> uses the tags <tt>&lt;plural-forms&gt;</tt> and <tt>&lt;plural-form&gt;</tt> to
+            describe a certain plural rule. The <tt>&lt;plural-forms&gt;</tt> tag specifies a category and the
+            <tt>&lt;plural-form&gt;</tt> tag specifies a rule and a condition. When a substitution is done, the
+            <tt>&lt;plural-form&gt;</tt> tag's conditions are executed in order, front-to-back, the first form for
+            which the condition is satisfied being the selected form. If no condition is true, a substitution error
+            occurs (printed on screen if debugging) and no term is selected. Example for a plural form in English
+            (and in many languages):</p>
+            <pre>&lt;plural-forms category="<i>default</i>"&gt;
+    &lt;plural-form type="one"&gt;x == 1&lt;/plural-form&gt;
+    &lt;plural-form type="many"/&gt;
+&lt;/plural-forms&gt;</pre>
+            <p>Example for a more complex plural form (i.e. the one in Russian, extracted from
+            <a href="http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html">
+                this site</a>):</p>
+            <pre>&lt;plural-forms&gt;
+    &lt;plural-form type="one"&gt;x % 10 == 1 &amp;&amp; x % 100 != 11&lt;/plural-form&gt;
+    &lt;plural-form type="two"&gt;x % 10 >= 2 &amp;&amp; x % 10 &lt;= 4 &amp;&amp; (x % 100 &lt; 10 || x % 100 &gt;= 20)&lt;/plural-form&gt;
+    &lt;plural-form type="many"/&gt;
+&lt;/plural-forms&gt;</pre>
+            <p>As seen, a condition is formed by the unknown <tt>x</tt>, number literals and arithmetic, logic
+            and relational operators. There is only the integer type, so <i>false</i> and <i>true</i> are
+            represented by 0 and 1, respectively. The allowed arithmetic operators are
+            <tt>+</tt> (addition), <tt>-</tt> (subtraction), <tt>*</tt> (multiplication),
+            <tt>/</tt> (division) and <tt>%</tt> (modulo). The allowed relational operators are
+            <tt>==</tt> (equality), <tt>!=</tt> (unequality), <tt>&lt;</tt> (less than),
+            <tt>&gt;</tt> (greater than), <tt>&lt;=</tt> (less than or equal) and
+            <tt>&gt;=</tt> (greater than or equal). The allowed logic operators are
+            <tt>&amp;&amp;</tt> (and), <tt>||</tt> (or) and <tt>!</tt> (not).</p>
+            <p>A type described in the <tt>type</tt> attribute must consist of alphanumeric characters and hyphens
+            (<tt>-</tt>). Failure to provide a valid type results in an export error.</p>
+            <p>The plural form can be supplied a <tt>category</tt> attribute, which is matched by the <tt>category</tt>
+            attribute to supply different plural rules for different contexts. If the <tt>category</tt> attribute isn't
+            supplied, it is assumed to take the default value of <tt>default</tt>. A category name must consist of
+            alphanumeric characters and hyphes (<tt>-</tt>). Failure to provide a category name results in an export
+            error.</p>
+
+            <p>In order to use the plural forms in the context, a <i>pterm</i> is used. It represents a single term that
+            needs pluralization. The pterm is described by the <tt>&lt;pterm&gt;</tt> tag and <tt>&lt;variant&gt;</tt>
+            tags, which <tt>type</tt> attributes. Example for the previously described plural form in English:</p>
+            <pre>&lt;pterm name="golden-tokens"&gt;
+    &lt;variant type="one"&gt;golden token&lt;/variant&gt;
+    &lt;variant type="many"&gt;golden tokens&lt;/variant&gt;
+&lt;/pterm&gt;</pre>
+            <p>Example for the plural form in Russian:</p>
+            <pre>&lt;pterm name="golden-tokens"&gt;
+    &lt;variant type="one"&gt;золотая монета&lt;/variant&gt;
+    &lt;variant type="two"&gt;золотые монеты&lt;/variant&gt;
+    &lt;variant type="many"&gt;золотых монет&lt;/variant&gt;
+&lt;/pterm&gt;</pre>
+
+            <p>A <i>pterm specifier</i> is supplied to the formatter in order to insert the correct pterm into the
+            final string. It is described with an at sign (<i>@</i>) then the pterm name, a comma (<i>:</i>) and the
+            number specifier name used to select the appropriate pterm variant. Example in English:</p>
+            <pre>&lt;formatter name="golden-token-msg-collectn"&gt;
+    You collected so far {#n} {@golden-token:n}!
+&lt;/formatter&gt;</pre>
+            <p>The software can call the formatter with <tt>n</tt> substituted for 1 to compose the final string
+            <i>You collected so far 1 golden token!</i>. However, if <tt>n</tt> is substituted for 4, the composed
+            string becomes <i>You collected so far 4 golden tokens!</i>.</p>
+            <p>The same logic is applied on the more complex plural form for Russian:</p>
+            <pre>&lt;formatter name="golden-token-msg-collectn"&gt;
+    Вы собрали до сих пор {#n} {@golden-token:n}!
+&lt;/formatter&gt;</pre>
+            <p>The correct plural form will be selected for the pterm <tt>golden-token</tt> based on the
+            number substituted on the number specifier <tt>n</tt>.</p>
+
+            <p>Finally, both plural forms and pterms can be supplied a <tt>category</tt>, so there can be different
+            rules for different contexts. It can be used, for example, in Chinese if the traditional Chinese numerals
+            are to be used on some contexts. In this case, a plural form with custom category can be included:</p>
+            <pre>&lt;plural-forms category="traditional-numerals"&gt;
+    &lt;plural-form type="1"&gt;x == 1&lt;/plural-form&gt;
+    &lt;plural-form type="2"&gt;x == 2&lt;/plural-form&gt;
+    &lt;plural-form type="3"&gt;x == 3&lt;/plural-form&gt;
+    &lt;plural-form type="4"&gt;x == 4&lt;/plural-form&gt;
+    &lt;plural-form type="5"&gt;x == 5&lt;/plural-form&gt;
+    &lt;plural-form type="6"&gt;x == 6&lt;/plural-form&gt;
+    &lt;plural-form type="7"&gt;x == 7&lt;/plural-form&gt;
+    &lt;plural-form type="8"&gt;x == 8&lt;/plural-form&gt;
+    &lt;plural-form type="9"&gt;x == 9&lt;/plural-form&gt;
+    &lt;plural-form type="10"&gt;x == 10&lt;/plural-form&gt;
+&lt;/plural-forms&gt;</pre>
+            <p>And a pterm loaded with the traditional Chinese numerals is also provided:</p>
+            <pre>&lt;pterm name="numeral" category="traditional-numerals"&gt;
+    &lt;variant type="1"&gt;一&lt;/variant&gt;
+    &lt;variant type="2"&gt;二&lt;/variant&gt;
+    &lt;variant type="3"&gt;三&lt;/variant&gt;
+    &lt;variant type="4"&gt;四&lt;/variant&gt;
+    &lt;variant type="5"&gt;五&lt;/variant&gt;
+    &lt;variant type="6"&gt;六&lt;/variant&gt;
+    &lt;variant type="7"&gt;七&lt;/variant&gt;
+    &lt;variant type="8"&gt;八&lt;/variant&gt;
+    &lt;variant type="9"&gt;九&lt;/variant&gt;
+    &lt;variant type="10"&gt;十&lt;/variant&gt;
+&lt;/pterm&gt;</pre>
+            <p>Doing that, when descriptors for other languages which use Arabic numerals define a formatter
+            like this:</p>
+            <pre>&lt;formatter name="level-descriptor"&gt;
+    Level {#cur-level}
+&lt;/formatter&gt;</pre>
+            <p>The Chinese language descriptor can use the traditional numerals like this:</p>
+            <pre>&lt;formatter name="level-descriptor"&gt;
+    层次{@numeral:cur-level}
+&lt;/formatter&gt;</pre>
+
+        <h3>Variant forms and variant terms</h3>
+            <p>These provide more general forms to select terms based on the context, normally by categorizing strings
+            themselves, and using those strings' categories to modify terms present on the formatters. They can used,
+            for example, to inflect articles based on the initial letter of the noun in English, or based on its
+            gender on Latin languages, or even put a verb in honorific or humble form in Japanese based on the string
+            used by someone's name (non-issue on this game).</p>
+            
+            <p>A <i>variant form</i> uses the tag <tt>&lt;variant-forms&gt;</tt> and <tt>&lt;variant-form&gt;</tt>
+            to describe this variant category and its types. The <tt>&lt;variant-forms&gt;</tt> tag <i>must</i>
+            have a <tt>category</tt> attribute. The category name and the type names must be consisted only by
+            alphanumeric characters and hyphens (<tt>-</tt>). Failure to provide a correct category or type name
+            will result in a export error, and the final language descriptor file will not be generated. Example
+            for English:</p>
+            <pre>&lt;variant-forms category="word-init"&gt;
+    &lt;variant-form type="consonant"/&gt;
+    &lt;variant-form type="vowel"/&gt;
+&lt;/variant-forms&gt;</pre>
+            <p>For a Latin language (example, Portuguese) there would be a variant category for gender:</p>
+            <pre>&lt;variant-forms category="gender"&gt;
+    &lt;variant-form type="female"/&gt;
+    &lt;variant-form type="male"/&gt;
+&lt;/variant-forms&gt;</pre>
+
+            <p>In order for those variant forms to function, the strings can be categorized using the categories
+            specified by the variant forms, using the <tt>variant</tt> attribute. A single categorization consists
+            of the name of the variant category, a comma (<tt>:</tt>) and the name of the corresponding type.
+            Examples:</p>
+            <pre>&lt;string name="sword" variant="word-init:consonant"&gt;sword&lt;/string&gt;
+&lt;string name="axe" variant="word-init:vowel"&gt;axe&lt;/string&gt;
+&lt;string name="sword" variant="gender:female"&gt;espada&lt;/string&gt;
+&lt;string name="axe" variant="gender:male"&gt;machado&lt;/string&gt;</pre>
+            <p>A single string can have multiple categorizations, useful, for example, in Spanish:</p>
+            <pre>&lt;string name="axe" variant="word-init:consonant gender:male"&gt;machado&lt;/string&gt;</pre>
+
+            <p>A <i>vterm</i> is used in order to modify the formatted string based on context. It is described by a
+            <tt>&lt;vterm&gt;</tt> and several <tt>&lt;variant&gt;</tt> tags representing the different terms used
+            by different types of the variant form. Like the <tt>&lt;variant-forms&gt;</tt> tag, the
+            <tt>&lt;vterm&gt;</tt> tag <i>must</i> have a <tt>category</tt> attribute with the correct format.
+            Example for English:</p>
+            <pre>&lt;vterm name="article" category="word-init"&gt;
+    &lt;variant type="consonant"&gt;a&lt;/variant&gt;
+    &lt;variant type="vowel"&gt;an&lt;/variant&gt;
+&lt;/vterm&gt;</pre>
+            <p>Example for Portuguese Brazilian:</p>
+            <pre>&lt;vterm name="article" category="gender"&gt;
+    &lt;variant type="female"&gt;uma&lt;/variant&gt;
+    &lt;variant type="male"&gt;um&lt;/variant&gt;
+&lt;/vterm&gt;</pre>
+            <p>A vterm can also require multiple categories, which can be separated by spaces in the <tt>category</tt>
+            attribute. In this case, the <tt>&lt;variant&gt;</tt> must provide the types corresponding to <i>all</i>
+            categories <i>in order</i>, and there must be variants for <i>all</i> type combinations for the category
+            (beware: the number of required variants here can easily explode!). (My apologies, I have failed to provide
+            an example here.)</p>
+            
+            <p>Finally, to use a vterm on a formatter, a <i>vterm specifier</i> is used on it. The vterm specifier
+            is described enclosing in <tt>{}</tt> a percent sign (<tt>%</tt>) then the name of the vterm, a comma
+            (<tt>:</tt>) and the name of the string which category will be used to select the vterm. If the string
+            does not specify the required category(ies) for the vterm, a substitution error occurs and no variant
+            is selected. Here is an example in English:</p>
+            <pre>&lt;formatter name="item-found"&gt;
+    You just found {%article:item-name} {item-name}!
+&lt;/formatter&gt;</pre>
+            <p>If the software calls that formatter substituting <tt>item-name</tt> for <tt>sword</tt>, for example, the
+            composed string is <i>You just found a sword!</i>; if, however, the string specifier is substituted for
+            <tt>axe</tt>, the string becomes <i>You just found an axe!</i>. Note that no category specification is
+            described on the vterm specifier; it is cross-referenced from the string provided on the specifier and the
+            vterm used.</p>
+            <p>The same example repeated in Portuguese Brazilian:</p>
+            <pre>&lt;formatter name="item-found"&gt;
+    Voc&ecirc; encontrou {%article:item-name} {item-name}!
+&lt;/formatter&gt;</pre>
+            <p>If the software substitutes <tt>item-name</tt> for <tt>sword</tt>, the string composed becomes
+            <i>Voc&eacute; encontrou uma espada!</i>; meanwhile if <tt>item-name</tt> is substituted for <tt>axe</tt>,
+            the composed string is <i>Voc&eacute; encontrou um machado!</i>.</p>
+            
+        <h3>Plural variant terms</h3>
+            <p>A <i>pvterm</i> works both as a pterm and as a vterm. It must specify a variant category or categories,
+            here specified by the attribute <tt>vcategory</tt>, and it can also specify a plural category in the
+            attribute <tt>pcategory</tt>. In the <tt>variant</tt> tags, the plural type must be specified <i>first</i>
+            in the <tt>type</tt> attribute. Here is an example in Portuguese:</p>
+            <pre>&lt;pvterm name="gen-article" vcategory="gender"&gt;
+    &lt;variant type="one female"&gt;uma&lt;/variant&gt;
+    &lt;variant type="one male"&gt;um&lt;/variant&gt;
+    &lt;variant type="many female"&gt;umas&lt;/variant&gt;
+    &lt;variant type="many male"&gt;uns&lt;/variant&gt;
+&lt;/pvterm&gt;</pre>
+
+            <p>A <i>pvterm specifier</i> can be used in a formatter to insert the pvterm. The specifier is described by
+            an at and a percent sign in any order (<tt>@%</tt> or <tt>%@</tt>), followed by the name of the pvterm, a
+            comma (<tt>:</tt>) and then the referred number specifier and string specifier separated by a comma
+            (<tt>:</tt>), everything enclosed by <tt>{}</tt>. Those last two must follow the same order of the signs
+            in the beginning (if <tt>@%</tt> is used, first the number, then the string, and vice versa for <tt>%@</tt>).
+            An example:</p>
+            <pre>&lt;formatter name="random-msg"&gt;
+    Encontrei {@%gen-article:n:item-term} {item-term} por a&iacute;...
+&lt;/formatter&gt;</pre>
+
+        <h2>Non-Latin and non-Cyrillic writings</h2>
+            <p>The font used by the software is the Roboto-Mono font, which includes characters for Latin and Cyrillic
+            writings. However, it is unknown to the author if other character sets (e.g. Chinese) are provided for the
+            same font. If necessary, the translator can include another font by specifying a <tt>font-name</tt>
+            attribute in the <tt>language</tt> root tag, supplying a path (relative to the language descriptor file's
+            location) to the font. Ideally, the font file should be on the same directory of the language descriptor
+            file):</p>
+        <pre>&lt;language name="ja" posix-locale="ja_JP" windows-locale="Japanese_Japan" font-name="umeplus-gothic.ttf"&gt;
+&lt;/language&gt;</pre>
+
+    <p>This work is under the Creative Commons
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">
+            Attribution-ShareAlike 4.0 International</a>
+    License. Copyright &copy; 2017 João Baptista de Paula e Silva. All rights reserved.</p>
+
+    </body>
+</html>

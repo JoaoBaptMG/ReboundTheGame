@@ -2,6 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <utility>
+#include <locale>
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
@@ -34,9 +35,12 @@ static std::string LastIcon = ""; // TODO: remove this hack
 
 int main(int argc, char **argv)
 {
+    std::locale::global(std::locale(""));
+    
     bool success;
     auto settings = loadSettingsFile(&success);
     if (!success) std::cout << "WARNING! Settings file not loaded properly!" << std::endl;
+    std::cout << "Current locale: " << std::locale().name() << std::endl;
     
     sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game",
         settings.videoSettings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
