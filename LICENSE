@@ -1,4 +1,4 @@
-This license covers all code on this repository, except for what's on the folder CppMunk, which is extracted from a public domain repository.
+This license covers all code on this repository, except for what's on the folder CppMunk, which is extracted from a public domain repository, and the files under CMakeModules, which came from various sources.
 
 Copyright 2016-2017 João Baptista de Paula e Silva
 
