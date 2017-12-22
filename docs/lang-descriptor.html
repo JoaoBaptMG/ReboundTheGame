@@ -128,8 +128,8 @@
             <a href="http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html">
                 this site</a>):</p>
             <pre>&lt;plural-forms&gt;
-    &lt;plural-form type="one"&gt;x % 10 == 1 &amp;&amp; x % 100 != 11&lt;/plural-form&gt;
-    &lt;plural-form type="two"&gt;x % 10 >= 2 &amp;&amp; x % 10 &lt;= 4 &amp;&amp; (x % 100 &lt; 10 || x % 100 &gt;= 20)&lt;/plural-form&gt;
+    &lt;plural-form type="one"&gt;&lt;![CDATA[x % 10 == 1 &amp;&amp; x % 100 != 11]]&gt;&lt;/plural-form&gt;
+    &lt;plural-form type="two"&gt;&lt;![CDATA[x % 10 >= 2 &amp;&amp; x % 10 &lt;= 4 &amp;&amp; (x % 100 &lt; 10 || x % 100 &gt;= 20)]]&gt;&lt;/plural-form&gt;
     &lt;plural-form type="many"/&gt;
 &lt;/plural-forms&gt;</pre>
             <p>As seen, a condition is formed by the unknown <tt>x</tt>, number literals and arithmetic, logic
@@ -140,7 +140,9 @@
             <tt>==</tt> (equality), <tt>!=</tt> (unequality), <tt>&lt;</tt> (less than),
             <tt>&gt;</tt> (greater than), <tt>&lt;=</tt> (less than or equal) and
             <tt>&gt;=</tt> (greater than or equal). The allowed logic operators are
-            <tt>&amp;&amp;</tt> (and), <tt>||</tt> (or) and <tt>!</tt> (not).</p>
+            <tt>&amp;&amp;</tt> (and), <tt>||</tt> (or) and <tt>!</tt> (not). It is required to wrap the formulas
+            in <tt>&lt;![CDATA[ ]]&gt;</tt> if they contain characters that might be interpreted as part of
+            XML tags (such as <tt>&lt;</tt>, <tt>&gt;</tt> and <tt>&amp;</tt>).</p>
             <p>A type described in the <tt>type</tt> attribute must consist of ASCII alphanumeric characters and hyphens
             (<tt>-</tt>). Failure to provide a valid type results in an export error.</p>
             <p>The plural form can be supplied a <tt>category</tt> attribute, which is matched by the <tt>category</tt>
