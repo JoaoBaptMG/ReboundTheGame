@@ -1,0 +1,96 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <cmath>
+#include <SFML/System.hpp>
+
+#include "LangID.hpp"
+#include "data/ExpressionCommands.hpp"
+
+struct LangString final
+{
+    std::string string;
+    std::unordered_map<size_t,size_t> vcategoryAssociations;
+    
+    std::vector<size_t> typesForVariantCategories(const std::vector<size_t>& categories) const;
+};
+
+struct Formatter final
+{
+    struct Specifier
+    {
+        size_t byteLocation;
+        enum class Type : uint8_t { String, Number, Pterm, Vterm, Pvterm } type;
+        LangID specifier1, specifier2;
+        size_t term;
+    };
+    
+    std::string modelString;
+    std::vector<Specifier> specifiers;
+};
+
+struct PluralForm final
+{
+    std::vector<ExpressionCommands> pluralUnits;
+    size_t pick(size_t x) const;
+};
+
+struct Pterm final
+{
+    size_t category;
+    std::vector<std::string> variants;
+};
+
+struct Vterm final
+{
+    struct Variant
+    {
+        std::vector<size_t> types;
+        std::string string;
+    };
+    
+    std::vector<size_t> categories;
+    std::vector<Variant> variants;
+};
+
+struct Pvterm final
+{
+    struct Variant
+    {
+        size_t ptype;
+        std::vector<size_t> vtypes;
+        std::string string;
+    };
+    
+    size_t pcategory;
+    std::vector<size_t> vcategories;
+    std::vector<Variant> variants;
+};
+
+struct LanguageDescriptor final
+{
+    std::string name, posixLocale, windowsLocale, fontName;
+    float fontSizeFactorRTL;
+    
+    std::unordered_map<LangID,LangString> strings;
+    std::unordered_map<LangID,Formatter> formatters;
+    
+    std::vector<PluralForm> pluralForms;
+    std::vector<Pterm> pterms;
+    std::vector<Vterm> vterms;
+    std::vector<Pvterm> pvterms;
+    
+    float getFontSizeFactor() const { return fabsf(fontSizeFactorRTL); }
+    bool isRTL() const { return fontSizeFactorRTL < 0; }
+};
+
+bool readFromStream(sf::InputStream& stream, LangString& string);
+bool readFromStream(sf::InputStream& stream, Formatter& formatter);
+bool readFromStream(sf::InputStream& stream, PluralForm& pluralForm);
+bool readPterms(sf::InputStream& stream, std::vector<Pterm>& pterms, const std::vector<PluralForm>& pluralForms);
+bool readFromStream(sf::InputStream& stream, Vterm& vterm);
+bool readFromStream(sf::InputStream& stream, Pvterm& pvterm);
+bool readFromStream(sf::InputStream& stream, LanguageDescriptor& descriptor);

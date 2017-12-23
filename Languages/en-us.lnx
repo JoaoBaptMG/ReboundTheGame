@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language name="en-us">
+    
+    <!--
+    
+        Language descriptor
+        This file contains ALL strings and visible text on the game, so everything can be localized.
+        Each string will have some description and context on it, so translation work can be made
+        easier. Nevertheless, if questions are to be asked, place them on the Google Sheet created
+        exactly for this purpose: <link here>
+    
+        This file follows a strict format described here:
+        > https://joaobaptmg.github.io/ReboundTheGame/lang-descriptor.html
+    -->
+    
+    <!-- Some metadata -->
+    <!-- The name of the language in English -->
+    <string name="metadata-english-name">English (USA)</string>
+    <!-- The name of the language in itself -->
+    <string name="metadata-native-name">English (USA)</string>
+    <!-- Author of the language descriptor file -->
+    <string name="metadata-author">João Baptista de Paula e Silva "JoaoBaptMG"</string>
+    
+    <!-- Define the plural forms here. Refer to the description for more information. -->
+    <plural-forms>
+        <plural-form type="one">x == 1</plural-form>
+        <plural-form type="many"/>
+    </plural-forms>
+    
+    <!-- In-game GUI box: presentation of the label "level" and the level number (so traditional numerals
+        can be used ;) ). If the word for "level" is too big to fit (e.g. "Livello" in Italian), you can
+        either abbreviate it or reduce the font size. -->
+        
+    <!-- Font size of the "level" label. Default: 24 -->
+    <string name="ingame-gui-level-label-size">24</string>
+    <!-- Text on the "level" label. Default: "LEVEL" -->
+    <string name="ingame-gui-level-label">LEVEL</string>
+    
+    <!-- Font size of the level nuber. Default: 24 -->
+    <string name="ingame-gui-level-number-size">56</string>
+    <!-- Text on the "level" label. Default: "{#n}".
+        To use traditional characters, use a pterm with a special category (the document explains how to do it!) -->
+    <formatter name="ingame-gui-level-number">{#n}</formatter>
+    
+</language>

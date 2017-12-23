@@ -43,11 +43,11 @@ bool readFromStream(sf::InputStream& stream, TileSet& tileSet)
     if (!readFromStream(stream, tileSet.textureName, tileSet.terrains, tileSet.singleObjects)) return false;
 
     size_t size;
-    if (!readFromStream(stream, VarLength(size))) return false;
+    if (!readFromStream(stream, varLength(size))) return false;
     tileSet.tileIdentities.resize(size);
 
     for (auto& id : tileSet.tileIdentities)
-        if (!readFromStream(stream, id.type, VarLength(id.id))) return false;
+        if (!readFromStream(stream, id.type, varLength(id.id))) return false;
     
     return true;
 }

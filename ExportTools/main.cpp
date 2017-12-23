@@ -2,6 +2,8 @@
 #include <string>
 #include <map>
 
+#include "expression-tree-compiler.hpp"
+
 using Tool = int(*)(std::string,std::string);
 struct Descriptor
 {
@@ -13,6 +15,7 @@ int tmxToMap(std::string, std::string);
 int lvxToLvl(std::string, std::string);
 int tsxToTs(std::string, std::string);
 int pexToPe(std::string, std::string);
+int exportLanguage(std::string, std::string);
 
 const std::map<std::string,Descriptor> toolList =
 {
@@ -20,6 +23,7 @@ const std::map<std::string,Descriptor> toolList =
     { "lvxToLvl", { lvxToLvl, "converts a XML document describing a level into a form accessible by the engine" } },
     { "tsxToTs", { tsxToTs, "converts a XML document describing a tileset into a form accessible by the engine" } },
     { "pexToPe", { pexToPe, "converts a XML document describing a particle emitter into a form accessible by the engine" } },
+    { "exportLanguage", { exportLanguage, "converts a language descriptor file into a binary form" } },
 };
 
 void printAllTools()
@@ -42,6 +46,27 @@ int main(int argc, char **argv)
     {
         printAllTools();
         return 0;
+    }
+    
+    if (std::string(argv[1]) == "lextest")
+    {
+        while (true)
+        {
+            std::cout << "Write your string: ";
+            
+            std::string str;
+            std::getline(std::cin, str);
+            
+            try
+            {
+                printTree(*compileExpression(str));
+                std::cout << std::endl;
+            }
+            catch (std::runtime_error err)
+            {
+                std::cout << "Error: " << err.what() << std::endl;
+            }
+        }
     }
 
     auto it = toolList.find(argv[1]);

@@ -10,6 +10,8 @@
 #include "data/TileSet.hpp"
 #include "particles/ParticleEmitter.hpp"
 
+#include "FontHandler.hpp"
+
 using namespace util;
 using namespace ResourceLoader;
 
@@ -42,7 +44,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "pe",  loadParticleEmitterList },
     { "map", loadGenericResource<RoomData> },
     { "png", loadSFMLResource<sf::Texture> },
-    { "ttf", loadSFMLResource<sf::Font> }
+    { "ttf", loadFontHandler }
 };
 
 generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)

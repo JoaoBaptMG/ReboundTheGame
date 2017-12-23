@@ -32,16 +32,9 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
         for (size_t j = 0; j < height; j++)
             for (size_t i = 0; i < width; i++)
             {
-                vertices[(j*width+i)*4+0].color = sf::Color::White;
                 vertices[(j*width+i)*4+0].position = sf::Vector2f((float)i*tileSize, (float)j*tileSize);
-
-                vertices[(j*width+i)*4+1].color = sf::Color::White;
                 vertices[(j*width+i)*4+1].position = sf::Vector2f((float)(i+1)*tileSize, (float)j*tileSize);
-
-                vertices[(j*width+i)*4+2].color = sf::Color::White;
                 vertices[(j*width+i)*4+2].position = sf::Vector2f((float)(i+1)*tileSize, (float)(j+1)*tileSize);
-
-                vertices[(j*width+i)*4+3].color = sf::Color::White;
                 vertices[(j*width+i)*4+3].position = sf::Vector2f((float)i*tileSize, (float)(j+1)*tileSize);
             }
     }
@@ -59,6 +52,9 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
 
                 if (cur.x < 0 || cur.y < 0 || cur.x >= (int)tileData.width() || cur.y >= (int)tileData.height())
                 {
+                    for (size_t k = 0; k < 4; k++)
+                        vertices[(j*width+i)*4+k].color = sf::Color(0, 0, 0, 0);
+                    
                     vertices[(j*width+i)*4+0].texCoords = sf::Vector2f(0, 0);
                     vertices[(j*width+i)*4+1].texCoords = sf::Vector2f(0, 0);
                     vertices[(j*width+i)*4+2].texCoords = sf::Vector2f(0, 0);
@@ -69,6 +65,9 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
                     size_t data = tileData(cur.x, cur.y);
                     size_t texS = data % stride;
                     size_t texT = data / stride;
+
+                    for (size_t k = 0; k < 4; k++)
+                        vertices[(j*width+i)*4+k].color = sf::Color::White;
 
                     vertices[(j*width+i)*4+0].texCoords = (float)tileSize * sf::Vector2f(texS, texT);
                     vertices[(j*width+i)*4+1].texCoords = (float)tileSize * sf::Vector2f(texS+1, texT);

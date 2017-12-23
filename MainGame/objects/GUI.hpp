@@ -2,6 +2,7 @@
 
 #include "drawables/Sprite.hpp"
 #include "drawables/GUIMeter.hpp"
+#include "drawables/TextDrawable.hpp"
 #include "objects/Player.hpp"
 #include <chronoUtils.hpp>
 
@@ -14,10 +15,14 @@ class GUI final
     GUIMeter playerMeter, dashMeter;
     //std::vector<Sprite> abilitySprites;
     Sprite bombSprites[MaxBombs];
+    TextDrawable levelLabel, levelID;
+    float labelY, idY;
     bool drawDash;
 
     std::string lastIconName;
     GameScene& gameScene;
+    
+    void configureText();
     
 public:
     GUI(GameScene& scene);

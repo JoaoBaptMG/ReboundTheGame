@@ -198,7 +198,23 @@ void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_
 
         attributes[i] = segment.isSemiTerrain ? TileSet::getSemiTerrainAttribute(segment.terrain) :
             tileSet.terrains[segment.terrain].terrainAttribute;
-        auto shape = std::make_shared<cp::SegmentShape>(body, endPoint1, endPoint2, cornerRadius);
+            
+        std::shared_ptr<cp::Shape> shape;
+        
+        /*if (cornerRadius < DefaultTileSize/4)
+        {
+            cpVect endPoint3, endPoint4;
+            endPoint3.*pi = endPoint2.*pi;
+            endPoint4.*pi = endPoint1.*pi;
+            
+            endPoint3.*pj = endPoint4.*pj = endPoint1.*pj;
+            
+            std::vector<cpVect> pts { endPoint1, endPoint2, endPoint3, endPoint4 };
+                
+            shape = std::make_shared<cp::PolyShape>(body, pts, cornerRadius);
+        }
+        else*/ shape = std::make_shared<cp::SegmentShape>(body, endPoint1, endPoint2, cornerRadius);
+        
         shape->setUserData(attributes+i);
         shapes.push_back(shape);
         i++;

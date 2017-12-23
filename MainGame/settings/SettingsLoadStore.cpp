@@ -45,7 +45,7 @@ Settings loadSettingsFile(bool *success)
     if (!checkMagic(file, "SETTINGS")) return defaultSettings();
 
     size_t fileVersion;
-    if (!readFromStream(file, VarLength(fileVersion)))
+    if (!readFromStream(file, varLength(fileVersion)))
         return defaultSettings();
     if (fileVersion != SettingsVersion)
         return defaultSettings();
@@ -65,6 +65,6 @@ bool storeSettingsFile(const Settings& settings)
 
     size_t fileVersion = SettingsVersion;
     if (!file.open(fullname)) return false;
-    return writeMagic(file, "SETTINGS") && writeToStream(file, VarLength(fileVersion),
+    return writeMagic(file, "SETTINGS") && writeToStream(file, varLength(fileVersion),
         settings.inputSettings, settings.videoSettings, settings.audioSettings);
 }

@@ -43,11 +43,9 @@ bool writeToStream(OutputStream &stream, const std::basic_string<T> &value);
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
 bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 {
-    size_t size = value.size();
-
-    if (!writeToStream(stream, VarLength(size)))
+    if (!writeToStream(stream, varLength(value.size())))
         return false;
-    if (!stream.write(value.data(), size*sizeof(T)))
+    if (!stream.write(value.data(), value.size()*sizeof(T)))
         return false;
     
     return true;
@@ -56,9 +54,7 @@ bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
 bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 {
-    size_t size = value.size();
-
-    if (!writeToStream(stream, VarLength(size)))
+    if (!writeToStream(stream, varLength(value.size())))
         return false;
 
     for (const auto &val : value)
@@ -82,12 +78,10 @@ bool writeToStream(OutputStream &stream, const std::basic_string<T> &value)
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
 bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 {
-    size_t width = value.width(), height = value.height();
-
-    if (!(writeToStream(stream, VarLength(width)) && writeToStream(stream, VarLength(height))))
+    if (!(writeToStream(stream, varLength(value.width())) && writeToStream(stream, varLength(value.height()))))
         return false;
 
-    auto size = width*height;
+    auto size = value.width()*value.height();
     if (!stream.write(value.data(), size*sizeof(T)))
         return false;
 
@@ -97,9 +91,7 @@ bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
 bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 {
-    size_t width = value.width(), height = value.height();
-
-    if (!(writeToStream(stream, VarLength(width)) && writeToStream(stream, VarLength(height))))
+    if (!(writeToStream(stream, varLength(value.width())) && writeToStream(stream, varLength(value.height()))))
         return false;
 
     for (const auto &val : value)
@@ -111,8 +103,7 @@ bool writeToStream(OutputStream &stream, const util::grid<T> &value)
 template <typename T, typename U>
 bool writeToStream(OutputStream &stream, const std::unordered_map<T,U> &value)
 {
-    size_t size = value.size();
-    if (!writeToStream(stream, VarLength(size)))
+    if (!writeToStream(stream, varLength(value.size())))
         return false;
 
     for (const auto& pair : value)

@@ -38,7 +38,7 @@ bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
 {
     size_t size;
 
-    if (!readFromStream(stream, VarLength(size)))
+    if (!readFromStream(stream, varLength(size)))
         return false;
 
     std::vector<T> newVal(size, T());
@@ -54,7 +54,7 @@ bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
 {
     size_t size;
 
-    if (!readFromStream(stream, VarLength(size)))
+    if (!readFromStream(stream, varLength(size)))
         return false;
 
     std::vector<T> newVal(size, T());
@@ -82,7 +82,7 @@ bool readFromStream(sf::InputStream &stream, util::grid<T> &value)
 {
     size_t width, height;
 
-    if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))
+    if (!(readFromStream(stream, varLength(width)) && readFromStream(stream, varLength(height))))
         return false;
 
     util::grid<T> newVal(width, height);
@@ -100,7 +100,7 @@ bool readFromStream(sf::InputStream &stream, util::grid<T> &value)
 {
     size_t width, height;
 
-    if (!(readFromStream(stream, VarLength(width)) && readFromStream(stream, VarLength(height))))
+    if (!(readFromStream(stream, varLength(width)) && readFromStream(stream, varLength(height))))
         return false;
 
     util::grid<T> newVal(width, height);
@@ -118,7 +118,7 @@ bool readFromStream(sf::InputStream &stream, std::unordered_map<T,U> &value)
     std::unordered_map<T,U> newVal;
 
     size_t size;
-    if (!readFromStream(stream, VarLength(size)))
+    if (!readFromStream(stream, varLength(size)))
         return false;
 
     for (size_t i = 0; i < size; i++)

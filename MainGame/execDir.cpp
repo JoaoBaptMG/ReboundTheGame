@@ -45,6 +45,7 @@ extern "C"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
 }
 
 std::string getExecutableDirectory()
@@ -72,5 +73,30 @@ std::string getExecutableDirectory()
     }
 
     return dir;
+}
+
+std::vector<std::string> getAllFilesInDir(std::string dir)
+{
+    DIR* cur = opendir(dir.data());
+    if (!cur) return std::vector<std::string>{};
+    
+    struct dirent* curEnt;
+    std::vector<std::string> list;
+    
+    while ((curEnt = readdir(cur)))
+    {
+        std::string name(curEnt->d_name);
+        
+        auto pos = name.find_last_of("\\/");
+        if (pos == std::string::npos)
+            pos = decltype(pos)(0);
+        else pos++;
+        
+        list.emplace_back(name.substr(pos));
+    }
+        
+    closedir(cur);
+    
+    return list;
 }
 #endif

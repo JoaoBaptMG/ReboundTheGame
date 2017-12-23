@@ -18,7 +18,7 @@ static auto nameForType(Object::Type type)
     switch (type)
     {
         case Object::Type::Rectangle: return "rectangle";
-        case Object::Type::Ellipse: return "nellipse";
+        case Object::Type::Ellipse: return "ellipse";
         case Object::Type::Polygon: return "polygon";
         case Object::Type::Polyline: return "polyline";
     }

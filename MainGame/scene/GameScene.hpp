@@ -22,6 +22,7 @@
 class Player;
 class Renderer;
 class ResourceManager;
+class LocalizationManager;
 
 struct RoomData;
 
@@ -42,6 +43,8 @@ class GameScene : public Scene
     size_t curRoomID, requestedID;
     bool objectsLoaded;
 
+    LocalizationManager &localizationManager;
+
     const PlayerController* playerController;
     sf::Vector2f offsetPos;
 
@@ -51,7 +54,7 @@ class GameScene : public Scene
     sf::Vector2f transitionTargetBegin, transitionTargetEnd;
 
 public:
-    GameScene(ResourceManager& manager);
+    GameScene(ResourceManager& rm, LocalizationManager &lm);
     virtual ~GameScene() {}
 
     cp::Space& getGameSpace() { return gameSpace; }
@@ -62,6 +65,7 @@ public:
     const Room& getCurrentRoom() const { return room; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
+    LocalizationManager& getLocalizationManager() const { return localizationManager; }
     LevelPersistentData& getLevelPersistentData() { return levelPersistentData; }
 
     void loadLevel(std::string levelName);

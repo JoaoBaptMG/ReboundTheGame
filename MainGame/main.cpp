@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <utility>
-#include <locale>
+#include <clocale>
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
@@ -19,6 +19,9 @@
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
 #include "settings/Settings.hpp"
+#include "language/LocalizationManager.hpp"
+#include "language/LanguageDescriptor.hpp"
+
 #include <chronoUtils.hpp>
 
 #if _WIN32
@@ -35,15 +38,14 @@ static std::string LastIcon = ""; // TODO: remove this hack
 
 int main(int argc, char **argv)
 {
-    std::locale::global(std::locale(""));
+    auto locale = std::setlocale(LC_ALL, "");
     
     bool success;
     auto settings = loadSettingsFile(&success);
     if (!success) std::cout << "WARNING! Settings file not loaded properly!" << std::endl;
-    std::cout << "Current locale: " << std::locale().name() << std::endl;
     
     sf::RenderWindow renderWindow(sf::VideoMode(ScreenWidth, ScreenHeight), "Game",
-        settings.videoSettings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
+        settings.videoSettings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default & ~sf::Style::Resize);
     renderWindow.setVerticalSyncEnabled(settings.videoSettings.vsyncEnabled);
 
     float scalingFactor = 1.0f;
@@ -62,11 +64,14 @@ int main(int argc, char **argv)
 
     ResourceManager resourceManager;
     resourceManager.setResourceLocator(new FilesystemResourceLocator());
-
-    auto scene = new GameScene(resourceManager);
+    
+    LocalizationManager localizationManager;
+    localizationManager.loadLanguageDescriptor(languageDescriptorForLocale(locale));
+    
+    auto scene = new GameScene(resourceManager, localizationManager);
     scene->setPlayerController(controller);
     scene->loadLevel("level1.lvl");
-
+    
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
 

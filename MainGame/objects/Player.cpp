@@ -70,7 +70,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	//upgradeToAbilityLevel(5);
+	upgradeToAbilityLevel(9);
     //maxHealth += 30 * HealthIncr;
 	setName("player");
 }

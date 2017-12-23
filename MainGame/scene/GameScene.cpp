@@ -19,8 +19,9 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(ResourceManager &manager) : room(*this), resourceManager(manager), playerController(nullptr),
-    gui(*this), objectsLoaded(false), curRoomID(-1), requestedID(-1), transitionBeginTime(), transitionEndTime()
+GameScene::GameScene(ResourceManager &rm, LocalizationManager& lm) : room(*this), resourceManager(rm),
+    localizationManager(lm), playerController(nullptr), gui(*this), objectsLoaded(false), curRoomID(-1),
+    requestedID(-1), transitionBeginTime(), transitionEndTime()
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
