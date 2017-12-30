@@ -107,7 +107,7 @@ struct TileSet final
             Attribute::LeftNoWalljump, Attribute::RightNoWalljump
         };
         return attrs[id];
-    }        
+    }
 
     struct TileIdentity { TileType type; size_t id; };
 

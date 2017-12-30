@@ -17,6 +17,8 @@ using ShapeGeneratorDataOpaque = std::unique_ptr<void, void(*)(void*)>;
 
 class Room final : util::non_copyable
 {
+    GameScene& gameScene;
+    
     std::vector<std::shared_ptr<cp::Shape>> roomShapes, transitionShapes;
     ShapeGeneratorDataOpaque shapeGeneratorData, transitionData;
     std::shared_ptr<cp::Body> roomBody, transitionBody;
@@ -25,7 +27,6 @@ class Room final : util::non_copyable
     Tilemap mainLayerTilemap;
     Tilemap transitionalTilemap;
     sf::Vector2f transitionDisplacement;
-    GameScene& gameScene;
 
 public:
     explicit Room(GameScene &scene);

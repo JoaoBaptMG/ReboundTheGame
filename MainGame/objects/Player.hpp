@@ -39,6 +39,7 @@ class Player final : public GameObject
     ParticleBatch* dashBatch;
     ParticleBatch* hardballBatch;
 
+    cpVect graphicalDisplacement;
     cpFloat angle, lastFade;
     bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled;
@@ -76,15 +77,15 @@ public:
 
     auto getDisplayPosition() const
     {
-        auto vec = getPosition();
-        return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
+        auto vec = getPosition() + graphicalDisplacement;
+        return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
     }
 
     auto getHealth() const { return health; }
     auto getMaxHealth() const { return maxHealth; }
 
     void heal(size_t amount);
-    void damage(size_t amount, bool overrideInvincibility = false);
+    bool damage(size_t amount, bool overrideInvincibility = false);
 
     auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     auto canBreakDash() const { return abilityLevel >= 8; }

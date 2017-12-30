@@ -9,6 +9,7 @@
 
 class ParticleEmitter final
 {
+    ParticleBatch::Style particleStyle;
     ParticleBatch::Duration totalLifetime;
     ParticleBatch::Duration emissionPeriod;
 
@@ -33,6 +34,7 @@ public:
 
     void generateNewParticles(ParticleBatch& batch, ParticleBatch::Duration cur, ParticleBatch::Duration last) const;
     auto getTotalLifetime() const { return totalLifetime; }
+    auto getParticleStyle() const { return particleStyle; }
 
     friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
 };

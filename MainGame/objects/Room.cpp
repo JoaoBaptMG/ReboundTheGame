@@ -3,6 +3,9 @@
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "objects/GameObject.hpp"
+#include "gameplay/MapGenerator.hpp"
+
+#include <assert.hpp>
 
 #include <functional>
 #include <algorithm>
@@ -32,8 +35,6 @@ Room::~Room()
 
 void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
 {
-    tileSet = gameScene.getResourceManager().load<TileSet>(data.tilesetName + ".ts");
- 
     if (transition)
     {
         transitionalTilemap.setTexture(mainLayerTilemap.getTexture());
@@ -48,11 +49,12 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
         gameScene.getGameSpace().reindexShapesForBody(transitionBody);
     }
     
+    tileSet = gameScene.getResourceManager().load<TileSet>(data.tilesetName + ".ts");
+    
     mainLayerTilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>(tileSet->textureName));
     mainLayerTilemap.setTileData(data.mainLayer);
 
     clearShapes();
-
     roomBody = std::make_unique<cp::Body>(cp::Body::Static);
     roomShapes = generateShapesForTilemap(data, *tileSet, roomBody, shapeGeneratorData);
     for (auto& shape : roomShapes)

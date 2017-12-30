@@ -13,6 +13,7 @@
         This file follows a strict format described here:
         > https://joaobaptmg.github.io/ReboundTheGame/lang-descriptor.html
     -->
+
     
     <!-- Some metadata -->
     <!-- The name of the language in English -->
@@ -37,10 +38,25 @@
     <!-- Text on the "level" label. Default: "LEVEL" -->
     <string name="ingame-gui-level-label">LEVEL</string>
     
-    <!-- Font size of the level nuber. Default: 24 -->
+    <!-- Font size of the level nuber. Default: 56 -->
     <string name="ingame-gui-level-number-size">56</string>
     <!-- Text on the "level" label. Default: "{#n}".
         To use traditional characters, use a pterm with a special category (the document explains how to do it!) -->
     <formatter name="ingame-gui-level-number">{#n}</formatter>
+    
+    <!-- Key names: normally, the key names will be almost the same on every platform, however, some keys
+        might need to be localized -->
+    <import-from file="keynames.lnxinc"/>
+    
+    <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
+    
+    <!-- The caption for the "New game" button. -->
+    <string name="title-button-new-game">New game</string>
+    <!-- The caption for the "Load game" button -->
+    <string name="title-button-load-game">Load game</string>
+    <!-- The caption for the "Settings" button -->
+    <string name="title-button-settings">Settings</string>
+    <!-- The caption for the "Exit" button -->
+    <string name="title-button-exit">Exit</string>
     
 </language>

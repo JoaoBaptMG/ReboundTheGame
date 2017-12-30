@@ -148,12 +148,12 @@ int tmxToMap(string inFile, string outFile)
 
     auto warps = findObjectLayer(map, "warp-layer");
 
-    uint32_t maxId = 0;
+    uint32_t maxId = (uint32_t)-1;
     for (auto obj = warps.FirstChildElement("object"); obj.ToElement(); obj = obj.NextSiblingElement("object"))
     {
         auto warp = obj.ToElement();
         uint16_t id = (uint16_t)strtoul(warp->Attribute("name"), nullptr, 10);
-        if (maxId < id) maxId = id;
+        if (maxId == (uint32_t)-1 || maxId < id) maxId = id;
     }
 
     maxId++;

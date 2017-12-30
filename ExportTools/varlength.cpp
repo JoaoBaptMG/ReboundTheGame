@@ -27,3 +27,17 @@ size_t write_varlength(ostream& out, size_t val)
 
     return ret;
 } 
+
+size_t read_varlength(std::istream& in)
+{
+    size_t result = 0;
+
+    uint8_t curByte = 128;
+    while (curByte & 128)
+    {
+        curByte = in.get();
+        result = result * 128 + curByte % 128;
+    }
+    
+    return result;
+}

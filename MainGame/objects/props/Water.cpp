@@ -84,6 +84,8 @@ bool Water::configure(const ConfigStruct& config)
     sf::IntRect destRect(config.position.x - config.width/2, config.position.y - config.height/2,
                          config.width, config.height);
     setRect(destRect);
+    shape.setTopHidden(config.hideTop);
+    
     return true;
 }
 

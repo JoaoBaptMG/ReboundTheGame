@@ -74,6 +74,8 @@ int lvxToLvl(string inFile, string outFile)
         else write_varlength(out, 0);
     }
 
+    write_varlength(out, 0);
+
     out.seekp(startingRoomPos);
     out.write((const char*)&startingRoom, sizeof(uint16_t));
 

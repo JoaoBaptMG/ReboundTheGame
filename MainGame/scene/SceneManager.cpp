@@ -12,6 +12,7 @@ SceneManager::~SceneManager()
 
 void SceneManager::pushScene(Scene *scene)
 {
+    scene->sceneManager = this;
     sceneStack.emplace(scene);
 }
 
@@ -23,6 +24,7 @@ void SceneManager::popScene()
 void SceneManager::replaceScene(Scene* scene)
 {
     postDeletionScene.reset(scene);
+    scene->sceneManager = this;
     deletionScheduled = true;
 }
 
@@ -30,6 +32,7 @@ void SceneManager::handleScreenTransition()
 {
     if (deletionScheduled)
     {
+        sceneStack.top()->sceneManager = nullptr;
         if (postDeletionScene)
         {
             using std::swap;

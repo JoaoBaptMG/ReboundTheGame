@@ -31,7 +31,7 @@ namespace props
         auto getDisplayPosition()
         {
             auto pos = getPosition();
-            return sf::Vector2f((float)std::floor(pos.x), (float)std::floor(pos.y));
+            return sf::Vector2f((float)std::round(pos.x), (float)std::round(pos.y));
         }
         
         virtual void update(std::chrono::steady_clock::time_point curTime) override;
@@ -44,9 +44,10 @@ namespace props
         {
             sf::Vector2<int16_t> position;
             int16_t width, height;
+            uint8_t hideTop;
         };
 
-        static_assert(sizeof(ConfigStruct) == 8*sizeof(char), "Packing failed!");
+        static_assert(sizeof(ConfigStruct) == 9*sizeof(char), "Packing failed!");
     #pragma pack(pop)
 
         bool configure(const ConfigStruct& config);

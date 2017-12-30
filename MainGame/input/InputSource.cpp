@@ -7,29 +7,29 @@ constexpr auto MaxWheels = std::max(sf::Mouse::HorizontalWheel, sf::Mouse::Verti
 InputSource InputSource::mouseX{InputSource::Type::MouseAxis, MaxWheels + 1};
 InputSource InputSource::mouseY{InputSource::Type::MouseAxis, MaxWheels + 2};
 
-InputSource InputSource::keyboardKey(sf::Keyboard::Key key)
+InputSource InputSource::keyboardKey(size_t scanCode)
 {
-    return InputSource(Type::Keyboard, (uint32_t)key);
+    return InputSource(Type::Keyboard, scanCode);
 }
 
 InputSource InputSource::mouseButton(sf::Mouse::Button button)
 {
-    return InputSource(Type::MouseButton, (uint32_t)button);
+    return InputSource(Type::MouseButton, (size_t)button);
 }
 
 InputSource InputSource::mouseWheel(sf::Mouse::Wheel wheel)
 {
-    return InputSource(Type::MouseAxis, (uint32_t)wheel);
+    return InputSource(Type::MouseAxis, (size_t)wheel);
 }
 
-InputSource InputSource::joystickButton(unsigned int joystick, unsigned int button)
+InputSource InputSource::joystickButton(unsigned int button)
 {
-    return InputSource(Type::JoystickButton, (uint32_t)(joystick * sf::Joystick::ButtonCount + button));
+    return InputSource(Type::JoystickButton, (size_t)button);
 }
 
-InputSource InputSource::joystickAxis(unsigned int joystick, sf::Joystick::Axis axis)
+InputSource InputSource::joystickAxis(sf::Joystick::Axis axis)
 {
-    return InputSource(Type::JoystickAxis, (uint32_t)(joystick * sf::Joystick::AxisCount + (unsigned int)axis));
+    return InputSource(Type::JoystickAxis, (size_t)axis);
 }
 
 bool operator==(InputSource in1, InputSource in2)
@@ -44,10 +44,10 @@ bool operator<(InputSource in1, InputSource in2)
 
 bool readFromStream(sf::InputStream& stream, InputSource& in)
 {
-    return readFromStream(stream, in.type, in.attribute);
+    return readFromStream(stream, in.type, varLength(in.attribute));
 }
 
 bool writeToStream(OutputStream& stream, const InputSource& in)
 {
-    return writeToStream(stream, in.type, in.attribute);
+    return writeToStream(stream, in.type, varLength(in.attribute));
 }

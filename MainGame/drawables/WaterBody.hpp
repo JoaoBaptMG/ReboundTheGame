@@ -27,6 +27,7 @@ class WaterBody final : public sf::Drawable
     sf::Color color, coastColor;
 
     intmax_t curT;
+    bool topHidden;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -38,12 +39,15 @@ public:
     void resetWaves();
     void update(std::chrono::steady_clock::time_point curTime);
 
-    auto getDrawingSize() { return drawingSize; }
+    auto getDrawingSize() const { return drawingSize; }
     void setDrawingSize(sf::Vector2f size) { drawingSize = size; recreateQuad(); }
 
-    auto getColor() { return color; }
+    auto getColor() const { return color; }
     void setColor(sf::Color color) { this->color = color; }
 
-    auto getCoastColor() { return coastColor; }
+    auto getCoastColor() const { return coastColor; }
     void setCoastColor(sf::Color color) { coastColor = color; }
+    
+    auto getTopHidden() const { return topHidden; }
+    void setTopHidden(bool top) { topHidden = top; recreateQuad(); resetWaves(); }
 };

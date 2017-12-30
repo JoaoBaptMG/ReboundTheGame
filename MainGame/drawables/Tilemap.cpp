@@ -28,15 +28,6 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
         vertices.reset(new sf::Vertex[vertexSize]);
         lastPoint = sf::Vector2i(0, 0);
         dirty = true;
-
-        for (size_t j = 0; j < height; j++)
-            for (size_t i = 0; i < width; i++)
-            {
-                vertices[(j*width+i)*4+0].position = sf::Vector2f((float)i*tileSize, (float)j*tileSize);
-                vertices[(j*width+i)*4+1].position = sf::Vector2f((float)(i+1)*tileSize, (float)j*tileSize);
-                vertices[(j*width+i)*4+2].position = sf::Vector2f((float)(i+1)*tileSize, (float)(j+1)*tileSize);
-                vertices[(j*width+i)*4+3].position = sf::Vector2f((float)i*tileSize, (float)(j+1)*tileSize);
-            }
     }
 
     sf::Vector2i pt(size_t(targetFrame.left/tileSize), size_t(targetFrame.top/tileSize));
@@ -50,10 +41,15 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
             {
                 auto cur = pt + sf::Vector2i(i, j);
 
-                if (cur.x < 0 || cur.y < 0 || cur.x >= (int)tileData.width() || cur.y >= (int)tileData.height())
+                if (cur.x < 0 || cur.y < 0 || cur.x >= (intmax_t)tileData.width() || cur.y >= (intmax_t)tileData.height())
                 {
                     for (size_t k = 0; k < 4; k++)
                         vertices[(j*width+i)*4+k].color = sf::Color(0, 0, 0, 0);
+                    
+                    vertices[(j*width+i)*4+0].position = sf::Vector2f(0, 0);
+                    vertices[(j*width+i)*4+1].position = sf::Vector2f(0, 0);
+                    vertices[(j*width+i)*4+2].position = sf::Vector2f(0, 0);
+                    vertices[(j*width+i)*4+3].position = sf::Vector2f(0, 0);
                     
                     vertices[(j*width+i)*4+0].texCoords = sf::Vector2f(0, 0);
                     vertices[(j*width+i)*4+1].texCoords = sf::Vector2f(0, 0);
@@ -68,6 +64,11 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
 
                     for (size_t k = 0; k < 4; k++)
                         vertices[(j*width+i)*4+k].color = sf::Color::White;
+
+                    vertices[(j*width+i)*4+0].position = sf::Vector2f((float)i*tileSize, (float)j*tileSize);
+                    vertices[(j*width+i)*4+1].position = sf::Vector2f((float)(i+1)*tileSize, (float)j*tileSize);
+                    vertices[(j*width+i)*4+2].position = sf::Vector2f((float)(i+1)*tileSize, (float)(j+1)*tileSize);
+                    vertices[(j*width+i)*4+3].position = sf::Vector2f((float)i*tileSize, (float)(j+1)*tileSize);
 
                     vertices[(j*width+i)*4+0].texCoords = (float)tileSize * sf::Vector2f(texS, texT);
                     vertices[(j*width+i)*4+1].texCoords = (float)tileSize * sf::Vector2f(texS+1, texT);

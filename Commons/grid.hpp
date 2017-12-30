@@ -248,6 +248,8 @@ namespace util
 
         size_t width() const { return _width; }
         size_t height() const { return _height; }
+        
+        bool empty() const { return _width == 0 || _height == 0; }
     };
 
     template <typename T>

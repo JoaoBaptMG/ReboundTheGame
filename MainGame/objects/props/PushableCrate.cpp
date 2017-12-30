@@ -55,14 +55,6 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
             {
                 auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
                 auto crate = static_cast<PushableCrate*>(cpBodyGetUserData(arbiter.getBodyB()));
-                if (player->canPushCrates()) space.addPostStepCallback(nullptr, [=]
-                {
-                    crate->shape->getBody()->setBodyType(CP_BODY_TYPE_DYNAMIC);
-                });
-                else space.addPostStepCallback(nullptr, [=]
-                {
-                    crate->shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);
-                });
                 return cpArbiterCallWildcardBeginA(arbiter, space);
             }, cpArbiterCallWildcardPreSolveA, cpArbiterCallWildcardPostSolveA, cpArbiterCallWildcardSeparateA);
         
@@ -91,6 +83,9 @@ bool PushableCrate::configure(const PushableCrate::ConfigStruct& config)
     if (gameScene.getLevelPersistentData().existsDataOfType<cpVect>(getPositionKey()))
         setPosition(gameScene.getLevelPersistentData().getData<cpVect>(getPositionKey()));
     else setPosition(cpVect{config.position.x - (cpFloat)width/2, config.position.y - (cpFloat)height/2});
+    
+    if (gameScene.getLevelPersistentData().existsDataOfType<cpFloat>(getRotationKey()))
+        shape->getBody()->setAngle(gameScene.getLevelPersistentData().getData<cpFloat>(getRotationKey()));
 
     return true;
 }
@@ -112,14 +107,16 @@ void PushableCrate::setupPhysics(float width, float height)
     gameScene.getGameSpace().add(body);
     gameScene.getGameSpace().add(shape);
 
-    body->setMoment(std::numeric_limits<cpFloat>::infinity());
     body->setUserData((void*)this);
 }
 
 PushableCrate::~PushableCrate()
 {
     if (!transitionState)
+    {
         gameScene.getLevelPersistentData().setData(getPositionKey(), getPosition());
+        gameScene.getLevelPersistentData().setData(getRotationKey(), shape->getBody()->getAngle());
+    }
     
     if (shape)
     {
@@ -132,24 +129,36 @@ PushableCrate::~PushableCrate()
 
 void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
 {
-    auto body = shape->getBody();
-    auto vel = body->getVelocity();
+    auto player = gameScene.getObjectByName<Player>("player");
+    
+    if (player)
+    {
+        if (player->canPushCrates())
+        {
+            auto body = shape->getBody();
+            auto vel = body->getVelocity();
 
-    if (std::abs(vel.x) < 1.0)
-    {
-        vel.x = 0;
-        body->setVelocity(vel);
-    }
-    else
-    {
-        auto sgn = vel.x > 0 ? -1.0 : vel.x < 0 ? 1.0 : 0.0;
-        body->applyForceAtLocalPoint(cpVect{ 18 * sgn * body->getMass(), 0 }, cpVect{0, 0});
+            body->setBodyType(CP_BODY_TYPE_DYNAMIC);
+
+            if (std::abs(vel.x) < 1.0)
+            {
+                vel.x = 0;
+                body->setVelocity(vel);
+            }
+            else
+            {
+                auto sgn = vel.x > 0 ? -1.0 : vel.x < 0 ? 1.0 : 0.0;
+                body->applyForceAtLocalPoint(cpVect{ 18 * sgn * body->getMass(), 0 }, cpVect{0, 0});
+            }
+        }
+        else shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);
     }
 }
 
 bool PushableCrate::notifyScreenTransition(cpVect displacement)
 {
     gameScene.getLevelPersistentData().setData(getPositionKey(), getPosition());
+    gameScene.getLevelPersistentData().setData(getRotationKey(), shape->getBody()->getAngle());
     shape->getBody()->setPosition(shape->getBody()->getPosition() + displacement);
     return true;
 }
@@ -158,6 +167,7 @@ void PushableCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform.rotate(radiansToDegrees(shape->getBody()->getAngle()));
     renderer.pushDrawable(tilemap, {}, 25);
     renderer.popTransform();
 }

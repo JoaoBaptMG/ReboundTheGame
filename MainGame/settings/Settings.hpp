@@ -7,13 +7,14 @@
 #include "VideoSettings.hpp"
 #include "AudioSettings.hpp"
 
-constexpr size_t SettingsVersion = 0;
+constexpr size_t SettingsVersion = 1;
 
 struct Settings
 {
     InputSettings inputSettings;
     VideoSettings videoSettings;
     AudioSettings audioSettings;
+    std::string languageFile;
 };
 
 bool readFromStream(sf::InputStream &stream, Settings& settings);

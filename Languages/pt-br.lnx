@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<language name="pt-br" posix-locale="pt_BRT" windows-locale="Portuguese_Brazil">
+<language name="pt-br" posix-locale="pt_BR" windows-locale="Portuguese_Brazil">
     
     <!--
     
@@ -43,4 +43,27 @@
         To use traditional characters, use a pterm with a special category (the document explains how to do it!) -->
     <formatter name="ingame-gui-level-number">{#n}</formatter>
     
+    <!-- Key names: normally, the key names will be almost the same on every language; however, some keys
+        might need to be localized -->
+    <import-from file="keynames.lnxinc"/>
+    <string name="keyboard-key-name-lcontrol" override="true">Ctrl Esq</string>
+    <string name="keyboard-key-name-lshift" override="true">Shift Esq</string>
+    <string name="keyboard-key-name-lalt" override="true">Alt Esq</string>
+    <string name="keyboard-key-name-lsystem" override="true">Super Esq</string>
+    <string name="keyboard-key-name-rcontrol" override="true">Ctrl Dir</string>
+    <string name="keyboard-key-name-rshift" override="true">Shift Dir</string>
+    <string name="keyboard-key-name-ralt" override="true">Alt Dir</string>
+    <string name="keyboard-key-name-rsystem" override="true">Super Dir</string>
+    <string name="keyboard-key-name-space" override="true">Espaço</string>
+    
+    <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
+    
+    <!-- The caption for the "New game" button. -->
+    <string name="title-button-new-game">Novo jogo</string>
+    <!-- The caption for the "Load game" button -->
+    <string name="title-button-load-game">Carregar jogo</string>
+    <!-- The caption for the "Settings" button -->
+    <string name="title-button-settings">Configurações</string>
+    <!-- The caption for the "Exit" button -->
+    <string name="title-button-exit">Sair</string>
 </language>

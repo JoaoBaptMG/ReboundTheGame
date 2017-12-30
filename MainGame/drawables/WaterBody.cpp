@@ -61,27 +61,39 @@ void WaterBody::recreateQuad()
     quad[1].position = quad[1].texCoords = sf::Vector2f(0, drawingSize.y);
     quad[2].position = quad[2].texCoords = sf::Vector2f(drawingSize.x, drawingSize.y);
     quad[3].position = quad[3].texCoords = sf::Vector2f(drawingSize.x, -256);
+    
+    if (topHidden)
+        quad[0].position.y = quad[3].position.y = 0;
 
     for (auto& vtx : quad)
-    {
         vtx.color = sf::Color::White;
-    }
 }
 
 void WaterBody::resetWaves()
 {
-    std::random_device dev;
-
-    std::mt19937_64 gen(dev());
-    std::uniform_real_distribution<float> dist;
-    auto random = std::bind(dist, gen);
-
-    for (auto& wave : generatedWaves)
+    if (!topHidden)
     {
-        wave.ofs = MaxSineWaveHeight * (2.0f * random() - 1.0f);
-        wave.amp = MaxSineWaveHeight * random();
-        wave.k = MaxSineWaveK * random();
-        wave.omega = MaxSineWaveOmega * (2.0f * random() - 1.0f);
+        std::random_device dev;
+
+        std::mt19937_64 gen(dev());
+        std::uniform_real_distribution<float> dist;
+        auto random = std::bind(dist, gen);
+
+        for (auto& wave : generatedWaves)
+        {
+            wave.ofs = MaxSineWaveHeight * (2.0f * random() - 1.0f);
+            wave.amp = MaxSineWaveHeight * random();
+            wave.k = MaxSineWaveK * random();
+            wave.omega = MaxSineWaveOmega * (2.0f * random() - 1.0f);
+        }
+    }
+    else
+    {
+        for (auto& wave : generatedWaves)
+        {
+            wave.ofs = -256;
+            wave.amp = wave.k = wave.omega = 0;
+        }
     }
 }
 

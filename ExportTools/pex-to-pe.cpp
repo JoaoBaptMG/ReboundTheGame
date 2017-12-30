@@ -25,6 +25,7 @@ struct twovals { T first, second; };
 
 struct ParticleEmitterStruct
 {
+    enum class Style : uint8_t { Smooth, Disk } particleStyle;
     float totalLifetime;
     float emissionPeriod;
 
@@ -108,6 +109,21 @@ static bool read(XMLElement* el, twovals<uint32_t>& vals)
     return true;
 }
 
+static bool read(XMLElement* el, ParticleEmitterStruct::Style& style)
+{
+    auto val = el->Attribute("value");
+    
+    if (!val) return false;
+    else
+    {
+        if (!strcasecmp(val, "smooth")) style = ParticleEmitterStruct::Style::Smooth;
+        else if (!strcasecmp(val, "disk")) style = ParticleEmitterStruct::Style::Disk;
+        else style = ParticleEmitterStruct::Style::Disk;
+    }
+
+    return true;
+}
+
 static bool read(XMLElement* el, ParticleEmitterStruct::pt& val)
 {
     return el->QueryFloatAttribute("x", &val.x) == XML_SUCCESS &&
@@ -148,6 +164,7 @@ int pexToPe(string inFile, string outFile)
         auto extends = emitter.ToElement()->Attribute("extends");
         if (!extends || emitters.find(extends) == emitters.end()) extends = "";
 
+        readParam(emitter, "particle-style", name, extends, &ParticleEmitterStruct::particleStyle);
         readParam(emitter, "total-lifetime", name, extends, &ParticleEmitterStruct::totalLifetime);
         readParam(emitter, "emission-period", name, extends, &ParticleEmitterStruct::emissionPeriod);
         readParam(emitter, "emission-center", name, extends, &ParticleEmitterStruct::emissionCenter);

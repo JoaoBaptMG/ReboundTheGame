@@ -12,17 +12,17 @@
 
 constexpr auto ParticleVertexShader = R"vertex(
 #version 130
-uniform float ScalingFactor;
+varying float PointSize;
 
 void main()
 {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_PointSize = ScalingFactor * gl_MultiTexCoord0.x;
+    PointSize = gl_PointSize = gl_MultiTexCoord0.x;
     gl_FrontColor = gl_Color;
 }
 )vertex";
 
-constexpr auto ParticleFragmentShader = R"fragment(
+constexpr auto ParticleSmoothFragmentShader = R"fragment(
 #version 130
 void main()
 {
@@ -31,25 +31,31 @@ void main()
 }
 )fragment";
 
-sf::Shader& ParticleBatch::getParticleShader(float scalingFactor)
+constexpr auto ParticleDiskFragmentShader = R"fragment(
+#version 130
+varying float PointSize;
+
+void main()
 {
-    static sf::Shader shader;
-    static bool shaderLoaded = false;
-    static float lastScalingFactor = 0;
+    gl_FragColor = gl_Color;
+    gl_FragColor.a *= clamp((1.0 - 2.0 * distance(gl_PointCoord, vec2(0.5, 0.5))) * PointSize, 0.0, 1.0);
+}
+)fragment";
 
-    if (!shaderLoaded)
+const char* ParticleFragmentShaders[] = { ParticleSmoothFragmentShader, ParticleDiskFragmentShader };
+
+sf::Shader& ParticleBatch::getParticleShader(ParticleBatch::Style style)
+{
+    static sf::Shader shaders[(size_t)Style::MaxSize];
+    static bool shadersLoaded[(size_t)Style::MaxSize];
+
+    if (!shadersLoaded[(size_t)style])
     {
-        ASSERT(shader.loadFromMemory(ParticleVertexShader, ParticleFragmentShader));
-        shaderLoaded = true;
+        ASSERT(shaders[(size_t)style].loadFromMemory(ParticleVertexShader, ParticleFragmentShaders[(size_t)style]));
+        shadersLoaded[(size_t)style] = true;
     }
 
-    if (lastScalingFactor != scalingFactor)
-    {
-        shader.setUniform("ScalingFactor", scalingFactor);
-        lastScalingFactor = scalingFactor;
-    }
-
-    return shader;
+    return shaders[(size_t)style];
 }
 
 static sf::Glsl::Vec4 operator+(sf::Glsl::Vec4 v1, sf::Glsl::Vec4 v2)
@@ -167,6 +173,6 @@ void ParticleBatch::render(Renderer& renderer)
 
     sf::RenderStates states;
     states.blendMode = sf::BlendAlpha;
-    states.shader = &getParticleShader(renderer.windowScalingFactor);
+    states.shader = &getParticleShader(emitter->getParticleStyle());
     renderer.pushDrawable(vertices, states, drawingDepth);
 }

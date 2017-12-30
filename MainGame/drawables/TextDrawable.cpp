@@ -10,7 +10,7 @@ bool isGraphemeClusterBoundary(sf::Uint32 c1, sf::Uint32 c2)
     return !unicode::isGraphemeExtender(c2);
 }
 
-bool (* const WordWrappingAlgorithms[])(uint32_t,uint32_t) =
+bool (*const WordWrappingAlgorithms[])(uint32_t,uint32_t) =
 {
     // Normal
     [](uint32_t pc, uint32_t c) -> bool
@@ -97,26 +97,6 @@ inline static auto addGlyphQuad(sf::VertexArray& dest, sf::Vector2f position, sf
     dest.append(dest[s+2]);
     
     return std::make_pair(s, s+6);
-}
-
-template <typename T>
-sf::Rect<T> rectUnionWithPoint(const sf::Rect<T> &rect, const sf::Vector2<T> &point)
-{
-    auto left = std::isnan(rect.left) ? point.x : std::min(rect.left, point.x);
-    auto top = std::isnan(rect.top) ? point.y : std::min(rect.top, point.y);
-    auto right = std::isnan(rect.left) || std::isnan(rect.width) ? point.x : std::max(rect.left + rect.width, point.x);
-    auto bottom = std::isnan(rect.top) || std::isnan(rect.height) ? point.y : std::max(rect.top + rect.height, point.y);
-    
-    return sf::Rect<T>(left, top, right - left, bottom - top);
-}
-
-template <typename T>
-sf::Rect<T> rectUnionWithLineX(const sf::Rect<T> &rect, const T& x)
-{
-    auto left = std::isnan(rect.left) ? x : std::min(rect.left, x);
-    auto right = std::isnan(rect.left) || std::isnan(rect.width) ? x : std::max(rect.left + rect.width, x);
-    
-    return sf::Rect<T>(left, rect.top, right - left, rect.height);
 }
 
 void TextDrawable::buildGeometry()
@@ -276,7 +256,7 @@ void TextDrawable::buildGeometry()
             }
             
             if (!rtl) curPos.x += word.wordWidth;
-            bounds = rectUnionWithLineX(bounds, curPos.x);
+            //bounds = rectUnionWithLineX(bounds, curPos.x);
             curLineWidth = curPos.x;
             
             if (word.nextCharacter)

@@ -8,25 +8,26 @@
 
 using RenderData = std::pair<std::reference_wrapper<const sf::Drawable>,sf::RenderStates>;
 
-class Renderer final : util::non_copyable_movable
+class Renderer final : util::non_copyable
 {
     std::multimap<long,RenderData> drawableList;
-    sf::RenderTarget& target;
-
     std::stack<sf::Transform> transformStack;
 
 public:
-    explicit Renderer(sf::RenderTarget& target) : target(target), currentTransform(), windowScalingFactor(1) {}
+    Renderer() noexcept : currentTransform(sf::Transform::Identity) {}
+    Renderer(Renderer&& other) noexcept;
+    Renderer& operator=(Renderer other);
 
     void pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth = 0);
 
     void pushTransform();
     void popTransform();
 
-    void render();
+    void render(sf::RenderTarget& target);
     void clearState();
 
     sf::Transform currentTransform;
-    float windowScalingFactor;
+    
+    friend void swap(Renderer& r1, Renderer& r2);
 };
 

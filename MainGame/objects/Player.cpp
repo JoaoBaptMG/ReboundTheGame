@@ -13,6 +13,8 @@
 #include "data/TileSet.hpp"
 #include "particles/TextureExplosion.hpp"
 
+#include "objects/PlayerDeath.hpp"
+
 #include <functional>
 #include <limits>
 #include <iostream>
@@ -64,13 +66,13 @@ Player::Player(GameScene& scene)
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), wallJumpFromRight(false),
 	grapplePoints(0), dashBatch(nullptr), hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1),
-    sprite(scene.getResourceManager().load<sf::Texture>("player.png")),
+    sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(9);
+	//upgradeToAbilityLevel(9);
     //maxHealth += 30 * HealthIncr;
 	setName("player");
 }
@@ -165,6 +167,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     bool onGround = false, wallHit = false, onWaterCeiling = false, spikesHit = false;
 
+    graphicalDisplacement = cpVect{0, 0};
     body->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
 		enum { None, Left, Top, Right, Bottom } dir = None;
@@ -197,6 +200,8 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
                     case TileSet::Attribute::Spike: spikesHit = true; break;
                     default: break;
                 }
+                
+                graphicalDisplacement = graphicalDisplacement + arbiter.getNormal() * arbiter.getDepth(0);
             }
             
             reset(dashTime);
@@ -435,7 +440,7 @@ void Player::dash()
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
     numBombs--;
-    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition(), curTime));
+    gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition() + graphicalDisplacement, curTime));
 }
 
 void Player::observeHardballTrigger()
@@ -490,17 +495,17 @@ void Player::observeHardballTrigger()
     }
 }
 
-extern std::string CurrentIcon;
+//extern std::string CurrentIcon;
 void Player::setPlayerSprite()
 {
     auto name = hardballEnabled ? "player-hard.png" : abilityLevel >= 6 ? "player-enhanced.png" : "player.png";
     sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
-	CurrentIcon = name;
+	//CurrentIcon = name;
 }
 
 void Player::hitSpikes()
 {
-    damage(SpikeDamage, true);
+    if (damage(SpikeDamage, true)) return;
     gameScene.getGameSpace().remove(playerShape->getBody());
     spikeTime = curTime + SpikeRespawnTime;
 
@@ -533,14 +538,28 @@ void Player::heal(size_t amount)
     if (health > maxHealth) health = maxHealth;
 }
 
-void Player::damage(size_t amount, bool overrideInvincibility)
+bool Player::damage(size_t amount, bool overrideInvincibility)
 {
-    if (!overrideInvincibility && invincibilityTime != decltype(invincibilityTime)()) return;
+    if (!overrideInvincibility && invincibilityTime != decltype(invincibilityTime)()) return false;
     
-    if (health <= amount) health = 0;
+    if (health <= amount)
+    {
+        health = 0;
+        
+        if (hardballBatch)
+        {
+            hardballBatch->abort();
+            hardballBatch = nullptr;
+        }
+        
+        gameScene.addObject(std::make_unique<PlayerDeath>(gameScene, *this, sprite.getTexture()));
+        remove();
+        return true;
+    }
     else health -= amount;
 
     invincibilityTime = curTime + Invincibility;
+    return false;
 }
 
 bool Player::onWater() const

@@ -45,7 +45,7 @@ namespace props
         auto getDisplayPosition() const
         {
             auto vec = getPosition();
-            return sf::Vector2f((float)std::floor(vec.x), (float)std::floor(vec.y));
+            return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
         }
         
         auto getDestroyedKey() const

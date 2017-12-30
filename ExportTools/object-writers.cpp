@@ -58,6 +58,22 @@ bool write_collectibles_Powerup(Object obj, ostream& out)
     return obj.everythingOk();
 }
 
+bool write_props_Water(Object obj, ostream& out)
+{
+    obj.assertType(Object::Type::Rectangle);
+    
+    int16_t width = obj.getWidth();
+    int16_t height = obj.getHeight();
+    
+    out.write((const char*)&width, sizeof(int16_t));
+    out.write((const char*)&height, sizeof(int16_t));
+    
+    uint8_t hideTop = obj.getPropertyBool("hide-top", true);
+    out.write((const char*)&hideTop, sizeof(uint8_t));
+    
+    return obj.everythingOk();
+}
+
 unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
 {
     { "Player", doNothing },
@@ -75,5 +91,5 @@ unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
     { "props::DashCrate", doNothing },
     { "props::Grapple", doNothing },
     { "props::PushableCrate", writeBox },
-    { "props::Water", writeBox },
+    { "props::Water", write_props_Water },
 };

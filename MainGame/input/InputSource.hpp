@@ -12,20 +12,20 @@ private:
     enum class Type : uint8_t { Keyboard, MouseButton, MouseAxis, JoystickButton, JoystickAxis };
 
     Type type;
-    uint32_t attribute;
+    size_t attribute;
 
     // Constructor private
     InputSource() = default;
     InputSource(Type type, uint32_t attr) : type(type), attribute(attr) {}
 public:
-    static InputSource keyboardKey(sf::Keyboard::Key key);
+    static InputSource keyboardKey(size_t scanCode);
     
-    static InputSource mouseButton(sf::Mouse::Button buton);
+    static InputSource mouseButton(sf::Mouse::Button button);
     static InputSource mouseX, mouseY;
     static InputSource mouseWheel(sf::Mouse::Wheel wheel);
 
-    static InputSource joystickButton(unsigned int joystick, unsigned int button);
-    static InputSource joystickAxis(unsigned int joystick, sf::Joystick::Axis axis);
+    static InputSource joystickButton(unsigned int button);
+    static InputSource joystickAxis(sf::Joystick::Axis axis);
 
     friend bool operator==(InputSource in1, InputSource in2);
     friend bool operator<(InputSource in1, InputSource in2);

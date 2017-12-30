@@ -6,6 +6,7 @@
 #include <utility>
 #include <string>
 #include <map>
+#include <rectUtils.hpp>
 #include "resources/FontHandler.hpp"
 
 class TextDrawable final : public sf::Drawable

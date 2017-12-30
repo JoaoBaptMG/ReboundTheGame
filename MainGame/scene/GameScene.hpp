@@ -7,6 +7,9 @@
 #include "objects/GUI.hpp"
 #include "gameplay/LevelPersistentData.hpp"
 
+#include "settings/Settings.hpp"
+#include "input/PlayerController.hpp"
+
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
 #include <chrono>
@@ -23,6 +26,7 @@ class Player;
 class Renderer;
 class ResourceManager;
 class LocalizationManager;
+class InputManager;
 
 struct RoomData;
 
@@ -41,11 +45,13 @@ class GameScene : public Scene
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
     size_t curRoomID, requestedID;
-    bool objectsLoaded;
+    bool objectsLoaded, levelReloadRequested;
 
     LocalizationManager &localizationManager;
+    InputManager& inputManager;
+    const Settings& settings;
 
-    const PlayerController* playerController;
+    PlayerController playerController;
     sf::Vector2f offsetPos;
 
     GUI gui;
@@ -54,7 +60,7 @@ class GameScene : public Scene
     sf::Vector2f transitionTargetBegin, transitionTargetEnd;
 
 public:
-    GameScene(ResourceManager& rm, LocalizationManager &lm);
+    GameScene(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
     virtual ~GameScene() {}
 
     cp::Space& getGameSpace() { return gameSpace; }
@@ -64,20 +70,24 @@ public:
     Room& getCurrentRoom() { return room; }
     const Room& getCurrentRoom() const { return room; }
     
+    auto getCurrentLevel() const { return levelData; }
+    
     ResourceManager& getResourceManager() const { return resourceManager; }
     LocalizationManager& getLocalizationManager() const { return localizationManager; }
     LevelPersistentData& getLevelPersistentData() { return levelPersistentData; }
 
     void loadLevel(std::string levelName);
+    void reloadLevel();
     void loadRoom(size_t id, bool transition = false, cpVect displacement = cpVect{0,0});
     void loadRoomObjects();
     void requestRoomLoad(size_t id) { requestedID = id; }
+    
+    void requestLevelReload() { levelReloadRequested = true; }
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
 
-    void setPlayerController(const PlayerController& controller) { playerController = &controller; }
-    const PlayerController& getPlayerController() const { return *playerController; }
+    const PlayerController& getPlayerController() const { return playerController; }
 
     template <typename T>
     std::enable_if_t<std::is_base_of<GameObject, T>::value, T*>

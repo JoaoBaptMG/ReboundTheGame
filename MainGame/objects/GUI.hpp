@@ -5,6 +5,7 @@
 #include "drawables/TextDrawable.hpp"
 #include "objects/Player.hpp"
 #include <chronoUtils.hpp>
+#include "drawables/GUIMap.hpp"
 
 class GameScene;
 class Renderer;
@@ -13,16 +14,20 @@ class GUI final
 {
     Sprite guiLeft, guiRight;
     GUIMeter playerMeter, dashMeter;
-    //std::vector<Sprite> abilitySprites;
     Sprite bombSprites[MaxBombs];
     TextDrawable levelLabel, levelID;
-    float labelY, idY;
+    size_t levelNumber;
     bool drawDash;
+
+    GUIMap guiMap;
 
     std::string lastIconName;
     GameScene& gameScene;
     
     void configureText();
+    
+    std::chrono::steady_clock::time_point lastTime;
+    float healthBlinkPhase;
     
 public:
     GUI(GameScene& scene);
@@ -30,4 +35,6 @@ public:
 
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);
+
+    void setLevelNumber(size_t number);
 };

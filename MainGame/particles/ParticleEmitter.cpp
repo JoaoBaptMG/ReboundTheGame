@@ -14,7 +14,7 @@ bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
     float firstSeconds, secondSeconds;
     uint8_t hsv;
 
-    if (!readFromStream(stream, lifetimeSeconds, emissionPeriodSeconds, in.emissionCenter,
+    if (!readFromStream(stream, in.particleStyle, lifetimeSeconds, emissionPeriodSeconds, in.emissionCenter,
                         in.emissionHalfSize, in.acceleration, in.emissionInnerLimit,
                         in.directionFirst, in.directionSecond, in.directionCenterWeight,
                         in.speedFirst, in.speedSecond, in.speedWeight,

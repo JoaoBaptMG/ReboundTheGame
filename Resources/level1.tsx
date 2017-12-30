@@ -3,7 +3,7 @@
 <tileset texture="tilemap1.png">
     <import-from file="common-defs.tsxinc"/>
     
-    <terrain name="basic" attribute="solid" corner-radius="1"/>
+    <terrain name="basic" attribute="solid" corner-radius="2"/>
 
     <tile id="0" type="terrain-upper-left" name="basic"/>
     <tile id="1" type="terrain-up" name="basic"/>

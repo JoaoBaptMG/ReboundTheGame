@@ -6,10 +6,17 @@
 #include <assert.hpp>
 #include "data/RoomData.hpp"
 #include "defaults.hpp"
+#include "gameplay/MapGenerator.hpp"
+#include "input/InputManager.hpp"
 
 #include <functional>
 #include <iterator>
 #include <SFML/System.hpp>
+
+#ifdef GENERATE_MAPS_IF_EMPTY
+#include "settings/FileOutputStream.hpp"
+#include <execDir.hpp>
+#endif
 
 constexpr auto TransitionDuration = 20 * UpdateFrequency;
 
@@ -19,9 +26,10 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(ResourceManager &rm, LocalizationManager& lm) : room(*this), resourceManager(rm),
-    localizationManager(lm), playerController(nullptr), gui(*this), objectsLoaded(false), curRoomID(-1),
-    requestedID(-1), transitionBeginTime(), transitionEndTime()
+GameScene::GameScene(const Settings& settings, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
+    : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
+    playerController(im, settings.inputSettings), gui(*this), objectsLoaded(false), curRoomID(-1), requestedID(-1),
+    transitionBeginTime(), transitionEndTime(), levelReloadRequested(false)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -32,9 +40,30 @@ GameScene::GameScene(ResourceManager &rm, LocalizationManager& lm) : room(*this)
 void GameScene::loadLevel(std::string levelName)
 {
     levelData = resourceManager.load<LevelData>(levelName);
+    
+#ifdef GENERATE_MAPS_IF_EMPTY
+    if (levelData->roomMaps.empty())
+    {
+        generateAllMapsForLevel(*levelData, resourceManager);
+        
+        FileOutputStream stream;
+        ASSERT(stream.open(getExecutableDirectory() + "/Resources/" + levelName));
+        ASSERT(writeToStream(stream, *levelData));
+    }
+#endif
+    
+    reloadLevel();
+}
+ 
+void GameScene::reloadLevel()
+{
+    levelReloadRequested = false;
+    
     levelPersistentData.clear();
     loadRoom(levelData->startingRoom);
     loadRoomObjects();
+    
+    gui.setLevelNumber(levelData->levelNumber);
 }
 
 void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
@@ -143,8 +172,7 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
     
-    using std::swap;
-    
+    playerController.update();
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
 
     room.update(curTime);
@@ -176,6 +204,8 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
         loadRoomObjects();
         requestedID = -1;
     }
+    
+    if (levelReloadRequested) reloadLevel();
 }
 
 void GameScene::checkWarps()
@@ -238,7 +268,7 @@ void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect pos)
         cpVect displacement = { 0, 0 };
         auto roomName = levelData->roomResourceNames.at(warp.roomId) + ".map";
         auto destRoomData = resourceManager.load<RoomData>(roomName);
-        auto delta = destRoomData->warps[warp.warpId].c1 - warp.c1;
+        auto delta = destRoomData->warps.at(warp.warpId).c1 - warp.c1;
         
         switch (direction)
         {

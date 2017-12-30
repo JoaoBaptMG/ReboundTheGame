@@ -43,6 +43,15 @@ public:
         backdropColor = backdrop;
         updateVertices();
     }
+    
+    auto getFillColor() const { return fillColor; }
+    void setFillColor(sf::Color color) { fillColor = color; updateVertices(); }
+    
+    auto getTargetColor() const { return targetColor; }
+    void setTargetColor(sf::Color color) { targetColor = color; updateVertices(); }
+    
+    auto getBackdropColor() const { return backdropColor; }
+    void setBackdropColor(sf::Color color) { backdropColor = color; updateVertices(); }
 
     auto getIcon() const { return icon; }
     void setIcon(const std::shared_ptr<sf::Texture>& i) { icon = i; }

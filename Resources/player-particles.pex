@@ -34,6 +34,7 @@
     </particle-emitter>
 
     <particle-emitter name="bomb">
+        <particle-style value="disk"/>
         <total-lifetime value="0.02"/>
         <emission-period value="0.0001"/>
 
@@ -45,8 +46,8 @@
         <speed first="200" second="480"/>
         <acceleration x="0" y="1024"/>
 
-        <size-begin value="16"/>
-        <size-end value="16"/>
+        <size-begin value="12"/>
+        <size-end value="12"/>
 
         <lifetime value="1.6"/>
         <color-begin value="#6666ffff"/>
@@ -54,6 +55,7 @@
     </particle-emitter>
 
     <particle-emitter name="dash-right">
+        <particle-style value="disk"/>
         <total-lifetime value="infinity"/>
         <emission-period value="0.01"/>
 
@@ -78,6 +80,7 @@
     </particle-emitter>
 
     <particle-emitter name="enhanced-dash-right" extends="dash-right">
+        <direction first="160" second="200"/>
         <emission-period value="0.003"/>
         <lifetime value="1.5"/>
         <color-begin value="#ff220080"/>
@@ -110,5 +113,24 @@
         <lifetime value="0.2"/>
         <color-begin value="#ffffffff"/>
         <color-end value="#ffffff00"/>
+    </particle-emitter>
+    
+    <particle-emitter name="player-death">
+        <total-lifetime value="1.6"/>
+        <particle-style value="disk"/>
+        <emission-period value="0.01"/>
+        
+        <emission-center x="0" y="0"/>
+        <emission-half-size x="0" y="0"/>
+        
+        <direction first="0" second="360"/>
+        <speed value="500"/>
+
+        <size-begin value="64"/>
+        <size-end value="64"/>
+        
+        <lifetime value="2"/>
+        <color-begin value="#ffffffc0"/>
+        <color-end value="#ffffffc0"/>
     </particle-emitter>
 </particle-emitter-set>
