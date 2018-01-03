@@ -117,4 +117,26 @@ void ChipmunkDebugDrawable::draw(sf::RenderTarget& target, sf::RenderStates stat
 
         renderData.target.draw(pts.data(), pts.size(), sf::PrimitiveType::TriangleFan, renderData.states);
     }, &renderData);
+    cpSpaceEachBody(space, [](cpBody* body, void* data)
+    {
+        RenderData& renderData = *(RenderData*)data;
+        
+        cpBodyEachArbiter(body, [](cpBody* body, cpArbiter* arbiter, void* data)
+        {
+            RenderData& renderData = *(RenderData*)data;
+            
+            std::vector<sf::Vertex> pts;
+            auto set = cpArbiterGetContactPointSet(arbiter);
+            
+            for (size_t i = 0; i < set.count; i++)
+            {
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointA.x, set.points[i].pointA.y),
+                    sf::Color::Red));
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointB.x, set.points[i].pointB.y),
+                    sf::Color::Yellow));
+            }
+
+            renderData.target.draw(pts.data(), pts.size(), sf::PrimitiveType::Points, renderData.states);
+        }, &renderData);
+    }, &renderData);
 }

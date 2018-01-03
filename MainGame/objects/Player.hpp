@@ -32,6 +32,8 @@ constexpr cpFloat PlayerArea = 3.14159265359 * PlayerRadius * PlayerRadius;
 
 class Player final : public GameObject
 {
+    enum class CollisionState { None, Ground, WallLeft, WallRight, Ceiling, Spike };
+    
     using TimePoint = std::chrono::steady_clock::time_point;
     
     Sprite sprite, grappleSprite;
@@ -39,11 +41,12 @@ class Player final : public GameObject
     ParticleBatch* dashBatch;
     ParticleBatch* hardballBatch;
 
+    CollisionState previousWallState;
+
     cpVect graphicalDisplacement;
     cpFloat angle, lastFade;
-    bool wallJumpPressedBefore, dashConsumed, doubleJumpConsumed;
-    bool chargingForHardball, hardballEnabled;
-    bool grappleEnabled, wallJumpFromRight;
+    bool dashConsumed, doubleJumpConsumed;
+    bool chargingForHardball, hardballEnabled, grappleEnabled;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
          grappleTime, spikeTime, invincibilityTime, curTime;
@@ -87,21 +90,21 @@ public:
     void heal(size_t amount);
     bool damage(size_t amount, bool overrideInvincibility = false);
 
-    auto canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
-    auto canBreakDash() const { return abilityLevel >= 8; }
+    bool canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
+    bool canBreakDash() const { return abilityLevel >= 8; }
     bool isEnhanced() const { return abilityLevel >= 6; }
+
+    auto canGrapple() const { return grappleEnabled; }
+    void setGrappling(bool val)
+    {
+        if (val) grapplePoints++;
+        else grapplePoints--;
+        grappleTime = curTime;
+    }
 
     float getDashDisplay() const;
     
-    void upgradeToAbilityLevel(size_t level)
-    {
-		if (abilityLevel < level)
-		{
-			abilityLevel = level;
-			setPlayerSprite();
-		}
-    }
-    
+    void upgradeToAbilityLevel(size_t level);
     void upgradeHealth();
 
     bool isDashing() const;
@@ -115,25 +118,35 @@ public:
     cpFloat hardballFactor() const;
     void addToWaterArea(cpFloat area) { waterArea += area; }
 
+    void applyMovementForces();
+    void applyWaterForces();
+    CollisionState enumerateAndActOnArbiters();
+    
+    void actOnGround(bool waterborne = false);
+    void actAirborne();
+    void actOnWalls(CollisionState state);
+    
+    bool observeWallJumpTrigger();
+    void observeDashAction();
+    void observeDoubleJumpAction();
+    void observeBombAction();
+    void observeHardballTrigger();
+    void observeGrappleTrigger();
+
     void jump();
     void decayJump();
-    void wallJump();
+    void wallJump(CollisionState state);
     void dash();
-    void observeHardballTrigger();
     void lieBomb(std::chrono::steady_clock::time_point curTime);
+    
+    void abortDash();
+    void disableDashBatch();
+    void abortHardball();
 
     void hitSpikes();
     void respawnFromSpikes();
 
     void setPlayerSprite();
-
-    auto canGrapple() const { return grappleEnabled; }
-    void setGrappling(bool val)
-    {
-        if (val) grapplePoints++;
-        else grapplePoints--;
-        grappleTime = curTime;
-    }
 
     friend class ::collectibles::Powerup;
     friend class Bomb;

@@ -18,7 +18,7 @@ namespace cp
     class Shape;
 
     typedef std::function<void(cpShape*, cpVect, cpFloat, cpVect)> PointQueryFunc;
-    typedef std::function<void(std::shared_ptr<Shape>, cpFloat, cpVect)> SegmentQueryFunc;
+    typedef std::function<void(cpShape*, cpFloat, cpVect)> SegmentQueryFunc;
     
     class Space
     {
@@ -160,11 +160,11 @@ namespace cp
         std::unordered_map<cpBody*, std::shared_ptr<Body>> _bodies;
         std::unordered_map<cpConstraint*, std::shared_ptr<Constraint>> _constraints;
 
-        struct SegmentQueryData
+        /*struct SegmentQueryData
         {
             const Space* const self;
             SegmentQueryFunc& func;
-        };
+        };*/
         
         struct CallbackData
         {

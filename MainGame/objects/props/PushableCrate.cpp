@@ -80,12 +80,12 @@ bool PushableCrate::configure(const PushableCrate::ConfigStruct& config)
     setupPhysics(config.width, config.height);
     
     belongingRoomID = gameScene.getCurrentRoomID();
-    if (gameScene.getLevelPersistentData().existsDataOfType<cpVect>(getPositionKey()))
-        setPosition(gameScene.getLevelPersistentData().getData<cpVect>(getPositionKey()));
-    else setPosition(cpVect{config.position.x - (cpFloat)width/2, config.position.y - (cpFloat)height/2});
     
     if (gameScene.getLevelPersistentData().existsDataOfType<cpFloat>(getRotationKey()))
         shape->getBody()->setAngle(gameScene.getLevelPersistentData().getData<cpFloat>(getRotationKey()));
+    if (gameScene.getLevelPersistentData().existsDataOfType<cpVect>(getPositionKey()))
+        setPosition(gameScene.getLevelPersistentData().getData<cpVect>(getPositionKey()));
+    else setPosition(cpVect{config.position.x - (cpFloat)width/2, config.position.y - (cpFloat)height/2});
 
     return true;
 }
@@ -140,7 +140,7 @@ void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
 
             body->setBodyType(CP_BODY_TYPE_DYNAMIC);
 
-            if (std::abs(vel.x) < 1.0)
+            /*if (std::abs(vel.x) < 1.0)
             {
                 vel.x = 0;
                 body->setVelocity(vel);
@@ -148,8 +148,9 @@ void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
             else
             {
                 auto sgn = vel.x > 0 ? -1.0 : vel.x < 0 ? 1.0 : 0.0;
-                body->applyForceAtLocalPoint(cpVect{ 18 * sgn * body->getMass(), 0 }, cpVect{0, 0});
-            }
+                auto trans = cpvunrotate({ 18 * sgn * body->getMass(), 0 }, body->getRotation());
+                body->applyForceAtLocalPoint(trans, cpVect{0, 0});
+            }*/
         }
         else shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);
     }

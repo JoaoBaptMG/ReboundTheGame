@@ -1,6 +1,7 @@
 #ifndef CHIPMUNK_CPPMUNK_H
 #define CHIPMUNK_CPPMUNK_H
 
+#include "cpVectOperations.h"
 #include "cppmunk/Arbiter.h"
 #include "cppmunk/Body.h"
 #include "cppmunk/BoundingBox.h"

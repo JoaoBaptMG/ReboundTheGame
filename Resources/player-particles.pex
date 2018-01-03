@@ -110,7 +110,7 @@
         <size-begin value="12"/>
         <size-end value="12"/>
 
-        <lifetime value="0.2"/>
+        <lifetime value="0.3"/>
         <color-begin value="#ffffffff"/>
         <color-end value="#ffffff00"/>
     </particle-emitter>
@@ -129,7 +129,7 @@
         <size-begin value="64"/>
         <size-end value="64"/>
         
-        <lifetime value="2"/>
+        <lifetime value="3"/>
         <color-begin value="#ffffffc0"/>
         <color-end value="#ffffffc0"/>
     </particle-emitter>

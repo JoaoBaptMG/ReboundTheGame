@@ -18,10 +18,7 @@
 #include <functional>
 #include <limits>
 #include <iostream>
-#include <cppmunk/Body.h>
-#include <cppmunk/CircleShape.h>
-#include <cppmunk/Space.h>
-#include <cppmunk/Arbiter.h>
+#include <cppmunk.h>
 
 #include <random>
 #include <cmath>
@@ -64,8 +61,8 @@ constexpr size_t SpikeDamage = 50;
 Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
-    chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), wallJumpFromRight(false),
-	grapplePoints(0), dashBatch(nullptr), hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1),
+    chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0), dashBatch(nullptr),
+    hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1), previousWallState(CollisionState::None),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
@@ -130,21 +127,49 @@ Player::~Player()
 void Player::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
-    const auto& controller = gameScene.getPlayerController();
     
+    if (spikeTime != decltype(spikeTime)())
+    {
+        if (curTime > spikeTime) respawnFromSpikes();
+        return;
+    }
+    
+    applyMovementForces();
+    auto state = enumerateAndActOnArbiters();
+    
+    switch (state)
+    {
+        case CollisionState::Ceiling:
+        case CollisionState::None: actAirborne(); break;
+        case CollisionState::Ground: actOnGround(); break;
+        case CollisionState::WallLeft: actOnWalls(state); break;
+        case CollisionState::WallRight: actOnWalls(state); break;
+        case CollisionState::Spike: hitSpikes(); return;
+    }
+    
+    if (abilityLevel >= 5) observeBombAction();
+    
+    if (onWater())
+    {
+        applyWaterForces();
+        if (canWaterJump()) actOnGround();
+        if (state == CollisionState::Ceiling)
+            observeHardballTrigger();
+    }
+
+    if (invincibilityTime != decltype(invincibilityTime)() && curTime > invincibilityTime)
+        reset(invincibilityTime);
+}
+
+void Player::applyMovementForces()
+{
+    const auto& controller = gameScene.getPlayerController();
     auto vec = controller.movement.getValue();
     if (chargingForHardball) vec.x = vec.y = 0;
     
     auto body = playerShape->getBody();
     auto pos = body->getPosition();
     auto vel = body->getVelocity();
-    auto dt = toSeconds<cpFloat>(UpdateFrequency);
-
-    if (spikeTime != decltype(spikeTime)())
-    {
-        if (curTime > spikeTime) respawnFromSpikes();
-        return;
-    }
 
     cpVect base;
     if (grapplePoints == 0)
@@ -161,14 +186,38 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     else base.x = vec.x, base.y = vec.y;
     body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
+    auto dt = toSeconds<cpFloat>(UpdateFrequency);
     if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
     angle += radiansToDegrees(vel.x * dt / 32);
     angle -= 360 * round(angle/360);
+}
 
-    bool onGround = false, wallHit = false, onWaterCeiling = false, spikesHit = false;
+void Player::applyWaterForces()
+{
+    auto body = playerShape->getBody();
+    auto vel = body->getVelocity();
+    auto dt = toSeconds<cpFloat>(UpdateFrequency);
+    
+    cpFloat density = hardballEnabled ? 0.4 : 1.6;
+    
+    // buoyancy
+    auto force = -gameScene.getGameSpace().getGravity() * density * waterArea;
+    body->applyForceAtLocalPoint(force, cpvzero);
+
+    // drag: this velocity minimum is required for double jumps to work on water
+    if (cpvlengthsq(body->getVelocity()) >= 18)
+    {
+        auto damping = exp(-2 * density * dt * (waterArea/PlayerArea));
+        playerShape->getBody()->applyImpulseAtLocalPoint(vel * (damping-1) * PlayerArea, cpvzero);
+    }
+}
+
+Player::CollisionState Player::enumerateAndActOnArbiters()
+{
+    CollisionState state = CollisionState::None;
 
     graphicalDisplacement = cpVect{0, 0};
-    body->eachArbiter([&,this] (cp::Arbiter arbiter)
+    playerShape->getBody()->eachArbiter([&,this] (cp::Arbiter arbiter)
     {
 		enum { None, Left, Top, Right, Bottom } dir = None;
 
@@ -181,186 +230,242 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 		}
 
         bool walljump = true;
-        if (dir == Bottom) onGround = true;
-        if (onWaterNoHardball() && dir == Top) onWaterCeiling = true;
+        if (dir == Bottom) state = CollisionState::Ground;
+        else if (dir == Top) state = CollisionState::Ceiling;
 
         if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
         {
             auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
                 arbiter.getShapeB() : arbiter.getShapeA();
-            
-            if (isDashing() && cpShapeGetCollisionType(shp) == Interactable)
-                    (*(GameObject::InteractionHandler*)cpShapeGetUserData(shp))(DashInteractionType, (void*)this);
 
             if (cpShapeGetCollisionType(shp) == Room::CollisionType)
             {
                 switch (*(TileSet::Attribute*)cpShapeGetUserData(shp))
                 {
                     case TileSet::Attribute::NoWalljump: walljump = false; break;
-                    case TileSet::Attribute::Spike: spikesHit = true; break;
+                    case TileSet::Attribute::Spike: state = CollisionState::Spike; break;
                     default: break;
                 }
-                
-                graphicalDisplacement = graphicalDisplacement + arbiter.getNormal() * arbiter.getDepth(0);
+            }
+            else
+            {
+                abortHardball();
             }
             
-            reset(dashTime);
-            dashDirection = DashDir::None;
+            {
+                cpFloat sgn = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ? 1 : -1;
+                cpFloat depthSum = 0;
+                
+                auto set = cpArbiterGetContactPointSet(arbiter);
+                for (size_t i = 0; i < set.count; i++)
+                    depthSum += set.points[i].distance;
+                
+                graphicalDisplacement += sgn * depthSum * set.normal;
+            }
+            
+            if (isDashing() && cpShapeGetCollisionType(shp) == Interactable)
+                (*(GameObject::InteractionHandler*)cpShapeGetUserData(shp))(DashInteractionType, (void*)this);
+            
+            abortDash();
         }
 
-		if (walljump)
-		{
-			if (dir == Left || dir == Right)
-			{
-				wallHit = true;
-				wallJumpFromRight = dir == Right;
-			}
-		}
+		if (state == CollisionState::None && walljump && (dir == Left || dir == Right))
+            state = dir == Left ? CollisionState::WallLeft : CollisionState::WallRight;
     });
+    
+    return state;
+}
 
-    if (spikesHit)
+void Player::actOnGround(bool waterborne)
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    lastSafePosition = getPosition();
+    lastSafeRoomID = gameScene.getCurrentRoomID();
+
+    previousWallState = CollisionState::None;
+    dashConsumed = false;
+    doubleJumpConsumed = false;
+    reset(wallJumpTriggerTime);
+    
+    if (controller.jump.isTriggered() && !chargingForHardball) jump();
+	if (abilityLevel >= 7 && !waterborne) observeHardballTrigger();
+}
+
+void Player::actAirborne()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.jump.isReleased()) decayJump();
+    
+    if (hardballEnabled == onWater())
     {
-        hitSpikes();
+        bool wallJumped;
+        if (abilityLevel >= 1) wallJumped = observeWallJumpTrigger();
+        if (abilityLevel >= 3) observeDashAction();
+        if (abilityLevel >= 4 && !wallJumped) observeDoubleJumpAction();
+        if (abilityLevel >= 9) observeGrappleTrigger();
+    }
+}
+
+void Player::actOnWalls(Player::CollisionState state)
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (abilityLevel >= 1 && hardballEnabled == onWater())
+    {
+        if (controller.jump.isTriggered()) wallJump(state);
+        else if (previousWallState == CollisionState::None &&
+            curTime - wallJumpTriggerTime < 6 * UpdateFrequency) wallJump(state);
+        else
+        {
+            previousWallState = state;
+            wallJumpTriggerTime = curTime;
+        }
+    }
+}
+
+bool Player::observeWallJumpTrigger()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.jump.isTriggered())
+    {
+        if (previousWallState == CollisionState::None) wallJumpTriggerTime = curTime;
+        else if (curTime - wallJumpTriggerTime < 6 * UpdateFrequency)
+        {
+            wallJump(previousWallState);
+            previousWallState = CollisionState::None;
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void Player::observeDashAction()
+{
+    const auto& controller = gameScene.getPlayerController();
+    auto vec = controller.movement.getValue();
+    
+    if (!dashConsumed && controller.dash.isTriggered())
+    {
+        if (vec.x > 0.25) dashDirection = DashDir::Right;
+        else if (vec.x < -0.25) dashDirection = DashDir::Left;
+        else if (vec.y < -0.25 && abilityLevel >= 10) dashDirection = DashDir::Up;
+
+        if (dashDirection != DashDir::None)
+        {
+            dashTime = curTime;
+            dashConsumed = true;
+        }
+    }
+    else if (controller.dash.isReleased()) abortDash();
+
+    if (isDashing())
+    {
+        dash();
+        
+        if (!dashBatch)
+        {
+            auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", getDashEmitterName(), true);
+            dashBatch = batch.get();
+            gameScene.addObject(std::move(batch));
+        }
+        
+        dashBatch->setPosition(getDisplayPosition());
+    }
+    else disableDashBatch();
+}
+
+void Player::observeDoubleJumpAction()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.jump.isTriggered() && !doubleJumpConsumed)
+    {
+        jump();
+        doubleJumpConsumed = true;
+    }
+}
+
+void Player::observeBombAction()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.bomb.isTriggered() && numBombs > 0) lieBomb(curTime);
+}
+
+void Player::observeHardballTrigger()
+{
+    const auto& controller = gameScene.getPlayerController();
+    auto vec = controller.movement.getValue();
+
+    bool stopped = cpvlengthsq(playerShape->getBody()->getVelocity()) < NullSpeed*NullSpeed;
+
+    if (invincibilityTime != decltype(invincibilityTime)())
+    {
+        chargingForHardball = false;
+        reset(hardballTime);
         return;
     }
 
-	if (abilityLevel >= 7 && (onGround || onWaterCeiling))
-        if (cpvlengthsq(vel) < NullSpeed*NullSpeed) observeHardballTrigger();
-    
-    if (onGround)
+    if (controller.dash.isTriggered() && vec.y > 0.5 && stopped)
     {
-		lastSafePosition = getPosition();
-		lastSafeRoomID = gameScene.getCurrentRoomID();
+        chargingForHardball = true;
+        hardballTime = curTime;
+    }
+    else if (controller.dash.isReleased())
+    {
+        reset(hardballTime);
+        chargingForHardball = false;
+    }
 
-        wallJumpPressedBefore = false;
-        dashConsumed = false;
-        doubleJumpConsumed = false;
-        if (controller.jump.isTriggered() && !onWaterNoHardball() && !chargingForHardball) jump();
+    if (hardballTime != decltype(hardballTime)())
+    {
+        if (!hardballBatch)
+        {
+            auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "hardball-spark");
+            hardballBatch = batch.get();
+            hardballBatch->setPosition(getDisplayPosition());
+            gameScene.addObject(std::move(batch));
+        }
+        
+        if (vec.y <= 0.5 || !stopped)
+        {
+            reset(hardballTime);
+            chargingForHardball = false;
+        }
+        else if (curTime - hardballTime >= HardballChangeTime)
+        {
+            reset(hardballTime);
+            chargingForHardball = false;
+            hardballEnabled = !hardballEnabled;
+            setPlayerSprite();
+            
+            if (hardballBatch)
+            {
+                hardballBatch->abort();
+                hardballBatch = nullptr;
+            }
+        }
     }
     else
     {
-        if (controller.jump.isReleased()) decayJump();
-        else if (controller.jump.isTriggered())
+        if (hardballBatch)
         {
-            if (abilityLevel >= 1 && !hardballOnAir())
-            {
-                if (!wallJumpPressedBefore && curTime - wallJumpTriggerTime < 4 * UpdateFrequency)
-                    wallJump();
-                else
-                {
-                    wallJumpPressedBefore = true;
-                    wallJumpTriggerTime = curTime;
-                }
-            }
-
-            if (abilityLevel >= 4 && !doubleJumpConsumed && (hardballEnabled == onWater()))
-            {
-                jump();
-                doubleJumpConsumed = true;
-            }
-        }
-
-        if (abilityLevel >= 3 && !hardballOnAir())
-        {
-            if (!dashConsumed && controller.dash.isTriggered())
-            {
-                if (vec.x > 0.25) dashDirection = DashDir::Right;
-                else if (vec.x < -0.25) dashDirection = DashDir::Left;
-                else if (vec.y < -0.25 && abilityLevel >= 10) dashDirection = DashDir::Up;
-
-                if (dashDirection != DashDir::None)
-                {
-                    dashTime = curTime;
-                    dashConsumed = true;
-                }
-            }
-            else if (controller.dash.isReleased())
-            {
-                 reset(dashTime);
-                 dashDirection = DashDir::None;
-            }
-
-            if (isDashing())
-            {
-                dash();
-                
-                if (!dashBatch)
-                {
-                    auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe",
-                        getDashEmitterName(), true);
-                    dashBatch = batch.get();
-                    gameScene.addObject(std::move(batch));
-                }
-            }
-            if (!isDashing() && dashBatch)
-            {
-                dashBatch->abort();
-                dashBatch = nullptr;
-            }
-        }
-
-        if (hardballOnAir() && isDashing())
-        {
-            reset(dashTime);
-            dashDirection = DashDir::None;
-            if (dashBatch)
-            {
-                dashBatch->abort();
-                dashBatch = nullptr;
-            }
+            hardballBatch->abort();
+            hardballBatch = nullptr;
         }
     }
+}
 
-    if (wallHit && abilityLevel >= 1 && !hardballOnAir())
-    {
-        if (wallJumpPressedBefore)
-        {
-            if (curTime - wallJumpTriggerTime < 4 * UpdateFrequency)
-            {
-                wallJumpPressedBefore = false;
-                wallJump();
-            }
-        }
-        else wallJumpTriggerTime = curTime;
-    }
-
-    if (controller.bomb.isTriggered() && abilityLevel >= 5 && numBombs > 0) lieBomb(curTime);
-
-    if (onWater())
-    {
-        cpFloat density = hardballEnabled ? 0.4 : 1.6;
-        
-        // buoyancy
-        auto force = -gameScene.getGameSpace().getGravity() * density * waterArea;
-        body->applyForceAtLocalPoint(force, cpvzero);
-
-        // drag: this velocity minimum is required for double jumps to work on water
-        if (cpvlengthsq(body->getVelocity()) >= 18)
-        {
-            auto damping = exp(-2 * density * dt * (waterArea/PlayerArea));
-            body->applyImpulseAtLocalPoint(body->getVelocity() * (damping-1) * PlayerArea, cpvzero);
-        }
-
-        if (!hardballEnabled && canWaterJump())
-        {
-            wallJumpPressedBefore = false;
-            dashConsumed = false;
-            doubleJumpConsumed = false;
-            if (controller.jump.isTriggered()) jump();
-        }
-    }
-
-    if (abilityLevel >= 9 && (hardballEnabled == onWater()))
-    {
-        if (controller.jump.isTriggered()) grappleEnabled = true;
-        else if (controller.jump.isReleased()) grappleEnabled = false;
-    }
-
-    if (dashBatch) dashBatch->setPosition(getDisplayPosition());
-    if (hardballBatch) hardballBatch->setPosition(getDisplayPosition());
-
-    if (invincibilityTime != decltype(invincibilityTime)() && curTime > invincibilityTime)
-        reset(invincibilityTime);
+void Player::observeGrappleTrigger()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.jump.isTriggered()) grappleEnabled = true;
+    else if (controller.jump.isReleased()) grappleEnabled = false;
 }
 
 bool Player::notifyScreenTransition(cpVect displacement)
@@ -388,7 +493,7 @@ void Player::decayJump()
     body->applyImpulseAtLocalPoint(cpVect{0, y} * body->getMass(), cpvzero);
 }
 
-void Player::wallJump()
+void Player::wallJump(Player::CollisionState state)
 {
     reset(wallJumpTriggerTime);
     doubleJumpConsumed = false;
@@ -397,11 +502,11 @@ void Player::wallJump()
     auto peakJumpSpeed = abilityLevel >= 6 ? PeakJumpSpeedEnhanced : PeakJumpSpeed;
     
     auto body = playerShape->getBody();
-	auto sgn = wallJumpFromRight ? -1.0 : 1.0;
+	auto sgn = state == CollisionState::WallRight ? -1.0 : 1.0;
     auto dv = cpVect{sgn*maxHorSpeed*hardballFactor(), -peakJumpSpeed*sqrt(hardballFactor())} - body->getVelocity();
     body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
 
-    auto name = body->getVelocity().x > 0 ? "wall-jump-left" : "wall-jump-right";
+    auto name = state == CollisionState::WallLeft ? "wall-jump-left" : "wall-jump-right";
     auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", name);
     batch->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(batch));
@@ -437,62 +542,31 @@ void Player::dash()
     body->applyImpulseAtLocalPoint(dv * body->getMass(), cpvzero);
 }
 
+void Player::abortDash()
+{
+    reset(dashTime);
+    dashDirection = DashDir::None;
+}
+
+void Player::disableDashBatch()
+{
+    if (dashBatch)
+    {
+        dashBatch->abort();
+        dashBatch = nullptr;
+    }
+}
+
+void Player::abortHardball()
+{
+    reset(hardballTime);
+    chargingForHardball = false;
+}
+
 void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
 {
     numBombs--;
     gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition() + graphicalDisplacement, curTime));
-}
-
-void Player::observeHardballTrigger()
-{
-    const auto& controller = gameScene.getPlayerController();
-    auto vec = controller.movement.getValue();
-
-    if (invincibilityTime != decltype(invincibilityTime)())
-    {
-        chargingForHardball = false;
-        reset(hardballTime);
-        return;
-    }
-
-    if (controller.dash.isTriggered() && vec.y > 0.5)
-    {
-        chargingForHardball = true;
-        hardballTime = curTime;
-    }
-    else if (controller.dash.isReleased())
-    {
-        chargingForHardball = false;
-        reset(hardballTime);
-    }
-
-    if (chargingForHardball)
-    {
-        if (vec.y <= 0.5)
-        {
-            reset(hardballTime);
-            chargingForHardball = false;
-        }
-        else if (curTime - hardballTime >= HardballChangeTime)
-        {
-            reset(hardballTime);
-            hardballEnabled = !hardballEnabled;
-            chargingForHardball = false;
-            setPlayerSprite();
-        }
-    }
-
-    if (chargingForHardball && !hardballBatch)
-    {
-        auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "hardball-spark");
-        hardballBatch = batch.get();
-        gameScene.addObject(std::move(batch));
-    }
-    else if (!chargingForHardball && hardballBatch)
-    {
-        hardballBatch->abort();
-        hardballBatch = nullptr;
-    }
 }
 
 //extern std::string CurrentIcon;
@@ -546,12 +620,8 @@ bool Player::damage(size_t amount, bool overrideInvincibility)
     {
         health = 0;
         
-        if (hardballBatch)
-        {
-            hardballBatch->abort();
-            hardballBatch = nullptr;
-        }
-        
+        disableDashBatch();
+    
         gameScene.addObject(std::make_unique<PlayerDeath>(gameScene, *this, sprite.getTexture()));
         remove();
         return true;
@@ -560,6 +630,20 @@ bool Player::damage(size_t amount, bool overrideInvincibility)
 
     invincibilityTime = curTime + Invincibility;
     return false;
+}
+
+void Player::upgradeToAbilityLevel(size_t level)
+{
+    if (abilityLevel < level)
+    {
+        abilityLevel = level;
+        setPlayerSprite();
+    }
+}
+
+void Player::upgradeHealth()
+{
+    maxHealth += HealthIncr;
 }
 
 bool Player::onWater() const
@@ -599,11 +683,6 @@ float Player::getDashDisplay() const
     
     if (!dashConsumed) return 1;
     else return std::max(1.0f - toSeconds<float>(curTime - dashTime)/toSeconds<float>(dashInterval), 0.0f);
-}
-
-void Player::upgradeHealth()
-{
-    maxHealth += HealthIncr;
 }
 
 void Player::render(Renderer& renderer)

@@ -99,16 +99,16 @@ namespace cp
                              cpGroup group,
                              SegmentQueryFunc func) const
     {
-        SegmentQueryData data = { this, func };
+        //SegmentQueryData data = { this, func };
         cpShapeFilter filter{static_cast<cpGroup>(group),
             static_cast<cpBitmask>(layers),
             static_cast<cpBitmask>(layers)};
         cpSpaceSegmentQuery(_space, a, b, 0, filter,
         [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
         {
-            auto d = reinterpret_cast<SegmentQueryData*>(data);
-            d->func(d->self->findShape(shape), alpha, normal);
-        }, &data);
+            auto d = reinterpret_cast<SegmentQueryFunc*>(data);
+            (*d)(shape, alpha, normal);
+        }, &func);
     }
     
     std::shared_ptr<Shape> Space::segmentQueryFirst(cpVect a,
