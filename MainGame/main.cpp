@@ -28,6 +28,8 @@
 
 using namespace std::literals::chrono_literals;
 
+bool clearMapTextures();
+bool GlobalUpdateWindowHandler;
 int main(int argc, char **argv)
 {
     auto locale = std::setlocale(LC_ALL, "");
@@ -40,6 +42,7 @@ int main(int argc, char **argv)
         settings.languageFile = languageDescriptorForLocale(locale);
     }
     
+    GlobalUpdateWindowHandler = false;
     WindowHandler windowHandler(settings.videoSettings.fullscreen, settings.videoSettings.vsyncEnabled);
 
     InputManager inputManager;
@@ -52,10 +55,10 @@ int main(int argc, char **argv)
     
     auto scene = new TitleScene(settings, inputManager, resourceManager, localizationManager);
     
+    auto updateTime = std::chrono::steady_clock::now();
+    
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
-
-    auto updateTime = std::chrono::steady_clock::now();
 
     while (windowHandler.getWindow().isOpen())
     {
@@ -93,10 +96,19 @@ int main(int argc, char **argv)
             break;
         }
 
+        if (GlobalUpdateWindowHandler)
+        {
+            windowHandler.setFullscreen(settings.videoSettings.fullscreen);
+            windowHandler.setVsyncEnabled(settings.videoSettings.vsyncEnabled);
+            GlobalUpdateWindowHandler = false;
+        }
+
         windowHandler.prepareForDraw();
         sceneManager.render(windowHandler.getRenderer());
         windowHandler.display();
     }
+
+    clearMapTextures();
 
     if (!storeSettingsFile(settings))
         std::cout << "WARNING! Settings file not stored properly!" << std::endl;

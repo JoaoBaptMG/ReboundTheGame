@@ -2,7 +2,7 @@
 
 #include <non_copyable_movable.hpp>
 
-#include <stack>
+#include <vector>
 #include <memory>
 #include <chrono>
 
@@ -11,9 +11,11 @@ class Renderer;
 
 class SceneManager final : util::non_copyable_movable
 {
-    std::stack<std::unique_ptr<Scene>> sceneStack;
-    bool deletionScheduled;
-    std::unique_ptr<Scene> postDeletionScene;
+    std::vector<std::unique_ptr<Scene>> sceneStack;
+    enum { None, Push, Pop } scheduledOperation;
+    std::unique_ptr<Scene> operationScene;
+    bool requestBelow;
+    std::chrono::steady_clock::time_point curTime;
 
 public:
     SceneManager();
@@ -22,11 +24,19 @@ public:
     void pushScene(Scene* scene);
     void popScene();
     void replaceScene(Scene* scene);
+    
+    void pushSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration);
+    void popSceneTransition(std::chrono::steady_clock::duration duration);
+    void replaceSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration);
 
     void handleScreenTransition();
 
     inline bool hasScenes() const { return !sceneStack.empty(); }
+    auto currentScene() const { return sceneStack.back().get(); }
 
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);
+    
+    void updateBelow() { requestBelow = true; }
+    void renderBelow() { requestBelow = true; }
 };

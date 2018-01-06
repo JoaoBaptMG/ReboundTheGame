@@ -5,6 +5,9 @@ bool readFromStream(sf::InputStream &stream, InputSettings& settings)
     return readFromStream(stream, settings.keyboardSettings.dashInput,
                                   settings.keyboardSettings.jumpInput,
                                   settings.keyboardSettings.bombInput,
+                                  settings.keyboardSettings.switchScreenLeft,
+                                  settings.keyboardSettings.switchScreenRight,
+                                  settings.keyboardSettings.pauseInput,
                                   settings.keyboardSettings.moveUp,
                                   settings.keyboardSettings.moveDown,
                                   settings.keyboardSettings.moveLeft,
@@ -13,6 +16,9 @@ bool readFromStream(sf::InputStream &stream, InputSettings& settings)
                                   settings.joystickSettings.dashInput,
                                   settings.joystickSettings.jumpInput,
                                   settings.joystickSettings.bombInput,
+                                  settings.joystickSettings.switchScreenLeft,
+                                  settings.joystickSettings.switchScreenRight,
+                                  settings.joystickSettings.pauseInput,
                                   settings.joystickSettings.movementAxisX,
                                   settings.joystickSettings.movementAxisY);
 }
@@ -22,6 +28,9 @@ bool writeToStream(OutputStream& stream, const InputSettings& settings)
     return writeToStream(stream, settings.keyboardSettings.dashInput,
                                  settings.keyboardSettings.jumpInput,
                                  settings.keyboardSettings.bombInput,
+                                 settings.keyboardSettings.switchScreenLeft,
+                                 settings.keyboardSettings.switchScreenRight,
+                                 settings.keyboardSettings.pauseInput,
                                  settings.keyboardSettings.moveUp,
                                  settings.keyboardSettings.moveDown,
                                  settings.keyboardSettings.moveLeft,
@@ -30,6 +39,9 @@ bool writeToStream(OutputStream& stream, const InputSettings& settings)
                                  settings.joystickSettings.dashInput,
                                  settings.joystickSettings.jumpInput,
                                  settings.joystickSettings.bombInput,
+                                 settings.joystickSettings.switchScreenLeft,
+                                 settings.joystickSettings.switchScreenRight,
+                                 settings.joystickSettings.pauseInput,
                                  settings.joystickSettings.movementAxisX,
                                  settings.joystickSettings.movementAxisY);
 }

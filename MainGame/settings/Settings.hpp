@@ -7,7 +7,7 @@
 #include "VideoSettings.hpp"
 #include "AudioSettings.hpp"
 
-constexpr size_t SettingsVersion = 1;
+constexpr size_t SettingsVersion = 2;
 
 struct Settings
 {

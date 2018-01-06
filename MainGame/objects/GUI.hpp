@@ -37,4 +37,5 @@ public:
     void render(Renderer& renderer);
 
     void setLevelNumber(size_t number);
+    void setVisibleMaps(const std::vector<bool>& visibleMaps);
 };

@@ -29,6 +29,10 @@ public:
 
     sf::Vector2f getAnchorPoint() const { return anchorPoint; }
     void setAnchorPoint(sf::Vector2f ap) { anchorPoint = ap; }
+    void centerAnchorPoint()
+    { 
+        setAnchorPoint(sf::Vector2f(texRect.left + texRect.width/2, texRect.top + texRect.height/2));
+    }
 
     auto getTextureSize() const
     {

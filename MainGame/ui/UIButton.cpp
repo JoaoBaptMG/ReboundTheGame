@@ -1,10 +1,12 @@
 #include "UIButton.hpp"
 
+#include "UIButtonGroup.hpp"
+
 #include "rendering/Renderer.hpp"
 #include <rectUtils.hpp>
 #include <cmath>
 
-UIButton::UIButton(InputManager& inputManager) : state(State::Normal)
+UIButton::UIButton(InputManager& inputManager) : UIButton()
 {
     initialize(inputManager);
 }
@@ -13,21 +15,33 @@ void UIButton::initialize(InputManager& inputManager)
 {
     mouseMovedEntry = inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
+        if (!active) return;
+        
         if (state == State::Normal && bounds.contains(sf::Vector2f(position) - this->position))
         {
-            state = State::Active;
-            if (overAction) overAction();
+            if (parentGroup) parentGroup->setCurrentButton(this);
+            else
+            {
+                state = State::Active;
+                if (overAction) overAction();
+            }
         }
         else if (state != State::Normal && !bounds.contains(sf::Vector2f(position) - this->position))
         {
-            state = State::Normal;
-            if (outAction) outAction();
+            if (parentGroup) parentGroup->setCurrentButton(nullptr);
+            else
+            {
+                state = State::Normal;
+                if (outAction) outAction();
+            }
         }
     });
     
     mouseButtonEntry = inputManager.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
     [=] (InputSource, float val)
     {
+        if (!active || !bounds.contains(sf::Vector2f(position) - this->position)) return;
+        
         if (val > 0.5)
         {
             if (state == State::Active)

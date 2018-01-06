@@ -9,11 +9,12 @@
 #include "objects/Player.hpp"
 #include <chronoUtils.hpp>
 #include <vector_math.hpp>
+#include <cpVectOperations.h>
 
 using namespace props;
 
 constexpr float ExciteRadius = 192;
-constexpr float ExciteForce = 2560;
+constexpr float ExciteForce = 512;
 
 constexpr auto WobblePeriod = 60 * UpdateFrequency;
 constexpr auto GrappleFade = 30 * UpdateFrequency;
@@ -63,16 +64,14 @@ void Grapple::update(std::chrono::steady_clock::time_point curTime)
 
         if (isExcited)
         {
-            auto t = cpvlength(pos - player->getPosition())/ExciteRadius;
-            auto param = 0;
-            auto n = cpvnormalize(pos - player->getPosition());
             auto body = player->getBody();
-
+            auto t = cpvlength(pos - player->getPosition())/ExciteRadius;
+            auto param = ExciteForce;
+            auto n = cpvnormalize(pos - player->getPosition());
             auto vdot = cpvdot(n, body->getVelocity());
             auto dt = toSeconds<cpFloat>(UpdateFrequency);
 
-            body->applyForceAtLocalPoint(-gameScene.getGameSpace().getGravity() * body->getMass(), cpvzero);
-            body->applyImpulseAtLocalPoint(n * (param * dt - 0.01 * vdot) * body->getMass(), cpvzero);
+            body->applyForceAtLocalPoint(n * param * body->getMass(), cpvzero);
         }
     }
     else
@@ -84,7 +83,7 @@ void Grapple::update(std::chrono::steady_clock::time_point curTime)
 
 bool Grapple::notifyScreenTransition(cpVect displacement)
 {
-    pos = pos + displacement;
+    pos += displacement;
     return true;
 }
 

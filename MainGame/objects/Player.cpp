@@ -107,8 +107,8 @@ void Player::setupPhysics()
         [] (Arbiter, Space&) { return true; },
         [] (Arbiter arbiter, Space&)
         {
-            cpFloat angle = cpvtoangle(arbiter.getNormal());
-            if (fabs(angle - 1.57079632679) < 0.52)
+            auto normal = arbiter.getNormal();
+            if (normal.y * 0.75 >= fabs(normal.x))
                 arbiter.setRestitution(0);
             return true;
         }, [] (Arbiter, Space&) {}, [] (Arbiter, Space&) {});
@@ -148,6 +148,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     }
     
     if (abilityLevel >= 5) observeBombAction();
+    if (abilityLevel >= 9 && hardballEnabled == onWater()) observeGrappleTrigger();
     
     if (onWater())
     {
@@ -159,6 +160,8 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 
     if (invincibilityTime != decltype(invincibilityTime)() && curTime > invincibilityTime)
         reset(invincibilityTime);
+        
+    observePauseTrigger();
 }
 
 void Player::applyMovementForces()
@@ -183,7 +186,11 @@ void Player::applyMovementForces()
         
         base = cpVect{vel.x < dest ? 1.0 : vel.x > dest ? -1.0 : 0.0, 0.0};
     }
-    else base.x = vec.x, base.y = vec.y;
+    else 
+    {
+        base.x = vec.x, base.y = vec.y;
+        body->applyForceAtLocalPoint(-gameScene.getGameSpace().getGravity() * body->getMass(), cpvzero);
+    }
     body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     auto dt = toSeconds<cpFloat>(UpdateFrequency);
@@ -282,6 +289,7 @@ void Player::actOnGround(bool waterborne)
     
     lastSafePosition = getPosition();
     lastSafeRoomID = gameScene.getCurrentRoomID();
+    lastHarballState = hardballEnabled;
 
     previousWallState = CollisionState::None;
     dashConsumed = false;
@@ -304,7 +312,6 @@ void Player::actAirborne()
         if (abilityLevel >= 1) wallJumped = observeWallJumpTrigger();
         if (abilityLevel >= 3) observeDashAction();
         if (abilityLevel >= 4 && !wallJumped) observeDoubleJumpAction();
-        if (abilityLevel >= 9) observeGrappleTrigger();
     }
 }
 
@@ -468,6 +475,13 @@ void Player::observeGrappleTrigger()
     else if (controller.jump.isReleased()) grappleEnabled = false;
 }
 
+void Player::observePauseTrigger()
+{
+    const auto& controller = gameScene.getPlayerController();
+    
+    if (controller.pause.isTriggered()) gameScene.requestPauseScreen();
+}
+
 bool Player::notifyScreenTransition(cpVect displacement)
 {
     setPosition(getPosition() + displacement);
@@ -602,6 +616,9 @@ void Player::respawnFromSpikes()
     setPosition(lastSafePosition - cpVect{0, 12});
     playerShape->getBody()->setVelocity(cpvzero);
     gameScene.getGameSpace().add(playerShape->getBody());
+    
+    hardballEnabled = lastHarballState;
+    setPlayerSprite();
 
     invincibilityTime = curTime + SpikeInvincibilityTime;
 }

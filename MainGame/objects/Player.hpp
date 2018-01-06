@@ -22,9 +22,6 @@ namespace collectibles
     class Powerup;
 }
 
-template <typename T, typename = std::enable_if_t<std::is_default_constructible<T>::value>>
-void reset(T& val) { val = T(); }
-
 constexpr size_t MaxBombs = 4;
 
 constexpr cpFloat PlayerRadius = 32;
@@ -59,6 +56,7 @@ class Player final : public GameObject
 
     cpVect lastSafePosition;
     size_t lastSafeRoomID;
+    bool lastHarballState;
 
 public:
     Player(GameScene &scene);
@@ -132,6 +130,7 @@ public:
     void observeBombAction();
     void observeHardballTrigger();
     void observeGrappleTrigger();
+    void observePauseTrigger();
 
     void jump();
     void decayJump();

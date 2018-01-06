@@ -11,7 +11,7 @@ class PlayerController final : util::non_copyable
 public:
     explicit PlayerController(InputManager &manager, const InputSettings &settings);
 
-    ButtonAction jump, dash, bomb;
+    ButtonAction jump, dash, bomb, pause;
     DualAxisAction movement;
 
     void update();

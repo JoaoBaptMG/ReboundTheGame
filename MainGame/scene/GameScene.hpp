@@ -9,6 +9,7 @@
 
 #include "settings/Settings.hpp"
 #include "input/PlayerController.hpp"
+#include "input/CommonActions.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
@@ -45,11 +46,13 @@ class GameScene : public Scene
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
     size_t curRoomID, requestedID;
-    bool objectsLoaded, levelReloadRequested;
+    bool objectsLoaded, levelReloadRequested, pauseScreenRequested;
+    bool pausing;
+    std::vector<bool> visibleMaps;
 
     LocalizationManager &localizationManager;
     InputManager& inputManager;
-    const Settings& settings;
+    Settings& settings;
 
     PlayerController playerController;
     sf::Vector2f offsetPos;
@@ -57,10 +60,11 @@ class GameScene : public Scene
     GUI gui;
     
     std::chrono::steady_clock::time_point curTime, transitionBeginTime, transitionEndTime;
+    std::chrono::duration<size_t, std::milli> pauseLag;
     sf::Vector2f transitionTargetBegin, transitionTargetEnd;
 
 public:
-    GameScene(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
+    GameScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
     virtual ~GameScene() {}
 
     cp::Space& getGameSpace() { return gameSpace; }
@@ -83,6 +87,7 @@ public:
     void requestRoomLoad(size_t id) { requestedID = id; }
     
     void requestLevelReload() { levelReloadRequested = true; }
+    void requestPauseScreen() { pauseScreenRequested = true; }
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
@@ -104,5 +109,7 @@ public:
     void checkWarp(Player* player, WarpData::Dir direction, cpVect pos);
     
     virtual void render(Renderer& renderer) override;
+    
+    virtual void pause() override;
 };
 

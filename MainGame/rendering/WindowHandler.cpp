@@ -42,7 +42,7 @@ void generateFullscreenQuad(sf::VertexArray& array, size_t canvasWidth, size_t c
     array[3].position = sf::Vector2f(quadRect.left, quadRect.top + quadRect.height);
 }
 
-WindowHandler::WindowHandler(bool fullscreen, bool vsync)
+WindowHandler::WindowHandler(bool fullscreen, bool vsync) : vsyncEnabled(vsync)
 {
     if (fullscreen) enableFullscreen();
     else disableFullscreen();
@@ -63,6 +63,10 @@ void WindowHandler::setFullscreen(bool fullscreen)
 #if _WIN32
 	glEnable(GL_POINT_SPRITE);
 #endif
+
+    renderWindow.setVerticalSyncEnabled(vsyncEnabled);
+    renderWindow.setKeyRepeatEnabled(false);
+    renderWindow.setMouseCursorVisible(false);
 }
 
 void WindowHandler::enableFullscreen()

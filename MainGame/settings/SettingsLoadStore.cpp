@@ -16,10 +16,13 @@ static Settings defaultSettings()
                 InputSource::keyboardKey(83),
                 InputSource::keyboardKey(84),
                 InputSource::keyboardKey(85),
+                InputSource::keyboardKey(79),
+                InputSource::keyboardKey(81),
+                InputSource::keyboardKey(9),
                 InputSource::keyboardKey(25),
                 InputSource::keyboardKey(39),
                 InputSource::keyboardKey(38),
-                InputSource::keyboardKey(40)
+                InputSource::keyboardKey(40),
 #endif
             },
 
@@ -27,6 +30,9 @@ static Settings defaultSettings()
                 InputSource::joystickButton(0),
                 InputSource::joystickButton(1),
                 InputSource::joystickButton(2),
+                InputSource::joystickButton(3),
+                InputSource::joystickButton(4),
+                InputSource::joystickButton(5),
                 InputSource::joystickAxis(sf::Joystick::Axis::X),
                 InputSource::joystickAxis(sf::Joystick::Axis::Y),
             }

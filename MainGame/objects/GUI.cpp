@@ -1,7 +1,8 @@
 #include "GUI.hpp"
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
+#include <string>
+#include <cstdlib>
 
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
@@ -18,6 +19,24 @@ constexpr float SecondBlinkPeriod = 0.4;
 
 constexpr size_t FirstBlinkThreshold = 100;
 constexpr size_t SecondBlinkThreshold = 40;
+
+struct ParsedConfigString
+{
+    size_t labelSize, idSize;
+};
+
+ParsedConfigString parseConfigString(std::string config)
+{
+    auto pos = config.find_first_of(' ');
+    if (pos == std::string::npos) return { 0, 0 };
+    auto pos2 = config.find_first_not_of(' ', pos);
+    if (pos2 == std::string::npos) return { 0, 0 };
+    
+    size_t labelSize = strtoull(config.data(), nullptr, 10);
+    size_t idSize = strtoull(config.data() + pos2, nullptr, 10);
+    
+    return { labelSize, idSize };
+}
 
 GUI::GUI(GameScene& scene) : gameScene(scene),
     guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
@@ -43,24 +62,25 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
 void GUI::configureText()
 {
     auto& locManager = gameScene.getLocalizationManager();
+    auto config = parseConfigString(locManager.getString("ingame-gui-level-config"));
     
     levelLabel.setString(locManager.getString("ingame-gui-level-label"));
-    levelLabel.setFontSize(std::strtoull(locManager.getString("ingame-gui-level-label-size").data(), nullptr, 0));
+    levelLabel.setFontSize(config.labelSize);
     levelLabel.setDefaultColor(sf::Color::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
-    levelLabel.setVerticalAnchor(TextDrawable::VertAnchor::Bottom);
+    levelLabel.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
     //levelLabel.setWordWrappingWidth(68);
     configTextDrawable(levelLabel, gameScene.getLocalizationManager());
     levelLabel.buildGeometry();
     
     auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } });
     levelID.setString(builtID);
-    levelID.setFontSize(std::strtoull(locManager.getString("ingame-gui-level-number-size").data(), nullptr, 0));
+    levelID.setFontSize(config.idSize);
     levelID.setDefaultColor(sf::Color::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelID.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
-    levelID.setVerticalAnchor(TextDrawable::VertAnchor::Bottom);
+    levelID.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
     //levelID.setWordWrappingWidth(68);
     configTextDrawable(levelID, gameScene.getLocalizationManager());
     levelID.buildGeometry();
@@ -75,6 +95,13 @@ void GUI::setLevelNumber(size_t number)
     auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } });
     levelID.setString(builtID);
     levelID.buildGeometry();
+}
+
+void GUI::setVisibleMaps(const std::vector<bool>& visibleMaps)
+{
+    for (size_t i = 0; i < visibleMaps.size(); i++)
+        if (visibleMaps.at(i)) guiMap.presentRoomFull(i);
+        else guiMap.hideRoom(i);
 }
 
 void GUI::update(std::chrono::steady_clock::time_point curTime)
@@ -156,18 +183,18 @@ void GUI::update(std::chrono::steady_clock::time_point curTime)
 
 void GUI::render(Renderer& renderer)
 {
-    renderer.pushDrawable(guiLeft, {}, 1000);
+    renderer.pushDrawable(guiLeft, {}, 6000);
 
-    renderer.pushDrawable(playerMeter, {}, 1100);
+    renderer.pushDrawable(playerMeter, {}, 6600);
     if (drawDash)
-        renderer.pushDrawable(dashMeter, {}, 1100);
+        renderer.pushDrawable(dashMeter, {}, 6600);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(52, 484 - dashMeter.getFrameHeight() - 22);
     
     for (size_t i = 0; i < MaxBombs; i++)
     {
-        renderer.pushDrawable(bombSprites[i], {}, 1100);
+        renderer.pushDrawable(bombSprites[i], {}, 6600);
         renderer.currentTransform.translate(0, -22);
     }
     
@@ -175,21 +202,21 @@ void GUI::render(Renderer& renderer)
     
     renderer.pushTransform();
     renderer.currentTransform.translate(46, 516);
-    renderer.pushDrawable(levelLabel, {}, 1100);
+    renderer.pushDrawable(levelLabel, {}, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
     renderer.currentTransform.translate(46, 564);
-    renderer.pushDrawable(levelID, {}, 1100);
+    renderer.pushDrawable(levelID, {}, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth - guiRight.getTextureSize().x, 0);
-    renderer.pushDrawable(guiRight, {}, 1000);
+    renderer.pushDrawable(guiRight, {}, 6000);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(50, 530);
-    renderer.pushDrawable(guiMap, {}, 1100);
+    renderer.pushDrawable(guiMap, {}, 6600);
     renderer.popTransform();
     
     renderer.popTransform();

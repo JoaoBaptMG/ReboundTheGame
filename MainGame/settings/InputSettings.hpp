@@ -7,6 +7,9 @@ struct KeyboardSettings
     InputSource dashInput;
     InputSource jumpInput;
     InputSource bombInput;
+    InputSource switchScreenLeft;
+    InputSource switchScreenRight;
+    InputSource pauseInput;
 
     InputSource moveUp;
     InputSource moveDown;
@@ -19,6 +22,9 @@ struct JoystickSettings
     InputSource dashInput;
     InputSource jumpInput;
     InputSource bombInput;
+    InputSource switchScreenLeft;
+    InputSource switchScreenRight;
+    InputSource pauseInput;
 
     InputSource movementAxisX;
     InputSource movementAxisY;

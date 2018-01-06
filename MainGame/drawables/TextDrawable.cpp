@@ -219,12 +219,11 @@ void TextDrawable::buildGeometry()
         }
         else
         {
-            bounds.left = NAN;
+            bounds.left = 0;
             bounds.width = NAN;
         }
         
-        bounds.top = NAN;
-        bounds.height = NAN;
+        bounds.top = font.getAscent(fontSize);
         
         const Word* lastBegin = &words.front();
         float curLineWidth = 0;
@@ -252,11 +251,11 @@ void TextDrawable::buildGeometry()
                 vertices[i].position += curPos;
                 if (outline) verticesOutline[i].position += curPos;
                 
-                bounds = rectUnionWithPoint(bounds, vertices[i].position);
+                //bounds = rectUnionWithPoint(bounds, vertices[i].position);
             }
             
             if (!rtl) curPos.x += word.wordWidth;
-            //bounds = rectUnionWithLineX(bounds, curPos.x);
+            bounds = rectUnionWithLineX(bounds, curPos.x);
             curLineWidth = curPos.x;
             
             if (word.nextCharacter)
@@ -278,7 +277,9 @@ void TextDrawable::buildGeometry()
             }
         }
         
+        bounds = rectUnionWithLineX(bounds, curLineWidth);
         lines.push_back({ lastBegin->vertexBegin, words.back().vertexEnd, curLineWidth });
+        bounds.height = (lines.size() - 1) * font.getLineSpacing(fontSize) + font.getDescent(fontSize) - bounds.top;
         
         for (const auto& line : lines)
         {

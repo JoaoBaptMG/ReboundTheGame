@@ -11,6 +11,8 @@ class WindowHandler : util::non_copyable_movable
     sf::VertexArray fullscreenQuad;
     Renderer renderer;
     
+    bool vsyncEnabled;
+    
     void enableFullscreen();
     void disableFullscreen();
     
@@ -20,7 +22,7 @@ public:
     void setFullscreen(bool fullscreen);
     auto getFullscreen() const { return (bool)fullscreenTexture; }
     
-    void setVsyncEnabled(bool vsync) { renderWindow.setVerticalSyncEnabled(vsync); }
+    void setVsyncEnabled(bool vsync) { vsyncEnabled = vsync; renderWindow.setVerticalSyncEnabled(vsync); }
     
     Renderer& getRenderer() { return renderer; }
     sf::Window& getWindow() { return renderWindow; }

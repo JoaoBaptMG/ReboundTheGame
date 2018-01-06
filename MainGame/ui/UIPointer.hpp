@@ -17,4 +17,6 @@ public:
     ~UIPointer() {}
     
     void render(Renderer& renderer);
+    
+    void hide();
 };

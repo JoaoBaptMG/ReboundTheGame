@@ -5,8 +5,13 @@
 void InputManager::dispatchData(InputSource source, float val)
 {
     auto iters = callbacks.equal_range(source);
+    
+    // This is needed as the callbacks may push/pop other callbacks into the stack, invalidating the iterators
+    std::vector<decltype(callbacks)::mapped_type> functions;
     for (auto it = iters.first; it != iters.second; ++it)
-        it->second(source, val);
+        functions.push_back(it->second);
+        
+    for (auto& callback : functions) callback(source, val);
 }
 
 void InputManager::dispatchMouseMovement(sf::Vector2i pos)

@@ -14,7 +14,6 @@
         > https://joaobaptmg.github.io/ReboundTheGame/lang-descriptor.html
     -->
 
-    
     <!-- Some metadata -->
     <!-- The name of the language in English -->
     <string name="metadata-english-name">English (USA)</string>
@@ -28,18 +27,20 @@
         <plural-form type="one">x == 1</plural-form>
         <plural-form type="many"/>
     </plural-forms>
+   
+    <!-- Labels for switches on the settings screen -->
+    <string name="ui-switch-yes">YES</string>
+    <string name="ui-switch-no">NO</string>
     
     <!-- In-game GUI box: presentation of the label "level" and the level number (so traditional numerals
         can be used ;) ). If the word for "level" is too big to fit (e.g. "Livello" in Italian), you can
         either abbreviate it or reduce the font size. -->
         
-    <!-- Font size of the "level" label. Default: 24 -->
-    <string name="ingame-gui-level-label-size">24</string>
+    <!-- Font size of the "level" label and the level number, one after the other separated by a space.
+        Default: 24 56 -->
+    <string name="ingame-gui-level-config">24 56</string>
     <!-- Text on the "level" label. Default: "LEVEL" -->
     <string name="ingame-gui-level-label">LEVEL</string>
-    
-    <!-- Font size of the level nuber. Default: 56 -->
-    <string name="ingame-gui-level-number-size">56</string>
     <!-- Text on the "level" label. Default: "{#n}".
         To use traditional characters, use a pterm with a special category (the document explains how to do it!) -->
     <formatter name="ingame-gui-level-number">{#n}</formatter>
@@ -49,7 +50,6 @@
     <import-from file="keynames.lnxinc"/>
     
     <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
-    
     <!-- The caption for the "New game" button. -->
     <string name="title-button-new-game">New game</string>
     <!-- The caption for the "Load game" button -->
@@ -58,5 +58,42 @@
     <string name="title-button-settings">Settings</string>
     <!-- The caption for the "Exit" button -->
     <string name="title-button-exit">Exit</string>
+    
+    <!-- The pause screen: the captions of the three buttons that select the three frames -->
+    <!-- The height above the button's bottom. Default: 12 -->
+    <string name="pause-button-displacement">12</string>
+    <!-- The caption for the "Collected" button. -->
+    <string name="pause-button-collected-items">COLLECTED</string>
+    <!-- The caption for the "Map" button. -->
+    <string name="pause-button-map">MAP</string>
+    <!-- The caption for the "Settings" button. -->
+    <string name="pause-button-settings">SETTINGS</string>
+    
+    <!-- The settings screen: all the buttons that appear on both appearances of the settings screen,
+    including the titles -->
+    <!-- The "Video Settings" title -->
+    <string name="settings-video-settings">Video Settings</string>
+    <!-- The caption for the "Vertical Sync" button -->
+    <string name="settings-vsync">Vertical sync</string>
+    <!-- The caption for the "Fullscreen" button -->
+    <string name="settings-fullscreen">Fullscreen</string>
+    <!-- The caption for the "Change language" button -->
+    <string name="settings-change-language">Change language</string>
+    <!-- The "Audio Settings" title -->
+    <string name="settings-audio-settings">Audio Settings</string>
+    <!-- The caption for the "Music volume" button -->
+    <string name="settings-music-volume">Music volume</string>
+    <!-- The caption for the "Sound volume" button -->
+    <string name="settings-sound-volume">Sound volume</string>
+    <!-- The "Input Settings" title -->
+    <string name="settings-input-settings">Input Settings</string>
+    <!-- The caption for the "Edit keyboard controls" button -->
+    <string name="settings-keyboard-controls">Edit keyboard controls</string>
+    <!-- The caption for the "Edit joystick controls" button -->
+    <string name="settings-joystick-controls">Edit joystick controls</string>
+    <!-- The caption for the "Back" button on the settings scene from main menu -->
+    <string name="settings-scene-back">Back</string>
+    <!-- The caption for the "Resume game" button on the settings pause frame -->
+    <string name="settings-pause-resume">Resume game</string>
     
 </language>

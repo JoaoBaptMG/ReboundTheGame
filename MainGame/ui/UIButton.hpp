@@ -9,17 +9,15 @@
 #include "drawables/TextDrawable.hpp"
 #include "input/InputManager.hpp"
 
-//class UIButtonGroup;
+class UIButtonGroup;
 class Renderer;
 
-class UIButton final : util::non_copyable
+class UIButton : util::non_copyable
 {
     std::unique_ptr<Sprite> normalSprite, activeSprite, pressedSprite;
     std::unique_ptr<TextDrawable> caption;
     sf::FloatRect bounds;
     sf::Vector2f position, captionDisplacement;
-    //UIButtonGroup *parentGroup;
-    enum class State { Normal, Active, Pressed } state;
     size_t depth;
     
     std::function<void()> pressAction, overAction, outAction;
@@ -27,11 +25,16 @@ class UIButton final : util::non_copyable
     InputManager::CallbackEntry mouseButtonEntry;
     InputManager::MouseMoveEntry mouseMovedEntry;
     
+protected:
+    bool active;
+    UIButtonGroup *parentGroup;
+    enum class State { Normal, Active, Pressed } state;
+    
 public:
-    UIButton() {}
+    UIButton() : state(State::Normal), active(true), parentGroup(nullptr) {}
     explicit UIButton(InputManager& inputManager);
     void initialize(InputManager& inputManager);
-    ~UIButton() {}
+    virtual ~UIButton() {}
     
     auto getNormalSprite() const { return normalSprite.get(); }
     void setNormalSprite(Sprite* sprite) { normalSprite.reset(sprite); }
@@ -53,8 +56,6 @@ public:
     void setBounds(const sf::FloatRect& rect) { bounds = rect; }
     void autoComputeBounds();
     
-    void render(Renderer &renderer);
-    
     auto getPressAction() const { return pressAction; }
     void setPressAction(decltype(pressAction) act) { pressAction = act; }
     
@@ -73,7 +74,12 @@ public:
     auto getCaptionDisplacement() const { return captionDisplacement; }
     void setCaptionDisplacement(sf::Vector2f displacement) { captionDisplacement = displacement; }
     
-    //friend class UIButtonGroup;
+    void activate() { active = true; }
+    void deactivate() { active = false; }
+    
+    virtual void render(Renderer &renderer);
+    
+    friend class UIButtonGroup;
 };
 
 

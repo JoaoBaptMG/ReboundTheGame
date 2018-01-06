@@ -1,5 +1,7 @@
 #include "GUIMap.hpp"
 
+#include <map>
+
 #include <SFML/OpenGL.hpp>
 #include <assert.hpp>
 #include <chronoUtils.hpp>
@@ -8,9 +10,21 @@
 #include "gameplay/MapGenerator.hpp"
 #include "data/LevelData.hpp"
 
-const sf::FloatRect MapViewport(-38, -38, 76, 76);
+// Optimization
+struct MapTextureData
+{
+    sf::VertexArray vertArray;
+    sf::Texture texture;
+    MapTextureData() : vertArray(sf::PrimitiveType::Triangles) {}
+};
+static std::map<std::weak_ptr<LevelData>,MapTextureData,std::owner_less<std::weak_ptr<LevelData>>> staticLevelTextures;
+void clearMapTextures() { staticLevelTextures.clear(); }
+
 const sf::Color BlinkColor = sf::Color(255, 128, 128, 255);
 constexpr float BlinkPeriod = 2;
+
+const sf::FloatRect MapViewport(-38, -38, 76, 76);
+const sf::FloatRect ExtendedMapViewport(-268, -236, 536, 472);
 
 constexpr uint8_t PresentSpeed = 6;
 
@@ -59,52 +73,59 @@ void GUIMap::buildLevelTexture()
         return;
     }
     
-    sf::IntRect bounds;
-    vertArray.resize(6 * curLevel->roomMaps.size());
-    
-    for (const auto& mapData : curLevel->roomMaps)
-        bounds = rectUnionWithRect(bounds,
-            sf::IntRect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
-            
-    ASSERT(curTexture.create(bounds.width, bounds.height));
-    
-    auto buildVertex = [=](float x, float y)
-    {
-        return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.left, y - bounds.top));
-    };
-    
-    size_t i = 0;
-    for (const auto& mapData : curLevel->roomMaps)
-    {
-        if (mapData.map.empty()) continue;
-        curTexture.update(getTextureData(mapData.map).get(), mapData.map.width(), mapData.map.height(),
-            mapData.x - bounds.left, mapData.y - bounds.top);
-        
-        vertArray[i++] = buildVertex(mapData.x, mapData.y);
-        vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y);
-        vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y + (int16_t)mapData.map.height());
-        vertArray[i++] = buildVertex(mapData.x, mapData.y);
-        vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y + (int16_t)mapData.map.height());
-        vertArray[i++] = buildVertex(mapData.x, mapData.y + (int16_t)mapData.map.height());
-    }
-}
+    for (auto it = staticLevelTextures.begin(); it != staticLevelTextures.end();)
+        if (it->first.expired()) it = staticLevelTextures.erase(it);
+        else ++it;
 
-void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    auto scissorRect = states.transform.transformRect(MapViewport);
     
-    states.transform.translate(-curLevel->roomMaps[curRoom].x, -curLevel->roomMaps[curRoom].y);
-    states.transform.translate(-displayPosition);
-    states.texture = &curTexture;
-    
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(scissorRect.left, ScreenHeight - scissorRect.top - scissorRect.height, scissorRect.width, scissorRect.height);
-    target.draw(vertArray, states);
-    glDisable(GL_SCISSOR_TEST);
+    auto it = staticLevelTextures.find(curLevel);
+    if (it != staticLevelTextures.end())
+    {
+        mapTexture = &it->second.texture;
+        vertArray = it->second.vertArray;
+    }
+    else
+    {
+        auto& data = staticLevelTextures.emplace(curLevel, MapTextureData()).first->second;
+        mapTexture = &data.texture;
+        
+        sf::IntRect bounds;
+        data.vertArray.resize(6 * curLevel->roomMaps.size());
+
+        for (const auto& mapData : curLevel->roomMaps)
+            bounds = rectUnionWithRect(bounds,
+                sf::IntRect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
+                
+        ASSERT(mapTexture->create(bounds.width, bounds.height));
+
+        auto buildVertex = [=](float x, float y)
+        {
+            return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.left, y - bounds.top));
+        };
+
+        size_t i = 0;
+        for (const auto& mapData : curLevel->roomMaps)
+        {
+            if (mapData.map.empty()) continue;
+            mapTexture->update(getTextureData(mapData.map).get(), mapData.map.width(), mapData.map.height(),
+                mapData.x - bounds.left, mapData.y - bounds.top);
+            
+            data.vertArray[i++] = buildVertex(mapData.x, mapData.y);
+            data.vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y);
+            data.vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y + (int16_t)mapData.map.height());
+            data.vertArray[i++] = buildVertex(mapData.x, mapData.y);
+            data.vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y + (int16_t)mapData.map.height());
+            data.vertArray[i++] = buildVertex(mapData.x, mapData.y + (int16_t)mapData.map.height());
+        }
+        
+        vertArray = data.vertArray;
+    }
 }
 
 void GUIMap::presentRoom(size_t room)
 {
+    if (!curLevel) return;
+    
     for (size_t k = 0; k < 6; k++)
         if (vertArray[6*room+k].color.a == 0)
             vertArray[6*room+k].color.a = PresentSpeed;
@@ -112,6 +133,32 @@ void GUIMap::presentRoom(size_t room)
     
 void GUIMap::presentRoomFull(size_t room)
 {
+    if (!curLevel) return;
+    
     for (size_t k = 0; k < 6; k++)
         vertArray[6*room+k].color.a = 255;
+}
+
+void GUIMap::hideRoom(size_t room)
+{
+    if (!curLevel) return;
+    
+    for (size_t k = 0; k < 6; k++)
+        vertArray[6*room+k].color.a = 0;
+}
+
+void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    if (!curLevel) return;
+    
+    auto scissorRect = states.transform.transformRect(extendedFrame ? ExtendedMapViewport : MapViewport);
+    
+    states.transform.translate(-curLevel->roomMaps.at(curRoom).x, -curLevel->roomMaps.at(curRoom).y);
+    states.transform.translate(-displayPosition);
+    states.texture = mapTexture;
+    
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(scissorRect.left, ScreenHeight - scissorRect.top - scissorRect.height, scissorRect.width, scissorRect.height);
+    target.draw(vertArray, states);
+    glDisable(GL_SCISSOR_TEST);
 }

@@ -28,17 +28,19 @@
         <plural-form type="many"/>
     </plural-forms>
     
+    <!-- Labels for switches on the settings screen -->
+    <string name="ui-switch-yes">SIM</string>
+    <string name="ui-switch-no">NÃO</string>
+    
     <!-- In-game GUI box: presentation of the label "level" and the level number (so traditional numerals
         can be used ;) ). If the word for "level" is too big to fit (e.g. "Livello" in Italian), you can
         either abbreviate it or reduce the font size. -->
         
-    <!-- Font size of the "level" label. Default: 24 -->
-    <string name="ingame-gui-level-label-size">24</string>
+    <!-- Font size of the "level" label and the level number, one after the other separated by a space.
+        Default: 24 56 -->
+    <string name="ingame-gui-level-config">24 56</string>
     <!-- Text on the "level" label. Default: "LEVEL" -->
     <string name="ingame-gui-level-label">NÍVEL</string>
-    
-    <!-- Font size of the level nuber. Default: 24 -->
-    <string name="ingame-gui-level-number-size">56</string>
     <!-- Text on the "level" label. Default: "{#n}".
         To use traditional characters, use a pterm with a special category (the document explains how to do it!) -->
     <formatter name="ingame-gui-level-number">{#n}</formatter>
@@ -66,4 +68,42 @@
     <string name="title-button-settings">Configurações</string>
     <!-- The caption for the "Exit" button -->
     <string name="title-button-exit">Sair</string>
+    
+    <!-- The pause screen: the captions of the three buttons that select the three frames -->
+    <!-- The height above the button's bottom. Default: 12 -->
+    <string name="pause-button-displacement">12</string>
+    <!-- The caption for the "Collected" button. -->
+    <string name="pause-button-collected-items">COLEÇÃO</string>
+    <!-- The caption for the "Map" button. -->
+    <string name="pause-button-map">MAPA</string>
+    <!-- The caption for the "Settings" button. -->
+    <string name="pause-button-settings">CONFIGURAÇÕES</string>
+    
+    <!-- The settings screen: all the buttons that appear on both appearances of the settings screen,
+    including the titles -->
+    <!-- The "Video Settings" title -->
+    <string name="settings-video-settings">Configurações de Vídeo</string>
+    <!-- The caption for the "Vertical Sync" button -->
+    <string name="settings-vsync">Sincronia vertical (vsync)</string>
+    <!-- The caption for the "Fullscreen" button -->
+    <string name="settings-fullscreen">Tela cheia</string>
+    <!-- The caption for the "Change language" button -->
+    <string name="settings-change-language">Mudar idioma</string>
+    <!-- The "Audio Settings" title -->
+    <string name="settings-audio-settings">Configurações de Áudio</string>
+    <!-- The caption for the "Music volume" button -->
+    <string name="settings-music-volume">Volume da música</string>
+    <!-- The caption for the "Sound volume" button -->
+    <string name="settings-sound-volume">Volume dos efeitos</string>
+    <!-- The "Input Settings" title -->
+    <string name="settings-input-settings">Configurações de controles</string>
+    <!-- The caption for the "Edit keyboard controls" button -->
+    <string name="settings-keyboard-controls">Configurar teclado</string>
+    <!-- The caption for the "Edit joystick controls" button -->
+    <string name="settings-joystick-controls">Configurar joystick</string>
+    <!-- The caption for the "Back" button on the settings scene from main menu -->
+    <string name="settings-scene-back">Voltar</string>
+    <!-- The caption for the "Resume game" button on the settings pause frame -->
+    <string name="settings-pause-resume">Voltar ao jogo</string>
+    
 </language>

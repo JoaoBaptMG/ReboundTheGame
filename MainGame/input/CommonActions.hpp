@@ -8,22 +8,49 @@ class ButtonAction final
 {
     std::vector<InputManager::CallbackEntry> callbackEntries;
     bool cur = false, last1 = false, last2 = false;
-
-    const bool& active;
+    
+    std::function<void(bool)> action;
 
 public:
-    ButtonAction(const bool& activationTrigger) : active(activationTrigger) {}
+    ButtonAction() {}
     ~ButtonAction() {}
 
     void registerSource(InputManager& inputManager, InputSource source);
     void update();
 
-    bool isTriggered() const { return active && last1 && !last2; }
-    bool isPressed() const { return active && last1; }
-    bool isReleased() const { return active && !last1 && last2; }
+    bool isTriggered() const { return last1 && !last2; }
+    bool isPressed() const { return last1; }
+    bool isReleased() const { return !last1 && last2; }
+    
+    auto getAction() const { return action; }
+    void setAction(decltype(action) action) { this->action = action; }
 };
 
 enum class AxisDirection { Positive, Negative };
+
+class AxisAction final
+{
+    std::vector<InputManager::CallbackEntry> callbackEntries;
+    float valuePos;
+    float valueNeg;
+
+    std::function<void(float)> action;
+
+public:
+    AxisAction() : valuePos(), valueNeg() {}
+    ~AxisAction() {}
+
+    void registerAxis(InputManager& inputManager, InputSource source);
+    void registerButton(InputManager& inputManager, InputSource source, AxisDirection dir);
+
+    float getValue() const
+    {
+        return valuePos - valueNeg;
+    }
+    
+    auto getAction() const { return action; }
+    void setAction(decltype(action) action) { this->action = action; }
+};
 
 class DualAxisAction final
 {
@@ -31,10 +58,10 @@ class DualAxisAction final
     sf::Vector2f valuePos;
     sf::Vector2f valueNeg;
 
-    const bool& active;
+    std::function<void(sf::Vector2f)> action;
 
 public:
-    DualAxisAction(const bool& activationTrigger) : active(activationTrigger) {}
+    DualAxisAction() : valuePos(), valueNeg() {}
     ~DualAxisAction() {}
 
     void registerAxisForX(InputManager& inputManager, InputSource source);
@@ -45,6 +72,9 @@ public:
 
     sf::Vector2f getValue() const
     {
-        return active ? valuePos - valueNeg : sf::Vector2f(0, 0);
+        return valuePos - valueNeg;
     }
+    
+    auto getAction() const { return action; }
+    void setAction(decltype(action) action) { this->action = action; }
 };

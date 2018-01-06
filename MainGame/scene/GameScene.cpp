@@ -1,4 +1,5 @@
 #include "GameScene.hpp"
+
 #include "objects/Player.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
@@ -9,9 +10,14 @@
 #include "gameplay/MapGenerator.hpp"
 #include "input/InputManager.hpp"
 
+#include "SceneManager.hpp"
+#include "PauseScene.hpp"
+
 #include <functional>
 #include <iterator>
 #include <SFML/System.hpp>
+
+#include <iostream>
 
 #ifdef GENERATE_MAPS_IF_EMPTY
 #include "settings/FileOutputStream.hpp"
@@ -26,10 +32,11 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(const Settings& settings, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
+GameScene::GameScene(Settings& settings, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
     playerController(im, settings.inputSettings), gui(*this), objectsLoaded(false), curRoomID(-1), requestedID(-1),
-    transitionBeginTime(), transitionEndTime(), levelReloadRequested(false)
+    transitionBeginTime(), transitionEndTime(), levelReloadRequested(false), pauseScreenRequested(false),
+    pausing(false), pauseLag(0)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -60,10 +67,18 @@ void GameScene::reloadLevel()
     levelReloadRequested = false;
     
     levelPersistentData.clear();
+    
+    visibleMaps.clear();
+    visibleMaps.resize(levelData->roomMaps.size());
+    visibleMaps.at(levelData->startingRoom) = true;
+    
     loadRoom(levelData->startingRoom);
     loadRoomObjects();
     
     gui.setLevelNumber(levelData->levelNumber);
+    gui.setVisibleMaps(visibleMaps);
+    
+    reset(pauseLag);
 }
 
 void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
@@ -101,6 +116,7 @@ void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
     
     currentRoomData = resourceManager.load<RoomData>(roomName);
     room.loadRoom(*currentRoomData, transition, displacement);
+    visibleMaps.at(id) = true;
     objectsLoaded = false;
 }
 
@@ -172,12 +188,34 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
     
+    if (pausing)
+    {
+        using namespace std::chrono;
+        pauseLag += duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
+        std::cout << pauseLag.count() << std::endl;
+        pausing = false;
+    }
+    
+    if (this == getSceneManager().currentScene() && pauseScreenRequested)
+    {
+        auto player = getObjectByName<Player>("player");
+        auto scene = new PauseScene(settings, inputManager, resourceManager, localizationManager);
+        scene->setMapLevelData(levelData, curRoomID, player->getDisplayPosition(), visibleMaps);
+        getSceneManager().pushScene(scene);
+        pauseScreenRequested = false;
+        return;
+    }
+    
     playerController.update();
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
 
     room.update(curTime);
 
-    for (const auto& obj : gameObjects) obj->update(curTime);
+    {
+        using namespace std::chrono;
+        auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
+        for (const auto& obj : gameObjects) obj->update(laggedTime);
+    }
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
@@ -317,4 +355,12 @@ void GameScene::render(Renderer& renderer)
 #endif
 
     renderer.popTransform();
+}
+
+void GameScene::pause()
+{
+    using namespace std::chrono;
+    
+    pausing = true;
+    pauseLag -= duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
 }

@@ -1,11 +1,12 @@
 #include "UIPointer.hpp"
 #include <limits>
+#include <cmath>
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
 
 UIPointer::UIPointer(InputManager& im, ResourceManager& rm)
-    : pointer(rm.load<sf::Texture>("ui-pointer.png"), sf::Vector2f(0, 0))
+    : pointer(rm.load<sf::Texture>("ui-pointer.png"), sf::Vector2f(0, 0)), position(NAN, NAN)
 {
     callbackEntry = im.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
@@ -13,10 +14,18 @@ UIPointer::UIPointer(InputManager& im, ResourceManager& rm)
     });
 }
 
+void UIPointer::hide()
+{
+    position = sf::Vector2f(NAN, NAN);
+}
+
 void UIPointer::render(Renderer& renderer)
 {
+    if (isnanf(position.x) || isnanf(position.y)) return;
+    
     renderer.pushTransform();
     renderer.currentTransform.translate(position);
-    renderer.pushDrawable(pointer, {}, std::numeric_limits<long>::max());
+    renderer.pushDrawable(pointer, {}, 150000);
     renderer.popTransform();
 }
+
