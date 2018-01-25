@@ -24,7 +24,7 @@ const sf::Color BlinkColor = sf::Color(255, 128, 128, 255);
 constexpr float BlinkPeriod = 2;
 
 const sf::FloatRect MapViewport(-38, -38, 76, 76);
-const sf::FloatRect ExtendedMapViewport(-268, -236, 536, 472);
+const sf::FloatRect ExtendedMapViewport(-268, -204, 536, 408);
 
 constexpr uint8_t PresentSpeed = 6;
 
@@ -33,6 +33,11 @@ void setColorOnly(sf::Color& color, sf::Color dest)
     color.r = dest.r;
     color.g = dest.g;
     color.b = dest.b;
+}
+
+sf::FloatRect GUIMap::getBounds() const
+{
+    return extendedFrame ? ExtendedMapViewport : MapViewport;
 }
 
 void GUIMap::update(std::chrono::steady_clock::time_point curTime)
@@ -151,7 +156,7 @@ void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (!curLevel) return;
     
-    auto scissorRect = states.transform.transformRect(extendedFrame ? ExtendedMapViewport : MapViewport);
+    auto scissorRect = states.transform.transformRect(getBounds());
     
     states.transform.translate(-curLevel->roomMaps.at(curRoom).x, -curLevel->roomMaps.at(curRoom).y);
     states.transform.translate(-displayPosition);

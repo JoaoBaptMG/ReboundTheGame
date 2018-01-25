@@ -11,7 +11,7 @@
 #include "input/InputManager.hpp"
 
 #include "SceneManager.hpp"
-#include "PauseScene.hpp"
+#include "scene/pause/PauseScene.hpp"
 
 #include <functional>
 #include <iterator>
@@ -24,8 +24,6 @@
 #include <execDir.hpp>
 #endif
 
-constexpr auto TransitionDuration = 20 * UpdateFrequency;
-
 template <typename T>
 T clamp(T cur, T min, T max)
 {
@@ -34,9 +32,8 @@ T clamp(T cur, T min, T max)
 
 GameScene::GameScene(Settings& settings, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
-    playerController(im, settings.inputSettings), gui(*this), objectsLoaded(false), curRoomID(-1), requestedID(-1),
-    transitionBeginTime(), transitionEndTime(), levelReloadRequested(false), pauseScreenRequested(false),
-    pausing(false), pauseLag(0)
+    playerController(im, settings.inputSettings), objectsLoaded(false), curRoomID(-1), requestedID(-1),
+    gui(*this), camera(*this), levelTransition(*this), pauseScreenRequested(false), pausing(false), pauseLag(0)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -64,8 +61,6 @@ void GameScene::loadLevel(std::string levelName)
  
 void GameScene::reloadLevel()
 {
-    levelReloadRequested = false;
-    
     levelPersistentData.clear();
     
     visibleMaps.clear();
@@ -110,8 +105,6 @@ void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
         gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
             [](const auto& obj) { return !obj; }), gameObjects.end());
             
-        transitionBeginTime = curTime;
-        transitionEndTime = curTime + TransitionDuration;
     }
     
     currentRoomData = resourceManager.load<RoomData>(roomName);
@@ -223,18 +216,11 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     std::move(objectsToAdd.begin(), objectsToAdd.end(), std::back_inserter(gameObjects));
     objectsToAdd.clear();
 
-    gui.update(curTime);
-
     checkWarps();
     
-    if (transitionEndTime != decltype(transitionEndTime)() && curTime > transitionEndTime)
-    {
-        reset(transitionBeginTime);
-        reset(transitionEndTime);
-        room.clearTransition();
-        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
-            [](const auto& obj) { return obj->transitionState; }), gameObjects.end());
-    }
+    gui.update(curTime);
+    camera.update(curTime);
+    levelTransition.update(curTime);
     
     if (requestedID != -1)
     {
@@ -242,8 +228,13 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
         loadRoomObjects();
         requestedID = -1;
     }
-    
-    if (levelReloadRequested) reloadLevel();
+}
+
+void GameScene::notifyTransitionEnded()
+{
+    room.clearTransition();
+    gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+        [](const auto& obj) { return obj->transitionState; }), gameObjects.end());
 }
 
 void GameScene::checkWarps()
@@ -256,33 +247,23 @@ void GameScene::checkWarps()
         
         if (pos.x >= DefaultTileSize * currentRoomData->mainLayer.width())
         {
-            transitionTargetBegin.x = -(float)PlayfieldWidth/2;
-            transitionTargetEnd.x = (float)PlayfieldWidth/2;
+            camera.scheduleTransition(Camera::Direction::Right);
             checkWarp(player, WarpData::Dir::Right, pos);
-            transitionTargetBegin.y = transitionTargetEnd.y = NAN;
         }
         else if (pos.y >= DefaultTileSize * currentRoomData->mainLayer.height())
         {
-            transitionTargetBegin.y = -(float)PlayfieldHeight/2;
-            transitionTargetEnd.y = (float)PlayfieldHeight/2;
+            camera.scheduleTransition(Camera::Direction::Down);
             checkWarp(player, WarpData::Dir::Down, pos);
-            transitionTargetBegin.x = transitionTargetEnd.x = NAN;
         }
         else if (pos.x < 0)
         {
+            camera.scheduleTransition(Camera::Direction::Left);
             checkWarp(player, WarpData::Dir::Left, pos);
-            transitionTargetBegin.y = transitionTargetEnd.y = NAN;
-            transitionTargetBegin.x = (float)DefaultTileSize * currentRoomData->mainLayer.width() + 
-                (float)PlayfieldWidth/2;
-            transitionTargetEnd.x = transitionTargetBegin.x - PlayfieldWidth;
         }
         else if (pos.y < 0)
         {
+            camera.scheduleTransition(Camera::Direction::Up);
             checkWarp(player, WarpData::Dir::Up, pos);
-            transitionTargetBegin.x = transitionTargetEnd.x = NAN;
-            transitionTargetBegin.y = (float)DefaultTileSize * currentRoomData->mainLayer.height() + 
-                (float)PlayfieldHeight/2;
-            transitionTargetEnd.y = transitionTargetBegin.y - PlayfieldHeight;
         }
         if (!objectsLoaded) loadRoomObjects();
     }
@@ -332,22 +313,11 @@ void GameScene::render(Renderer& renderer)
 {
     renderer.pushTransform();
 
-    auto player = getObjectByName<Player>("player");
-    if (player) offsetPos = fitIntoRoom(player->getDisplayPosition());
-    if (transitionEndTime != decltype(transitionEndTime)())
-    {
-        float dt = toSeconds<float>(curTime - transitionBeginTime) /
-            toSeconds<float>(transitionEndTime - transitionBeginTime);
-         
-        sf::Vector2f transPos = transitionTargetBegin + dt * (transitionTargetEnd - transitionTargetBegin);
-        if (!isnan(transPos.x)) offsetPos.x = transPos.x;
-        if (!isnan(transPos.y)) offsetPos.y = transPos.y;
-    }
-    
     gui.render(renderer);
-    renderer.currentTransform.translate(sf::Vector2f{(float)ScreenWidth, (float)ScreenHeight}/2.0f - offsetPos);
+    levelTransition.render(renderer);
     
-    room.render(renderer, transitionEndTime != decltype(transitionEndTime)());
+    renderer.currentTransform.translate(camera.getGlobalDisplacement());
+    room.render(renderer, camera.transitionOccuring());
     for (const auto& obj : gameObjects) obj->render(renderer);
 
 #if CP_DEBUG

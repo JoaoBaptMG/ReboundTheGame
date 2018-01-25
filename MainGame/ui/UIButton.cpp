@@ -40,7 +40,7 @@ void UIButton::initialize(InputManager& inputManager)
     mouseButtonEntry = inputManager.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
     [=] (InputSource, float val)
     {
-        if (!active || !bounds.contains(sf::Vector2f(position) - this->position)) return;
+        if (!active) return;
         
         if (val > 0.5)
         {

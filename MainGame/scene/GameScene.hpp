@@ -5,6 +5,8 @@
 #include "drawables/Sprite.hpp"
 #include "data/LevelData.hpp"
 #include "objects/GUI.hpp"
+#include "objects/Camera.hpp"
+#include "objects/LevelTransition.hpp"
 #include "gameplay/LevelPersistentData.hpp"
 
 #include "settings/Settings.hpp"
@@ -46,8 +48,7 @@ class GameScene : public Scene
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
     size_t curRoomID, requestedID;
-    bool objectsLoaded, levelReloadRequested, pauseScreenRequested;
-    bool pausing;
+    bool objectsLoaded, pauseScreenRequested, pausing;
     std::vector<bool> visibleMaps;
 
     LocalizationManager &localizationManager;
@@ -58,10 +59,11 @@ class GameScene : public Scene
     sf::Vector2f offsetPos;
 
     GUI gui;
+    Camera camera;
+    LevelTransition levelTransition;
     
-    std::chrono::steady_clock::time_point curTime, transitionBeginTime, transitionEndTime;
+    std::chrono::steady_clock::time_point curTime;
     std::chrono::duration<size_t, std::milli> pauseLag;
-    sf::Vector2f transitionTargetBegin, transitionTargetEnd;
 
 public:
     GameScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
@@ -75,6 +77,8 @@ public:
     const Room& getCurrentRoom() const { return room; }
     
     auto getCurrentLevel() const { return levelData; }
+    auto getRoomWidth() const { return currentRoomData->mainLayer.width(); }
+    auto getRoomHeight() const { return currentRoomData->mainLayer.height(); }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
     LocalizationManager& getLocalizationManager() const { return localizationManager; }
@@ -84,9 +88,10 @@ public:
     void reloadLevel();
     void loadRoom(size_t id, bool transition = false, cpVect displacement = cpVect{0,0});
     void loadRoomObjects();
-    void requestRoomLoad(size_t id) { requestedID = id; }
     
-    void requestLevelReload() { levelReloadRequested = true; }
+    void requestRoomLoad(size_t id) { requestedID = id; }
+    void requestLevelReload() { levelTransition.requestLevelTransition(""); }
+    void requestLevelLoad(std::string levelName) { levelTransition.requestLevelTransition(levelName); }
     void requestPauseScreen() { pauseScreenRequested = true; }
 
     void addObject(std::unique_ptr<GameObject> obj);
@@ -107,6 +112,7 @@ public:
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     void checkWarps();
     void checkWarp(Player* player, WarpData::Dir direction, cpVect pos);
+    void notifyTransitionEnded();
     
     virtual void render(Renderer& renderer) override;
     

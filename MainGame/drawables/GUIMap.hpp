@@ -37,6 +37,8 @@ public:
     auto getExtendedFrame() const { return extendedFrame; }
     void setExtendedFrame(bool f) { extendedFrame = f; }
     
+    sf::FloatRect getBounds() const;
+    
     void presentRoom(size_t room);
     void presentRoomFull(size_t room);
     void hideRoom(size_t room);

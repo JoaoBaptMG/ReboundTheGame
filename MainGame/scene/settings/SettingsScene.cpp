@@ -1,12 +1,13 @@
 #include "SettingsScene.hpp"
 
-#include "SceneManager.hpp"
-#include "TitleScene.hpp"
+#include "scene/SceneManager.hpp"
+#include "scene/TitleScene.hpp"
 
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
 
+#include "scene/pause/PauseScene.hpp"
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
@@ -237,4 +238,17 @@ void SettingsScene::render(Renderer& renderer)
     renderer.popTransform();
     
     pointer.render(renderer);
+}
+
+SettingsPauseFrame::SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm,
+    LocalizationManager& lm, UIPointer& pointer, PauseScene* scene) : SettingsBase(settings, im, rm, lm,
+    sf::Vector2f(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
+{
+    backAction = [=] { scene->unpause(); };
+}
+
+void SettingsPauseFrame::render(Renderer& renderer)
+{
+    renderer.currentTransform.translate(0, -64);
+    SettingsBase::render(renderer);
 }

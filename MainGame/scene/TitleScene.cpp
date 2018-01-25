@@ -9,7 +9,7 @@
 #include "language/LocalizationManager.hpp"
 
 #include "GameScene.hpp"
-#include "SettingsScene.hpp"
+#include "scene/settings/SettingsScene.hpp"
 
 using namespace std::literals::chrono_literals;
 

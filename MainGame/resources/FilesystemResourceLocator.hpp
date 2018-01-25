@@ -9,7 +9,7 @@ class FilesystemResourceLocator : public ResourceLocator
     std::string basename;
 
 public:
-    FilesystemResourceLocator() : basename(getExecutableDirectory() + "/Resources") {}
+    FilesystemResourceLocator();
     virtual ~FilesystemResourceLocator() {}
 
     virtual std::unique_ptr<sf::InputStream> getResource(std::string name) override;

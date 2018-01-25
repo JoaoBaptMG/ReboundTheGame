@@ -1,16 +1,23 @@
 #include "PauseScene.hpp"
 
+#include "PauseFrame.hpp"
+#include "CollectedPauseFrame.hpp"
+#include "MapPauseFrame.hpp"
+
 #include <chronoUtils.hpp>
 #include <defaults.hpp>
 #include <cstdlib>
 
-#include "SceneManager.hpp"
-#include "SettingsScene.hpp"
+#include "scene/settings/SettingsScene.hpp"
+
+#include "scene/SceneManager.hpp"
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
 #include "language/LocalizationManager.hpp"
+
+#include "data/LevelData.hpp"
 
 using namespace std::literals::chrono_literals;
 constexpr auto TransitionTime = 1s;
@@ -26,58 +33,9 @@ constexpr float ButtonWidth = 192;
 constexpr float ButtonHeight = 44;
 constexpr size_t ButtonCaptionSize = 24;
 
-class MapPauseFrame : public PauseFrame
-{
-    Sprite mapFrame;
-    GUIMap map;
-    
-public:
-    MapPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
-        const std::shared_ptr<LevelData>& levelData = nullptr, size_t curRoom = 0, sf::Vector2f pos = {},
-        const std::vector<bool>& visibleMaps = {});
-    virtual ~MapPauseFrame() {}
-    
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
-    virtual void render(Renderer &renderer) override;
-    
-    virtual void activate() override;
-    virtual void deactivate() override;
-    
-    void setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos,
-        const std::vector<bool>& visibleMaps);
-};
-
-class CollectedPauseFrame : public PauseFrame
-{
-public:
-    CollectedPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
-    virtual ~CollectedPauseFrame() {}
-    
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
-    virtual void render(Renderer &renderer) override;
-    
-    virtual void activate() override;
-    virtual void deactivate() override;
-};
-
-class SettingsPauseFrame : public SettingsBase, public PauseFrame
-{
-public:
-    SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
-        UIPointer& pointer, PauseScene* scene);
-    virtual ~SettingsPauseFrame() {}
-    
-    virtual void update(std::chrono::steady_clock::time_point curTime) override { SettingsBase::update(curTime); }
-    virtual void render(Renderer &renderer) override;
-    
-    virtual void activate() override { SettingsBase::activate(); }
-    virtual void deactivate() override { SettingsBase::deactivate(); }
-};
-
 PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm)
     : settings(settings), inputManager(im), resourceManager(rm), localizationManager(lm),
     backgroundSprite(rm.load<sf::Texture>("pause-background.png")), transitionFactor(0), pointer(im, rm),
-    mapLevelData(nullptr), mapCurrentRoom(0), mapDisplayPosition(), mapVisibleMaps(nullptr),
     unpausing(false), currentFrame(1), pauseFrames
     { 
         std::unique_ptr<PauseFrame>(new CollectedPauseFrame(settings, im, rm, lm)),
@@ -150,11 +108,6 @@ void PauseScene::update(std::chrono::steady_clock::time_point curTime)
 void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,
     const std::vector<bool>& visibleMaps)
 {
-    mapLevelData = level;
-    mapCurrentRoom = curRoom;
-    mapDisplayPosition = pos;
-    mapVisibleMaps = &visibleMaps;
-    
     static_cast<MapPauseFrame*>(pauseFrames[1].get())->setLevelData(level, curRoom, pos, visibleMaps);
 }
 
@@ -203,82 +156,4 @@ void PauseScene::switchPauseFrame(size_t frame)
     frameButtons[currentFrame].getCaption()->setDefaultColor(sf::Color::Green);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->activate();
-}
-
-MapPauseFrame::MapPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
-    const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos, const std::vector<bool>& visibleMaps)
-    : mapFrame(rm.load<sf::Texture>("pause-map-frame.png")), map(true)
-{
-    setLevelData(levelData, curRoom, pos, visibleMaps);
-}
-
-void MapPauseFrame::setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos,
-    const std::vector<bool>& visibleMaps)
-{
-    map.setCurLevel(levelData);
-    map.setCurRoom(curRoom);
-    map.setDisplayPosition(pos/(float)DefaultTileSize);
-    
-    for (size_t i = 0; i < visibleMaps.size(); i++)
-        if (visibleMaps.at(i)) map.presentRoomFull(i);
-        else map.hideRoom(i);
-}
-
-void MapPauseFrame::update(std::chrono::steady_clock::time_point curTime)
-{
-    map.update(curTime);
-}
-
-void MapPauseFrame::render(Renderer &renderer)
-{
-    renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 32);
-    renderer.pushDrawable(mapFrame, {}, 2800);
-    renderer.pushDrawable(map, {}, 2802);
-    renderer.popTransform();
-}
-
-void MapPauseFrame::activate()
-{
-}
-
-void MapPauseFrame::deactivate()
-{
-}
-
-CollectedPauseFrame::CollectedPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager& lm)
-{
-}
-
-void CollectedPauseFrame::update(std::chrono::steady_clock::time_point curTime)
-{
-    
-}
-
-void CollectedPauseFrame::render(Renderer &renderer)
-{
-    
-}
-
-void CollectedPauseFrame::activate()
-{
-
-}
-void CollectedPauseFrame::deactivate()
-{
-    
-}
-
-SettingsPauseFrame::SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager& lm, UIPointer& pointer, PauseScene* scene) : SettingsBase(settings, im, rm, lm,
-    sf::Vector2f(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
-{
-    backAction = [=] { scene->unpause(); };
-}
-
-void SettingsPauseFrame::render(Renderer& renderer)
-{
-    renderer.currentTransform.translate(0, -64);
-    SettingsBase::render(renderer);
 }

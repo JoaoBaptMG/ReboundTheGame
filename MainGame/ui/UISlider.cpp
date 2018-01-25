@@ -49,9 +49,11 @@ void UISlider::update()
     auto captionDisplacement = getCaptionDisplacement();
     auto displacement = bounds.left + bounds.width - captionDisplacement.x - sliderKnob.getTextureSize().x/2;
     auto x = mousePosition.x - getPosition().x - displacement;
-    if (state == State::Pressed && x >= -(float)sliderBody.getTextureSize().x && x <= 0)
+    if (state == State::Pressed && x >= -(float)sliderBody.getTextureSize().x - 40 && x <= 40)
     {
-        *slideTarget = std::roundf(slideMaximum * (1 + x/sliderBody.getTextureSize().x));
+        float factor = 1 + x/sliderBody.getTextureSize().x;
+        if (factor < 0) factor = 0; else if (factor > 1) factor = 1;
+        *slideTarget = std::roundf(slideMaximum * factor);
         slideAction(*slideTarget);
     }
 }

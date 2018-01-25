@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene/Scene.hpp"
+#include "scene/pause/PauseFrame.hpp"
 
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
@@ -19,6 +20,8 @@ struct Settings;
 class ResourceManager;
 class InputManager;
 class LocalizationManager;
+
+class PauseScene;
 
 class SettingsBase
 {
@@ -58,4 +61,18 @@ public:
     
     virtual void update(std::chrono::steady_clock::time_point curTime) override { SettingsBase::update(curTime); }
     virtual void render(Renderer& renderer) override;
+};
+
+class SettingsPauseFrame : public SettingsBase, public PauseFrame
+{
+public:
+    SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
+        UIPointer& pointer, PauseScene* scene);
+    virtual ~SettingsPauseFrame() {}
+    
+    virtual void update(std::chrono::steady_clock::time_point curTime) override { SettingsBase::update(curTime); }
+    virtual void render(Renderer &renderer) override;
+    
+    virtual void activate() override { SettingsBase::activate(); }
+    virtual void deactivate() override { SettingsBase::deactivate(); }
 };
