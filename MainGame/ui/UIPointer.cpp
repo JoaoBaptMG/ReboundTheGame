@@ -21,7 +21,7 @@ void UIPointer::hide()
 
 void UIPointer::render(Renderer& renderer)
 {
-    if (isnan(position.x) || isnan(position.y)) return;
+    if (std::isnan(position.x) || std::isnan(position.y)) return;
     
     renderer.pushTransform();
     renderer.currentTransform.translate(position);

@@ -1,7 +1,7 @@
 .intel_syntax noprefix
 
-#  
-# This file implements context functionality for UNIX x64 systems that support
+#
+# This file implements context functionality for MAC OS X which supports
 # the System V ABI
 #
 
@@ -14,7 +14,7 @@
     .set context_r15, context_r14 + 8
     .set context_num_saved_variables, context_r15 + 8
 
-.section .text
+.section __TEXT,__text
     .extern malloc
     .extern free
   
@@ -26,14 +26,13 @@
 # - rax: new coroutine_t*
 #
 #=======================================================================================
-
-    .global coroutine_new
-coroutine_new:
+    .global _coroutine_new
+_coroutine_new:
     # allocate memory for the context data plus the stack
     push rdi
     push rsi
     lea rdi, [rsi + context_num_saved_variables]  # allocate everything in a single chunk
-    call malloc
+    call _malloc
     pop rsi
     pop rdi
     
@@ -48,7 +47,7 @@ coroutine_new:
     
     mov [rsi+16], rdi                      # Bottom of stack: return pointer
     mov [rsi+8], rax                       # Middle of stack: context_t parameter
-    lea rdi, entry_point                   #
+    lea rdi, [rip+entry_point]             #
     mov [rsi], rdi                         # Top of stack: entry_point stub
     
     mov [rax + context_rsp], rsi           # Move the stack pointer to its place
@@ -83,10 +82,10 @@ entry_point:
 # - rax: param returned from the entry point
 #
 #=======================================================================================
-    .global coroutine_resume
-coroutine_resume:
-    .global coroutine_yield
-coroutine_yield:
+    .global _coroutine_resume
+_coroutine_resume:
+    .global _coroutine_yield
+_coroutine_yield:
     test rdi, rdi # Careful with nullptr's
     jz return_nullptr
     
@@ -119,8 +118,8 @@ return_nullptr:
 # - rax: 1 if coroutine is ended, 0 if it is not
 #
 #=======================================================================================
-    .global is_coroutine_ended
-is_coroutine_ended:
+    .global _is_coroutine_ended
+_is_coroutine_ended:
     test rdi, rdi
     jz coroutine_is_ended
 
@@ -139,14 +138,14 @@ coroutine_is_ended:
 # - rdi: coro
 #
 #=======================================================================================
-    .global coroutine_destroy
-coroutine_destroy:
+    .global _coroutine_destroy
+_coroutine_destroy:
     test rdi, rdi
     jz dont_delete_unended_coroutine
 
     cmp qword ptr [rdi + context_rsp], 0
     jnz dont_delete_unended_coroutine
-    call free
+    call _free
 dont_delete_unended_coroutine:
     ret
     
