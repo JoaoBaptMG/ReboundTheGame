@@ -12,6 +12,16 @@ static Settings defaultSettings()
             {
 #if _WIN32
 #elif __APPLE__
+                InputSource::keyboardKey(0x56),
+                InputSource::keyboardKey(0x57),
+                InputSource::keyboardKey(0x58),
+                InputSource::keyboardKey(0x59),
+                InputSource::keyboardKey(0x56),
+                InputSource::keyboardKey(0x35),
+                InputSource::keyboardKey(0x07),
+                InputSource::keyboardKey(0x01),
+                InputSource::keyboardKey(0x00),
+                InputSource::keyboardKey(0x02),
 #elif __linux__
                 InputSource::keyboardKey(83),
                 InputSource::keyboardKey(84),

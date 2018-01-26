@@ -7,6 +7,7 @@
 #include <cppmunk/Shape.h>
 #include <cppmunk/Body.h>
 #include <chrono>
+#include <cmath>
 
 #include <type_traits>
 

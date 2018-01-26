@@ -5,6 +5,7 @@
 
 #include <chipmunk/chipmunk.h>
 #include <chrono>
+#include <cmath>
 
 class GameScene;
 class Renderer;

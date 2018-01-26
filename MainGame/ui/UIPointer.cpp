@@ -21,7 +21,7 @@ void UIPointer::hide()
 
 void UIPointer::render(Renderer& renderer)
 {
-    if (isnanf(position.x) || isnanf(position.y)) return;
+    if (isnan(position.x) || isnan(position.y)) return;
     
     renderer.pushTransform();
     renderer.currentTransform.translate(position);

@@ -39,6 +39,45 @@ std::string getExecutableDirectory()
 }
 
 #elif __APPLE__
+#ifndef __OBJC__
+#error This file must be compiled as an Objective-C++ source file!
+#endif
+#import <Foundation/Foundation.h>
+
+// Taken directly from the app template on Mac
+std::string getExecutableDirectory()
+{
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
+    std::string rpath;
+    NSBundle* bundle = [NSBundle mainBundle];
+    
+    if (bundle == nil) {
+#ifdef DEBUG
+        NSLog(@"bundle is nil... thus no executable dir can be found.");
+#endif
+    } else {
+        NSString* path = [bundle executablePath];
+        rpath = [path UTF8String];
+    }
+    
+    [pool drain];
+    
+    return rpath;
+}
+
+std::vector<std::string> getAllFilesInDir(std::string dir)
+{
+    NSDirectoryEnumerator* enumerator = [[NSFileManager defaultManager] enumeratorAtPath:[NSString stringWithUTF8String:dir.c_str()]];
+    
+    std::vector<std::string> list;
+    NSString* filename;
+    while ((filename = [enumerator nextObject]))
+        list.emplace_back(filename.UTF8String);
+    
+    return list;
+}
+
 #elif __linux__
 extern "C"
 {

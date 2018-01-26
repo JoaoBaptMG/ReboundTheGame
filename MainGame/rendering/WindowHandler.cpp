@@ -7,6 +7,8 @@
 #include <Windows.h>
 #define GL_PROGRAM_POINT_SIZE 0x8642
 #define GL_POINT_SPRITE 0x8861
+#elif __APPLE__
+#define GL_PROGRAM_POINT_SIZE 0x8642
 #endif
 
 void generateFullscreenQuad(sf::VertexArray& array, size_t canvasWidth, size_t canvasHeight)

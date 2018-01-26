@@ -14,7 +14,11 @@
     .set context_r15, context_r14 + 8
     .set context_num_saved_variables, context_r15 + 8
 
+.if __APPLE__
+.section __TEXT,__text
+.else
 .section .text
+.endif
     .extern malloc
     .extern free
   
@@ -27,13 +31,22 @@
 #
 #=======================================================================================
 
+.if __APPLE__
+    .global _coroutine_new
+_coroutine_new:
+.else
     .global coroutine_new
 coroutine_new:
+.endif
     # allocate memory for the context data plus the stack
     push rdi
     push rsi
     lea rdi, [rsi + context_num_saved_variables]  # allocate everything in a single chunk
+.if __APPLE__
+    call _malloc
+.else
     call malloc
+.endif
     pop rsi
     pop rdi
     
@@ -48,7 +61,7 @@ coroutine_new:
     
     mov [rsi+16], rdi                      # Bottom of stack: return pointer
     mov [rsi+8], rax                       # Middle of stack: context_t parameter
-    lea rdi, entry_point                   # 
+    lea rdi, [rip+entry_point]             #
     mov [rsi], rdi                         # Top of stack: entry_point stub
     
     mov [rax + context_rsp], rsi           # Move the stack pointer to its place
@@ -83,10 +96,17 @@ entry_point:
 # - rax: param returned from the entry point
 #
 #=======================================================================================
+.if __APPLE__
+    .global _coroutine_resume
+_coroutine_resume:
+    .global _coroutine_yield
+_coroutine_yield:
+.else
     .global coroutine_resume
 coroutine_resume:
     .global coroutine_yield
 coroutine_yield:
+.endif
     test rdi, rdi # Careful with nullptr's
     jz return_nullptr
     
@@ -119,8 +139,13 @@ return_nullptr:
 # - rax: 1 if coroutine is ended, 0 if it is not
 #
 #=======================================================================================
+.if __APPLE__
+    .global _is_coroutine_ended
+_is_coroutine_ended:
+.else
     .global is_coroutine_ended
 is_coroutine_ended:
+.endif
     test rdi, rdi
     jz coroutine_is_ended
 
@@ -139,14 +164,23 @@ coroutine_is_ended:
 # - rdi: coro
 #
 #=======================================================================================
+.if __APPLE__
+    .global _coroutine_destroy
+_coroutine_destroy:
+.else
     .global coroutine_destroy
 coroutine_destroy:
+.endif
     test rdi, rdi
     jz dont_delete_unended_coroutine
 
     cmp qword ptr [rdi + context_rsp], 0
     jnz dont_delete_unended_coroutine
+.if __APPLE__
+    call _free
+.else
     call free
+.endif
 dont_delete_unended_coroutine:
     ret
     

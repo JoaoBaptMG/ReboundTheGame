@@ -5,7 +5,7 @@
 #include <vector>
 #include <chrono>
 
-struct LevelData;
+class LevelData;
 
 class GUIMap final : public sf::Drawable
 {
