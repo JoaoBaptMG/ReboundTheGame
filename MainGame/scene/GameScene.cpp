@@ -67,23 +67,25 @@ void GameScene::reloadLevel()
     visibleMaps.resize(levelData->roomMaps.size());
     visibleMaps.at(levelData->startingRoom) = true;
     
-    loadRoom(levelData->startingRoom);
+    loadRoom(levelData->startingRoom, false, {0,0}, true);
     loadRoomObjects();
     
     gui.setLevelNumber(levelData->levelNumber);
     gui.setVisibleMaps(visibleMaps);
+    gui.setCurrentBoss(nullptr);
     
     reset(pauseLag);
 }
 
-void GameScene::loadRoom(size_t id, bool transition, cpVect displacement)
+void GameScene::loadRoom(size_t id, bool transition, cpVect displacement, bool deletePersistent)
 {
     curRoomID = id;
     auto roomName = levelData->roomResourceNames.at(id) + ".map";
     
     if (!transition)
     {
-        gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
+        if (deletePersistent) gameObjects.clear();
+        else gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
             [](const auto& obj) { return !obj->isPersistent; }), gameObjects.end());
     }
     else

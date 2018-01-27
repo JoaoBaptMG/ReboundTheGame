@@ -27,7 +27,7 @@ TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture
         for (size_t i = 0; i < width; i++)
         {
             texturePieces[j*width+i].position.x = texSize.x * ((i + 0.5)/width - 0.5);
-            texturePieces[j*width+i].position.y = texSize.y * ((j + 0.5)/width - 0.5);
+            texturePieces[j*width+i].position.y = texSize.y * ((j + 0.5)/height - 0.5);
 
             float xVel = velocityRect.left + generator() * velocityRect.width;
             float yVel = velocityRect.top + generator() * velocityRect.height;

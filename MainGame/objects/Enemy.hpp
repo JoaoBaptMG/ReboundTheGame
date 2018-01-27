@@ -24,8 +24,8 @@ public:
 
     void setupPhysics();
 
-    virtual bool onCollisionAttack(Player& player) = 0;
-    virtual bool onCollisionHit(Player& player) = 0;
+    virtual bool onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape) = 0;
+    virtual bool onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape) = 0;
 
     auto getPosition() const { return collisionBody->getPosition(); }
     auto getDisplayPosition() const

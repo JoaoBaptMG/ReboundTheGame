@@ -11,34 +11,39 @@
 #include <assert.hpp>
 
 constexpr auto ParticleVertexShader = R"vertex(
-#version 130
 varying float PointSize;
+varying vec2 TexCoord;
 
 void main()
 {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    PointSize = gl_PointSize = gl_MultiTexCoord0.x;
+    PointSize = gl_MultiTexCoord0.y;
+    
+    float texId = gl_MultiTexCoord0.x;
+    TexCoord = vec2(mod(texId,2.0), floor(texId/2.0));
+    
     gl_FrontColor = gl_Color;
 }
 )vertex";
 
 constexpr auto ParticleSmoothFragmentShader = R"fragment(
-#version 130
+varying vec2 TexCoord;
+
 void main()
 {
     gl_FragColor = gl_Color;
-    gl_FragColor.a *= 1.0 - 2.0 * distance(gl_PointCoord, vec2(0.5, 0.5));
+    gl_FragColor.a *= 1.0 - 2.0 * distance(TexCoord, vec2(0.5, 0.5));
 }
 )fragment";
 
 constexpr auto ParticleDiskFragmentShader = R"fragment(
-#version 130
 varying float PointSize;
+varying vec2 TexCoord;
 
 void main()
 {
     gl_FragColor = gl_Color;
-    gl_FragColor.a *= clamp((1.0 - 2.0 * distance(gl_PointCoord, vec2(0.5, 0.5))) * PointSize, 0.0, 1.0);
+    gl_FragColor.a *= clamp((1.0 - 2.0 * distance(TexCoord, vec2(0.5, 0.5))) * PointSize, 0.0, 1.0);
 }
 )fragment";
 
@@ -75,7 +80,7 @@ static sf::Glsl::Vec4 operator*(float s, sf::Glsl::Vec4 v2)
 
 ParticleBatch::ParticleBatch(GameScene &scene, std::string emitterSetName, std::string emitterName,
     bool persistent, size_t depth)
-    : GameObject(scene), vertices(sf::Points), drawingDepth(depth), aborted(false),
+    : GameObject(scene), vertices(sf::Triangles), drawingDepth(depth), aborted(false),
       emitterSet(scene.getResourceManager().load<ParticleEmitterSet>(emitterSetName))
 {
 	std::random_device init;
@@ -99,7 +104,7 @@ void ParticleBatch::addParticle(ParticleBatch::PositionInfo pos,
     positionAttributes.push_back(pos);
     displayAttributes.push_back(display);
     lifeAttributes.push_back({ lastTime, lastTime + lifetime, lifetime });
-    vertices.resize(vertices.getVertexCount()+1);
+    vertices.resize(6*positionAttributes.size());
 }
 
 void ParticleBatch::removeParticle(size_t index)
@@ -114,7 +119,7 @@ void ParticleBatch::removeParticle(size_t index)
     positionAttributes.pop_back();
     displayAttributes.pop_back();
     lifeAttributes.pop_back();
-    vertices.resize(last);
+    vertices.resize(6*positionAttributes.size());
 }
 
 void ParticleBatch::update(std::chrono::steady_clock::time_point curTime)
@@ -161,14 +166,32 @@ bool ParticleBatch::notifyScreenTransition(cpVect displacement)
 
 void ParticleBatch::render(Renderer& renderer)
 {
-    for (size_t i = 0; i < vertices.getVertexCount(); i++)
+    for (size_t i = 0; i < positionAttributes.size(); i++)
     {
-        vertices[i].position = positionAttributes[i].position;
-        vertices[i].texCoords = sf::Vector2f(displayAttributes[i].curSize, 0);
-        vertices[i].color = sf::Color(displayAttributes[i].curColor.x * 255.f,
-                                      displayAttributes[i].curColor.y * 255.f,
-                                      displayAttributes[i].curColor.z * 255.f,
-                                      displayAttributes[i].curColor.w * 255.f);
+        for (size_t k = 0; k < 6; k++)
+        {
+            vertices[6*i+k].position = positionAttributes[i].position;
+            vertices[6*i+k].color = sf::Color(displayAttributes[i].curColor.x * 255.f,
+                                              displayAttributes[i].curColor.y * 255.f,
+                                              displayAttributes[i].curColor.z * 255.f,
+                                              displayAttributes[i].curColor.w * 255.f);
+        }
+        
+        auto curSize = displayAttributes[i].curSize;
+        
+        vertices[6*i+0].position += sf::Vector2f(-curSize/2, -curSize/2);
+        vertices[6*i+1].position += sf::Vector2f(+curSize/2, -curSize/2);
+        vertices[6*i+2].position += sf::Vector2f(+curSize/2, +curSize/2);
+        vertices[6*i+3].position += sf::Vector2f(-curSize/2, +curSize/2);
+        vertices[6*i+4].position += sf::Vector2f(-curSize/2, -curSize/2);
+        vertices[6*i+5].position += sf::Vector2f(+curSize/2, +curSize/2);
+        
+        vertices[6*i+0].texCoords = sf::Vector2f(0, curSize);
+        vertices[6*i+1].texCoords = sf::Vector2f(1, curSize);
+        vertices[6*i+2].texCoords = sf::Vector2f(3, curSize);
+        vertices[6*i+3].texCoords = sf::Vector2f(2, curSize);
+        vertices[6*i+4].texCoords = sf::Vector2f(0, curSize);
+        vertices[6*i+5].texCoords = sf::Vector2f(3, curSize);
     }
 
     sf::RenderStates states;

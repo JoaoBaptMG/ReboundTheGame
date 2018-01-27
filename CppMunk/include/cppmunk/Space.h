@@ -17,8 +17,8 @@ namespace cp
     class Constraint;
     class Shape;
 
-    typedef std::function<void(cpShape*, cpVect, cpFloat, cpVect)> PointQueryFunc;
-    typedef std::function<void(cpShape*, cpFloat, cpVect)> SegmentQueryFunc;
+    typedef std::function<void(std::shared_ptr<Shape>, cpVect, cpFloat, cpVect)> PointQueryFunc;
+    typedef std::function<void(std::shared_ptr<Shape>, cpFloat, cpVect)> SegmentQueryFunc;
     
     class Space
     {
@@ -152,20 +152,17 @@ namespace cp
     private:
         Space(const Space&);
         const Space& operator=(const Space&);
+        
+    public:
         std::shared_ptr<Shape> findShape(cpShape*) const;
         std::shared_ptr<Body> findBody(cpBody*) const;
         std::shared_ptr<Constraint> findConstraint(cpConstraint*) const;
-
+        
+    private:
         std::unordered_map<cpShape*, std::shared_ptr<Shape>> _shapes;
         std::unordered_map<cpBody*, std::shared_ptr<Body>> _bodies;
         std::unordered_map<cpConstraint*, std::shared_ptr<Constraint>> _constraints;
 
-        /*struct SegmentQueryData
-        {
-            const Space* const self;
-            SegmentQueryFunc& func;
-        };*/
-        
         struct CallbackData
         {
             std::function<int(Arbiter, Space&)> begin;

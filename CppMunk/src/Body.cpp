@@ -23,7 +23,9 @@ namespace cp
 
     Body::Body(KinematicTag) :
     _body(cpBodyNewKinematic())
-    { }
+    {
+        
+    }
     
     Body::Body(cpBody* body) :
     _body(body)

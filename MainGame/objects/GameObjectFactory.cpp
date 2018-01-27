@@ -20,6 +20,7 @@
 #include "objects/props/Grapple.hpp"
 #include "objects/props/Water.hpp"
 #include "objects/background/Parallax.hpp"
+#include "objects/enemies/bosses/TestBoss.hpp"
 
 namespace detail
 {
@@ -84,6 +85,9 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     // enemies
     DEFINE_FACTORY(enemies::Floater),
     DEFINE_FACTORY(enemies::Rotator),
+    
+    // bosses
+    DEFINE_FACTORY(enemies::bosses::TestBoss),
 
     // collectibles
     DEFINE_FACTORY(collectibles::HealthPickup),

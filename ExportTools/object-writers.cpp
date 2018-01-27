@@ -25,6 +25,17 @@ bool writeBox(Object obj, ostream& out)
     return obj.everythingOk();
 }
 
+bool write_enemies_bosses_TestBoss(Object obj, ostream& out)
+{
+    int16_t leftSpan = obj.getPropertyInt("left-span");
+    int16_t rightSpan = obj.getPropertyInt("right-span");
+    
+    out.write((const char*)&leftSpan, sizeof(int16_t));
+    out.write((const char*)&rightSpan, sizeof(int16_t));
+    
+    return obj.everythingOk();
+}
+
 bool write_background_Parallax(Object obj, ostream& out)
 {
     auto file = obj.getPropertyFile("name");
@@ -86,6 +97,8 @@ unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
     
     { "enemies::Floater", doNothing },
     { "enemies::Rotator", writeBox },
+    
+    { "enemies::bosses::TestBoss", write_enemies_bosses_TestBoss },
     
     { "props::BombCrate", doNothing },
     { "props::DashCrate", doNothing },

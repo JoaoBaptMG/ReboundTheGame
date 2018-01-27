@@ -64,13 +64,13 @@ Floater::~Floater()
     gameScene.getGameSpace().remove(collisionBody);
 }
 
-bool Floater::onCollisionAttack(Player& player)
+bool Floater::onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape)
 {
     player.damage(25);
     return true;
 }
 
-bool Floater::onCollisionHit(Player& player)
+bool Floater::onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape)
 {
     remove();
     return true;

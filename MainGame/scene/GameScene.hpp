@@ -86,7 +86,7 @@ public:
 
     void loadLevel(std::string levelName);
     void reloadLevel();
-    void loadRoom(size_t id, bool transition = false, cpVect displacement = cpVect{0,0});
+    void loadRoom(size_t id, bool transition = false, cpVect displacement = cpVect{0,0}, bool deletePersistent = false);
     void loadRoomObjects();
     
     void requestRoomLoad(size_t id) { requestedID = id; }
@@ -113,6 +113,8 @@ public:
     void checkWarps();
     void checkWarp(Player* player, WarpData::Dir direction, cpVect pos);
     void notifyTransitionEnded();
+    
+    void setCurrentBoss(GUIBossUpdater* boss) { gui.setCurrentBoss(boss); }
     
     virtual void render(Renderer& renderer) override;
     

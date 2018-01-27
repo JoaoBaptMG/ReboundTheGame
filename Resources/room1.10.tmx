@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="58" tilewidth="32" tileheight="32" nextobjectid="66">
+<map version="1.0" tiledversion="1.1.0" orientation="orthogonal" renderorder="right-down" width="30" height="58" tilewidth="32" tileheight="32" infinite="0" nextobjectid="68">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -96,6 +96,12 @@
    <properties>
     <property name="level" type="int" value="10"/>
    </properties>
+  </object>
+  <object id="67" name="health-pickup" type="collectibles::HealthPickup" x="576" y="128" width="32" height="32">
+   <properties>
+    <property name="amount" type="int" value="200"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
  <objectgroup name="warp-layer">

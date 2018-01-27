@@ -15,20 +15,20 @@ void Enemy::setupCollisionHandlers(Space* space)
     {
         space->addCollisionHandler(Player::CollisionType, CollisionType,
             [](Arbiter, Space&) { return true; },
-            [](Arbiter arbiter, Space&)
+            [](Arbiter arbiter, Space& space)
             {
                 auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
                 auto enemy = static_cast<Enemy*>(cpBodyGetUserData(arbiter.getBodyB()));
-                return enemy->onCollisionAttack(*player);
+                return enemy->onCollisionAttack(*player, space.findShape(arbiter.getShapeB()));
             }, [](Arbiter, Space&) {}, [](Arbiter, Space&) {});
 
         space->addCollisionHandler(Player::CollisionType, HitCollisionType,
             [](Arbiter, Space&) { return true; },
-            [](Arbiter arbiter, Space&)
+            [](Arbiter arbiter, Space& space)
             {
                 auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
                 auto enemy = static_cast<Enemy*>(cpBodyGetUserData(arbiter.getBodyB()));
-                return enemy->onCollisionHit(*player);
+                return enemy->onCollisionHit(*player, space.findShape(arbiter.getShapeB()));
             }, [](Arbiter, Space&) {}, [](Arbiter, Space&) {});
         
         lastSpaceSetup = space;

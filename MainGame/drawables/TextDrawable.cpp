@@ -341,6 +341,15 @@ size_t TextDrawable::getNumberOfGraphemeClusters() const
     return graphemeClusters.size();
 }
 
+TextDrawable::GraphemeRange TextDrawable::getAllVertices(bool outline)
+{
+    if (graphemeClusters.empty()) return { nullptr, nullptr };
+    if (outline && verticesOutline.getVertexCount() == 0) return { nullptr, nullptr };
+    
+    auto& vlist = outline ? verticesOutline : vertices;
+    return { &vlist[0], &vlist[vlist.getVertexCount()] };
+}
+
 void TextDrawable::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (!needsUpdateGeometry)

@@ -28,8 +28,8 @@ namespace enemies
 
         void setupPhysics();
 
-        virtual bool onCollisionAttack(Player& player) override;
-        virtual bool onCollisionHit(Player& player) override;
+        virtual bool onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape) override;
+        virtual bool onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape) override;
 
         virtual void update(std::chrono::steady_clock::time_point curTime) override;
         virtual void render(Renderer& renderer) override;

@@ -105,6 +105,8 @@ public:
     GraphemeRange getGraphemeCluster(size_t index, bool outline = false);
     size_t getNumberOfGraphemeClusters() const;
     
+    GraphemeRange getAllVertices(bool outline = false);
+    
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

@@ -71,13 +71,13 @@ Rotator::~Rotator()
 }
 
 
-bool Rotator::onCollisionAttack(Player& player)
+bool Rotator::onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape)
 {
     player.damage(10);
     return true;
 }
 
-bool Rotator::onCollisionHit(Player& player)
+bool Rotator::onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape)
 {
     remove();
     return true;

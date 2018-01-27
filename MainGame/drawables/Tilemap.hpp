@@ -32,9 +32,9 @@ public:
 
     void setDrawingFrame(sf::FloatRect drawingFrame) { this->drawingFrame = drawingFrame; }
 
-    void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex; }
-    void setTileData(const util::grid<uint8_t>& data) { tileData = data; }
-    void setTileData(util::grid<uint8_t>&& data) { tileData = std::move(data); }
+    void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex;  }
+    void setTileData(const util::grid<uint8_t>& data) { tileData = data; vertexSize = 0; }
+    void setTileData(util::grid<uint8_t>&& data) { tileData = std::move(data); vertexSize = 0; }
     
     auto getTexture() { return texture; }
     const auto& getTileData() { return tileData; }

@@ -18,7 +18,7 @@ static Settings defaultSettings()
                 InputSource::keyboardKey(0x59),
                 InputSource::keyboardKey(0x56),
                 InputSource::keyboardKey(0x35),
-                InputSource::keyboardKey(0x07),
+                InputSource::keyboardKey(0x0d),
                 InputSource::keyboardKey(0x01),
                 InputSource::keyboardKey(0x00),
                 InputSource::keyboardKey(0x02),

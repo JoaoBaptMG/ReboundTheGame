@@ -12,6 +12,8 @@
 #include "language/convenienceConfigText.hpp"
 #include "resources/FontHandler.hpp"
 
+#include "ColorList.hpp"
+
 #include <chronoUtils.hpp>
 
 constexpr float FirstBlinkPeriod = 2.0;
@@ -38,13 +40,25 @@ ParsedConfigString parseConfigString(std::string config)
     return { labelSize, idSize };
 }
 
+GUIBossUpdater* nullBossMeter()
+{
+    struct NullBossUpdater : public GUIBossUpdater
+    {
+        virtual size_t getCurrentHealth() const override { return 0; }
+        virtual size_t getMaxHealth() const override { return 1; }
+    };
+    
+    static NullBossUpdater nullBossUpdater;
+    return &nullBossUpdater;
+}
+
 GUI::GUI(GameScene& scene) : gameScene(scene),
     guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
     guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), sf::Vector2f(0, 0)),
+    playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small, false), bossMeter(MeterSize::Normal),
     levelLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
     levelID(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
-    playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small, false), lastIconName(""), drawDash(false),
-    levelNumber(1), healthBlinkPhase(0)
+    currentBoss(nullptr), lastIconName(""), drawDash(false), levelNumber(1), healthBlinkPhase(0)
 {
     playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
     playerMeter.setPosition(4, 484);
@@ -52,6 +66,10 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
     dashMeter.setColors(sf::Color(162, 0, 255, 255), sf::Color::Yellow, sf::Color(80, 80, 80, 255));
     dashMeter.setPosition(52, 484);
     dashMeter.setIcon(scene.getResourceManager().load<sf::Texture>("icon-dash.png"));
+    
+    bossMeter.setColors(Colors::Orange, sf::Color::Yellow, sf::Color(80, 80, 80, 255));
+    bossMeter.setPosition(8, 484);
+    bossMeter.setHeight(432);
     
     for (auto& sprite : bombSprites)
         sprite.setTexture(scene.getResourceManager().load<sf::Texture>("icon-bomb.png"));
@@ -90,6 +108,9 @@ void GUI::setLevelNumber(size_t number)
 {
     levelNumber = number;
     guiMap.setCurLevel(gameScene.getCurrentLevel());
+    
+    guiMap.setCurRoom(gameScene.getCurrentRoomID());
+    guiMap.presentRoom(gameScene.getCurrentRoomID());
     
     auto& locManager = gameScene.getLocalizationManager();
     auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } });
@@ -171,11 +192,18 @@ void GUI::update(std::chrono::steady_clock::time_point curTime)
         dashMeter.setTarget(0);
     }
     
+    if (currentBoss)
+    {
+        auto size = bossMeter.getHeight() * currentBoss->getCurrentHealth() / currentBoss->getMaxHealth();
+        bossMeter.setTarget(size);
+    }
+    
     guiMap.setCurRoom(gameScene.getCurrentRoomID());
     guiMap.presentRoom(gameScene.getCurrentRoomID());
     
     playerMeter.update(curTime);
     dashMeter.update(curTime);
+    bossMeter.update(curTime);
     guiMap.update(curTime);
     
     lastTime = curTime;
@@ -186,8 +214,7 @@ void GUI::render(Renderer& renderer)
     renderer.pushDrawable(guiLeft, {}, 6000);
 
     renderer.pushDrawable(playerMeter, {}, 6600);
-    if (drawDash)
-        renderer.pushDrawable(dashMeter, {}, 6600);
+    if (drawDash) renderer.pushDrawable(dashMeter, {}, 6600);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(52, 484 - dashMeter.getFrameHeight() - 22);
@@ -213,6 +240,8 @@ void GUI::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth - guiRight.getTextureSize().x, 0);
     renderer.pushDrawable(guiRight, {}, 6000);
+    
+    if (currentBoss) renderer.pushDrawable(bossMeter, {}, 6600);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(50, 530);

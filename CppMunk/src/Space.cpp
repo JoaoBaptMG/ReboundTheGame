@@ -99,16 +99,18 @@ namespace cp
                              cpGroup group,
                              SegmentQueryFunc func) const
     {
-        //SegmentQueryData data = { this, func };
+        struct SegmentQueryData { const Space* space; SegmentQueryFunc func; }
+        spaceData { this, func };
+        
         cpShapeFilter filter{static_cast<cpGroup>(group),
             static_cast<cpBitmask>(layers),
             static_cast<cpBitmask>(layers)};
         cpSpaceSegmentQuery(_space, a, b, 0, filter,
         [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
         {
-            auto d = reinterpret_cast<SegmentQueryFunc*>(data);
-            (*d)(shape, alpha, normal);
-        }, &func);
+            auto d = reinterpret_cast<SegmentQueryData*>(data);
+            d->func(d->space->findShape(shape), alpha, normal);
+        }, (void*)&spaceData);
     }
     
     std::shared_ptr<Shape> Space::segmentQueryFirst(cpVect a,
@@ -139,12 +141,15 @@ namespace cp
                            cpShapeFilter filter,
                            PointQueryFunc func) const
     {
+        struct PointQueryData { const Space* space; PointQueryFunc func; }
+        spaceData { this, func };
+        
         cpSpacePointQuery(_space, p, maxDistance, filter,
         [](cpShape* shape, cpVect point, cpFloat distance, cpVect gradient, void* data)
         {
-            auto d = reinterpret_cast<PointQueryFunc*>(data);
-            (*d)(shape, point, distance, gradient);
-        }, (void*)&func);
+            auto d = reinterpret_cast<PointQueryData*>(data);
+            d->func(d->space->findShape(shape), point, distance, gradient);
+        }, (void*)&spaceData);
     }
     
     std::shared_ptr<Shape> Space::pointQueryNearest(cpVect p,
@@ -256,36 +261,6 @@ namespace cp
             }, body, NULL);
         }, _space);
     }
-    
-    /*void Space::helperShapeAddWrap(cpSpace *space, cpShape *shape, void *unused)
-    {
-        cpSpaceAddShape(space, shape);
-    }
-    
-    void Space::helperPostShapeAdd(cpShape *shape, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperShapeAddWrap, shape, NULL);
-    }
-    
-    void Space::helperConstraintAddWrap(cpSpace *space, cpConstraint *constraint, void *unused)
-    {
-        cpSpaceAddConstraint(space, constraint);
-    }
-    
-    void Space::helperPostConstraintAdd(cpConstraint *constraint, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperConstraintAddWrap, constraint, NULL);
-    }
-    
-    void Space::helperBodyAddWrap(cpSpace *space, cpBody *body, void *unused)
-    {
-        cpSpaceAddBody(space, body);
-    }
-    
-    void Space::helperPostBodyAdd(cpBody *body, cpSpace *space)
-    {
-        cpSpaceAddPostStepCallback(space, (cpPostStepFunc)helperBodyAddWrap, body, NULL);
-    }*/
 
     void Space::addPostStepCallback(void* key, std::function<void()> callback)
     {

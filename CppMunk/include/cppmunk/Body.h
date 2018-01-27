@@ -16,7 +16,7 @@ namespace cp
     public:
         static const struct StaticTag {} Static;
         static const struct KinematicTag {} Kinematic;
-    
+        
         Body(cpFloat mass, cpFloat inertia);
         Body(StaticTag);
         Body(KinematicTag);
@@ -134,7 +134,7 @@ namespace cp
     private:
         Body(const Body&);
         const Body& operator=(const Body&);
-
+        
         friend class Space;
     };
 }

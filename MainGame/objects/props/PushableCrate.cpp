@@ -49,17 +49,7 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
     static Space* lastSpaceSetup = nullptr;
 
     if (lastSpaceSetup != space)
-    {
-        space->addCollisionHandler(Player::CollisionType, CollisionType,
-            [](Arbiter arbiter, Space& space)
-            {
-                auto player = static_cast<Player*>(cpBodyGetUserData(arbiter.getBodyA()));
-                auto crate = static_cast<PushableCrate*>(cpBodyGetUserData(arbiter.getBodyB()));
-                return cpArbiterCallWildcardBeginA(arbiter, space);
-            }, cpArbiterCallWildcardPreSolveA, cpArbiterCallWildcardPostSolveA, cpArbiterCallWildcardSeparateA);
-        
         lastSpaceSetup = space;
-    }
 }
 
 PushableCrate::PushableCrate(GameScene& gameScene) : GameObject(gameScene)

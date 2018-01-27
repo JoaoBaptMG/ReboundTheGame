@@ -10,19 +10,29 @@
 class GameScene;
 class Renderer;
 
+class GUIBossUpdater
+{
+public:
+    virtual size_t getCurrentHealth() const = 0;
+    virtual size_t getMaxHealth() const = 0;
+};
+
+GUIBossUpdater* nullBossMeter();
+
 class GUI final
 {
+    GameScene& gameScene;
+    
     Sprite guiLeft, guiRight;
-    GUIMeter playerMeter, dashMeter;
+    GUIMeter playerMeter, dashMeter, bossMeter;
     Sprite bombSprites[MaxBombs];
     TextDrawable levelLabel, levelID;
     size_t levelNumber;
     bool drawDash;
 
+    const GUIBossUpdater* currentBoss;
     GUIMap guiMap;
-
     std::string lastIconName;
-    GameScene& gameScene;
     
     void configureText();
     
@@ -38,4 +48,7 @@ public:
 
     void setLevelNumber(size_t number);
     void setVisibleMaps(const std::vector<bool>& visibleMaps);
+    
+    auto getCurrentBoss() const { return currentBoss; }
+    void setCurrentBoss(const GUIBossUpdater* boss) { currentBoss = boss; }
 };

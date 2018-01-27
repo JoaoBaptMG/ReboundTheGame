@@ -106,4 +106,7 @@
     <!-- The caption for the "Resume game" button on the settings pause frame -->
     <string name="settings-pause-resume">Voltar ao jogo</string>
     
+    <!-- The presenter caption for the Test Boss -->
+    <string name="test-boss-present">Test Boss</string>
+    
 </language>
