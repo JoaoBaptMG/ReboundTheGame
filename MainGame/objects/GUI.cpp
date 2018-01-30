@@ -118,6 +118,11 @@ void GUI::setLevelNumber(size_t number)
     levelID.buildGeometry();
 }
 
+void GUI::resetBlinker()
+{
+    healthBlinkPhase = 0;
+}
+
 void GUI::setVisibleMaps(const std::vector<bool>& visibleMaps)
 {
     for (size_t i = 0; i < visibleMaps.size(); i++)

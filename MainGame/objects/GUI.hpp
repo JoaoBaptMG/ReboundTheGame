@@ -48,6 +48,7 @@ public:
 
     void setLevelNumber(size_t number);
     void setVisibleMaps(const std::vector<bool>& visibleMaps);
+    void resetBlinker();
     
     auto getCurrentBoss() const { return currentBoss; }
     void setCurrentBoss(const GUIBossUpdater* boss) { currentBoss = boss; }

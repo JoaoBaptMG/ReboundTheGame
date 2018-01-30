@@ -1,4 +1,4 @@
-This license covers all code on this repository, except for what's on the folder CppMunk, which is extracted from a public domain repository, and the files under CMakeModules, which came from various sources.
+This license covers all code on this repository, except for what's on the folder CppMunk, which is extracted from a public domain repository, the files under CMakeModules, which came from various sources, and the AES library under MainGame/aes/tiny-AES-c-master, which is downloaded from https://github.com/kokke/tiny-AES-c and is under the Unlicense.
 
 Copyright 2016-2018 João Baptista de Paula e Silva
 

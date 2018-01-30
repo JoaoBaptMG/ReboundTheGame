@@ -1,6 +1,6 @@
 #include "Settings.hpp"
 #include "execDir.hpp"
-#include "FileOutputStream.hpp"
+#include "streams/FileOutputStream.hpp"
 
 constexpr auto SettingsFileName = "settings.sav";
 
@@ -73,7 +73,7 @@ Settings loadSettingsFile(bool *success)
 
     Settings settings = defaultSettings();
     if (!readFromStream(file, settings.inputSettings, settings.videoSettings, settings.audioSettings,
-        settings.languageFile))
+        settings.languageFile, settings.savedKeys))
         return defaultSettings();
 
     if (success) *success = true;
@@ -87,5 +87,6 @@ bool storeSettingsFile(const Settings& settings)
 
     if (!file.open(fullname)) return false;
     return writeMagic(file, "SETTINGS") && writeToStream(file, varLength(SettingsVersion),
-        settings.inputSettings, settings.videoSettings, settings.audioSettings, settings.languageFile);
+        settings.inputSettings, settings.videoSettings, settings.audioSettings, settings.languageFile,
+        settings.savedKeys);
 }

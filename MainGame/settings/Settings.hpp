@@ -1,13 +1,15 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <SFML/System.hpp>
 #include <OutputStream.hpp>
 #include "InputSettings.hpp"
 #include "VideoSettings.hpp"
 #include "AudioSettings.hpp"
+#include "gameplay/SavedGame.hpp"
 
-constexpr size_t SettingsVersion = 2;
+constexpr size_t SettingsVersion = 3;
 
 struct Settings
 {
@@ -15,6 +17,7 @@ struct Settings
     VideoSettings videoSettings;
     AudioSettings audioSettings;
     std::string languageFile;
+    std::vector<SavedGame::Key> savedKeys;
 };
 
 bool readFromStream(sf::InputStream &stream, Settings& settings);

@@ -95,8 +95,8 @@ void TestBoss::update(std::chrono::steady_clock::time_point curTime)
         initTime = curTime;
         
         auto vel1 = cpVect{0, 160};
-        auto vel2 = cpvrotate(vel1, cpvforangle(M_PI*5/18));
-        auto vel3 = cpvrotate(vel1, cpvforangle(-M_PI*5/18));
+        auto vel2 = cpvrotate(vel1, cpvforangle(M_PI/3));
+        auto vel3 = cpvrotate(vel1, cpvforangle(-M_PI/3));
         gameScene.addObject(std::make_unique<TestBossProjectile>(gameScene, pos + cpVect{0, 80}, vel1));
         gameScene.addObject(std::make_unique<TestBossProjectile>(gameScene, pos + cpVect{0, 80}, vel2));
         gameScene.addObject(std::make_unique<TestBossProjectile>(gameScene, pos + cpVect{0, 80}, vel3));
@@ -111,7 +111,7 @@ void TestBoss::die()
     auto displayGravity = sf::Vector2f(grav.x, grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, mainSprite.getTexture(), ExplosionDuration,
-        sf::FloatRect(-80, 0, 160, 32), displayGravity, TextureExplosion::Density, 8, 8, 160);
+        sf::FloatRect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 8, 8, 160);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
     

@@ -20,7 +20,7 @@
 #include <iostream>
 
 #ifdef GENERATE_MAPS_IF_EMPTY
-#include "settings/FileOutputStream.hpp"
+#include "streams/FileOutputStream.hpp"
 #include <execDir.hpp>
 #endif
 
@@ -73,6 +73,7 @@ void GameScene::reloadLevel()
     gui.setLevelNumber(levelData->levelNumber);
     gui.setVisibleMaps(visibleMaps);
     gui.setCurrentBoss(nullptr);
+    gui.resetBlinker();
     
     reset(pauseLag);
 }
