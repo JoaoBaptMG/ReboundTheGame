@@ -20,12 +20,14 @@ class UISlider final : public UIButton
     size_t slideMaximum;
     std::function<void(size_t)> slideAction;
     sf::Vector2i mousePosition;
+    bool rtl;
     
 public:
-    UISlider(size_t* target = nullptr, size_t max = 0) : UIButton(), slideTarget(target), slideMaximum(max) {}
-    explicit UISlider(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings,
+    UISlider(size_t* target = nullptr, size_t max = 0) : UIButton(), slideTarget(target), slideMaximum(max), rtl(false) {}
+    UISlider(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings, bool rtl,
         size_t* target = nullptr, size_t max = 0);
-    void initialize(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings);
+    void initialize(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings,
+        bool rtl);
     virtual ~UISlider() {}
     
     auto getSlideTarget() const { return slideTarget; }

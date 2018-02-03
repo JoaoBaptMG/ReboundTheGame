@@ -11,7 +11,7 @@ class Player;
 
 class Collectible : public GameObject
 {
-    static void setupCollisionHandlers(cp::Space* space);
+    void setupCollisionHandlers(cp::Space* space);
 
 protected:
     std::shared_ptr<cp::Body> collisionBody;

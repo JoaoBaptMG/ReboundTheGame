@@ -45,6 +45,7 @@ bool writeToStream(OutputStream &stream, const std::vector<T> &value)
 {
     if (!writeToStream(stream, varLength(value.size())))
         return false;
+    if (value.size() == 0) return true;
     if (!stream.write(value.data(), value.size()*sizeof(T)))
         return false;
     
@@ -82,6 +83,7 @@ bool writeToStream(OutputStream &stream, const util::grid<T> &value)
         return false;
 
     auto size = value.width()*value.height();
+    if (size == 0) return true;
     if (!stream.write(value.data(), size*sizeof(T)))
         return false;
 

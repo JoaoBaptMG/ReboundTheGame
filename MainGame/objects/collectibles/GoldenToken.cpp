@@ -30,12 +30,7 @@ bool GoldenToken::configure(const GoldenToken::ConfigStruct& config)
     
     tokenId = config.tokenId;
     
-    auto key = "goldentoken." + std::to_string(tokenId);
-    if (gameScene.getLevelPersistentData().existsDataOfType<bool>(key) &&
-        gameScene.getLevelPersistentData().getData<bool>(key))
-        return false;
-    
-    return true;
+    return !gameScene.getSavedGame().getGoldenToken(tokenId);
 }
 
 void GoldenToken::setupPhysics()
@@ -64,9 +59,7 @@ GoldenToken::~GoldenToken()
 
 void GoldenToken::onCollect(Player& player)
 {
-    auto key = "goldentoken." + std::to_string(tokenId);
-    gameScene.getLevelPersistentData().setData(key, true);
-    
+    gameScene.getSavedGame().setGoldenToken(tokenId, true);
     player.upgradeHealth();
     remove();
 }

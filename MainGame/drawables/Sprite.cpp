@@ -5,12 +5,16 @@
 constexpr auto SpriteFragmentShader = R"fragment(
 uniform sampler2D tex;
 uniform vec3 multColor, addColor;
-uniform float opacity;
+uniform float opacity, grayscaleFactor;
 
 void main()
 {
     gl_FragColor = texture2D(tex, gl_TexCoord[0].xy);
     gl_FragColor.rgb = addColor + multColor * gl_FragColor.rgb;
+    
+    float grayscale = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(grayscale), grayscaleFactor);
+    
     gl_FragColor.a *= opacity;
 }
 )fragment";
@@ -36,7 +40,8 @@ sf::Shader& Sprite::getSpriteShader()
 }
 
 Sprite::Sprite(std::shared_ptr<sf::Texture> texture, sf::Vector2f anchor) : texture(texture), anchorPoint(anchor),
-    blendColor(sf::Color::White), flashColor(sf::Color(0, 0, 0, 0)), opacity(1), vertices(sf::PrimitiveType::TriangleFan)
+    blendColor(sf::Color::White), flashColor(sf::Color(0, 0, 0, 0)), opacity(1), grayscaleFactor(0),
+    vertices(sf::PrimitiveType::TriangleFan)
 {
     texRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
     vertices.resize(4);
@@ -66,6 +71,7 @@ void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
     shader.setUniform("multColor", (1 - flashColor.a/255.0f) * blend);
     shader.setUniform("addColor", flashColor.a/255.0f * flash);
     shader.setUniform("opacity", opacity);
+    shader.setUniform("grayscaleFactor", grayscaleFactor);
     
     states.blendMode = sf::BlendAlpha;
     states.transform.translate(-anchorPoint);

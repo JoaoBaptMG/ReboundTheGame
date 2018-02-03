@@ -10,6 +10,7 @@
 #include "gameplay/LevelPersistentData.hpp"
 
 #include "settings/Settings.hpp"
+#include "gameplay/SavedGame.hpp"
 #include "input/PlayerController.hpp"
 #include "input/CommonActions.hpp"
 
@@ -39,21 +40,26 @@ class GameScene : public Scene
     ChipmunkDebugDrawable debug;
 #endif
     
+    enum class NextScene { None, Pause, Gameover, Advance } sceneRequested;
+    std::string nextLevelRequested;
+    
     cp::Space gameSpace;
     Room room;
     std::shared_ptr<LevelData> levelData;
+    std::string levelName;
     LevelPersistentData levelPersistentData;
 
     ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
     size_t curRoomID, requestedID;
-    bool objectsLoaded, pauseScreenRequested, pausing;
+    bool objectsLoaded, pausing;
     std::vector<bool> visibleMaps;
 
     LocalizationManager &localizationManager;
     InputManager& inputManager;
     Settings& settings;
+    SavedGame savedGame;
 
     PlayerController playerController;
     sf::Vector2f offsetPos;
@@ -66,7 +72,7 @@ class GameScene : public Scene
     std::chrono::duration<size_t, std::milli> pauseLag;
 
 public:
-    GameScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
+    GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
     virtual ~GameScene() {}
 
     cp::Space& getGameSpace() { return gameSpace; }
@@ -80,6 +86,9 @@ public:
     auto getRoomWidth() const { return currentRoomData->mainLayer.width(); }
     auto getRoomHeight() const { return currentRoomData->mainLayer.height(); }
     
+    auto& getSavedGame() { return savedGame; }
+    const auto& getSavedGame() const { return savedGame; }
+    
     ResourceManager& getResourceManager() const { return resourceManager; }
     LocalizationManager& getLocalizationManager() const { return localizationManager; }
     LevelPersistentData& getLevelPersistentData() { return levelPersistentData; }
@@ -92,7 +101,13 @@ public:
     void requestRoomLoad(size_t id) { requestedID = id; }
     void requestLevelReload() { levelTransition.requestLevelTransition(""); }
     void requestLevelLoad(std::string levelName) { levelTransition.requestLevelTransition(levelName); }
-    void requestPauseScreen() { pauseScreenRequested = true; }
+    void requestPauseScreen() { sceneRequested = NextScene::Pause; }
+    void requestGameoverScene() { sceneRequested = NextScene::Gameover; }
+    void requestAdvanceScene(std::string nextLevel)
+    { 
+        sceneRequested = NextScene::Advance;
+        nextLevelRequested = nextLevel;
+    }
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);

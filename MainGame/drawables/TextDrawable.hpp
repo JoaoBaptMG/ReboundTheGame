@@ -86,6 +86,8 @@ public:
         needsUpdateGeometry = true;
     }
     
+    float getLineSpacing() const;
+    
     auto getWordAlignment() const { return wordAlignment; }
     void setWordAlignment(Alignment alignment) { wordAlignment = alignment; needsUpdateGeometry = true; }
     

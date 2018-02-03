@@ -46,7 +46,7 @@ void PlayerDeath::update(std::chrono::steady_clock::time_point curTime)
     
     if (duration > TotalDuration)
     {
-        gameScene.requestLevelReload();
+        gameScene.requestGameoverScene();
         remove();
     }
 }

@@ -12,7 +12,7 @@ class Sprite : public sf::Drawable
 
     sf::Color flashColor, blendColor;
     sf::FloatRect texRect;
-    float opacity;
+    float opacity, grayscaleFactor;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     
@@ -48,7 +48,10 @@ public:
     void setBlendColor(sf::Color color) { blendColor = color; }
 
     auto getOpacity() const { return opacity; }
-    void setOpacity(float op) { opacity = op; }
+    void setOpacity(float op) { opacity = op > 1 ? 1 : op < 0 ? 0 : op; }
+    
+    auto getGrayscaleFactor() const { return grayscaleFactor; }
+    void setGrayscaleFactor(float gf) { grayscaleFactor = gf > 1 ? 1 : gf < 0 ? 0 : gf; }
 
     auto getTexture() const { return texture; }
     virtual void setTexture(std::shared_ptr<sf::Texture> tex)

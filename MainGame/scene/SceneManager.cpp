@@ -4,7 +4,7 @@
 
 #include "Transition.hpp"
 
-SceneManager::SceneManager() : sceneStack(), scheduledOperation(None), operationScene()
+SceneManager::SceneManager() : sceneStack(), scheduledOperation(None), operationScene(), popCount(0)
 {
 }
 
@@ -19,16 +19,19 @@ void SceneManager::pushScene(Scene *scene)
     scheduledOperation = Push;
 }
 
-void SceneManager::popScene()
+void SceneManager::popScene(size_t count)
 {
+    if (count == 0) return;
     scheduledOperation = Pop;
+    popCount = count;
 }
 
-void SceneManager::replaceScene(Scene* scene)
+void SceneManager::replaceScene(Scene* scene, size_t count)
 {
     operationScene.reset(scene);
     scene->sceneManager = this;
     scheduledOperation = Pop;
+    popCount = count-1;
 }
 
 void SceneManager::pushSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration)
@@ -43,20 +46,22 @@ void SceneManager::pushSceneTransition(Scene* scene, std::chrono::steady_clock::
     }
 }
 
-void SceneManager::popSceneTransition(std::chrono::steady_clock::duration duration)
+void SceneManager::popSceneTransition(size_t count, std::chrono::steady_clock::duration duration)
 {
-    if (duration == decltype(duration)()) popScene();
+    if (count == 0) return;
+    
+    if (duration == decltype(duration)()) popScene(count);
     else
     {
-        sceneStack.back()->sceneManager = nullptr;
         auto prevScene = sceneStack.back().release();
         sceneStack.pop_back();
-        auto nextScene = sceneStack.back().release();
-        replaceScene(new Transition(prevScene, nextScene, curTime, curTime + duration));
+        auto nextScene = sceneStack[sceneStack.size()-count].release();
+        
+        replaceScene(new Transition(prevScene, nextScene, curTime, curTime + duration, false, true), count);
     }
 }
 
-void SceneManager::replaceSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration)
+void SceneManager::replaceSceneTransition(Scene* scene, size_t count, std::chrono::steady_clock::duration duration)
 {
     if (duration == decltype(duration)()) replaceScene(scene);
     else
@@ -64,7 +69,8 @@ void SceneManager::replaceSceneTransition(Scene* scene, std::chrono::steady_cloc
         auto prevScene = sceneStack.back().release();
         auto nextScene = scene;
         scene->sceneManager = this;
-        replaceScene(new Transition(prevScene, nextScene, curTime, curTime + duration));
+        
+        replaceScene(new Transition(prevScene, nextScene, curTime, curTime + duration), count);
     }
 }
 
@@ -77,6 +83,8 @@ void SceneManager::handleScreenTransition()
     }
     else if (scheduledOperation == Pop)
     {
+        while (popCount--) sceneStack.pop_back();
+        
         if (operationScene)
         {
             using std::swap;
@@ -85,7 +93,6 @@ void SceneManager::handleScreenTransition()
         }
         else
         {
-            sceneStack.pop_back();
             if (!sceneStack.empty()) sceneStack.back()->resume();
         }
     }

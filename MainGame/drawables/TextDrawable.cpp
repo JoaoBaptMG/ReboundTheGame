@@ -99,6 +99,11 @@ inline static auto addGlyphQuad(sf::VertexArray& dest, sf::Vector2f position, sf
     return std::make_pair(s, s+6);
 }
 
+float TextDrawable::getLineSpacing() const
+{
+    return fontHandler->getFont().getLineSpacing(fontSize);
+}
+
 void TextDrawable::buildGeometry()
 {
     if (!needsUpdateGeometry) return;
@@ -220,7 +225,7 @@ void TextDrawable::buildGeometry()
         else
         {
             bounds.left = 0;
-            bounds.width = NAN;
+            bounds.width = 0;
         }
         
         bounds.top = font.getAscent(fontSize);

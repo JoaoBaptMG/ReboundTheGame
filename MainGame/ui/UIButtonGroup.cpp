@@ -31,27 +31,27 @@ UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& se
         if (!active || buttons.empty()) return;
         if (currentId < buttons.size())
         {
+            if (pointer) pointer->hide();
+            
             if (pressed) getCurrentButton()->state = UIButton::State::Pressed;
             else
             {
                 getCurrentButton()->state = UIButton::State::Active;
                 if (getCurrentButton()->pressAction) getCurrentButton()->pressAction();
             }
-            
-            if (pointer) pointer->hide();
         }
     });
     
     travel.setAction([=](float val)
     {
+        if (pointer) pointer->hide();
+        
         if (!active || (val > -0.5 && val < 0.5) || buttons.size() <= 1) return;
         if (currentId < buttons.size() && getCurrentButton()->state == UIButton::State::Pressed) return;
         
         if (currentId >= buttons.size()) setCurrentId(val >= 0.5 ? 0 : buttons.size()-1);
         else if (val >= 0.5) setCurrentId((currentId + 1) % buttons.size());
         else setCurrentId((currentId + buttons.size() - 1) % buttons.size());
-        
-        if (pointer) pointer->hide();
     });
 }
 
@@ -73,6 +73,14 @@ void UIButtonGroup::setButtons(UIButton* buttons, size_t size)
         this->buttons.push_back(&buttons[i]);
         buttons[i].parentGroup = this;
     }
+}
+
+void UIButtonGroup::setButtons(const std::vector<UIButton*>& buttons)
+{
+    this->buttons = buttons;
+    
+    for (auto button : buttons)
+        button->parentGroup = this;
 }
 
 void UIButtonGroup::setCurrentId(size_t id)

@@ -12,6 +12,7 @@
 
 #include "SceneManager.hpp"
 #include "scene/pause/PauseScene.hpp"
+#include "scene/MidLevelScene.hpp"
 
 #include <functional>
 #include <iterator>
@@ -30,10 +31,10 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-GameScene::GameScene(Settings& settings, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
+GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
-    playerController(im, settings.inputSettings), objectsLoaded(false), curRoomID(-1), requestedID(-1),
-    gui(*this), camera(*this), levelTransition(*this), pauseScreenRequested(false), pausing(false), pauseLag(0)
+    sceneRequested(NextScene::None), savedGame(sg), playerController(im, settings.inputSettings), objectsLoaded(false),
+    curRoomID(-1), requestedID(-1), gui(*this), camera(*this), levelTransition(*this), pausing(false), pauseLag(0)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -43,6 +44,7 @@ GameScene::GameScene(Settings& settings, InputManager& im, ResourceManager &rm, 
 
 void GameScene::loadLevel(std::string levelName)
 {
+    this->levelName = levelName;
     levelData = resourceManager.load<LevelData>(levelName);
     
 #ifdef GENERATE_MAPS_IF_EMPTY
@@ -63,9 +65,8 @@ void GameScene::reloadLevel()
 {
     levelPersistentData.clear();
     
-    visibleMaps.clear();
+    visibleMaps = savedGame.mapsRevealed.at(levelData->levelNumber-1);
     visibleMaps.resize(levelData->roomMaps.size());
-    visibleMaps.at(levelData->startingRoom) = true;
     
     loadRoom(levelData->startingRoom, false, {0,0}, true);
     loadRoomObjects();
@@ -114,6 +115,8 @@ void GameScene::loadRoom(size_t id, bool transition, cpVect displacement, bool d
     room.loadRoom(*currentRoomData, transition, displacement);
     visibleMaps.at(id) = true;
     objectsLoaded = false;
+    
+    savedGame.mapsRevealed.at(levelData->levelNumber-1) = visibleMaps;
 }
 
 void GameScene::loadRoomObjects()
@@ -182,36 +185,56 @@ sf::Vector2f GameScene::fitIntoRoom(sf::Vector2f vec)
 
 void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
+    using namespace std::chrono;
+    
     this->curTime = curTime;
     
     if (pausing)
     {
-        using namespace std::chrono;
         pauseLag += duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
         std::cout << pauseLag.count() << std::endl;
         pausing = false;
     }
     
-    if (this == getSceneManager().currentScene() && pauseScreenRequested)
+    if (this == getSceneManager().currentScene() && sceneRequested != NextScene::None)
     {
-        auto player = getObjectByName<Player>("player");
-        auto scene = new PauseScene(settings, inputManager, resourceManager, localizationManager);
-        scene->setMapLevelData(levelData, curRoomID, player->getDisplayPosition(), visibleMaps);
-        getSceneManager().pushScene(scene);
-        pauseScreenRequested = false;
+        if (sceneRequested == NextScene::Pause)
+        {
+            auto player = getObjectByName<Player>("player");
+            auto scene = new PauseScene(settings, inputManager, resourceManager, localizationManager);
+            scene->setMapLevelData(levelData, curRoomID, player->getDisplayPosition(), visibleMaps);
+            scene->setCollectedFrameSavedGame(savedGame);
+            getSceneManager().pushScene(scene);
+        }
+        else if (sceneRequested == NextScene::Gameover)
+        {
+            using namespace std::literals::chrono_literals;
+            
+            auto scene = new MidLevelScene(settings, savedGame, inputManager, resourceManager, localizationManager,
+                levelName);
+            getSceneManager().replaceSceneTransition(scene, 1s);
+        }
+        else if (sceneRequested == NextScene::Advance)
+        {
+            using namespace std::literals::chrono_literals;
+            
+            auto scene = new MidLevelScene(settings, savedGame, inputManager, resourceManager, localizationManager,
+                nextLevelRequested, false);
+            getSceneManager().replaceSceneTransition(scene, 1s);
+            nextLevelRequested = "";
+        }
+        
+        sceneRequested = NextScene::None;
         return;
     }
     
     playerController.update();
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
+    
+    auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
 
-    room.update(curTime);
-
-    {
-        using namespace std::chrono;
-        auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
-        for (const auto& obj : gameObjects) obj->update(laggedTime);
-    }
+    room.update(laggedTime);
+    for (const auto& obj : gameObjects) obj->update(laggedTime);
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
@@ -221,9 +244,9 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 
     checkWarps();
     
-    gui.update(curTime);
-    camera.update(curTime);
-    levelTransition.update(curTime);
+    gui.update(laggedTime);
+    camera.update(laggedTime);
+    levelTransition.update(laggedTime);
     
     if (requestedID != -1)
     {

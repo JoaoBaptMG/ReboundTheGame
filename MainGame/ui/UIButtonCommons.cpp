@@ -48,4 +48,5 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
 void createCommonGraphicsButton(UIButton& button, ResourceManager& rm, std::string normalResourceName,
     std::string activeResourceName, std::string pressedResourceName)
 {
+    
 }

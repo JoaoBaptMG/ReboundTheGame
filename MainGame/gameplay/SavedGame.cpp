@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include "misc/BitCounts.hpp"
 
 #define CRYPT_OFF 0
 
 #if !CRYPT_OFF
+#include <cstring>
 #include <random>
 #include <numeric>
 #include <chrono>
@@ -14,6 +16,22 @@
 #include "streams/MemoryOutputStream.hpp"
 #include "aes/tiny-AES-c-master/aes.hpp"
 #endif
+
+SavedGame::SavedGame() : levelInfoDoubleArmor(0), secretItems{0, 0, 0, 0, 0}
+{
+    
+}
+
+size_t SavedGame::getGoldenTokenCount() const
+{
+    size_t count = 0;
+    
+    for (uint8_t k : (uint8_t[]){ secretItems[0], secretItems[1], secretItems[2], uint8_t(secretItems[3] & 0x3F) })
+        count += BitCounts[k];
+    
+    ASSERT(count <= 30);
+    return count;
+}
 
 bool readBinaryVector(sf::InputStream& stream, std::vector<bool>& vector)
 {
@@ -75,13 +93,13 @@ bool writeBinaryVector(OutputStream& stream, const std::vector<bool>& vector)
 
 bool readFromStream(sf::InputStream& stream, SavedGame& savedGame)
 {
-    return readFromStream(stream, savedGame.curLevel, savedGame.abilityLevel, savedGame.secretItems) &&
-    ALL(savedGame.mapsRevealed, [&](auto& vec) { return readBinaryVector(stream, vec); });
+    return readFromStream(stream, savedGame.levelInfoDoubleArmor, savedGame.secretItems) &&
+        ALL(savedGame.mapsRevealed, [&](auto& vec) { return readBinaryVector(stream, vec); });
 }
 
 bool writeToStream(OutputStream& stream, const SavedGame& savedGame)
 {
-    return writeToStream(stream, savedGame.curLevel, savedGame.abilityLevel, savedGame.secretItems) &&
+    return writeToStream(stream, savedGame.levelInfoDoubleArmor, savedGame.secretItems) &&
         ALL(savedGame.mapsRevealed, [&](auto& vec) { return writeBinaryVector(stream, vec); });
 }
 

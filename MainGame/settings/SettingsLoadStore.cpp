@@ -51,6 +51,7 @@ static Settings defaultSettings()
         { (uint8_t)false, (uint8_t)true },
         { 100, 100 },
         "",
+        {},
     };
     return defaults;
 }

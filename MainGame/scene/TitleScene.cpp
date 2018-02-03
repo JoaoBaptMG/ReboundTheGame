@@ -10,6 +10,7 @@
 
 #include "GameScene.hpp"
 #include "scene/settings/SettingsScene.hpp"
+#include "scene/FileSelectScene.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -28,15 +29,13 @@ const LangID ButtonIdentifiers[] =
 };
 
 TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceManager& rm, LocalizationManager& lm)
-    : background(rm.load<sf::Texture>("title-background.png")), foreground(rm.load<sf::Texture>("title-foreground.png")),
+    : background(rm.load<sf::Texture>("title-background.png"), sf::Vector2f(0, 0)),
+    foreground(rm.load<sf::Texture>("title-foreground.png"), sf::Vector2f(0, 0)),
     pointer(inputManager, rm), buttonGroup(inputManager, settings.inputSettings)
 {
     rtl = lm.isRTL();
     
-    background.setAnchorPoint(sf::Vector2f(0, 0));
-    foreground.setAnchorPoint(sf::Vector2f(0, 0));
-    
-    int k = 0;
+    size_t k = 0;
     for (auto& button : buttons)
     {
         button.initialize(inputManager);
@@ -58,9 +57,17 @@ TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceM
     {
         if (this != getSceneManager().currentScene()) return;
         
-        auto scene = new GameScene(settings, inputManager, rm, lm);
+        auto scene = new GameScene(settings, SavedGame(), inputManager, rm, lm);
         scene->loadLevel("level1.lvl");
         getSceneManager().replaceSceneTransition(scene, 1s);
+    });
+    
+    buttons[1].setPressAction([&,this]
+    {
+        if (this != getSceneManager().currentScene()) return;
+        
+        auto scene = new FileSelectScene(settings, SavedGame(), inputManager, rm, lm, FileSelectScene::FileAction::Load);
+        getSceneManager().pushSceneTransition(scene, 1s);
     });
     
     buttons[2].setPressAction([&,this]

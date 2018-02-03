@@ -68,7 +68,7 @@ bool Powerup::configure(const Powerup::ConfigStruct& config)
     std::string name = "powerup" + std::to_string(abilityLevel) + ".png";
     texture = gameScene.getResourceManager().load<sf::Texture>(name);
     
-    return true;
+    return gameScene.getSavedGame().getAbilityLevel() < abilityLevel;
 }
 
 void Powerup::setupPhysics()
@@ -97,14 +97,12 @@ Powerup::~Powerup()
 void Powerup::onCollect(Player& player)
 {
     player.upgradeToAbilityLevel(abilityLevel);
+    gameScene.getSavedGame().setAbilityLevel(abilityLevel);
     remove();
 }
 
 void Powerup::update(std::chrono::steady_clock::time_point curTime)
 {
-    auto player = gameScene.getObjectByName<Player>("player");
-    if (player && abilityLevel <= player->abilityLevel) remove();
-    
     rotationAngle += degreesToRadians(RotationSpeed) * toSeconds<float>(UpdateFrequency);
     makeRotatedRect();
 }

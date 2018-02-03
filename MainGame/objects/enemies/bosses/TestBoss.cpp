@@ -116,6 +116,8 @@ void TestBoss::die()
     gameScene.addObject(std::move(explosion));
     
     gameScene.addObject(std::make_unique<TimedLevelWarper>(gameScene, "level2.lvl"));
+    
+    gameScene.getSavedGame().setCurLevel(2);
 }
 
 size_t TestBoss::playerDamage(Player& player, const std::shared_ptr<cp::Shape> shape) const
@@ -199,7 +201,8 @@ void TimedLevelWarper::update(std::chrono::steady_clock::time_point curTime)
     
     if (curTime > initTime + std::chrono::seconds(5))
     {
-        gameScene.requestLevelLoad(levelName);
+        
+        gameScene.requestAdvanceScene(levelName);
         remove();
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.0" orientation="orthogonal" renderorder="right-down" width="80" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="8">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="18" tilewidth="32" tileheight="32" nextobjectid="9">
  <properties>
   <property name="tileset" value="level2"/>
  </properties>
@@ -51,6 +51,12 @@
     <property name="factor" type="float" value="0.28"/>
     <property name="name" type="file" value="background2.png"/>
    </properties>
+  </object>
+  <object id="8" name="golden-token3" type="collectibles::GoldenToken" x="2408" y="104" width="48" height="48">
+   <properties>
+    <property name="id" type="int" value="3"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
  <objectgroup name="warp-layer"/>

@@ -69,8 +69,16 @@
     <!-- The caption for the "Settings" button. -->
     <string name="pause-button-settings">SETTINGS</string>
     
+    <!-- The collected items pause frame: the captions of the two titles present there -->
+    <!-- The caption for the "Powerups" button. -->
+    <string name="pause-collected-powerups">Powerups</string>
+    <!-- The caption for the "Golden Tokens" button. -->
+    <string name="pause-collected-golden-tokens">Golden Tokens</string>
+    <!-- The unknown powerup label -->
+    <string name="pause-collected-unknown">??????????</string>
+    
     <!-- The settings screen: all the buttons that appear on both appearances of the settings screen,
-    including the titles -->
+        including the titles -->
     <!-- The "Video Settings" title -->
     <string name="settings-video-settings">Video Settings</string>
     <!-- The caption for the "Vertical Sync" button -->
@@ -95,6 +103,65 @@
     <string name="settings-scene-back">Back</string>
     <!-- The caption for the "Resume game" button on the settings pause frame -->
     <string name="settings-pause-resume">Resume game</string>
+    
+    <!-- The mid-level screen. It can be either a "gameover" screen or a "level complete" screen,
+        depending on the configuration. -->
+    <!-- The "Game Over" title -->
+    <string name="mid-level-gameover">Game Over!</string>
+    <!-- The "Level Complete" title -->
+    <string name="mid-level-advance">Level Complete!</string>
+    <!-- The "Continue" button -->
+    <string name="mid-level-continue">Continue</string>
+    <!-- The "Save Game" button -->
+    <string name="mid-level-save-game">Save Game</string>
+    <!-- The "Exit" button -->
+    <string name="mid-level-exit">Exit</string>
+    
+    <!-- The file select screen. -->
+    <!-- The string for the "Select file to load" label -->
+    <string name="file-select-load">Select file to load</string>
+    <!-- The string for the "Select file to save" label -->
+    <string name="file-select-save">Select file to save</string>
+    <!-- The string for the "No files!" label -->
+    <string name="file-select-no-files">No files!</string>
+    <!-- The string for the "New File" button -->
+    <string name="file-select-new-file">New File</string>
+    <!-- The formatter for the file name -->
+    <formatter name="file-select-file-name">File {#n}</formatter>
+    <!-- The formatter used for the golden token count. -->
+    <formatter name="file-select-golden-token-count">{#n}/30</formatter>
+    <!-- The string for the "Cancel" button -->
+    <string name="file-select-cancel">Cancel</string>
+    <!-- The formatter for the index of the file in the screen -->
+    <formatter name="file-select-index">({#i}) </formatter>
+    
+    <!-- The powerups' names -->
+    <!-- Used in message boxes and the collection screen -->
+    <!-- The name of the "Wall Jump" powerup -->
+    <string name="powerup1-name">Wall Jump</string>
+    <!-- The name of the "Push" powerup -->
+    <string name="powerup2-name">Push</string>
+    <!-- The name of the "Dash" powerup -->
+    <string name="powerup3-name">Dash</string>
+    <!-- The name of the "Double Jump" powerup -->
+    <string name="powerup4-name">Double Jump</string>
+    <!-- The name of the "Bomb" powerup -->
+    <string name="powerup5-name">Bomb</string>
+    <!-- The name of the "Enhanced Movement" powerup -->
+    <string name="powerup6-name">Enhanced Movement</string>
+    <!-- The name of the "Hardball" powerup -->
+    <string name="powerup7-name">Hardball</string>
+    <!-- The name of the "Break Dash" powerup -->
+    <string name="powerup8-name">Break Dash</string>
+    <!-- The name of the "Grapple" powerup -->
+    <string name="powerup9-name">Grapple</string>
+    <!-- The name of the "Enhanced Dash" powerup -->
+    <string name="powerup10-name">Enhanced Dash</string>
+    
+    <!-- The level name, used on the file select screen and others -->
+    <formatter name="level-name">Level {#n}</formatter>
+    <!-- The name of the final boss level -->
+    <string name="level-name-final-boss">Final Boss</string>
     
     <!-- The presenter caption for the Test Boss -->
     <string name="test-boss-present">Test Boss</string>

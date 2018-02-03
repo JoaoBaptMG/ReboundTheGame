@@ -35,8 +35,8 @@ constexpr size_t ButtonCaptionSize = 24;
 
 PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm)
     : settings(settings), inputManager(im), resourceManager(rm), localizationManager(lm),
-    backgroundSprite(rm.load<sf::Texture>("pause-background.png")), transitionFactor(0), pointer(im, rm),
-    unpausing(false), currentFrame(1), pauseFrames
+    backgroundSprite(rm.load<sf::Texture>("pause-background.png")), transitionFactor(0),
+    pointer(im, rm), unpausing(false), currentFrame(1), pauseFrames
     { 
         std::unique_ptr<PauseFrame>(new CollectedPauseFrame(settings, im, rm, lm)),
         std::unique_ptr<PauseFrame>(new MapPauseFrame(settings, im, rm, lm)),
@@ -109,6 +109,11 @@ void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoo
     const std::vector<bool>& visibleMaps)
 {
     static_cast<MapPauseFrame*>(pauseFrames[1].get())->setLevelData(level, curRoom, pos, visibleMaps);
+}
+
+void PauseScene::setCollectedFrameSavedGame(const SavedGame& sg)
+{
+    static_cast<CollectedPauseFrame*>(pauseFrames[0].get())->setSavedGame(sg);
 }
 
 void PauseScene::unpause()

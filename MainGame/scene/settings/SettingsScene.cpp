@@ -54,8 +54,8 @@ SettingsBase::SettingsBase(Settings& settings, InputManager& im, ResourceManager
     fullscreen(settings.videoSettings.fullscreen), vsync(settings.videoSettings.vsyncEnabled),
     musicVolume(settings.audioSettings.musicVolume), soundVolume(settings.audioSettings.soundVolume),
     fullscreenSwitch(im, settings.inputSettings, &fullscreen), vsyncSwitch(im, settings.inputSettings, &vsync),
-    languageButton(im), musicSlider(im, rm, settings.inputSettings, &musicVolume, 100),
-    soundSlider(im, rm, settings.inputSettings, &soundVolume, 100),
+    languageButton(im), musicSlider(im, rm, settings.inputSettings, lm.isRTL(), &musicVolume, 100),
+    soundSlider(im, rm, settings.inputSettings, lm.isRTL(), &soundVolume, 100),
     keyboardButton(im), joystickButton(im), backButton(im), buttonGroup(im, settings.inputSettings)
 {
     auto pos = centerPos + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);

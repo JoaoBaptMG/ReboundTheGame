@@ -8,9 +8,8 @@ using namespace cp;
 
 void Collectible::setupCollisionHandlers(Space* space)
 {
-    static Space* lastSpaceSetup = nullptr;
-
-    if (lastSpaceSetup != space)
+    if (!gameScene.getLevelPersistentData().existsDataOfType<Space*>("collectible.lastSetupSpace") ||
+        gameScene.getLevelPersistentData().getData<Space*>("collectible.lastSetupSpace") != space)
     {
         space->addCollisionHandler(Player::CollisionType, CollisionType,
             [](Arbiter arbiter, Space&)
@@ -21,7 +20,7 @@ void Collectible::setupCollisionHandlers(Space* space)
                 return false;
             }, [](Arbiter, Space&) { return false; }, [](Arbiter, Space&) {}, [](Arbiter, Space&) {});
         
-        lastSpaceSetup = space;
+        gameScene.getLevelPersistentData().setData("collectible.lastSetupSpace", space);
     }
 }
 

@@ -6,7 +6,10 @@
 #include <grid.hpp>
 
 #include <vector>
+#include <string>
 #include <SFML/System.hpp>
+
+class LocalizationManager;
 
 class LevelData final
 {
@@ -36,3 +39,6 @@ bool writeRLGrid(OutputStream& stream, const util::grid<bool>& grid);
 bool writeBinaryGrid(OutputStream& stream, const util::grid<bool>& grid);
 bool writeToStream(OutputStream& stream, const LevelData::MapData& map);
 bool writeToStream(OutputStream& stream, const LevelData& level);
+
+std::string getLevelFileNameForNumber(size_t number);
+std::string getLevelNameForNumber(LocalizationManager& lm, size_t number);

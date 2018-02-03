@@ -9,9 +9,8 @@ using namespace cp;
 
 void Enemy::setupCollisionHandlers(Space* space)
 {
-    static Space* lastSpaceSetup = nullptr;
-
-    if (lastSpaceSetup != space)
+    if (!gameScene.getLevelPersistentData().existsDataOfType<Space*>("enemy.lastSetupSpace") ||
+        gameScene.getLevelPersistentData().getData<Space*>("enemy.lastSetupSpace") != space)
     {
         space->addCollisionHandler(Player::CollisionType, CollisionType,
             [](Arbiter, Space&) { return true; },
@@ -31,7 +30,7 @@ void Enemy::setupCollisionHandlers(Space* space)
                 return enemy->onCollisionHit(*player, space.findShape(arbiter.getShapeB()));
             }, [](Arbiter, Space&) {}, [](Arbiter, Space&) {});
         
-        lastSpaceSetup = space;
+        gameScene.getLevelPersistentData().setData("enemy.lastSetupSpace", space);
     }
 }
 

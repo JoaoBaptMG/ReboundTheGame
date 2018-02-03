@@ -17,6 +17,7 @@ public:
     ~UIPointer() {}
     
     void render(Renderer& renderer);
+    auto getPosition() const { return position; }
     
     void hide();
 };

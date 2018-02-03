@@ -62,15 +62,16 @@ Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0), dashBatch(nullptr),
-    hardballBatch(nullptr), lastSafePosition(), lastSafeRoomID(-1), previousWallState(CollisionState::None),
+    hardballBatch(nullptr), curEntry(0), previousWallState(CollisionState::None),
     sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	//upgradeToAbilityLevel(10);
-    //maxHealth += 30 * HealthIncr;
+	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
+    maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;
+    health = maxHealth;
 	setName("player");
 }
 
@@ -82,6 +83,15 @@ bool Player::configure(const Player::ConfigStruct& config)
     {
         setupPhysics();
         setPosition(cpVect{(cpFloat)config.position.x, (cpFloat)config.position.y});
+        
+        for (auto& entry : lastSafeEntries)
+        {
+            entry.pos = getPosition();
+            entry.roomID = gameScene.getCurrentRoomID();
+            entry.hardball = false;
+            
+            curEntry = 0;
+        }
     }
     
     return cfg;
@@ -149,6 +159,8 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
     
     if (abilityLevel >= 5) observeBombAction();
     if (abilityLevel >= 9 && hardballEnabled == onWater()) observeGrappleTrigger();
+    
+    if (hardballEnabled != onWater()) disableDashBatch();
     
     if (onWater())
     {
@@ -287,9 +299,10 @@ void Player::actOnGround(bool waterborne)
 {
     const auto& controller = gameScene.getPlayerController();
     
-    lastSafePosition = getPosition();
-    lastSafeRoomID = gameScene.getCurrentRoomID();
-    lastHarballState = hardballEnabled;
+    lastSafeEntries[curEntry].pos = getPosition();
+    lastSafeEntries[curEntry].roomID = gameScene.getCurrentRoomID();
+    lastSafeEntries[curEntry].hardball = hardballEnabled;
+    curEntry = (curEntry + 1) % 8;
 
     previousWallState = CollisionState::None;
     dashConsumed = false;
@@ -593,6 +606,7 @@ void Player::setPlayerSprite()
 
 void Player::hitSpikes()
 {
+    disableDashBatch();
     if (damage(SpikeDamage, true)) return;
     gameScene.getGameSpace().remove(playerShape->getBody());
     spikeTime = curTime + SpikeRespawnTime;
@@ -610,14 +624,16 @@ void Player::respawnFromSpikes()
 {
     reset(spikeTime);
     
-    if (gameScene.getCurrentRoomID() != lastSafeRoomID)
-        gameScene.requestRoomLoad(lastSafeRoomID);
+    const auto& entry = lastSafeEntries[(curEntry + 1) % 8];
+    
+    if (gameScene.getCurrentRoomID() != entry.roomID)
+        gameScene.requestRoomLoad(entry.roomID);
         
-    setPosition(lastSafePosition - cpVect{0, 12});
+    setPosition(entry.pos);
     playerShape->getBody()->setVelocity(cpvzero);
     gameScene.getGameSpace().add(playerShape->getBody());
     
-    hardballEnabled = lastHarballState;
+    hardballEnabled = entry.hardball;
     setPlayerSprite();
 
     invincibilityTime = curTime + SpikeInvincibilityTime;
@@ -655,6 +671,7 @@ void Player::upgradeToAbilityLevel(size_t level)
     {
         abilityLevel = level;
         setPlayerSprite();
+        gameScene.getSavedGame().setAbilityLevel(level);
     }
 }
 

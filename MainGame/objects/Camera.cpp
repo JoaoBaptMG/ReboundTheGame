@@ -65,5 +65,5 @@ sf::Vector2f Camera::getGlobalDisplacement() const
         }
     }
     
-    return sf::Vector2f((float)ScreenWidth, (float)ScreenHeight)/2.0f - disp;
+    return sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f - disp;
 }

@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#include "language/LocalizationManager.hpp"
+#include "language/LangID.hpp"
+
 bool readRLGrid(sf::InputStream& stream, util::grid<bool>& grid)
 {
     size_t width, height;
@@ -115,4 +118,16 @@ bool writeToStream(OutputStream& stream, const LevelData& level)
 {
     return stream.write("LEVEL", 5) && writeToStream(stream, level.levelNumber, level.startingRoom,
         level.songResourceName, level.roomResourceNames, level.roomMaps);
+}
+
+std::string getLevelFileNameForNumber(size_t number)
+{
+    return (number <= 10 ? "level" + std::to_string(number) : "fboss") + ".map";
+}
+
+std::string getLevelNameForNumber(LocalizationManager& lm, size_t number)
+{
+    if (number <= 10)
+        return lm.getFormattedString("level-name", {}, { { "n", number } });
+    else return lm.getString("level-name-final-boss");
 }

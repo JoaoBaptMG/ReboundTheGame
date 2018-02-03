@@ -79,6 +79,14 @@
     <!-- The caption for the "Settings" button. -->
     <string name="pause-button-settings">CONFIGURAÇÕES</string>
     
+    <!-- The collected items pause frame: the captions of the two titles present there -->
+    <!-- The caption for the "Powerups" button. -->
+    <string name="pause-collected-powerups">Habilidades</string>
+    <!-- The caption for the "Golden Tokens" button. -->
+    <string name="pause-collected-golden-tokens">Fichas Douradas</string>
+    <!-- The unknown powerup label -->
+    <string name="pause-collected-unknown">??????????</string>
+    
     <!-- The settings screen: all the buttons that appear on both appearances of the settings screen,
     including the titles -->
     <!-- The "Video Settings" title -->
@@ -105,6 +113,65 @@
     <string name="settings-scene-back">Voltar</string>
     <!-- The caption for the "Resume game" button on the settings pause frame -->
     <string name="settings-pause-resume">Voltar ao jogo</string>
+    
+    <!-- The mid-level screen. It can be either a "gameover" screen or a "level complete" screen,
+        depending on the configuration. -->
+    <!-- The "Game Over" title -->
+    <string name="mid-level-gameover">Perdeu!</string>
+    <!-- The "Level Complete" title -->
+    <string name="mid-level-advance">Nível Completo!</string>
+    <!-- The "Continue" button -->
+    <string name="mid-level-continue">Continuar</string>
+    <!-- The "Save Game" button -->
+    <string name="mid-level-save-game">Salvar Jogo</string>
+    <!-- The "Exit" button -->
+    <string name="mid-level-exit">Sair</string>
+    
+    <!-- The file select screen. -->
+    <!-- The string for the "Select file to load" label -->
+    <string name="file-select-load">Escolha um arquivo para carregar</string>
+    <!-- The string for the "Select file to save" label -->
+    <string name="file-select-save">Escolha um arquivo para salvar</string>
+    <!-- The string for the "No files!" label -->
+    <string name="file-select-no-files">Não há arquivos!</string>
+    <!-- The string for the "New File" button -->
+    <string name="file-select-new-file">Novo Arquivo</string>
+    <!-- The formatter for the file name -->
+    <formatter name="file-select-file-name">Arquivo {#n}</formatter>
+    <!-- The formatter used for the golden token count. -->
+    <formatter name="file-select-golden-token-count">{#n}/30</formatter>
+    <!-- The string for the "Cancel" button -->
+    <string name="file-select-cancel">Cancelar</string>
+        <!-- The formatter for the index of the file in the screen -->
+    <formatter name="file-select-index">({#i}) </formatter>
+    
+    <!-- The powerups' names -->
+    <!-- Used in message boxes and the collection screen -->
+    <!-- The name of the "Wall Jump" powerup -->
+    <string name="powerup1-name">Escalada</string>
+    <!-- The name of the "Push" powerup -->
+    <string name="powerup2-name">Empurrão</string>
+    <!-- The name of the "Dash" powerup -->
+    <string name="powerup3-name">Jato</string>
+    <!-- The name of the "Double Jump" powerup -->
+    <string name="powerup4-name">Salto Duplo</string>
+    <!-- The name of the "Bomb" powerup -->
+    <string name="powerup5-name">Bombardeio</string>
+    <!-- The name of the "Enhanced Movement" powerup -->
+    <string name="powerup6-name">Melhor Movimento</string>
+    <!-- The name of the "Hardball" powerup -->
+    <string name="powerup7-name">Hardball</string>
+    <!-- The name of the "Break Dash" powerup -->
+    <string name="powerup8-name">Explosão Aérea</string>
+    <!-- The name of the "Grapple" powerup -->
+    <string name="powerup9-name">Gancho Enérgico</string>
+    <!-- The name of the "Enhanced Dash" powerup -->
+    <string name="powerup10-name">Jato Aprimorado</string>
+    
+    <!-- The level name, used on the file select screen and others -->
+    <formatter name="level-name">Nível {#n}</formatter>
+    <!-- The name of the final boss level -->
+    <string name="level-name-final-boss">Última Batalha</string>
     
     <!-- The presenter caption for the Test Boss -->
     <string name="test-boss-present">Test Boss</string>

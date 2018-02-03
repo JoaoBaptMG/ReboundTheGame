@@ -55,9 +55,8 @@ class Player final : public GameObject
     size_t health, maxHealth, numBombs;
     cpFloat waterArea;
 
-    cpVect lastSafePosition;
-    size_t lastSafeRoomID;
-    bool lastHarballState;
+    struct { cpVect pos; size_t roomID; bool hardball; } lastSafeEntries[8];
+    size_t curEntry;
 
 public:
     Player(GameScene &scene);

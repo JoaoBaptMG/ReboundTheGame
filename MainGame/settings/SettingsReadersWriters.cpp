@@ -65,3 +65,13 @@ bool writeToStream(OutputStream& stream, const AudioSettings& settings)
 {
     return writeToStream(stream, settings.musicVolume, settings.soundVolume);
 }
+
+bool readFromStream(sf::InputStream &stream, KeyPair& keyPair)
+{
+    return readFromStream(stream, keyPair.name, keyPair.key);
+}
+
+bool writeToStream(OutputStream& stream, const KeyPair& keyPair)
+{
+    return writeToStream(stream, keyPair.name, keyPair.key);
+}
