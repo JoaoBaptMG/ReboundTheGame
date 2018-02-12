@@ -32,8 +32,8 @@ protected:
     
 public:
     UIButton() : state(State::Normal), active(true), parentGroup(nullptr) {}
-    explicit UIButton(InputManager& inputManager);
-    void initialize(InputManager& inputManager);
+    explicit UIButton(InputManager& inputManager, intmax_t priority = 0);
+    void initialize(InputManager& inputManager, intmax_t priority = 0);
     virtual ~UIButton() {}
     
     auto getNormalSprite() const { return normalSprite.get(); }

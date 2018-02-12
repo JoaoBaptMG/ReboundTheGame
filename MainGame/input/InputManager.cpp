@@ -4,19 +4,18 @@
 
 void InputManager::dispatchData(InputSource source, float val)
 {
-    auto iters = callbacks.equal_range(source);
+    auto it = callbacks.find(source);
+    if (it == callbacks.end()) return;
     
-    // This is needed as the callbacks may push/pop other callbacks into the stack, invalidating the iterators
-    std::vector<decltype(callbacks)::mapped_type> functions;
-    for (auto it = iters.first; it != iters.second; ++it)
-        functions.push_back(it->second);
+    // Copy required for iterator safety: some callbacks may add others to the list
+    auto functions = it->second;
         
-    for (auto& callback : functions) callback(source, val);
+    for (auto& callback : functions) callback.second(source, val);
 }
 
 void InputManager::dispatchMouseMovement(sf::Vector2i pos)
 {
-    for (auto& callback : mouseMoveCallbacks) callback(pos);
+    for (auto& callback : mouseMoveCallbacks) callback.second(pos);
 }
 
 bool InputManager::handleEvent(const sf::Event& event)

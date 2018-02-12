@@ -8,6 +8,7 @@
 #include "ui/UIFileSelectButton.hpp"
 #include "ui/UIButtonGroup.hpp"
 #include "ui/UIPointer.hpp"
+#include "ui/UIScrollBar.hpp"
 #include <vector>
 #include <memory>
 
@@ -28,12 +29,12 @@ private:
     Sprite sceneFrame;
     std::vector<std::unique_ptr<UIFileSelectButton>> fileButtons;
     std::unique_ptr<UIButton> dummyButton, substituteButton;
+    std::unique_ptr<UIScrollBar> scrollBar;
     UIButton cancelButton;
     UIPointer pointer;
     UIButtonGroup buttonGroup;
     SegmentedSprite headerBackground;
     TextDrawable headerLabel;
-    float yOffset;
 
 public:
     FileSelectScene(Settings& settings, const SavedGame& savedGame, InputManager& im, ResourceManager& rm,
@@ -43,6 +44,6 @@ public:
     virtual void update(std::chrono::steady_clock::time_point curTime) override;
     virtual void render(Renderer& renderer) override;
     
-    size_t getMaxOffset() const;
+    size_t getScrollSize() const;
     void positionButton(size_t k);
 };

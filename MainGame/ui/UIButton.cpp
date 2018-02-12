@@ -6,12 +6,12 @@
 #include <rectUtils.hpp>
 #include <cmath>
 
-UIButton::UIButton(InputManager& inputManager) : UIButton()
+UIButton::UIButton(InputManager& inputManager, intmax_t priority) : UIButton()
 {
-    initialize(inputManager);
+    initialize(inputManager, priority);
 }
 
-void UIButton::initialize(InputManager& inputManager)
+void UIButton::initialize(InputManager& inputManager, intmax_t priority)
 {
     mouseMovedEntry = inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
@@ -55,7 +55,7 @@ void UIButton::initialize(InputManager& inputManager)
                 if (pressAction) pressAction();
             }
         }
-    });
+    }, priority);
 }
 
 void UIButton::autoComputeBounds()

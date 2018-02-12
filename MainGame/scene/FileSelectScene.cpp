@@ -53,9 +53,9 @@ std::string getNextFileSlot()
 FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame, InputManager& im, ResourceManager& rm,
     LocalizationManager& lm, FileAction action)
     : sceneFrame(rm.load<sf::Texture>("mid-level-scene-frame.png"), sf::Vector2f(0, 0)),
-    pointer(im, rm), buttonGroup(im, settings.inputSettings), cancelButton(im),
+    pointer(im, rm), buttonGroup(im, settings.inputSettings), cancelButton(im, 8),
     headerBackground(rm.load<sf::Texture>("ui-file-button-frame.png")),
-    headerLabel(rm.load<FontHandler>(lm.getFontName())), yOffset(0)
+    headerLabel(rm.load<FontHandler>(lm.getFontName()))
 {
     sceneFrame.setBlendColor(sf::Color(128, 128, 128, 255));
     
@@ -220,32 +220,31 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
     
     buttonGroup.setButtons(buttons);
     buttonGroup.setPointer(pointer);
+    
+    if (getScrollSize() > ScreenHeight - 128)
+    {
+        scrollBar = std::make_unique<UIScrollBar>(im, rm, getScrollSize(), ScreenHeight - 128);
+        scrollBar->setDepth(180);
+        scrollBar->setPosition(sf::Vector2f((ScreenWidth + ButtonSize)/2, 64));
+    }
 }
 
-size_t FileSelectScene::getMaxOffset() const
+size_t FileSelectScene::getScrollSize() const
 {
-    float maxOffset = 128 * fileButtons.size() - (ScreenHeight - 128);
+    float maxOffset = 128 * fileButtons.size();
     if (dummyButton) maxOffset += 128;
-    if (maxOffset < 0) maxOffset = 0;
     return maxOffset;
 }
 
 void FileSelectScene::update(std::chrono::steady_clock::time_point curTime)
 {
-    auto mousePosition = pointer.getPosition();
-    
-    if (mousePosition.y >= 0)
-    {
-        if (mousePosition.y < 64 && yOffset > 0) yOffset -= OffsetSpeed;
-        else if (mousePosition.y >= ScreenHeight - 64 && yOffset < getMaxOffset())
-            yOffset += OffsetSpeed;
-    }
+    if (!scrollBar) return;
     
     size_t k = 0;
     for (auto& button : fileButtons)
     {
         auto pos = button->getPosition();
-        pos.y = 128 + 128*k - yOffset;
+        pos.y = 128 + 128*k - scrollBar->getCurrentOffset();
         button->setPosition(pos);
         k++;
     }
@@ -253,18 +252,20 @@ void FileSelectScene::update(std::chrono::steady_clock::time_point curTime)
     if (dummyButton)
     {
         auto pos = dummyButton->getPosition();
-        pos.y = 128 + 128*k - yOffset;
+        pos.y = 128 + 128*k - scrollBar->getCurrentOffset();
         dummyButton->setPosition(pos);
     }
 }
 
 void FileSelectScene::positionButton(size_t k)
 {
+    if (!scrollBar) return;
     if (!std::isnan(pointer.getPosition().y)) return;
     
-    if (yOffset > k*128) yOffset = k*128;
-    else if (yOffset < (k+1)*128 - float(ScreenHeight - 128))
-        yOffset = (k+1)*128 - float(ScreenHeight - 128);
+    if (scrollBar->getCurrentOffset() > k*128)
+        scrollBar->setCurrentOffset(k*128);
+    else if (scrollBar->getCurrentOffset() < (k+1)*128 - float(ScreenHeight - 128))
+        scrollBar->setCurrentOffset((k+1)*128 - float(ScreenHeight - 128));
 }
 
 void FileSelectScene::render(Renderer& renderer)
@@ -276,6 +277,7 @@ void FileSelectScene::render(Renderer& renderer)
     cancelButton.render(renderer);
     
     pointer.render(renderer);
+    scrollBar->render(renderer);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth/2, 0);
