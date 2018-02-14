@@ -72,7 +72,7 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
         
         if (curTime < initTime)
         {
-            float factor = toSeconds<float>(initTime - curTime) / toSeconds<float>(FadeInterval);
+            float factor = toSeconds<float>(initTime - curTime) / toSeconds<float>(Fade Interval);
             
             for (auto& v : messageText.getAllVertices()) v.color.a = 255 * factor;
             for (auto& v : messageText.getAllVertices(true)) v.color.a = 255 * factor;
