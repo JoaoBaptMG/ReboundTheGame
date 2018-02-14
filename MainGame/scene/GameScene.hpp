@@ -7,11 +7,12 @@
 #include "objects/GUI.hpp"
 #include "objects/Camera.hpp"
 #include "objects/LevelTransition.hpp"
+#include "objects/MessageBox.hpp"
 #include "gameplay/LevelPersistentData.hpp"
 
 #include "settings/Settings.hpp"
 #include "gameplay/SavedGame.hpp"
-#include "input/PlayerController.hpp"
+#include "input/InputPlayerController.hpp"
 #include "input/CommonActions.hpp"
 
 #include <cppmunk/Space.h>
@@ -61,12 +62,14 @@ class GameScene : public Scene
     Settings& settings;
     SavedGame savedGame;
 
-    PlayerController playerController;
+    InputPlayerController inputPlayerController;
+    const PlayerController* currentPlayerController;
     sf::Vector2f offsetPos;
 
     GUI gui;
     Camera camera;
     LevelTransition levelTransition;
+    MessageBox messageBox;
     
     std::chrono::steady_clock::time_point curTime;
     std::chrono::duration<size_t, std::milli> pauseLag;
@@ -88,6 +91,8 @@ public:
     
     auto& getSavedGame() { return savedGame; }
     const auto& getSavedGame() const { return savedGame; }
+    
+    MessageBox& getMessageBox() { return messageBox; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
     LocalizationManager& getLocalizationManager() const { return localizationManager; }
@@ -112,8 +117,14 @@ public:
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);
 
-    const PlayerController& getPlayerController() const { return playerController; }
-
+    const PlayerController& getPlayerController() const
+    {
+        return currentPlayerController ? *currentPlayerController : inputPlayerController;
+    }
+    
+    void setPlayerController(const PlayerController& controller);
+    void resetPlayerController();
+    
     template <typename T>
     std::enable_if_t<std::is_base_of<GameObject, T>::value, T*>
     getObjectByName(std::string str) { return dynamic_cast<T*>(getObjectByName(str)); }

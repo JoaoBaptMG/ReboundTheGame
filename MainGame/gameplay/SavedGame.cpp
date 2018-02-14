@@ -236,9 +236,9 @@ bool writeEncryptedSaveFile(OutputStream& stream, const SavedGame& savedGame, Sa
     
     uint8_t aesKey[32];
     generateAESKey(key.aesGeneratorKey, aesKey);
+    
     AES_ctx ctx;
     AES_init_ctx_iv(&ctx, aesKey, aesKey+16);
-    
     AES_CBC_encrypt_buffer(&ctx, scrambledMem.data(), scrambledMem.size());
     
     return writeToStream(stream, scrambledMem);

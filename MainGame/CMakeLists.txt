@@ -10,9 +10,10 @@ endif()
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 find_package(Chipmunk REQUIRED)
 find_package(HarfBuzz REQUIRED)
+find_package(Boost COMPONENTS context REQUIRED )
 
-include_directories(${COMMONS_INCLUDE_DIR} ${SFML_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${CPPMUNK_INCLUDE_DIR}
-    ${HARFBUZZ_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
+include_directories(${COMMONS_INCLUDE_DIR} ${SFML_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${Boost_INCLUDE_DIR}
+    ${CPPMUNK_INCLUDE_DIR} ${HARFBUZZ_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE MainGame_SRCS "*.c" "*.cpp" "*.h" "*.hpp")
 
@@ -36,7 +37,7 @@ foreach(FILE ${MainGame_SRCS})
 endforeach()
 
 add_executable(MainGame ${MainGame_SRCS})
-target_link_libraries(MainGame CppMunk ${CHIPMUNK_LIBRARIES} ${SFML_LIBRARIES} ${HARFBUZZ_LIBRARY} ${SFML_DEPENDENCIES})
+target_link_libraries(MainGame CppMunk ${Boost_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${SFML_LIBRARIES} ${HARFBUZZ_LIBRARY} ${SFML_DEPENDENCIES})
 
 install(TARGETS MainGame RUNTIME DESTINATION bin)
 

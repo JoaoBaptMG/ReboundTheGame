@@ -14,7 +14,7 @@ class ResourceManager;
 class InputManager;
 class LocalizationManager;
 
-struct LevelData;
+class LevelData;
 
 class PauseScene final : public Scene
 {

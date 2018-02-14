@@ -6,7 +6,7 @@
 #include "drawables/GUIMap.hpp"
 
 #include "input/InputManager.hpp"
-#include "input/PlayerController.hpp"
+#include "input/InputPlayerController.hpp"
 #include "data/LevelData.hpp"
 
 struct Settings;
@@ -21,7 +21,7 @@ class MapPauseFrame : public PauseFrame
     
     InputManager::CallbackEntry mouseClickEntry;
     InputManager::MouseMoveEntry mouseMoveEntry;
-    PlayerController mapController;
+    InputPlayerController mapController;
     
     sf::Vector2i initialPosition;
     bool active;

@@ -8,7 +8,7 @@
 #include <grid.hpp>
 #include <assert.hpp>
 #include "input/InputManager.hpp"
-#include "input/PlayerController.hpp"
+#include "input/InputPlayerController.hpp"
 #include "scene/Scene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "resources/FilesystemResourceLocator.hpp"
@@ -25,6 +25,8 @@
 #include "scene/TitleScene.hpp"
 
 #include <chronoUtils.hpp>
+
+#define DEBUG_STEADY 0
 
 using namespace std::literals::chrono_literals;
 
@@ -88,6 +90,9 @@ int main(int argc, char **argv)
         {
             updateTime += UpdateFrequency;
             sceneManager.update(updateTime);
+#if DEBUG_STEADY
+            break;
+#endif
         }
         
         if (!sceneManager.hasScenes())

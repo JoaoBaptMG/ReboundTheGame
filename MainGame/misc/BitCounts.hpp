@@ -1,5 +1,5 @@
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 
-extern const std::size_t BitCounts[256];
+extern const size_t BitCounts[256];

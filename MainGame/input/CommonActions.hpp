@@ -1,10 +1,11 @@
 #pragma once
 
 #include "InputManager.hpp"
+#include "gameplay/VirtualActions.hpp"
 #include <SFML/System.hpp>
 #include <vector>
 
-class ButtonAction final
+class ButtonAction final : public VirtualButtonAction
 {
     std::vector<InputManager::CallbackEntry> callbackEntries;
     bool cur = false, last1 = false, last2 = false;
@@ -18,9 +19,9 @@ public:
     void registerSource(InputManager& inputManager, InputSource source);
     void update();
 
-    bool isTriggered() const { return last1 && !last2; }
-    bool isPressed() const { return last1; }
-    bool isReleased() const { return !last1 && last2; }
+    virtual bool isTriggered() const override { return last1 && !last2; }
+    virtual bool isPressed() const override { return last1; }
+    virtual bool isReleased() const override { return !last1 && last2; }
     
     auto getAction() const { return action; }
     void setAction(decltype(action) action) { this->action = action; }
@@ -28,7 +29,7 @@ public:
 
 enum class AxisDirection { Positive, Negative };
 
-class AxisAction final
+class AxisAction final : public VirtualAxisAction
 {
     std::vector<InputManager::CallbackEntry> callbackEntries;
     float valuePos;
@@ -43,7 +44,7 @@ public:
     void registerAxis(InputManager& inputManager, InputSource source);
     void registerButton(InputManager& inputManager, InputSource source, AxisDirection dir);
 
-    float getValue() const
+    virtual float getValue() const override
     {
         return valuePos - valueNeg;
     }
@@ -52,7 +53,7 @@ public:
     void setAction(decltype(action) action) { this->action = action; }
 };
 
-class DualAxisAction final
+class DualAxisAction final : public VirtualDualAxisAction
 {
     std::vector<InputManager::CallbackEntry> callbackEntries;
     sf::Vector2f valuePos;
@@ -70,7 +71,7 @@ public:
     void registerButtonForX(InputManager& inputManager, InputSource source, AxisDirection dir);
     void registerButtonForY(InputManager& inputManager, InputSource source, AxisDirection dir);
 
-    sf::Vector2f getValue() const
+    virtual sf::Vector2f getValue() const override
     {
         return valuePos - valueNeg;
     }

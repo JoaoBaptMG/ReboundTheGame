@@ -59,7 +59,7 @@ void MapPauseFrame::update(std::chrono::steady_clock::time_point curTime)
     mapController.update();
     
     if (state != Clicked)
-        map.setDisplayPosition(map.getDisplayPosition() + ControllerMovementSpeed * mapController.movement.getValue());
+        map.setDisplayPosition(map.getDisplayPosition() + ControllerMovementSpeed * mapController.movement().getValue());
 }
 
 void MapPauseFrame::render(Renderer &renderer)

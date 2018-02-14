@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-#include "input/PlayerController.hpp"
+#include "input/InputPlayerController.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
@@ -13,6 +13,8 @@
 #include "data/TileSet.hpp"
 #include "particles/TextureExplosion.hpp"
 
+#include "gameplay/ScriptedPlayerController.hpp"
+
 #include "objects/PlayerDeath.hpp"
 
 #include <functional>
@@ -22,6 +24,8 @@
 
 #include <random>
 #include <cmath>
+
+#include "gameplay/Script.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -134,9 +138,12 @@ Player::~Player()
     }
 }
 
+static Script testScript;
 void Player::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
+    
+    testScript.update(curTime);
     
     if (spikeTime != decltype(spikeTime)())
     {
@@ -179,11 +186,10 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
 void Player::applyMovementForces()
 {
     const auto& controller = gameScene.getPlayerController();
-    auto vec = controller.movement.getValue();
+    auto vec = controller.movement().getValue();
     if (chargingForHardball) vec.x = vec.y = 0;
     
     auto body = playerShape->getBody();
-    auto pos = body->getPosition();
     auto vel = body->getVelocity();
 
     cpVect base;
@@ -309,7 +315,7 @@ void Player::actOnGround(bool waterborne)
     doubleJumpConsumed = false;
     reset(wallJumpTriggerTime);
     
-    if (controller.jump.isTriggered() && !chargingForHardball) jump();
+    if (controller.jump().isTriggered() && !chargingForHardball) jump();
 	if (abilityLevel >= 7 && !waterborne) observeHardballTrigger();
 }
 
@@ -317,7 +323,7 @@ void Player::actAirborne()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.jump.isReleased()) decayJump();
+    if (controller.jump().isReleased()) decayJump();
     
     if (hardballEnabled == onWater())
     {
@@ -334,7 +340,7 @@ void Player::actOnWalls(Player::CollisionState state)
     
     if (abilityLevel >= 1 && hardballEnabled == onWater())
     {
-        if (controller.jump.isTriggered()) wallJump(state);
+        if (controller.jump().isTriggered()) wallJump(state);
         else if (previousWallState == CollisionState::None &&
             curTime - wallJumpTriggerTime < 6 * UpdateFrequency) wallJump(state);
         else
@@ -349,7 +355,7 @@ bool Player::observeWallJumpTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.jump.isTriggered())
+    if (controller.jump().isTriggered())
     {
         if (previousWallState == CollisionState::None) wallJumpTriggerTime = curTime;
         else if (curTime - wallJumpTriggerTime < 6 * UpdateFrequency)
@@ -366,9 +372,9 @@ bool Player::observeWallJumpTrigger()
 void Player::observeDashAction()
 {
     const auto& controller = gameScene.getPlayerController();
-    auto vec = controller.movement.getValue();
+    auto vec = controller.movement().getValue();
     
-    if (!dashConsumed && controller.dash.isTriggered())
+    if (!dashConsumed && controller.dash().isTriggered())
     {
         if (vec.x > 0.25) dashDirection = DashDir::Right;
         else if (vec.x < -0.25) dashDirection = DashDir::Left;
@@ -380,7 +386,7 @@ void Player::observeDashAction()
             dashConsumed = true;
         }
     }
-    else if (controller.dash.isReleased()) abortDash();
+    else if (controller.dash().isReleased()) abortDash();
 
     if (isDashing())
     {
@@ -402,7 +408,7 @@ void Player::observeDoubleJumpAction()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.jump.isTriggered() && !doubleJumpConsumed)
+    if (controller.jump().isTriggered() && !doubleJumpConsumed)
     {
         jump();
         doubleJumpConsumed = true;
@@ -413,13 +419,13 @@ void Player::observeBombAction()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.bomb.isTriggered() && numBombs > 0) lieBomb(curTime);
+    if (controller.bomb().isTriggered() && numBombs > 0) lieBomb(curTime);
 }
 
 void Player::observeHardballTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
-    auto vec = controller.movement.getValue();
+    auto vec = controller.movement().getValue();
 
     bool stopped = cpvlengthsq(playerShape->getBody()->getVelocity()) < NullSpeed*NullSpeed;
 
@@ -430,12 +436,12 @@ void Player::observeHardballTrigger()
         return;
     }
 
-    if (controller.dash.isTriggered() && vec.y > 0.5 && stopped)
+    if (controller.dash().isTriggered() && vec.y > 0.5 && stopped)
     {
         chargingForHardball = true;
         hardballTime = curTime;
     }
-    else if (controller.dash.isReleased())
+    else if (controller.dash().isReleased())
     {
         reset(hardballTime);
         chargingForHardball = false;
@@ -484,15 +490,15 @@ void Player::observeGrappleTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.jump.isTriggered()) grappleEnabled = true;
-    else if (controller.jump.isReleased()) grappleEnabled = false;
+    if (controller.jump().isTriggered()) grappleEnabled = true;
+    else if (controller.jump().isReleased()) grappleEnabled = false;
 }
 
 void Player::observePauseTrigger()
 {
     const auto& controller = gameScene.getPlayerController();
     
-    if (controller.pause.isTriggered()) gameScene.requestPauseScreen();
+    if (controller.pause().isTriggered()) gameScene.requestPauseScreen();
 }
 
 bool Player::notifyScreenTransition(cpVect displacement)
@@ -673,6 +679,18 @@ void Player::upgradeToAbilityLevel(size_t level)
         setPlayerSprite();
         gameScene.getSavedGame().setAbilityLevel(level);
     }
+    
+    if (level > 0) testScript.runScript([=] (Script& script)
+    {
+        ScriptedPlayerController pc;
+        gameScene.setPlayerController(pc);
+        
+        auto& msgbox = gameScene.getMessageBox();
+        msgbox.display(script, "Buffalo buffalo Buffalo buffalo buffalo buffalo Buffalo buffalo.");
+        msgbox.display(script, "The quick brown fox jumps over the lazy dog.");
+        
+        gameScene.resetPlayerController();
+    });
 }
 
 void Player::upgradeHealth()

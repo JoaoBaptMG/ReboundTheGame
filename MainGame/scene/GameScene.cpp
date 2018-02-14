@@ -33,8 +33,9 @@ T clamp(T cur, T min, T max)
 
 GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
-    sceneRequested(NextScene::None), savedGame(sg), playerController(im, settings.inputSettings), objectsLoaded(false),
-    curRoomID(-1), requestedID(-1), gui(*this), camera(*this), levelTransition(*this), pausing(false), pauseLag(0)
+    sceneRequested(NextScene::None), savedGame(sg), inputPlayerController(im, settings.inputSettings),
+    messageBox(settings, im, rm, lm), objectsLoaded(false), curRoomID(-1), requestedID(-1), gui(*this),
+    camera(*this), levelTransition(*this), pausing(false), pauseLag(0), currentPlayerController(nullptr)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
@@ -228,7 +229,7 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
         return;
     }
     
-    playerController.update();
+    inputPlayerController.update();
     gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
     
     auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
@@ -247,6 +248,7 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     gui.update(laggedTime);
     camera.update(laggedTime);
     levelTransition.update(laggedTime);
+    messageBox.update(laggedTime);
     
     if (requestedID != -1)
     {
@@ -254,6 +256,16 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
         loadRoomObjects();
         requestedID = -1;
     }
+}
+
+void GameScene::setPlayerController(const PlayerController& controller)
+{
+    currentPlayerController = &controller;
+}
+
+void GameScene::resetPlayerController()
+{
+    currentPlayerController = nullptr;
 }
 
 void GameScene::notifyTransitionEnded()
@@ -341,6 +353,7 @@ void GameScene::render(Renderer& renderer)
 
     gui.render(renderer);
     levelTransition.render(renderer);
+    messageBox.render(renderer);
     
     renderer.currentTransform.translate(camera.getGlobalDisplacement());
     room.render(renderer, camera.transitionOccuring());
