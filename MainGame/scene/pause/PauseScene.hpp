@@ -28,7 +28,7 @@ class PauseScene final : public Scene
     float transitionFactor;
     bool unpausing;
     
-    ButtonAction quitPause, switchFrameLeft, switchFrameRight;
+    ButtonAction<2> quitPause, switchFrameLeft, switchFrameRight;
     UIButton frameButtons[3];
     //UIButtonGroup frameButtonGroup;
     UIPointer pointer;

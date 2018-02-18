@@ -92,7 +92,7 @@ void GUI::configureText()
     configTextDrawable(levelLabel, gameScene.getLocalizationManager());
     levelLabel.buildGeometry();
     
-    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } });
+    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {});
     levelID.setString(builtID);
     levelID.setFontSize(config.idSize);
     levelID.setDefaultColor(sf::Color::White);
@@ -113,7 +113,7 @@ void GUI::setLevelNumber(size_t number)
     guiMap.presentRoom(gameScene.getCurrentRoomID());
     
     auto& locManager = gameScene.getLocalizationManager();
-    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } });
+    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {});
     levelID.setString(builtID);
     levelID.buildGeometry();
 }

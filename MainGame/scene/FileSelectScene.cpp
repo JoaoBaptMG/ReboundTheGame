@@ -277,7 +277,7 @@ void FileSelectScene::render(Renderer& renderer)
     cancelButton.render(renderer);
     
     pointer.render(renderer);
-    scrollBar->render(renderer);
+    if (scrollBar) scrollBar->render(renderer);
     
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth/2, 0);

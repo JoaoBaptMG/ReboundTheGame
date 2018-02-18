@@ -6,7 +6,12 @@ namespace unicode
 {
     bool isGraphemeExtender(uint32_t c);
     bool isJapaneseWrappable(uint32_t pc, uint32_t c);
-    
+
+    inline static constexpr bool isCharacterWordJoiner(uint32_t c)
+    {
+        return c == 0x2060;
+    }
+
     inline static constexpr bool isCharacterWhitespace(uint32_t c)
     {
         if (c >= 0x9 && c <= 0xD) return true;
@@ -41,6 +46,6 @@ namespace unicode
     
     inline static constexpr bool isCharacterZeroWidth(uint32_t c)
     {
-        return (c >= 0x200B && c <= 0x200D) || c == 0x180E;
+        return (c >= 0x200B && c <= 0x200D) || c == 0x180E || c == 0x2060;
     }
 }

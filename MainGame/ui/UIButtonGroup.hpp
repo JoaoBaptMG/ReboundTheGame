@@ -19,8 +19,8 @@ class UIButtonGroup final
     size_t currentId;
     bool active;
 
-    ButtonAction select;
-    AxisAction travel;
+    ButtonAction<2> select;
+    AxisAction<1> travel;
     
 public:
     UIButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =

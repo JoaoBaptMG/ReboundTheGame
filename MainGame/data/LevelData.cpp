@@ -128,6 +128,6 @@ std::string getLevelFileNameForNumber(size_t number)
 std::string getLevelNameForNumber(LocalizationManager& lm, size_t number)
 {
     if (number <= 10)
-        return lm.getFormattedString("level-name", {}, { { "n", number } });
+        return lm.getFormattedString("level-name", {}, { { "n", number } }, {});
     else return lm.getString("level-name-final-boss");
 }

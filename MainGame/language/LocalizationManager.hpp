@@ -9,6 +9,7 @@
 #include "execDir.hpp"
 
 using StringSpecifierMap = std::unordered_map<LangID,LangID>;
+using RawSpecifierMap = std::unordered_map<LangID,std::string>;
 using NumberSpecifierMap = std::unordered_map<LangID,size_t>;
 
 class LocalizationManager final
@@ -24,7 +25,7 @@ public:
     
     std::string getString(const LangID& id) const;
     std::string getFormattedString(const LangID& id, const StringSpecifierMap &stringSpecifiers,
-        const NumberSpecifierMap& numberSpecifiers) const;
+        const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers) const;
         
     std::string getFontName() const;
         
@@ -33,7 +34,7 @@ public:
     
 private:
     std::string buildFormat(const LangID& id, const StringSpecifierMap &stringSpecifiers,
-        const NumberSpecifierMap& numberSpecifiers) const;
+        const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers) const;
 };
 
 std::set<std::string> getAllLanguageDescriptors();

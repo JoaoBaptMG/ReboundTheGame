@@ -9,6 +9,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <memory>
+#include <regex>
 #include "tinyxml2.h"
 #include "expression-tree-compiler.hpp"
 #include "varlength.hpp"
@@ -137,6 +138,15 @@ const char* pickValidAttrs(XMLHandle handle, const char* objName, const char* at
 const char* pickValidAttr(XMLHandle handle, const char* objName, const char* attrName, bool compound = false)
 {
     return pickValidAttrs(handle, objName, attrName, std::string(""), compound);
+}
+
+string parseString(string str)
+{
+    static regex allSpaceRegex("\\s+");
+    string result = regex_replace(str, allSpaceRegex, " ");
+    auto beg = result.find_first_not_of(' ');
+    auto end = result.find_last_not_of(' ');
+    return result.substr(beg, end-beg+1);
 }
 
 void write_str(ostream& out, const char* str)
@@ -326,7 +336,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                     return false;
                 }
                 
-                if (!ptermV.variants.emplace(type, text).second)
+                if (!ptermV.variants.emplace(type, parseString(text)).second)
                 {
                     cout << "Multiple definition of variant type " << type << " on pterm " << name << '!' << endl;
                     return false;
@@ -443,7 +453,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                     return false;
                 }
                 
-                var.string = text;
+                var.string = parseString(text);
                 vtermV.variants.push_back(move(var));
             }
             else
@@ -596,7 +606,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                     return false;
                 }
                 
-                var.string = text;
+                var.string = parseString(text);
                 pvtermV.variants.push_back(move(var));
             }
             else
@@ -643,7 +653,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                 return false;
             }
             
-            stringV.string = text;
+            stringV.string = parseString(text);
         }
         else
         {
@@ -737,7 +747,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                 return false;
             }
             
-            string textString(text);
+            string textString(parseString(text));
             size_t p = 0;
             
             while (p != string::npos)

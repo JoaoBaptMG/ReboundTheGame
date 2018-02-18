@@ -21,6 +21,7 @@
 #include "settings/Settings.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/LanguageDescriptor.hpp"
+#include "language/KeyboardKeyName.hpp"
 
 #include "scene/TitleScene.hpp"
 
@@ -35,7 +36,7 @@ bool GlobalUpdateWindowHandler;
 int main(int argc, char **argv)
 {
     auto locale = std::setlocale(LC_ALL, "");
-    
+
     bool success;
     auto settings = loadSettingsFile(&success);
     if (!success)

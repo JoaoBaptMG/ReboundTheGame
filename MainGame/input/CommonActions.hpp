@@ -5,18 +5,17 @@
 #include <SFML/System.hpp>
 #include <vector>
 
-class ButtonAction final : public VirtualButtonAction
+class ButtonActionBase : public VirtualButtonAction
 {
-    std::vector<InputManager::CallbackEntry> callbackEntries;
-    bool cur = false, last1 = false, last2 = false;
-    
+protected:
+    bool last1 = false, last2 = false;
     std::function<void(bool)> action;
+    bool cur = false;
+
+    ButtonActionBase() {}
+    ~ButtonActionBase() {}
 
 public:
-    ButtonAction() {}
-    ~ButtonAction() {}
-
-    void registerSource(InputManager& inputManager, InputSource source);
     void update();
 
     virtual bool isTriggered() const override { return last1 && !last2; }
@@ -27,23 +26,38 @@ public:
     void setAction(decltype(action) action) { this->action = action; }
 };
 
+template <size_t N>
+class ButtonAction final : public ButtonActionBase
+{
+    InputManager::CallbackEntry callbackEntries[N];
+
+public:
+    ButtonAction() {}
+    ~ButtonAction() {}
+
+    void registerSource(InputManager& inputManager, InputSource source, size_t n)
+    {
+        if (n < N) callbackEntries[n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+            {
+                cur = val > 0.5f;
+                if (action) action(cur);
+            });
+    }
+};
+
 enum class AxisDirection { Positive, Negative };
 
-class AxisAction final : public VirtualAxisAction
+class AxisActionBase : public VirtualAxisAction
 {
-    std::vector<InputManager::CallbackEntry> callbackEntries;
+protected:
+    std::function<void(float)> action;
     float valuePos;
     float valueNeg;
 
-    std::function<void(float)> action;
+    AxisActionBase() : valuePos(), valueNeg() {}
+    ~AxisActionBase() {}
 
 public:
-    AxisAction() : valuePos(), valueNeg() {}
-    ~AxisAction() {}
-
-    void registerAxis(InputManager& inputManager, InputSource source);
-    void registerButton(InputManager& inputManager, InputSource source, AxisDirection dir);
-
     virtual float getValue() const override
     {
         return valuePos - valueNeg;
@@ -53,24 +67,48 @@ public:
     void setAction(decltype(action) action) { this->action = action; }
 };
 
-class DualAxisAction final : public VirtualDualAxisAction
+template <size_t N>
+class AxisAction final : public AxisActionBase
 {
-    std::vector<InputManager::CallbackEntry> callbackEntries;
+    InputManager::CallbackEntry callbackEntries[3*N];
+
+public:
+    AxisAction() {}
+    ~AxisAction() {}
+
+    void registerAxis(InputManager& inputManager, InputSource source, size_t n)
+    {
+        if (n < N) callbackEntries[3*n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+            {
+                valuePos = val;
+                valueNeg = 0;
+                if (action) action(valuePos - valueNeg);
+            });
+    }
+
+    void registerButton(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    {
+        if (n < N) callbackEntries[3*n + (dir == AxisDirection::Positive ? 2 : 1)] =
+                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       {
+                           if (dir == AxisDirection::Positive) valuePos = val; else valueNeg = val;
+                           if (action) action(valuePos - valueNeg);
+                       });
+    }
+};
+
+class DualAxisActionBase : public VirtualDualAxisAction
+{
+protected:
     sf::Vector2f valuePos;
     sf::Vector2f valueNeg;
 
     std::function<void(sf::Vector2f)> action;
 
+    DualAxisActionBase() : valuePos(), valueNeg() {}
+    ~DualAxisActionBase() {}
+
 public:
-    DualAxisAction() : valuePos(), valueNeg() {}
-    ~DualAxisAction() {}
-
-    void registerAxisForX(InputManager& inputManager, InputSource source);
-    void registerAxisForY(InputManager& inputManager, InputSource source);
-
-    void registerButtonForX(InputManager& inputManager, InputSource source, AxisDirection dir);
-    void registerButtonForY(InputManager& inputManager, InputSource source, AxisDirection dir);
-
     virtual sf::Vector2f getValue() const override
     {
         return valuePos - valueNeg;
@@ -78,4 +116,51 @@ public:
     
     auto getAction() const { return action; }
     void setAction(decltype(action) action) { this->action = action; }
+};
+
+template <size_t N>
+class DualAxisAction final : public DualAxisActionBase
+{
+    InputManager::CallbackEntry callbackEntries[6*N];
+
+public:
+    void registerAxisForX(InputManager& inputManager, InputSource source, size_t n)
+    {
+        if (n < N) callbackEntries[6*n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+            {
+                valuePos.x = val;
+                valueNeg.x = 0;
+                if (action) action(valuePos - valueNeg);
+            });
+    }
+
+    void registerAxisForY(InputManager& inputManager, InputSource source, size_t n)
+    {
+        if (n < N) callbackEntries[6*n+3] = inputManager.registerCallback(source, [=](InputSource source, float val)
+            {
+                valuePos.y = val;
+                valueNeg.y = 0;
+                if (action) action(valuePos - valueNeg);
+            });
+    }
+
+    void registerButtonForX(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    {
+        if (n < N) callbackEntries[6*n + (dir == AxisDirection::Positive ? 2 : 1)] =
+                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       {
+                           if (dir == AxisDirection::Positive) valuePos.x = val; else valueNeg.x = val;
+                           if (action) action(valuePos - valueNeg);
+                       });
+    }
+
+    void registerButtonForY(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    {
+        if (n < N) callbackEntries[6*n + (dir == AxisDirection::Negative ? 5 : 4)] =
+                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       {
+                           if (dir == AxisDirection::Positive) valuePos.y = val; else valueNeg.y = val;
+                           if (action) action(valuePos - valueNeg);
+                       });
+    }
 };

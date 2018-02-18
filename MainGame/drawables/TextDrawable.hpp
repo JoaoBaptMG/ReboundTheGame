@@ -6,6 +6,7 @@
 #include <utility>
 #include <string>
 #include <map>
+#include <functional>
 #include <rectUtils.hpp>
 #include "resources/FontHandler.hpp"
 
@@ -30,6 +31,7 @@ private:
     struct GraphemeClusterData
     {
         size_t vertexBegin, vertexEnd;
+        size_t byteLocation;
     };
 
     std::shared_ptr<FontHandler> fontHandler;
@@ -50,12 +52,12 @@ private:
     sf::VertexArray vertices, verticesOutline;
     
     sf::FloatRect bounds;
-    
+
     std::vector<GraphemeClusterData> graphemeClusters;
-    size_t prevStringLength = 0;
+    std::vector<size_t> lineBoundaries;
     
 public:
-    TextDrawable(std::shared_ptr<FontHandler> fontHandler = nullptr);
+    explicit TextDrawable(std::shared_ptr<FontHandler> fontHandler = nullptr);
     ~TextDrawable() {}
     
     auto getFontHandler() const { return fontHandler; }
@@ -87,6 +89,7 @@ public:
     }
     
     float getLineSpacing() const;
+    float getHeightForLineNumber(size_t lines) const;
     
     auto getWordAlignment() const { return wordAlignment; }
     void setWordAlignment(Alignment alignment) { wordAlignment = alignment; needsUpdateGeometry = true; }
@@ -99,13 +102,18 @@ public:
     
     auto getRTL() const { return rtl; }
     void setRTL(bool isRTL) { rtl = isRTL; needsUpdateGeometry = true; }
-    
+
     const auto& getLocalBounds() const { return bounds; }
     
     void buildGeometry();
-    
+
+    GraphemeRange getGraphemeClusterInterval(size_t begin, size_t end, bool outline = false);
     GraphemeRange getGraphemeCluster(size_t index, bool outline = false);
+    size_t getGraphemeClusterByteLocation(size_t index) const;
     size_t getNumberOfGraphemeClusters() const;
+
+    size_t getLineBoundary(size_t index) const;
+    size_t getNumberOfLines() const;
     
     GraphemeRange getAllVertices(bool outline = false);
     

@@ -9,6 +9,7 @@
 #include "defaults.hpp"
 #include "gameplay/MapGenerator.hpp"
 #include "input/InputManager.hpp"
+#include "language/KeyboardKeyName.hpp"
 
 #include "SceneManager.hpp"
 #include "scene/pause/PauseScene.hpp"
@@ -31,6 +32,27 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
+StringSpecifierMap buildKeySpecifierMap(const Settings& settings)
+{
+    const auto& key = settings.inputSettings.keyboardSettings;
+
+    auto buildString = [](InputSource source)
+    {
+        return u8"\uFFFF4" + scanCodeToKeyName(source.getAttribute()) + u8"\uFFFF0";
+    };
+
+    return
+        {
+            {"dashbtn", buildString(key.dashInput)},
+            {"jumpbtn", buildString(key.jumpInput)},
+            {"bombbtn", buildString(key.bombInput)},
+            {"leftbtn", buildString(key.moveLeft)},
+            {"rightbtn", buildString(key.moveRight)},
+            {"upbtn", buildString(key.moveUp)},
+            {"downbtn", buildString(key.moveDown)},
+        };
+}
+
 GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
     sceneRequested(NextScene::None), savedGame(sg), inputPlayerController(im, settings.inputSettings),
@@ -41,6 +63,7 @@ GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, Resourc
 #endif
 {
     gameSpace.setGravity(cpVect{0.0f, 1024.0f});
+    keysMap = buildKeySpecifierMap(settings);
 }
 
 void GameScene::loadLevel(std::string levelName)

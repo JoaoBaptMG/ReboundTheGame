@@ -12,8 +12,8 @@ class InputPlayerController final : public PlayerController, util::non_copyable
 public:
     InputPlayerController(InputManager &manager, const InputSettings &settings);
 
-    ButtonAction jumpb, dashb, bombb, pauseb;
-    DualAxisAction movementd;
+    ButtonAction<2> jumpb, dashb, bombb, pauseb;
+    DualAxisAction<1> movementd;
 
     void update();
     

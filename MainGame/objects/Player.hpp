@@ -2,6 +2,7 @@
 
 #include "objects/GameObject.hpp"
 #include "drawables/Sprite.hpp"
+#include "gameplay/Script.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <cppmunk/Shape.h>
@@ -45,6 +46,8 @@ class Player final : public GameObject
     cpFloat angle, lastFade;
     bool dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled, grappleEnabled;
+
+    Script script;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
          grappleTime, spikeTime, invincibilityTime, curTime;
@@ -102,7 +105,7 @@ public:
 
     float getDashDisplay() const;
     
-    void upgradeToAbilityLevel(size_t level);
+    void upgradeToAbilityLevel(size_t level, bool showMessage = true);
     void upgradeHealth();
 
     bool isDashing() const;

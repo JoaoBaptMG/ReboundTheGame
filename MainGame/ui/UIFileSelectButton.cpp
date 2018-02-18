@@ -54,7 +54,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
         k++;
     }
     
-    auto indexStr = lm.getFormattedString("file-select-index", {}, { { "i", index+1 } });
+    auto indexStr = lm.getFormattedString("file-select-index", {}, { { "i", index+1 } }, {});
     fileName.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
     fileName.setString(indexStr + getLevelNameForNumber(lm, sg.getCurLevel()));
     fileName.setFontSize(TextSize);
@@ -68,7 +68,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     configTextDrawable(fileName, lm);
     fileName.buildGeometry();
 
-    auto gtStr = lm.getFormattedString("file-select-golden-token-count", {}, { { "n", sg.getGoldenTokenCount() } });
+    auto gtStr = lm.getFormattedString("file-select-golden-token-count", {}, { { "n", sg.getGoldenTokenCount() } }, {});
     goldenTokenAmount.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
     goldenTokenAmount.setString(gtStr);
     goldenTokenAmount.setFontSize(TextSize);

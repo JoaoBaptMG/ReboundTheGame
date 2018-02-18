@@ -20,9 +20,9 @@ void UITextSwitch::initialize(InputManager& inputManager, const InputSettings& s
 {
     UIButton::initialize(inputManager);
     
-    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative);
-    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive);
-    switchAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX);
+    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
+    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
+    switchAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
     
     setPressAction([=]
     { 

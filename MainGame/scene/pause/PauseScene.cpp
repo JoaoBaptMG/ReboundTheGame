@@ -68,14 +68,14 @@ PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm
         k++;
     }
     
-    quitPause.registerSource(im, settings.inputSettings.keyboardSettings.pauseInput);
-    quitPause.registerSource(im, settings.inputSettings.joystickSettings.pauseInput);
+    quitPause.registerSource(im, settings.inputSettings.keyboardSettings.pauseInput, 0);
+    quitPause.registerSource(im, settings.inputSettings.joystickSettings.pauseInput, 1);
     
-    switchFrameLeft.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenLeft);
-    switchFrameLeft.registerSource(im, settings.inputSettings.joystickSettings.switchScreenLeft);
+    switchFrameLeft.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenLeft, 0);
+    switchFrameLeft.registerSource(im, settings.inputSettings.joystickSettings.switchScreenLeft, 1);
     
-    switchFrameRight.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenRight);
-    switchFrameRight.registerSource(im, settings.inputSettings.joystickSettings.switchScreenRight);
+    switchFrameRight.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenRight, 0);
+    switchFrameRight.registerSource(im, settings.inputSettings.joystickSettings.switchScreenRight, 1);
 }
 
 void PauseScene::update(std::chrono::steady_clock::time_point curTime)

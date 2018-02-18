@@ -7,6 +7,8 @@ if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
+set(Boost_USE_STATIC_LIBS ON)
+
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 find_package(Chipmunk REQUIRED)
 find_package(HarfBuzz REQUIRED)

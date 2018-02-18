@@ -27,6 +27,21 @@
         <plural-form type="one">x == 1</plural-form>
         <plural-form type="many"/>
     </plural-forms>
+
+    <!-- Ordinal plural form and pterm -->
+    <plural-forms category="ord">
+        <plural-form type="first"><![CDATA[x % 10 == 1 && x % 100 != 11]]></plural-form>
+        <plural-form type="second"><![CDATA[x % 10 == 2 && x % 100 != 12]]></plural-form>
+        <plural-form type="third"><![CDATA[x % 10 == 3 && x % 100 != 13]]></plural-form>
+        <plural-form type="others"/>
+    </plural-forms>
+
+    <pterm name="ord" category="ord">
+        <variant type="first">st</variant>
+        <variant type="second">nd</variant>
+        <variant type="third">rd</variant>
+        <variant type="others">th</variant>
+    </pterm>
    
     <!-- Labels for switches on the settings screen -->
     <string name="ui-switch-yes">YES</string>
@@ -134,7 +149,12 @@
     <string name="file-select-cancel">Cancel</string>
     <!-- The formatter for the index of the file in the screen -->
     <formatter name="file-select-index">({#i}) </formatter>
-    
+
+    <!-- The level name, used on the file select screen and others -->
+    <formatter name="level-name">Level {#n}</formatter>
+    <!-- The name of the final boss level -->
+    <string name="level-name-final-boss">Final Boss</string>
+
     <!-- The powerups' names -->
     <!-- Used in message boxes and the collection screen -->
     <!-- The name of the "Wall Jump" powerup -->
@@ -157,12 +177,68 @@
     <string name="powerup9-name">Grapple</string>
     <!-- The name of the "Enhanced Dash" powerup -->
     <string name="powerup10-name">Enhanced Dash</string>
-    
-    <!-- The level name, used on the file select screen and others -->
-    <formatter name="level-name">Level {#n}</formatter>
-    <!-- The name of the final boss level -->
-    <string name="level-name-final-boss">Final Boss</string>
-    
+
+    <!-- OBS: message colors
+         To color some word with a certain color, you use the character sequence &#xFFFF;id,
+         where id is the color ID as declared. -->
+
+    <!-- The message for getting a new powerup -->
+    <formatter name="msg-powerup-collect">You acquired the &#xFFFF;2{$pname}&#xFFFF;0 powerup!</formatter>
+
+    <!-- The specific messages for each powerup -->
+    <formatter name="msg-powerup-description1">
+        Press {$jumpbtn} near a wall to bounce against it and jump up.
+    </formatter>
+    <formatter name="msg-powerup-description2">
+        This powerup grants you the ability to push brown blocks to solve puzzles and unlock passageways.
+    </formatter>
+    <formatter name="msg-powerup-description3">
+        While in midair, hold {$dashbtn} and {$leftbtn} or {$rightbtn} to soar through the air at blazing speeds!
+    </formatter>
+    <formatter name="msg-powerup-description4">
+        While in midair, you can press {$jumpbtn} again to execute one more jump.
+    </formatter>
+    <formatter name="msg-powerup-description5">
+        Now you can lay time bombs that explode in a small range by pressing {$bombbtn}! You can use those bombs to
+        break blue colored blocks.
+    </formatter>
+    <formatter name="msg-powerup-description6">
+        This powerup increases your maximum movement speed and jump height.
+    </formatter>
+    <formatter name="msg-powerup-description7">
+        You now can switch into Hardball form. This form is much denser than the normal form and will allow you to sink
+        underwater and explore previously unexplorable areas. While standing on ground, hold {$downbtn} and then hold
+        {$dashbtn} for one second to switch into and out of Hardball. You can also switch while steadily floating on water.
+    </formatter>
+    <formatter name="msg-powerup-description8">
+        You can Dash into green colored blocks to break them.
+    </formatter>
+    <formatter name="msg-powerup-description9">
+        This powerup allows you to use the energy-filled grapple points throughout the levels. While in midair,
+        hold {$jumpbtn} to energize yourself. If, when energized, you approach a grapple point, you will be pulled
+        towards it. You can leverage this technique to cover large shafts and passageways.
+    </formatter>
+    <formatter name="msg-powerup-description10">
+        Your dash coverage is increased threefold and you can now Dash upwards by pressing {$dashbtn} and {$upbtn}.
+    </formatter>
+
+    <!-- The messages for getting a new golden token -->
+    <formatter name="msg-golden-token-collect1">
+        You collected a &#xFFFF;3Golden Token&#xFFFF;0! The Golden Tokens are well hidden special powerups that upgrade
+        your health. Each Golden Token increases your maximum health by {#incr} HP and there are {#max} Golden Tokens
+        in the game, meaning your health can be increased to {#hpmax} HP! Very likely you will not be able to collect
+        all Golden Tokens from a level just with the powerup you acquired on that level; you will have to acquire
+        powerups from later levels to do so.</formatter>
+    <formatter name="msg-golden-token-collectn">
+        You collected your {#n}{@ord:n} &#xFFFF;3Golden Token&#xFFFF;0! There are {#mn} remaining!
+    </formatter>
+    <formatter name="msg-golden-token-collectall-1">
+        You collected your {#n}{@ord:n} &#xFFFF;3Golden Token&#xFFFF;0! There is only one remaining! Hint: have a look
+        at your Collected frame to see which one is missing.</formatter>
+    <string name="msg-golden-token-collectall">
+        Congratulations! You collected all the &#xFFFF;3Golden Tokens&#xFFFF;0! Now your maximum health is maxed out!
+    </string>
+
     <!-- The presenter caption for the Test Boss -->
     <string name="test-boss-present">Test Boss</string>
     

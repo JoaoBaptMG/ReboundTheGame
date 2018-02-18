@@ -32,9 +32,9 @@ void UISlider::initialize(InputManager& inputManager, ResourceManager& resourceM
     else sliderBody.setAnchorPoint(sf::Vector2f(sliderBody.getTextureSize().x, sliderBody.getTextureSize().y/2));
     sliderKnob.centerAnchorPoint();
     
-    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative);
-    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive);
-    slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX);
+    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
+    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
+    slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
     
     sliderMoveEntry = inputManager.registerMouseMoveCallback([&,this] (sf::Vector2i position)
     {

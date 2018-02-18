@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.1)
 
 project(ReboundTheGame)
 
@@ -20,3 +20,8 @@ add_subdirectory(ExportTools)
 add_subdirectory(MainGame)
 add_subdirectory(Languages)
 add_subdirectory(Resources)
+
+add_custom_target(install_everything
+	"${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
+	DEPENDS MainGame Languages Resources
+	COMMENT "Installing ${PROJECT_NAME}")

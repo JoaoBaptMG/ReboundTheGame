@@ -94,13 +94,13 @@ std::string LocalizationManager::getString(const LangID& id) const
 }
 
 std::string LocalizationManager::getFormattedString(const LangID& id, const StringSpecifierMap &stringSpecifiers,
-    const NumberSpecifierMap& numberSpecifiers) const
+    const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers) const
 {
     if (error) return "";
     
     auto it = languageDescriptor.formatters.find(id);
     if (it != languageDescriptor.formatters.end())
-        return buildFormat(id, stringSpecifiers, numberSpecifiers);
+        return buildFormat(id, stringSpecifiers, numberSpecifiers, rawSpecifiers);
     
     return descriptorDebug ? buildErrorForFormatter(id) : "";
 }
@@ -118,7 +118,7 @@ bool LocalizationManager::isRTL() const
 }
 
 std::string LocalizationManager::buildFormat(const LangID& id, const StringSpecifierMap &stringSpecifiers,
-    const NumberSpecifierMap& numberSpecifiers) const
+    const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers) const
 {
     const auto& formatter = languageDescriptor.formatters.at(id);
     
@@ -134,13 +134,16 @@ std::string LocalizationManager::buildFormat(const LangID& id, const StringSpeci
             case Formatter::Specifier::Type::String:
             {
                 auto it = stringSpecifiers.find(specifier.specifier1);
-                if (it == stringSpecifiers.end())
+                auto it2 = rawSpecifiers.find(specifier.specifier1);
+                if (it == stringSpecifiers.end() && it2 == stringSpecifiers.end())
                 {
                     replacement = descriptorDebug ? buildErrorForStringSpecifier(specifier.specifier1) : "";
                     break;
                 }
-                
-                replacement = getString(it->second);
+
+                if (it2 == stringSpecifiers.end())
+                    replacement = getString(it->second);
+                else replacement = it2->second;
             } break;
             
             case Formatter::Specifier::Type::Number:

@@ -14,6 +14,7 @@
 #include "gameplay/SavedGame.hpp"
 #include "input/InputPlayerController.hpp"
 #include "input/CommonActions.hpp"
+#include "language/LocalizationManager.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
@@ -30,7 +31,6 @@
 class Player;
 class Renderer;
 class ResourceManager;
-class LocalizationManager;
 class InputManager;
 
 struct RoomData;
@@ -70,6 +70,7 @@ class GameScene : public Scene
     Camera camera;
     LevelTransition levelTransition;
     MessageBox messageBox;
+    StringSpecifierMap keysMap;
     
     std::chrono::steady_clock::time_point curTime;
     std::chrono::duration<size_t, std::milli> pauseLag;
@@ -113,6 +114,8 @@ public:
         sceneRequested = NextScene::Advance;
         nextLevelRequested = nextLevel;
     }
+
+    const auto& getKeySpecifierMap() const { return keysMap; }
 
     void addObject(std::unique_ptr<GameObject> obj);
     GameObject* getObjectByName(std::string str);

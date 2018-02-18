@@ -14,8 +14,8 @@
 #include "particles/TextureExplosion.hpp"
 
 #include "gameplay/ScriptedPlayerController.hpp"
-
 #include "objects/PlayerDeath.hpp"
+#include "language/KeyboardKeyName.hpp"
 
 #include <functional>
 #include <limits>
@@ -24,8 +24,6 @@
 
 #include <random>
 #include <cmath>
-
-#include "gameplay/Script.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -73,7 +71,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
+	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel(), false);
     maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;
     health = maxHealth;
 	setName("player");
@@ -138,12 +136,11 @@ Player::~Player()
     }
 }
 
-static Script testScript;
 void Player::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
     
-    testScript.update(curTime);
+    script.update(curTime);
     
     if (spikeTime != decltype(spikeTime)())
     {
@@ -671,31 +668,55 @@ bool Player::damage(size_t amount, bool overrideInvincibility)
     return false;
 }
 
-void Player::upgradeToAbilityLevel(size_t level)
+void Player::upgradeToAbilityLevel(size_t level, bool showMessage)
 {
     if (abilityLevel < level)
     {
         abilityLevel = level;
         setPlayerSprite();
         gameScene.getSavedGame().setAbilityLevel(level);
+
+        if (showMessage) script.runScript([=] (Script& script)
+        {
+            const auto& lm = gameScene.getLocalizationManager();
+
+            ScriptedPlayerController pc;
+            gameScene.setPlayerController(pc);
+
+            LangID parm = "powerup" + std::to_string(level) + "-name";
+            LangID pmsg = "msg-powerup-description" + std::to_string(level);
+
+            auto &msgbox = gameScene.getMessageBox();
+
+            std::string msg = lm.getFormattedString("msg-powerup-collect", {{"pname", parm}}, {}, {}) + "\n";
+            msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
+            msgbox.display(script, msg);
+
+            gameScene.resetPlayerController();
+        });
     }
-    
-    if (level > 0) testScript.runScript([=] (Script& script)
-    {
-        ScriptedPlayerController pc;
-        gameScene.setPlayerController(pc);
-        
-        auto& msgbox = gameScene.getMessageBox();
-        msgbox.display(script, "Buffalo buffalo Buffalo buffalo buffalo buffalo Buffalo buffalo.");
-        msgbox.display(script, "The quick brown fox jumps over the lazy dog.");
-        
-        gameScene.resetPlayerController();
-    });
 }
 
 void Player::upgradeHealth()
 {
     maxHealth += HealthIncr;
+
+    auto tokens = gameScene.getSavedGame().getGoldenTokenCount();
+    script.runScript([=] (Script& script)
+    {
+        ScriptedPlayerController pc;
+        gameScene.setPlayerController(pc);
+        auto &msgbox = gameScene.getMessageBox();
+
+        if (tokens == 1)
+            msgbox.displayFormattedString(script, "msg-golden-token-collect1", {},
+                {{"incr", HealthIncr}, {"max", 30}, {"hpmax", BaseHealth + 30 * HealthIncr}}, {});
+        else if (tokens == 29) msgbox.displayFormattedString(script, "msg-golden-token-collectall-1", {}, {{"n", 29}}, {});
+        else if (tokens == 30) msgbox.displayString(script, "msg-golden-token-collectall");
+        else msgbox.displayFormattedString(script, "msg-golden-token-collectn", {}, {{"n", tokens}, {"mn", 30-tokens}}, {});
+
+        gameScene.resetPlayerController();
+    });
 }
 
 bool Player::onWater() const
