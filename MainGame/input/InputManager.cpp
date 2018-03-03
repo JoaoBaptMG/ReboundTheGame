@@ -4,13 +4,23 @@
 
 void InputManager::dispatchData(InputSource source, float val)
 {
-    auto it = callbacks.find(source);
-    if (it == callbacks.end()) return;
-    
-    // Copy required for iterator safety: some callbacks may add others to the list
-    auto functions = it->second;
-        
-    for (auto& callback : functions) callback.second(source, val);
+    {
+        auto it = callbacks.find(source);
+        if (it != callbacks.end())
+        {
+            // Copy required for iterator safety: some callbacks may add others to the list
+            auto functions = it->second;
+            for (auto &callback : functions) callback.second(source, val);
+        }
+    }
+
+    for (const auto& src : variableCallbacks)
+    {
+        if (*src.first != source) continue;
+        // ditto
+        auto functions = src.second;
+        for (auto &callback : functions) callback.second(source, val);
+    }
 }
 
 void InputManager::dispatchMouseMovement(sf::Vector2i pos)
@@ -53,4 +63,24 @@ bool InputManager::handleEvent(const sf::Event& event)
             return true;
         default: return false;
     }
+}
+
+InputManager::CallbackEntry InputManager::registerCallback(InputSource source, InputManager::Callback callback,
+    intmax_t priority)
+{
+    auto& map = callbacks[source];
+    return CallbackEntry(map, map.emplace(priority, callback));
+}
+
+InputManager::CallbackEntry InputManager::registerVariableCallback(const InputSource &source,
+    InputManager::Callback callback, intmax_t priority)
+{
+    auto& map = variableCallbacks[&source];
+    return CallbackEntry(map, map.emplace(priority, callback));
+}
+
+InputManager::MouseMoveEntry InputManager::registerMouseMoveCallback(InputManager::MouseMoveCallback callback,
+    intmax_t priority)
+{
+    return MouseMoveEntry(mouseMoveCallbacks, mouseMoveCallbacks.emplace(priority, callback));
 }

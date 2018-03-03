@@ -38,7 +38,7 @@ StringSpecifierMap buildKeySpecifierMap(const Settings& settings)
 
     auto buildString = [](InputSource source)
     {
-        return u8"\uFFFF4" + scanCodeToKeyName(source.getAttribute()) + u8"\uFFFF0";
+        return u8"\uFFFF\x05" + scanCodeToKeyName(source.getAttribute()) + u8"\uFFFF\x01";
     };
 
     return

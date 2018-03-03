@@ -375,6 +375,13 @@ size_t TextDrawable::getGraphemeClusterByteLocation(size_t index) const
     return graphemeClusters.at(index).byteLocation;
 }
 
+size_t TextDrawable::getGraphemeClusterLine(size_t index) const
+{
+    if (index >= graphemeClusters.size()) return (size_t)-1;
+    auto it = std::upper_bound(lineBoundaries.begin(), lineBoundaries.end(), index);
+    return (size_t)(it - lineBoundaries.begin());
+}
+
 size_t TextDrawable::getNumberOfGraphemeClusters() const
 {
     return graphemeClusters.size();

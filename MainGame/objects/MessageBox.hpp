@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include <set>
 #include <map>
 #include <chronoUtils.hpp>
 #include "input/InputManager.hpp"
@@ -19,8 +20,11 @@ struct Settings;
 
 class MessageBox final
 {
-    Sprite messageBackground;
+    Sprite messageBackground, messageIcon;
     TextDrawable messageText;
+
+    LocalizationManager& localizationManager;
+    float actualMessageHeight;
 
     ButtonAction<6> messageAction;
 
@@ -28,12 +32,14 @@ class MessageBox final
     std::chrono::steady_clock::duration letterPeriod;
     std::chrono::steady_clock::time_point curTime, initTime;
 
-    LocalizationManager& localizationManager;
-    float actualMessageHeight;
-    size_t lineOffset;
-    bool updateLines;
+    std::vector<size_t> breakPoints, stopPoints;
 
-    std::map<size_t,size_t> colorChanges;
+    enum State { Idle, OpenBox, NextCharacter, FullStop, FullStopPageBreak, FadingPage, CloseBox } curState;
+
+
+    size_t lineOffset;
+    struct VisibleBounds { size_t begin, end, lineCount; } curBounds;
+    bool updateLines;
     
 public:
     MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
@@ -45,7 +51,7 @@ public:
                                 const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers);
 
     void buildMessageText();
-    void searchForColorMarkers();
+    void searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges);
 
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);

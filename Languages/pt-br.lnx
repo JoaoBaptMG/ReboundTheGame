@@ -174,15 +174,15 @@
     <string name="powerup10-name">Jato Aprimorado</string>
 
     <!-- OBS: message colors
-         To color some word with a certain color, you use the character sequence &#xFFFF;id,
-         where id is the color ID as declared. -->
+         To color some word with a certain color, you use the character sequence \ci or \c[id],
+         where id is the color ID as declared (the first only if i is only one character). -->
 
     <!-- The message for getting a new powerup -->
-    <formatter name="msg-powerup-collect">Você ganhou o poder de &#xFFFF;2{$pname}&#xFFFF;0!</formatter>
+    <formatter name="msg-powerup-collect">Você ganhou o poder de \c2{$pname}\c0!</formatter>
 
     <!-- The specific messages for each powerup -->
     <formatter name="msg-powerup-description1">
-        Pressione {$jumpbtn} perto de uma parede para saltar a partir dela.
+        Pressione {$jumpbtn} perto de\f uma parede para saltar a partir dela.
     </formatter>
     <formatter name="msg-powerup-description2">
         Essa habilidade permite que você empurre blocos marrons especiais para resolver problemas e descobrir caminhos!
@@ -221,20 +221,20 @@
 
     <!-- The messages for getting a new golden token -->
     <formatter name="msg-golden-token-collect1">
-        Você recolheu uma &#xFFFF;3Ficha Dourada&#xFFFF;0! Elas são itens especiais bem escondidos que aumentam a sua
+        Você recolheu uma \c3Ficha Dourada\c0! Elas são itens especiais bem escondidos que aumentam a sua
         vida máxima. Cada Ficha Dourada aumenta sua vída em {#incr} pontos. Foram espalhadas {#max} Fichas Douradas pelo
         jogo, o que significa que sua vida pode ser aumentada para até {#hpmax} pontos! Muito provavelmente você não
         conseguirá recolher todas as Fichas Douradas na sua primeira passada por um nível, porque você precisará de
         habilidades presentes em outros níveis.
     </formatter>
     <formatter name="msg-golden-token-collectn">
-        Você recolheu sua {#n}ª &#xFFFF;3Ficha Dourada&#xFFFF;0! Faltam ainda mais {#mn}!
+        Você recolheu sua {#n}ª \c3Ficha Dourada\c0! Faltam ainda mais {#mn}!
     </formatter>
     <formatter name="msg-golden-token-collectall-1">
-        Você recolheu sua {#n}ª &#xFFFF;3Ficha Dourada&#xFFFF;0! Só falta mais uma! Você pode olhar no painel
+        Você recolheu sua {#n}ª \c3Ficha Dourada\c0! Só falta mais uma! Você pode olhar no painel
         de Coleção para saber em qual nível está essa última.</formatter>
     <string name="msg-golden-token-collectall">
-        Parabéns! Você recolheu todas as &#xFFFF;3Fichas Douradas&#xFFFF;0! Sua vida máxima foi maximizada!
+        Parabéns! Você recolheu todas as \c3Fichas Douradas\c0! Sua vida máxima foi maximizada!
     </string>
 
     <!-- The presenter caption for the Test Boss -->

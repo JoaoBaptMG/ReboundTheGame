@@ -6,6 +6,7 @@
 #include <map>
 #include <list>
 #include <functional>
+#include <vector>
 #include <ContainerEntry.hpp>
 
 #include "InputSource.hpp"
@@ -19,6 +20,7 @@ public:
 
 private:
     std::unordered_map<InputSource,PriorityMap> callbacks;
+    std::unordered_map<const InputSource*,PriorityMap> variableCallbacks;
     std::multimap<intmax_t,MouseMoveCallback> mouseMoveCallbacks;
 
 public:
@@ -28,16 +30,9 @@ public:
     InputManager() {}
     ~InputManager() {}
 
-    auto registerCallback(InputSource source, Callback callback, intmax_t priority = 0)
-    {
-        auto& map = callbacks[source];
-        return CallbackEntry(map, map.emplace(priority, callback));
-    }
-    
-    auto registerMouseMoveCallback(MouseMoveCallback callback, intmax_t priority = 0)
-    {
-        return MouseMoveEntry(mouseMoveCallbacks, mouseMoveCallbacks.emplace(priority, callback));
-    }
+    CallbackEntry registerCallback(InputSource source, Callback callback, intmax_t priority = 0);
+    CallbackEntry registerVariableCallback(const InputSource& source, Callback callback, intmax_t priority = 0);
+    MouseMoveEntry registerMouseMoveCallback(MouseMoveCallback callback, intmax_t priority = 0);
     
     void dispatchData(InputSource source, float val);
     void dispatchMouseMovement(sf::Vector2i pos);

@@ -35,9 +35,9 @@ public:
     ButtonAction() {}
     ~ButtonAction() {}
 
-    void registerSource(InputManager& inputManager, InputSource source, size_t n)
+    void registerSource(InputManager& inputManager, const InputSource& source, size_t n)
     {
-        if (n < N) callbackEntries[n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+        if (n < N) callbackEntries[n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
             {
                 cur = val > 0.5f;
                 if (action) action(cur);
@@ -76,9 +76,9 @@ public:
     AxisAction() {}
     ~AxisAction() {}
 
-    void registerAxis(InputManager& inputManager, InputSource source, size_t n)
+    void registerAxis(InputManager& inputManager, const InputSource& source, size_t n)
     {
-        if (n < N) callbackEntries[3*n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+        if (n < N) callbackEntries[3*n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
             {
                 valuePos = val;
                 valueNeg = 0;
@@ -86,10 +86,10 @@ public:
             });
     }
 
-    void registerButton(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    void registerButton(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
         if (n < N) callbackEntries[3*n + (dir == AxisDirection::Positive ? 2 : 1)] =
-                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
                        {
                            if (dir == AxisDirection::Positive) valuePos = val; else valueNeg = val;
                            if (action) action(valuePos - valueNeg);
@@ -124,9 +124,9 @@ class DualAxisAction final : public DualAxisActionBase
     InputManager::CallbackEntry callbackEntries[6*N];
 
 public:
-    void registerAxisForX(InputManager& inputManager, InputSource source, size_t n)
+    void registerAxisForX(InputManager& inputManager, const InputSource& source, size_t n)
     {
-        if (n < N) callbackEntries[6*n] = inputManager.registerCallback(source, [=](InputSource source, float val)
+        if (n < N) callbackEntries[6*n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
             {
                 valuePos.x = val;
                 valueNeg.x = 0;
@@ -134,9 +134,9 @@ public:
             });
     }
 
-    void registerAxisForY(InputManager& inputManager, InputSource source, size_t n)
+    void registerAxisForY(InputManager& inputManager, const InputSource& source, size_t n)
     {
-        if (n < N) callbackEntries[6*n+3] = inputManager.registerCallback(source, [=](InputSource source, float val)
+        if (n < N) callbackEntries[6*n+3] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
             {
                 valuePos.y = val;
                 valueNeg.y = 0;
@@ -144,20 +144,20 @@ public:
             });
     }
 
-    void registerButtonForX(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    void registerButtonForX(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
         if (n < N) callbackEntries[6*n + (dir == AxisDirection::Positive ? 2 : 1)] =
-                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
                        {
                            if (dir == AxisDirection::Positive) valuePos.x = val; else valueNeg.x = val;
                            if (action) action(valuePos - valueNeg);
                        });
     }
 
-    void registerButtonForY(InputManager& inputManager, InputSource source, AxisDirection dir, size_t n)
+    void registerButtonForY(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
         if (n < N) callbackEntries[6*n + (dir == AxisDirection::Negative ? 5 : 4)] =
-                       inputManager.registerCallback(source, [=](InputSource source, float val)
+                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
                        {
                            if (dir == AxisDirection::Positive) valuePos.y = val; else valueNeg.y = val;
                            if (action) action(valuePos - valueNeg);

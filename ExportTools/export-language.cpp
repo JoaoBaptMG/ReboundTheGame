@@ -140,13 +140,65 @@ const char* pickValidAttr(XMLHandle handle, const char* objName, const char* att
     return pickValidAttrs(handle, objName, attrName, std::string(""), compound);
 }
 
+string string_replace(string str, string find, string repl)
+{
+    string cnt;
+
+    auto pos = str.find(find), curPos = decltype(pos)(0);
+    while (pos != string::npos)
+    {
+        cnt += str.substr(curPos, pos-curPos);
+        cnt += repl;
+        curPos = pos + find.size();
+        pos = str.find(find, curPos);
+    }
+
+    cnt += str.substr(curPos);
+    return cnt;
+}
+
+template <typename Function>
+string regex_replace_func(string str, const regex& reg, Function f)
+{
+    string cnt;
+    sregex_iterator regBegin(str.begin(), str.end(), reg), regEnd{};
+
+    auto lastPosition = decltype(string::npos)(0);
+    for (auto it = regBegin; it != regEnd; ++it)
+    {
+        cnt += str.substr(lastPosition, it->position() - lastPosition);
+        cnt += f(*it);
+        lastPosition = it->position() + it->length();
+    }
+
+    cnt += str.substr(lastPosition);
+    return cnt;
+}
+
 string parseString(string str)
 {
-    static regex allSpaceRegex("\\s+");
-    string result = regex_replace(str, allSpaceRegex, " ");
-    auto beg = result.find_first_not_of(' ');
-    auto end = result.find_last_not_of(' ');
-    return result.substr(beg, end-beg+1);
+    static const regex consNewlineRegex(R"(\n{2,})"), allSpaceRegex(R"(\s+)");
+    static const regex spacedNewlineRegex(R"(\s*\\n\s*)"), spacedFormFeedRegex(R"(\s*\\f\s*)");
+    static const regex colorPickRegex(R"(\\c(\[(\d{1,2}|1\d{2}|2[0-4]\d|25[0-5])\]|\d))");
+
+    str = regex_replace(str, consNewlineRegex, "\\n");
+    str = regex_replace(str, allSpaceRegex, " ");
+    str = regex_replace(str, spacedNewlineRegex, "\n");
+    str = regex_replace(str, spacedFormFeedRegex, "\f");
+    str = string_replace(str, "\\r", "\r");
+    str = regex_replace_func(str, colorPickRegex, [](const smatch& match)
+    {
+        auto matchStr = match.str(match[2].matched ? 2 : 1);
+        size_t v = 1 + strtoull(matchStr.c_str(), nullptr, 10);
+
+        if (v < 127) return string{ (char)0xEF, (char)0xBF, (char)0xBF, (char)v };
+        else return string{ (char)0xEF, (char)0xBF, (char)0xBF, (char)(0xC0+(v >> 6)), (char)(0x80+(v&63)) };
+    });
+
+    auto beg = str.find_first_not_of(' ');
+    auto end = str.find_last_not_of(' ');
+
+    return str.substr(beg, end-beg+1);
 }
 
 void write_str(ostream& out, const char* str)
@@ -162,7 +214,7 @@ void write_str(ostream& out, const std::string& str)
     out.write(str.data(), str.size() * sizeof(char));
 }
 
-bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& pluralForms,
+bool parseLanguage(XMLDocument& doc, const string& inFile, map<string,PluralForm>& pluralForms,
     map<string,VariantForm>& variantForms, map<string,Pterm>& pterms, map<string,Vterm>& vterms,
     map<string,Pvterm>& pvterms, map<string,LangString>& strings, map<string,Formatter>& formatters)
 {
@@ -525,7 +577,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                 cout << " (defined in pvterm " << name << ")!" << endl;
                 return false;
             }
-            catIterators.push_back(catIt);
+            catIterators.emplace_back(catIt);
             pvtermV.vcategories.push_back(catName);
         }
         
@@ -666,15 +718,15 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
         if (variant)
         {
             for (auto c = variant; *c; c++)
-            if (!((*c >= 'A' && *c <= 'Z') || 
-                  (*c >= 'a' && *c <= 'z') || 
-                  (*c >= '0' && *c <= '9') || 
-                   *c == '-' || *c == ' ' || *c == ':'))
-            {
-                cout << "Variant in string " << name;
-                cout << " must be composed of letters, digits, hyphens, commas or spaces!" << endl;
-                return false;
-            }
+                if (!((*c >= 'A' && *c <= 'Z') ||
+                      (*c >= 'a' && *c <= 'z') ||
+                      (*c >= '0' && *c <= '9') ||
+                       *c == '-' || *c == ' ' || *c == ':'))
+                {
+                    cout << "Variant in string " << name;
+                    cout << " must be composed of letters, digits, hyphens, commas or spaces!" << endl;
+                    return false;
+                }
 
             auto cur = variant;
             while (*cur)
@@ -732,7 +784,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
     for (auto formatter = language.FirstChildElement("formatter"); formatter.ToElement();
         formatter = formatter.NextSiblingElement("formatter"))
     {
-        Formatter formatterV;
+        Formatter formatterV{};
         
         auto name = pickValidAttr(formatter, "Formatter", "name");
         if (!name) return false;
@@ -812,7 +864,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                                 cout << "There is no pterm " << textString.substr(c+2, h1-c-2);
                                 cout << " (referenced in specifier in formatter " << name << ")!" << endl;
                             }
-                            specifier.term = distance(pterms.begin(), ptermIt);
+                            specifier.term = (size_t)distance(pterms.begin(), ptermIt);
                         }
                         break;
                         
@@ -849,7 +901,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                                 cout << "There is no vterm " << textString.substr(c+2, h1-c-2);
                                 cout << " (referenced in specifier in formatter " << name << ")!" << endl;
                             }
-                            specifier.term = distance(vterms.begin(), vtermIt);
+                            specifier.term = (size_t)distance(vterms.begin(), vtermIt);
                         }
                         break;
                         
@@ -898,7 +950,7 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                                 cout << "There is no pvterm " << textString.substr(c+3, h1-c-3);
                                 cout << " (referenced in specifier in formatter " << name << ")!" << endl;
                             }
-                            specifier.term = distance(pvterms.begin(), pvtermIt);
+                            specifier.term = (size_t)distance(pvterms.begin(), pvtermIt);
                         }
                         break;
                         
@@ -947,9 +999,10 @@ bool parseLanguage(XMLDocument& doc, string inFile, map<string,PluralForm>& plur
                                 cout << "There is no pvterm " << textString.substr(c+3, h1-c-3);
                                 cout << " (referenced in specifier in formatter " << name << ")!" << endl;
                             }
-                            specifier.term = distance(pvterms.begin(), pvtermIt);
+                            specifier.term = (size_t)distance(pvterms.begin(), pvtermIt);
                         }
                         break;
+                    default: break;
                 }
                 
                 if (specifier.type != 255)
@@ -1098,10 +1151,10 @@ int exportLanguage(string inFile, string outFile)
     for (const auto& pterm : pterms)
     {
         auto pluralFormIt = pluralForms.find(pterm.second.category);
-        write_varlength(out, distance(pluralForms.begin(), pluralFormIt));
+        write_varlength(out, (size_t)distance(pluralForms.begin(), pluralFormIt));
         
-        for (size_t i = 0; i < pluralFormIt->second.pluralUnits.size(); i++)
-            write_str(out, pterm.second.variants.find(pluralFormIt->second.pluralUnits.at(i).first)->second);
+        for (auto &pluralUnit : pluralFormIt->second.pluralUnits)
+            write_str(out, pterm.second.variants.find(pluralUnit.first)->second);
     }
     
     write_varlength(out, vterms.size());
@@ -1113,8 +1166,8 @@ int exportLanguage(string inFile, string outFile)
         for (const auto& v : vterm.second.categories)
         {
             auto catIt = variantForms.find(v);
-            write_varlength(out, distance(variantForms.begin(), catIt));
-            catIterators.push_back(catIt);
+            write_varlength(out, (size_t)distance(variantForms.begin(), catIt));
+            catIterators.emplace_back(catIt);
         }
         
         write_varlength(out, vterm.second.variants.size());
@@ -1122,8 +1175,8 @@ int exportLanguage(string inFile, string outFile)
         {
             for (size_t i = 0; i < v.types.size(); i++)
             {
-                auto typeIt = catIterators[i]->second.variantTypes.find(v.types[i]);
-                write_varlength(out, distance(catIterators[i]->second.variantTypes.begin(), typeIt));
+                auto typeIt = catIterators.at(i)->second.variantTypes.find(v.types.at(i));
+                write_varlength(out, (size_t)distance(catIterators.at(i)->second.variantTypes.begin(), typeIt));
             }
             
             write_str(out, v.string);
@@ -1134,15 +1187,15 @@ int exportLanguage(string inFile, string outFile)
     for (const auto& pvterm : pvterms)
     {
         auto pluralFormIt = pluralForms.find(pvterm.second.pcategory);
-        write_varlength(out, distance(pluralForms.begin(), pluralFormIt));
+        write_varlength(out, (size_t)distance(pluralForms.begin(), pluralFormIt));
         write_varlength(out, pvterm.second.vcategories.size());
         
         vector<map<string,VariantForm>::const_iterator> catIterators;
         for (const auto& v : pvterm.second.vcategories)
         {
             auto catIt = variantForms.find(v);
-            write_varlength(out, distance(variantForms.begin(), catIt));
-            catIterators.push_back(catIt);
+            write_varlength(out, (size_t)distance(variantForms.begin(), catIt));
+            catIterators.emplace_back(catIt);
         }
         
         write_varlength(out, pvterm.second.variants.size());
@@ -1151,12 +1204,12 @@ int exportLanguage(string inFile, string outFile)
             auto ptypeIt = find_if(pluralFormIt->second.pluralUnits.begin(),
                 pluralFormIt->second.pluralUnits.end(),
                 [&] (const auto& p) { return p.first == v.ptype; });
-            write_varlength(out, distance(pluralFormIt->second.pluralUnits.begin(), ptypeIt));
+            write_varlength(out, (size_t)distance(pluralFormIt->second.pluralUnits.begin(), ptypeIt));
             
             for (size_t i = 0; i < v.vtypes.size(); i++)
             {
-                auto typeIt = catIterators[i]->second.variantTypes.find(v.vtypes[i]);
-                write_varlength(out, distance(catIterators[i]->second.variantTypes.begin(), typeIt));
+                auto typeIt = catIterators.at(i)->second.variantTypes.find(v.vtypes.at(i));
+                write_varlength(out, (size_t)distance(catIterators.at(i)->second.variantTypes.begin(), typeIt));
             }
             
             write_str(out, v.string);

@@ -110,6 +110,7 @@ public:
     GraphemeRange getGraphemeClusterInterval(size_t begin, size_t end, bool outline = false);
     GraphemeRange getGraphemeCluster(size_t index, bool outline = false);
     size_t getGraphemeClusterByteLocation(size_t index) const;
+    size_t getGraphemeClusterLine(size_t index) const;
     size_t getNumberOfGraphemeClusters() const;
 
     size_t getLineBoundary(size_t index) const;
