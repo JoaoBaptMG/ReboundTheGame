@@ -85,6 +85,28 @@ bool write_props_Water(Object obj, ostream& out)
     return obj.everythingOk();
 }
 
+bool write_props_MessageSign(Object obj, ostream& out)
+{
+    string message = obj.getPropertyString("message", true, "");
+    if (message.empty())
+    {
+        string formatter = obj.getPropertyString("message-formatter");
+        if (!obj.everythingOk()) return false;
+
+        char v = 2;
+        write_varlength(out, formatter.size()+1);
+        out.write((const char*)&v, sizeof(char));
+        out.write(formatter.data(), formatter.size() * sizeof(char));
+    }
+    else
+    {
+        write_varlength(out, message.size());
+        out.write(message.data(), message.size() * sizeof(char));
+    }
+
+    return obj.everythingOk();
+}
+
 unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
 {
     { "Player", doNothing },
@@ -105,4 +127,5 @@ unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
     { "props::Grapple", doNothing },
     { "props::PushableCrate", writeBox },
     { "props::Water", write_props_Water },
+    { "props::MessageSign", write_props_MessageSign },
 };

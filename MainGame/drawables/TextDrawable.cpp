@@ -371,13 +371,13 @@ TextDrawable::GraphemeRange TextDrawable::getGraphemeCluster(size_t index, bool 
 
 size_t TextDrawable::getGraphemeClusterByteLocation(size_t index) const
 {
-    if (index >= graphemeClusters.size()) return (size_t)-1;
+    if (index >= graphemeClusters.size()) return utf8String.size();
     return graphemeClusters.at(index).byteLocation;
 }
 
 size_t TextDrawable::getGraphemeClusterLine(size_t index) const
 {
-    if (index >= graphemeClusters.size()) return (size_t)-1;
+    if (index >= graphemeClusters.size()) return lineBoundaries.size();
     auto it = std::upper_bound(lineBoundaries.begin(), lineBoundaries.end(), index);
     return (size_t)(it - lineBoundaries.begin());
 }

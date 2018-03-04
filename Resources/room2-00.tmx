@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="18" tilewidth="32" tileheight="32" nextobjectid="9">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="80" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="9">
  <properties>
   <property name="tileset" value="level2"/>
  </properties>

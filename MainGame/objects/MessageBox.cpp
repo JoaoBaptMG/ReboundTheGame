@@ -34,11 +34,20 @@ const sf::Color DisplayColors[] =
     };
 constexpr size_t DisplayColorNum = sizeof(DisplayColors)/sizeof(DisplayColors[0]);
 
+template <typename T>
+static constexpr bool isContained(T) { return false; }
+
+template <typename T, typename... Ts>
+static constexpr bool isContained(T comp, T first, Ts... next)
+{
+    return comp == first || isContained(comp, next...);
+}
+
 MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm)
     : messageBackground(rm.load<sf::Texture>("message-background.png")),
       messageIcon(rm.load<sf::Texture>("message-next.png")), localizationManager(lm),
       messageText(rm.load<FontHandler>(lm.getFontName())), currentText(), letterPeriod(DefaultLetterPeriod),
-      lineOffset(0), updateLines(false)
+      lineOffset(0), curState(Idle)
 {
     messageText.setFontSize(24);
     float desiredHeight = messageBackground.getTextureSize().y - 32;
@@ -64,13 +73,16 @@ MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManag
 
 void MessageBox::display(Script& script, std::string text)
 {
+    if (text.empty()) return;
+
     initTime = curTime + std::max(FadeInterval, UpdateFrequency *
         intmax_t((1 - messageBackground.getOpacity())/FullFadePerFrame));
 
     currentText = std::move(text);
     lineOffset = 0;
+    curState = OpenBox;
 
-    script.waitUntil([=] (auto curTime) { return !currentText.empty(); });
+    script.waitWhile([=](auto curTime) { return curState != CloseBox; });
 }
 
 void MessageBox::displayString(Script &script, const LangID &id)
@@ -90,144 +102,139 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
     
     messageAction.update();
 
-    auto calculateBounds = [=]
+    auto setAlphaAll = [](float a, TextDrawable::GraphemeRange range)
     {
-        VisibleBounds bounds{};
-        bounds.begin = lineOffset == 0 ? 0 : messageText.getLineBoundary(lineOffset-1);
-        bounds.end = messageText.getLineBoundary(lineOffset + VisibleLines-1);
-        bounds.lineCount = VisibleLines;
+        if (a < 0) a = 0;
+        else if (a > 1) a = 1;
 
-        auto it1 = std::upper_bound(breakPoints.begin(), breakPoints.end(), bounds.begin);
-        auto it2 = std::upper_bound(breakPoints.begin(), breakPoints.end(), bounds.end);
-
-        if (it1 != it2)
-        {
-            bounds.end = *it1;
-            bounds.lineCount = messageText.getGraphemeClusterLine(bounds.end) - lineOffset;
-        }
-        return bounds;
+        sf::Uint8 ab = 255*a;
+        for (auto& v : range) v.color.a = ab;
     };
 
-    if (currentText.empty())
+    switch (curState)
     {
-        messageBackground.setOpacity(std::max(0.0f, messageBackground.getOpacity() - FullFadePerFrame));
-        messageIcon.setOpacity(std::max(0.0f, messageIcon.getOpacity() - FullFadePerFrame));
+        case Idle: break;
 
-        float factor = toSeconds<float>(curTime - initTime) / toSeconds<float>(FadeInterval);
+        case OpenBox:
+            if (messageBackground.getOpacity() == 1) curState = FadingPage;
+            break;
 
-        for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end))
-            v.color.a = std::max<intmax_t>(0, 255 * (1 - factor));
-        for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end, true))
-            v.color.a = std::max<intmax_t>(0, 255 * (1 - factor));
-
-        if (messageBackground.getOpacity() == 0 && !messageText.getString().empty())
+        case NextCharacter:
         {
-            messageText.setString("");
-            messageText.buildGeometry();
-        }
-    }
-    else
-    {
-        messageBackground.setOpacity(std::min(1.0f, messageBackground.getOpacity() + FullFadePerFrame));
-        
-        if (curTime <= initTime)
-        {
-            messageIcon.setOpacity(std::max(0.0f, messageIcon.getOpacity() - FullFadePerFrame));
+            float factor = toSeconds<float>(curTime - initTime) / toSeconds<float>(letterPeriod);
+            setAlphaAll(factor, messageText.getGraphemeCluster(curCharacter));
+            setAlphaAll(factor, messageText.getGraphemeCluster(curCharacter, true));
 
-            float factor = toSeconds<float>(initTime - curTime) / toSeconds<float>(FadeInterval);
-            for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end))
-                v.color.a = 255 * factor;
-            for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end, true))
-                v.color.a = 255 * factor;
-        }
-        else
-        {
-            if (messageText.getString() != currentText)
+            bool moveOn = false;
+
+            if (curTime - initTime >= letterPeriod)
             {
-                buildMessageText();
-                curBounds = calculateBounds();
-
-                for (auto& v : messageText.getAllVertices()) v.color.a = 0;
-                for (auto& v : messageText.getAllVertices(true)) v.color.a = 0;
+                initTime += letterPeriod;
+                curCharacter++;
+                moveOn = true;
             }
 
-            if (updateLines)
+            if (messageAction.isTriggered())
             {
-                lineOffset += curBounds.lineCount;
-                updateLines = false;
+                size_t lastCur = curCharacter;
 
-                curBounds = calculateBounds();
+                if (curStop != stopPoints.end())
+                    curCharacter = std::min(*curStop, *curBreak);
+                else curCharacter = *curBreak;
+
+                setAlphaAll(1, messageText.getGraphemeClusterInterval(lastCur, curCharacter));
+                setAlphaAll(1, messageText.getGraphemeClusterInterval(lastCur, curCharacter, true));
+
+                moveOn = true;
             }
 
-            if (!messageText.getString().empty())
+            if (moveOn)
             {
-                size_t id = (curTime - initTime) / letterPeriod;
-                auto remain = (curTime - initTime) % letterPeriod;
-                id += curBounds.begin;
-
-                if (id < curBounds.end)
+                if (curStop != stopPoints.end() && *curStop == curCharacter)
                 {
-                    messageIcon.setOpacity(std::max(0.0f, messageIcon.getOpacity() - FullFadePerFrame));
-                    float factor = toSeconds<float>(remain) / toSeconds<float>(letterPeriod);
+                    curState = FullStop;
+                    curStop++;
+                }
+                else if (*curBreak == curCharacter)
+                {
+                    curState = FullStopPageBreak;
+                    curBreak++;
+                }
+            }
+        } break;
 
-                    if (id > curBounds.begin)
-                    {
-                        for (auto& v : messageText.getGraphemeCluster(id - 1)) v.color.a = 255;
-                        for (auto& v : messageText.getGraphemeCluster(id - 1, true)) v.color.a = 255;
-                    }
-
-                    for (auto& v : messageText.getGraphemeCluster(id)) v.color.a = 255 * factor;
-                    for (auto& v : messageText.getGraphemeCluster(id, true)) v.color.a = 255 * factor;
-                    
-                    if (messageAction.isTriggered())
-                    {
-                        initTime = curTime - letterPeriod * (curBounds.end - curBounds.begin);
-
-                        for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end))
-                            v.color.a = 255;
-                        for (auto& v : messageText.getGraphemeClusterInterval(curBounds.begin, curBounds.end, true))
-                            v.color.a = 255;
-                    }
+        case FullStop:
+        case FullStopPageBreak:
+        {
+            if (messageAction.isTriggered())
+            {
+                if (curState == FullStopPageBreak)
+                {
+                    initTime = curTime + FadeInterval;
+                    if (curBreak == breakPoints.end()) curState = CloseBox;
+                    else curState = FadingPage;
                 }
                 else
                 {
-                    messageIcon.setOpacity(std::min(1.0f, messageIcon.getOpacity() + FullFadePerFrame));
-
-                    if (curBounds.end > 0)
-                    {
-                        for (auto& v : messageText.getGraphemeCluster(curBounds.end - 1)) v.color.a = 255;
-                        for (auto& v : messageText.getGraphemeCluster(curBounds.end - 1, true)) v.color.a = 255;
-                    }
-
-                    if (messageAction.isTriggered())
-                    {
-                        if (lineOffset + curBounds.lineCount < messageText.getNumberOfLines())
-                        {
-                            initTime = curTime + FadeInterval;
-                            updateLines = true;
-                        }
-                        else
-                        {
-                            currentText.clear();
-                            initTime = curTime;
-                        }
-                    }
+                    initTime = curTime;
+                    curState = NextCharacter;
                 }
             }
-        }
+        } break;
+
+        case CloseBox:
+            if (messageBackground.getOpacity() == 0) curState = Idle;
+            [[fallthrough]];
+        case FadingPage:
+        {
+            float factor = toSeconds<float>(initTime - curTime) / toSeconds<float>(FadeInterval);
+            setAlphaAll(factor, messageText.getGraphemeClusterInterval(firstVisibleCharacter, curCharacter));
+            setAlphaAll(factor, messageText.getGraphemeClusterInterval(firstVisibleCharacter, curCharacter, true));
+
+            if (curState == FadingPage && curTime > initTime)
+            {
+                curState = NextCharacter;
+
+                if (messageText.getString() != currentText)
+                {
+                    buildMessageText();
+                    firstVisibleCharacter = curCharacter = 0;
+                    curBreak = breakPoints.begin();
+                    curStop = stopPoints.begin();
+
+                    setAlphaAll(0, messageText.getAllVertices());
+                    setAlphaAll(0, messageText.getAllVertices(true));
+                }
+                else
+                {
+                    firstVisibleCharacter = curCharacter;
+                    lineOffset = messageText.getGraphemeClusterLine(firstVisibleCharacter);
+                }
+            }
+        } break;
     }
+
+    if (!isContained(curState, Idle, CloseBox))
+        messageBackground.setOpacity(std::min(1.0f, messageBackground.getOpacity() + FullFadePerFrame));
+    else messageBackground.setOpacity(std::max(0.0f, messageBackground.getOpacity() - FullFadePerFrame));
+
+    if (isContained(curState, FullStop, FullStopPageBreak))
+        messageIcon.setOpacity(std::min(1.0f, messageIcon.getOpacity() + FullFadePerFrame));
+    else messageIcon.setOpacity(std::max(0.0f, messageIcon.getOpacity() - FullFadePerFrame));
 }
 
 void MessageBox::buildMessageText()
 {
     std::map<size_t,size_t> colorChanges;
-    searchForSpecialMarkers(colorChanges);
+    std::list<size_t> tempBreakPoints;
+    searchForSpecialMarkers(colorChanges, tempBreakPoints);
 
     messageText.setString(currentText);
     messageText.buildGeometry();
 
     auto cit = colorChanges.begin();
-    auto bit = breakPoints.begin();
+    auto bit = tempBreakPoints.begin();
+    auto sit = stopPoints.begin();
     sf::Color curColor = DisplayColors[0];
 
     for (size_t i = 0; i < messageText.getNumberOfGraphemeClusters(); i++)
@@ -239,25 +246,44 @@ void MessageBox::buildMessageText()
             cit++;
         }
 
-        if (bit != breakPoints.end() && loc >= *bit)
-        {
-            *bit = i;
-            bit++;
-        }
+        if (bit != tempBreakPoints.end() && loc >= *bit) *(bit++) = i;
+        if (sit != stopPoints.end() && loc >= *sit) *(sit++) = i;
 
         for (auto& v : messageText.getGraphemeCluster(i)) v.color = curColor;
     }
+
+    autoPlaceBreakPoints(std::move(tempBreakPoints));
 }
 
-void MessageBox::searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges)
+void MessageBox::autoPlaceBreakPoints(std::list<size_t> tempBreakPoints)
+{
+    tempBreakPoints.push_back(messageText.getNumberOfGraphemeClusters());
+
+    size_t lastBreak = 0;
+    for (auto it = tempBreakPoints.begin(); it != tempBreakPoints.end(); it++)
+    {
+        auto curLine = messageText.getGraphemeClusterLine(*it);
+        auto lastLine = messageText.getGraphemeClusterLine(lastBreak);
+
+        if (curLine - lastLine > VisibleLines)
+            it = tempBreakPoints.insert(it, messageText.getLineBoundary(lastLine + VisibleLines - 1));
+
+        lastBreak = *it;
+    }
+
+    breakPoints.assign(tempBreakPoints.begin(), tempBreakPoints.end());
+}
+
+void MessageBox::searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges, std::list<size_t>& tempBreakPoints)
 {
     colorChanges.clear();
     breakPoints.clear();
+    stopPoints.clear();
 
     struct Slice
     {
         std::string::iterator begin, end;
-        enum { ColorChange, PageBreak } type;
+        enum { ColorChange, PageBreak, FullStop } type;
     };
 
     std::vector<Slice> slices;
@@ -275,6 +301,7 @@ void MessageBox::searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges)
             slices.push_back({ oldIt, it, Slice::ColorChange });
         }
         else if (c == '\f') slices.push_back({ oldIt, it, Slice::PageBreak });
+        else if (c == '\r') slices.push_back({ oldIt, it, Slice::FullStop });
     }
 
     auto sliceIt = currentText.begin();
@@ -296,7 +323,10 @@ void MessageBox::searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges)
                 break;
             case Slice::PageBreak:
                 destIt = utf8::unchecked::append('\n', destIt);
-                breakPoints.emplace_back(destIt - currentText.begin());
+                tempBreakPoints.emplace_back(destIt - currentText.begin());
+                break;
+            case Slice::FullStop:
+                stopPoints.emplace_back(destIt - currentText.begin());
                 break;
         }
     }
@@ -308,7 +338,7 @@ void MessageBox::searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges)
 
 void MessageBox::render(Renderer& renderer)
 {
-    if (messageBackground.getOpacity() > 0)
+    if (curState != Idle)
     {
         float factor = toSeconds<float>(curTime.time_since_epoch() % IconOscillationPeriod) /
             toSeconds<float>(IconOscillationPeriod);

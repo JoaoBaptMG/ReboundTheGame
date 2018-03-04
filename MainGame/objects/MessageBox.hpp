@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <string>
-#include <set>
-#include <map>
+#include <vector>
+#include <list>
 #include <chronoUtils.hpp>
 #include "input/InputManager.hpp"
 #include "input/CommonActions.hpp"
@@ -35,15 +35,12 @@ class MessageBox final
     std::vector<size_t> breakPoints, stopPoints;
 
     enum State { Idle, OpenBox, NextCharacter, FullStop, FullStopPageBreak, FadingPage, CloseBox } curState;
-
-
-    size_t lineOffset;
-    struct VisibleBounds { size_t begin, end, lineCount; } curBounds;
-    bool updateLines;
+    std::vector<size_t>::iterator curBreak, curStop;
+    size_t firstVisibleCharacter, curCharacter, lineOffset;
     
 public:
     MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
-    ~MessageBox() {}
+    ~MessageBox() = default;
     
     void display(Script& script, std::string);
     void displayString(Script& script, const LangID& id);
@@ -51,7 +48,8 @@ public:
                                 const NumberSpecifierMap& numberSpecifiers, const RawSpecifierMap& rawSpecifiers);
 
     void buildMessageText();
-    void searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges);
+    void searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges, std::list<size_t>& tempBreakPoints);
+    void autoPlaceBreakPoints(std::list<size_t> tempBreakPoints);
 
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);

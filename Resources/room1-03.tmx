@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="36" tilewidth="32" tileheight="32" nextobjectid="21">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="50" height="36" tilewidth="32" tileheight="32" infinite="0" nextobjectid="23">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -83,6 +83,16 @@
   </object>
   <object id="19" name="bombcrate1" type="props::BombCrate" x="224" y="288" width="96" height="96"/>
   <object id="20" name="dashcrate1" type="props::DashCrate" x="224" y="192" width="96" height="96"/>
+  <object id="21" name="sign1" type="props::MessageSign" x="1136" y="1056">
+   <properties>
+    <property name="message" value="room1-03-sign1"/>
+   </properties>
+  </object>
+  <object id="22" name="sign2" type="props::MessageSign" x="608" y="544">
+   <properties>
+    <property name="message" value="room1-03-sign2"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="warp-layer">
   <object id="12" name="0 -&gt; 2.1" type="left" x="0" y="706" width="64" height="224"/>

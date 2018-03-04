@@ -16,11 +16,11 @@ class GameObject : util::non_copyable
 {
 protected:
     GameScene& gameScene;
-    bool shouldRemove;
-    bool isPersistent;
-    bool transitionState;
-
     std::string name;
+
+    bool shouldRemove:1;
+    bool isPersistent:1;
+    bool transitionState:1;
 
 public:
     GameObject(GameScene& scene) : gameScene(scene), shouldRemove(false), isPersistent(false), transitionState(false),

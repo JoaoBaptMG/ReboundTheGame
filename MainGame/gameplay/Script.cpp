@@ -29,7 +29,7 @@ void Script::cancelScript()
     currentSemaphore = SemaphoreFunc();
 }
 
-void Script::waitUntil(Script::SemaphoreFunc func)
+void Script::waitWhile(Script::SemaphoreFunc func)
 {
     ASSERT(hostContinuation && !currentSemaphore);
     currentSemaphore = func;
@@ -38,12 +38,16 @@ void Script::waitUntil(Script::SemaphoreFunc func)
 
 void Script::waitFor(std::chrono::steady_clock::duration dur)
 {
-    waitUntil([=, initTime = curTime] (auto curTime) { return curTime - initTime <= dur; });
+    waitWhile([=, initTime = curTime](auto curTime) { return curTime - initTime <= dur; });
 }
 
 void Script::executeMain(std::function<void()> func)
 {
-    waitUntil([=] (auto curTime) { func(); return false; });
+    waitWhile([=](auto curTime)
+    {
+        func();
+        return false;
+    });
 }
 
 void Script::update(std::chrono::steady_clock::time_point curTime)

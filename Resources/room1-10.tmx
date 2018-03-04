@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.0" orientation="orthogonal" renderorder="right-down" width="30" height="58" tilewidth="32" tileheight="32" infinite="0" nextobjectid="67">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="30" height="58" tilewidth="32" tileheight="32" infinite="0" nextobjectid="69">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -97,7 +97,16 @@
     <property name="level" type="int" value="10"/>
    </properties>
   </object>
-  <object id="66" name="player" type="Player" x="577.548" y="129.717" width="64" height="64"/>
+  <object id="67" name="sign1" type="props::MessageSign" x="480" y="1792">
+   <properties>
+    <property name="message" value="room1-10-sign1"/>
+   </properties>
+  </object>
+  <object id="68" name="sign2" type="props::MessageSign" x="672" y="224">
+   <properties>
+    <property name="message" value="room1-10-sign2"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="warp-layer">
   <object id="63" name="0 -&gt; 8.2" type="left" x="0" y="64" width="64" height="128"/>

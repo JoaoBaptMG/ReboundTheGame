@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     ResourceManager resourceManager;
     resourceManager.setResourceLocator(new FilesystemResourceLocator());
     
-    LocalizationManager localizationManager;
+    LocalizationManager localizationManager(true);
     localizationManager.loadLanguageDescriptor(settings.languageFile);
     
     auto scene = new TitleScene(settings, inputManager, resourceManager, localizationManager);

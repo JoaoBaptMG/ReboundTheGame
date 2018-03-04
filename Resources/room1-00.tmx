@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="56" height="32" tilewidth="32" tileheight="32" nextobjectid="9">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="56" height="32" tilewidth="32" tileheight="32" infinite="0" nextobjectid="10">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -76,6 +76,11 @@
     <property name="id" type="int" value="0"/>
    </properties>
    <ellipse/>
+  </object>
+  <object id="9" name="sign1" type="props::MessageSign" x="480" y="960">
+   <properties>
+    <property name="message-formatter" value="room1-00-sign1"/>
+   </properties>
   </object>
  </objectgroup>
  <objectgroup name="warp-layer">

@@ -108,6 +108,14 @@ void Water::update(std::chrono::steady_clock::time_point curTime)
         cpFloat area = intersectionAreaForAABBCircle(rect, pos, PlayerRadius);
         player->addToWaterArea(area - oldArea);
         oldArea = area;
+
+        cpFloat waveGen = pos.y - rect.b;
+        if (fabs(waveGen) <= 64.0)
+        {
+            for (intmax_t k = -32; k <= 32; k++)
+                shape.setVelocity(pos.x + k - rect.l,
+                    vel.y * toSeconds<float>(UpdateFrequency) * cosf(M_PI*k/64) / 20);
+        }
     }
 
     shape.update(curTime);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="36" height="72" tilewidth="32" tileheight="32" nextobjectid="61">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="36" height="72" tilewidth="32" tileheight="32" infinite="0" nextobjectid="62">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -129,6 +129,11 @@
    <ellipse/>
   </object>
   <object id="58" name="dashcrate1" type="props::DashCrate" x="-32" y="64" width="96" height="96"/>
+  <object id="61" name="sign1" type="props::MessageSign" x="896" y="2240">
+   <properties>
+    <property name="message" value="room1-09-sign1"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="warp-layer">
   <object id="48" name="0 -&gt; 8.1" type="right" x="1088" y="128" width="64" height="128"/>

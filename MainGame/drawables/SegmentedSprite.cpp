@@ -43,8 +43,8 @@ void SegmentedSprite::setupVertices()
     float destLeft = destRect.left, destTop = destRect.top;
     float destRight = destLeft + destRect.width, destBottom = destTop + destRect.height;
     
-    float positionsX[] { 0, centerLeft - texLeft, destRight - texRight + centerRight, destRight };
-    float positionsY[] { 0, centerTop - texTop, destBottom - texBottom + centerBottom, destBottom };
+    float positionsX[] { destLeft, destLeft + centerLeft - texLeft, destRight - texRight + centerRight, destRight };
+    float positionsY[] { destTop, destTop + centerTop - texTop, destBottom - texBottom + centerBottom, destBottom };
     
     float texturesX[] { texLeft, centerLeft, centerRight, texRight };
     float texturesY[] { texTop, centerTop, centerBottom, texBottom };

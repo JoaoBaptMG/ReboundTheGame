@@ -26,7 +26,7 @@ public:
     
     void runScript(ScriptFunction function);
     
-    void waitUntil(SemaphoreFunc func);
+    void waitWhile(SemaphoreFunc func);
     void waitFor(std::chrono::steady_clock::duration dur);
     
     void executeMain(std::function<void()> func);

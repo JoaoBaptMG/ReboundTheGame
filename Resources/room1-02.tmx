@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="34" height="36" tilewidth="32" tileheight="32" nextobjectid="13">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="34" height="36" tilewidth="32" tileheight="32" infinite="0" nextobjectid="14">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
@@ -72,6 +72,11 @@
   <object id="4" name="powerup3" type="collectibles::Powerup" x="392" y="136" width="48" height="48">
    <properties>
     <property name="level" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="13" name="sign2" type="props::MessageSign" x="416" y="832">
+   <properties>
+    <property name="message" value="room1-01-sign2"/>
    </properties>
   </object>
  </objectgroup>

@@ -95,17 +95,21 @@ Object::Object(tinyxml2::XMLElement* element) : type(Type::Rectangle), failed(fa
             
             property.value = pr->Attribute("value");
             auto tystr = pr->Attribute("type");
-            
-            if (!strcasecmp(tystr, "bool"))
-                property.type = Property::Type::Bool;
-            else if (!strcasecmp(tystr, "color"))
-                property.type = Property::Type::Color;
-            else if (!strcasecmp(tystr, "float"))
-                property.type = Property::Type::Float;
-            else if (!strcasecmp(tystr, "file"))
-                property.type = Property::Type::File;
-            else if (!strcasecmp(tystr, "int"))
-                property.type = Property::Type::Int;
+
+            if (tystr != nullptr)
+            {
+                if (!strcasecmp(tystr, "bool"))
+                    property.type = Property::Type::Bool;
+                else if (!strcasecmp(tystr, "color"))
+                    property.type = Property::Type::Color;
+                else if (!strcasecmp(tystr, "float"))
+                    property.type = Property::Type::Float;
+                else if (!strcasecmp(tystr, "file"))
+                    property.type = Property::Type::File;
+                else if (!strcasecmp(tystr, "int"))
+                    property.type = Property::Type::Int;
+                else property.type = Property::Type::String;
+            }
             else property.type = Property::Type::String;
             
             properties.emplace(name, property);

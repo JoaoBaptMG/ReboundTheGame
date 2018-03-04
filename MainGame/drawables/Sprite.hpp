@@ -34,7 +34,7 @@ public:
         setAnchorPoint(sf::Vector2f(texRect.left + texRect.width/2, texRect.top + texRect.height/2));
     }
 
-    auto getTextureSize() const
+    sf::Vector2u getTextureSize() const
     {
         return texture ? texture->getSize() : sf::Vector2u(0, 0);
     }

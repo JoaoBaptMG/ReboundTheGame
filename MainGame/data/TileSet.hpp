@@ -6,10 +6,10 @@
 #include <SFML/System.hpp>
 
 template <typename T>
-constexpr bool isContained(T comp) { return false; }
+static constexpr bool isContained(T) { return false; }
 
 template <typename T, typename... Ts>
-constexpr bool isContained(T comp, T first, Ts... next)
+static constexpr bool isContained(T comp, T first, Ts... next)
 {
     return comp == first || isContained(comp, next...);
 }
