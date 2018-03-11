@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include <iostream>
+
 Renderer::Renderer(Renderer&& other) noexcept : Renderer()
 {
     swap(*this, other);
@@ -18,6 +20,14 @@ void swap(Renderer& r1, Renderer& r2)
     swap(r1.drawableList, r2.drawableList);
     swap(r1.transformStack, r2.transformStack);
     swap(r1.currentTransform, r2.currentTransform);
+}
+
+inline static std::ostream& operator<<(std::ostream& out, const sf::Transform& transform)
+{
+    auto mtx = transform.getMatrix();
+    out << '(' << mtx[0];
+    for (size_t i = 1; i < 16; i++) out << ',' << mtx[i];
+    return out << ')';
 }
 
 void Renderer::pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth)

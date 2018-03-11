@@ -71,7 +71,7 @@ Player::Player(GameScene& scene)
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
-	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel(), false);
+	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
     maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;
     health = maxHealth;
 	setName("player");
@@ -116,7 +116,31 @@ void Player::setupPhysics()
     body->setUserData((void*)this);
 
     gameScene.getGameSpace().addWildcardCollisionHandler(CollisionType,
-        [] (Arbiter, Space&) { return true; },
+        [] (Arbiter arbiter, Space&)
+        {
+            auto player = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                          arbiter.getShapeA() : arbiter.getShapeB();
+            auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                       arbiter.getShapeB() : arbiter.getShapeA();
+
+            if (cpShapeGetCollisionType(shp) == Room::CollisionType)
+            {
+                auto vel = cpBodyGetVelocity(cpShapeGetBody(player));
+
+                switch (*(TileSet::Attribute*)cpShapeGetUserData(shp))
+                {
+                    case TileSet::Attribute::LeftSolid:
+                    case TileSet::Attribute::LeftNoWalljump: return vel.x >= 0;
+                    case TileSet::Attribute::RightSolid:
+                    case TileSet::Attribute::RightNoWalljump: return vel.x <= 0;
+                    case TileSet::Attribute::UpSolid: return vel.y >= 0;
+                    case TileSet::Attribute::DownSolid: return vel.y <= 0;
+                    default: return true;
+                }
+            }
+
+            return true;
+        },
         [] (Arbiter arbiter, Space&)
         {
             auto normal = arbiter.getNormal();
@@ -139,8 +163,6 @@ Player::~Player()
 void Player::update(std::chrono::steady_clock::time_point curTime)
 {
     this->curTime = curTime;
-    
-    script.update(curTime);
     
     if (spikeTime != decltype(spikeTime)())
     {
@@ -189,7 +211,7 @@ void Player::applyMovementForces()
     auto body = playerShape->getBody();
     auto vel = body->getVelocity();
 
-    cpVect base;
+    cpVect base{};
     if (grapplePoints == 0)
     {
         auto dest = (abilityLevel >= 6 ? MaxHorSpeedEnhanced : MaxHorSpeed) * vec.x * hardballFactor();
@@ -243,13 +265,11 @@ Player::CollisionState Player::enumerateAndActOnArbiters()
     {
 		enum { None, Left, Top, Right, Bottom } dir = None;
 
-		{
-			auto normal = arbiter.getNormal();
-			if (fabs(normal.x) * 0.75 >= fabs(normal.y))
-				dir = normal.x > 0 ? Right : Left;
-			else if (fabs(normal.y) * 0.75 >= fabs(normal.x))
-				dir = normal.y > 0 ? Bottom : Top;
-		}
+        auto normal = arbiter.getNormal();
+        if (fabs(normal.x) * 0.75 >= fabs(normal.y))
+            dir = normal.x > 0 ? Right : Left;
+        else if (fabs(normal.y) * 0.75 >= fabs(normal.x))
+            dir = normal.y > 0 ? Bottom : Top;
 
         bool walljump = true;
         if (dir == Bottom) state = CollisionState::Ground;
@@ -262,28 +282,20 @@ Player::CollisionState Player::enumerateAndActOnArbiters()
 
             if (cpShapeGetCollisionType(shp) == Room::CollisionType)
             {
-                switch (*(TileSet::Attribute*)cpShapeGetUserData(shp))
-                {
-                    case TileSet::Attribute::NoWalljump: walljump = false; break;
-                    case TileSet::Attribute::Spike: state = CollisionState::Spike; break;
-                    default: break;
-                }
+                auto attr = *(TileSet::Attribute*)cpShapeGetUserData(shp);
+                if (TileSet::isNoWalljump(attr)) walljump = false;
+                else if (attr == TileSet::Attribute::Spike) state = CollisionState::Spike;
             }
-            else
-            {
-                abortHardball();
-            }
-            
-            {
-                cpFloat sgn = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ? 1 : -1;
-                cpFloat depthSum = 0;
-                
-                auto set = cpArbiterGetContactPointSet(arbiter);
-                for (size_t i = 0; i < set.count; i++)
-                    depthSum += set.points[i].distance;
-                
-                graphicalDisplacement += sgn * depthSum * set.normal;
-            }
+            else abortHardball();
+
+            cpFloat sgn = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ? 1 : -1;
+            cpFloat depthSum = 0;
+
+            auto set = cpArbiterGetContactPointSet(arbiter);
+            for (size_t i = 0; i < set.count; i++)
+                depthSum += set.points[i].distance;
+
+            graphicalDisplacement += sgn * depthSum * set.normal;
             
             if (isDashing() && cpShapeGetCollisionType(shp) == Interactable)
                 (*(GameObject::InteractionHandler*)cpShapeGetUserData(shp))(DashInteractionType, (void*)this);
@@ -668,32 +680,13 @@ bool Player::damage(size_t amount, bool overrideInvincibility)
     return false;
 }
 
-void Player::upgradeToAbilityLevel(size_t level, bool showMessage)
+void Player::upgradeToAbilityLevel(size_t level)
 {
     if (abilityLevel < level)
     {
         abilityLevel = level;
         setPlayerSprite();
         gameScene.getSavedGame().setAbilityLevel(level);
-
-        if (showMessage) script.runScript([=] (Script& script)
-        {
-            const auto& lm = gameScene.getLocalizationManager();
-
-            ScriptedPlayerController pc;
-            gameScene.setPlayerController(pc);
-
-            LangID parm = "powerup" + std::to_string(level) + "-name";
-            LangID pmsg = "msg-powerup-description" + std::to_string(level);
-
-            auto &msgbox = gameScene.getMessageBox();
-
-            std::string msg = lm.getFormattedString("msg-powerup-collect", {{"pname", parm}}, {}, {}) + "\n";
-            msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
-            msgbox.display(script, msg);
-
-            gameScene.resetPlayerController();
-        });
     }
 }
 
@@ -701,12 +694,10 @@ void Player::upgradeHealth()
 {
     maxHealth += HealthIncr;
 
-    auto tokens = gameScene.getSavedGame().getGoldenTokenCount();
-    script.runScript([=] (Script& script)
+    gameScene.runCutsceneScript([=] (Script& script)
     {
-        ScriptedPlayerController pc;
-        gameScene.setPlayerController(pc);
         auto &msgbox = gameScene.getMessageBox();
+        auto tokens = gameScene.getSavedGame().getGoldenTokenCount();
 
         if (tokens == 1)
             msgbox.displayFormattedString(script, "msg-golden-token-collect1", {},
@@ -714,8 +705,6 @@ void Player::upgradeHealth()
         else if (tokens == 29) msgbox.displayFormattedString(script, "msg-golden-token-collectall-1", {}, {{"n", 29}}, {});
         else if (tokens == 30) msgbox.displayString(script, "msg-golden-token-collectall");
         else msgbox.displayFormattedString(script, "msg-golden-token-collectn", {}, {{"n", tokens}, {"mn", 30-tokens}}, {});
-
-        gameScene.resetPlayerController();
     });
 }
 

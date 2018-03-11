@@ -6,6 +6,7 @@
 #include <chronoUtils.hpp>
 #include <vector_math.hpp>
 #include "defaults.hpp"
+#include "gameplay/ScriptedPlayerController.hpp"
 
 #include <cppmunk/PolyShape.h>
 #include <chipmunk/chipmunk.h>
@@ -98,6 +99,19 @@ void Powerup::onCollect(Player& player)
 {
     player.upgradeToAbilityLevel(abilityLevel);
     gameScene.getSavedGame().setAbilityLevel(abilityLevel);
+    gameScene.runCutsceneScript([=] (Script& script)
+    {
+        const auto& lm = gameScene.getLocalizationManager();
+
+        LangID parm = "powerup" + std::to_string(abilityLevel) + "-name";
+        LangID pmsg = "msg-powerup-description" + std::to_string(abilityLevel);
+
+        auto &msgbox = gameScene.getMessageBox();
+
+        std::string msg = lm.getFormattedString("msg-powerup-collect", {{"pname", parm}}, {}, {}) + "\n";
+        msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
+        msgbox.display(script, msg);
+    });
     remove();
 }
 

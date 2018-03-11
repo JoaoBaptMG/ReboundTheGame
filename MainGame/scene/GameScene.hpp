@@ -12,6 +12,7 @@
 
 #include "settings/Settings.hpp"
 #include "gameplay/SavedGame.hpp"
+#include "gameplay/Script.hpp"
 #include "input/InputPlayerController.hpp"
 #include "input/CommonActions.hpp"
 #include "language/LocalizationManager.hpp"
@@ -70,6 +71,7 @@ class GameScene : public Scene
     Camera camera;
     LevelTransition levelTransition;
     MessageBox messageBox;
+    Script cutsceneScript;
     StringSpecifierMap keysMap;
     
     std::chrono::steady_clock::time_point curTime;
@@ -117,9 +119,6 @@ public:
 
     const auto& getKeySpecifierMap() const { return keysMap; }
 
-    void addObject(std::unique_ptr<GameObject> obj);
-    GameObject* getObjectByName(std::string str);
-
     const PlayerController& getPlayerController() const
     {
         return currentPlayerController ? *currentPlayerController : inputPlayerController;
@@ -127,13 +126,21 @@ public:
     
     void setPlayerController(const PlayerController& controller);
     void resetPlayerController();
-    
+
+    void addObject(std::unique_ptr<GameObject> obj);
+    GameObject* getObjectByName(std::string str);
+
     template <typename T>
-    std::enable_if_t<std::is_base_of<GameObject, T>::value, T*>
+    std::enable_if_t<std::is_base_of<GameObject, T>::value && !std::is_same<GameObject, T>::value, T*>
     getObjectByName(std::string str) { return dynamic_cast<T*>(getObjectByName(str)); }
 
     std::vector<GameObject*> getObjectsByName(std::string str);
     void removeObjectsByName(std::string str);
+
+    Script& getCutsceneScript() { return cutsceneScript; }
+    const Script& getCutsceneScript() const { return cutsceneScript; }
+
+    void runCutsceneScript(Script::ScriptFunction function);
 
     cpVect wrapPosition(cpVect pos);
     sf::Vector2f fitIntoRoom(sf::Vector2f vec);

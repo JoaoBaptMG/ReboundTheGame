@@ -3,6 +3,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "defaults.hpp"
+#include <iostream>
 
 using namespace background;
 
@@ -44,19 +45,25 @@ void Parallax::update(std::chrono::steady_clock::time_point curTime) {}
 
 void Parallax::render(Renderer& renderer)
 {
-    auto mat = renderer.currentTransform.getMatrix();
-    auto trans = sf::Vector2f(mat[12], mat[13]) * (parallaxFactor - 1.0f);
+    auto oldTransform = renderer.currentTransform;
+
+    auto mat = oldTransform.getMatrix();
+    auto trans = sf::Vector2f(mat[12], mat[13]) * parallaxFactor + internalDisplacement;
     trans = sf::Vector2f(std::floor(trans.x), std::floor(trans.y));
+
+    renderer.popTransform();
 
     renderer.pushTransform();
     renderer.currentTransform.translate(trans);
-    renderer.currentTransform.translate(internalDisplacement);
     renderer.pushDrawable(plane, {}, 0);
     renderer.popTransform();
+
+    renderer.pushTransform();
+    renderer.currentTransform = oldTransform;
 }
 
 bool Parallax::notifyScreenTransition(cpVect displacement)
 {
-    internalDisplacement += sf::Vector2f(displacement.x, displacement.y) * (1.0f - parallaxFactor);
+    internalDisplacement += sf::Vector2f(displacement.x, displacement.y) * parallaxFactor;
     return true;
 }

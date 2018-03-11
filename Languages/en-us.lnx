@@ -283,5 +283,8 @@
     <string name="room1-10-sign2">
         Now you will fight an enemy that is strong enough to maybe destroy you, so be careful!
     </string>
+    <string name="room2-01-sign1">
+       These arrow-decorated slates are one-time passages! If you go through, you cannot come back.
+    </string>
     
 </language>

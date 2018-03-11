@@ -3,8 +3,8 @@
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
- <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="20" columns="5">
-  <image source="tilemap1.png" width="160" height="128"/>
+ <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="25" columns="5">
+  <image source="tilemap1.png" width="160" height="160"/>
   <terraintypes>
    <terrain name="terrain" tile="-1"/>
   </terraintypes>
@@ -81,7 +81,7 @@
    </properties>
    <ellipse/>
   </object>
-  <object id="19" name="bombcrate1" type="props::BombCrate" x="224" y="288" width="96" height="96"/>
+  <object id="19" name="bombcrate2" type="props::BombCrate" x="224" y="288" width="96" height="96"/>
   <object id="20" name="dashcrate1" type="props::DashCrate" x="224" y="192" width="96" height="96"/>
   <object id="21" name="sign1" type="props::MessageSign" x="1136" y="1056">
    <properties>

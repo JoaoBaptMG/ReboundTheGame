@@ -20,14 +20,12 @@ namespace props
         SegmentedSprite signBox;
         TextDrawable signLabel;
         std::string messageString;
-        Script script;
 
     public:
         MessageSign(GameScene& scene);
         virtual ~MessageSign() = default;
 
         virtual void interact() override;
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
         virtual void render(Renderer& renderer) override;
 
         struct ConfigStruct

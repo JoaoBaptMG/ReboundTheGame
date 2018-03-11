@@ -54,28 +54,16 @@ bool MessageSign::configure(const MessageSign::ConfigStruct& config)
     return true;
 }
 
-void MessageSign::update(std::chrono::steady_clock::time_point curTime)
-{
-    InteractableObject::update(curTime);
-    script.update(curTime);
-}
-
 void MessageSign::interact()
 {
-    script.runScript([=] (Script& script)
+    gameScene.runCutsceneScript([=] (Script& script)
     {
-        ScriptedPlayerController pc;
-        gameScene.setPlayerController(pc);
-
         if (messageString[0] == 2)
         {
             const auto& keyMap = gameScene.getKeySpecifierMap();
             gameScene.getMessageBox().displayFormattedString(script, messageString.substr(1), {}, {}, keyMap);
         }
         else gameScene.getMessageBox().displayString(script, messageString);
-
-
-        gameScene.resetPlayerController();
     });
 }
 

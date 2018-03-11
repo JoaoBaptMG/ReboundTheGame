@@ -8,6 +8,7 @@
 #include "data/RoomData.hpp"
 #include "defaults.hpp"
 #include "gameplay/MapGenerator.hpp"
+#include "gameplay/ScriptedPlayerController.hpp"
 #include "input/InputManager.hpp"
 #include "language/KeyboardKeyName.hpp"
 
@@ -207,6 +208,17 @@ sf::Vector2f GameScene::fitIntoRoom(sf::Vector2f vec)
     return vec;
 }
 
+void GameScene::runCutsceneScript(Script::ScriptFunction function)
+{
+    cutsceneScript.runScript([=](Script& script)
+    {
+        ScriptedPlayerController pc;
+        setPlayerController(pc);
+        function(script);
+        resetPlayerController();
+    });
+}
+
 void GameScene::update(std::chrono::steady_clock::time_point curTime)
 {
     using namespace std::chrono;
@@ -271,13 +283,14 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     gui.update(laggedTime);
     camera.update(laggedTime);
     levelTransition.update(laggedTime);
+    cutsceneScript.update(curTime);
     messageBox.update(laggedTime);
     
     if (requestedID != -1)
     {
         loadRoom(requestedID);
         loadRoomObjects();
-        requestedID = -1;
+        requestedID = (size_t)-1;
     }
 }
 

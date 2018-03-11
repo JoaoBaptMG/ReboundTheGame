@@ -25,4 +25,9 @@
     <tile id="17" type="single-object" name="up-spike"/>
     <tile id="18" type="single-object" name="down-spike"/>
     <tile id="19" type="none"/>
+    <tile id="20" type="semi-terrain2" name="left-solid"/>
+    <tile id="21" type="semi-terrain2" name="right-solid"/>
+    <tile id="22" type="semi-terrain2" name="up-solid"/>
+    <tile id="23" type="semi-terrain2" name="down-solid"/>
+    <tile id="24" type="none"/>
 </tileset>

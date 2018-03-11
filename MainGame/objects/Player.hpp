@@ -46,8 +46,6 @@ class Player final : public GameObject
     cpFloat angle, lastFade;
     bool dashConsumed, doubleJumpConsumed;
     bool chargingForHardball, hardballEnabled, grappleEnabled;
-
-    Script script;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
          grappleTime, spikeTime, invincibilityTime, curTime;
@@ -105,7 +103,7 @@ public:
 
     float getDashDisplay() const;
     
-    void upgradeToAbilityLevel(size_t level, bool showMessage = true);
+    void upgradeToAbilityLevel(size_t level);
     void upgradeHealth();
 
     bool isDashing() const;

@@ -24,6 +24,11 @@ struct TileSet final
     };
     static bool isAttributeValid(Attribute attr) { return (uint8_t)attr < (uint8_t)Attribute::NumAttrs; }
 
+    static bool isNoWalljump(Attribute attr)
+    {
+        return isContained(attr, Attribute::NoWalljump, Attribute::LeftNoWalljump, Attribute::RightNoWalljump);
+    }
+
 #pragma pack(push, 1)
     struct PhysicalParameters final
     {
