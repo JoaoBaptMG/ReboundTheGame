@@ -22,6 +22,7 @@ private:
     std::unordered_map<InputSource,PriorityMap> callbacks;
     std::unordered_map<const InputSource*,PriorityMap> variableCallbacks;
     std::multimap<intmax_t,MouseMoveCallback> mouseMoveCallbacks;
+    Callback curPickAllKeyboardCallback, curPickAllJoystickCallback;
 
 public:
     using CallbackEntry = util::ContainerEntry<PriorityMap>;
@@ -33,7 +34,10 @@ public:
     CallbackEntry registerCallback(InputSource source, Callback callback, intmax_t priority = 0);
     CallbackEntry registerVariableCallback(const InputSource& source, Callback callback, intmax_t priority = 0);
     MouseMoveEntry registerMouseMoveCallback(MouseMoveCallback callback, intmax_t priority = 0);
-    
+
+    void addPickAllKeyboardCallback(Callback callback);
+    void addPickAllJoystickCallback(Callback callback);
+
     void dispatchData(InputSource source, float val);
     void dispatchMouseMovement(sf::Vector2i pos);
 

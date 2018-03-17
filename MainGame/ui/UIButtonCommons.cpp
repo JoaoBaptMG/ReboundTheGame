@@ -26,7 +26,7 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
     pressedSprite->setAnchorPoint(destCenter);
     
     auto caption = std::make_unique<TextDrawable>(rm.load<FontHandler>(lm.getFontName()));
-    caption->setString(lm.getString(captionString));
+    if (!captionString.empty()) caption->setString(lm.getString(captionString));
     caption->setFontSize(captionSize);
     caption->setDefaultColor(textColor);
     caption->setOutlineThickness(outlineThickness);

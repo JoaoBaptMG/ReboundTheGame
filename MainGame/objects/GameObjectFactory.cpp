@@ -20,6 +20,8 @@
 #include "objects/props/Grapple.hpp"
 #include "objects/props/Water.hpp"
 #include "objects/props/MessageSign.hpp"
+#include "objects/props/SwitchingBlock.hpp"
+#include "objects/props/SwitchingBlockCluster.hpp"
 #include "objects/background/Parallax.hpp"
 #include "objects/enemies/bosses/TestBoss.hpp"
 
@@ -102,6 +104,8 @@ const std::unordered_map<std::string, FactoryParams> factoryParams =
     DEFINE_FACTORY(props::Grapple),
     DEFINE_FACTORY(props::Water),
     DEFINE_FACTORY(props::MessageSign),
+    DEFINE_FACTORY(props::SwitchingBlock),
+    DEFINE_FACTORY(props::SwitchingBlockCluster),
 
     // background
     DEFINE_FACTORY(background::Parallax),

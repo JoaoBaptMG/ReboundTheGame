@@ -155,5 +155,6 @@ public:
     virtual void render(Renderer& renderer) override;
     
     virtual void pause() override;
+    virtual void resume() override;
 };
 

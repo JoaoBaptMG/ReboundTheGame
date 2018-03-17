@@ -12,7 +12,7 @@ class UIPointer;
 
 enum class TravelingMode { Horizontal, Vertical };
 
-class UIButtonGroup final
+class UIButtonGroup
 {
     std::vector<UIButton*> buttons;
     UIPointer* pointer;

@@ -48,18 +48,20 @@
     <!-- Key names: normally, the key names will be almost the same on every language; however, some keys
         might need to be localized -->
     <import-from file="keynames.lnxinc"/>
-    <string name="keyboard-key-name-lcontrol" override="true">Ctrl Esq</string>
-    <string name="keyboard-key-name-lshift" override="true">Shift Esq</string>
-    <string name="keyboard-key-name-lalt" override="true">Alt Esq</string>
-    <string name="keyboard-key-name-lsystem" override="true">Super Esq</string>
-    <string name="keyboard-key-name-rcontrol" override="true">Ctrl Dir</string>
-    <string name="keyboard-key-name-rshift" override="true">Shift Dir</string>
-    <string name="keyboard-key-name-ralt" override="true">Alt Dir</string>
-    <string name="keyboard-key-name-rsystem" override="true">Super Dir</string>
-    <string name="keyboard-key-name-space" override="true">Espaço</string>
-    
+    <!--<string name="key-name-left">Esquerda</string>
+    <string name="key-name-up">Para cima</string>
+    <string name="key-name-right">Direita</string>
+    <string name="key-name-down">Para baixo</string>
+    <string name="key-name-shift-left">Shift Esq</string>
+    <string name="key-name-shift-right">Shift Dir</string>
+    <string name="key-name-control-left">Ctrl Esq</string>
+    <string name="key-name-control-right">Ctrl Dir</string>
+    <string name="key-name-alt-left">Alt Esq</string>
+    <string name="key-name-alt-right">Alt Dir</string>
+    <string name="key-name-linux-super-left">Super Esq</string>
+    <string name="key-name-linux-super-right">Super Dir</string>-->
+
     <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
-    
     <!-- The caption for the "New game" button. -->
     <string name="title-button-new-game">Novo jogo</string>
     <!-- The caption for the "Load game" button -->
@@ -113,7 +115,32 @@
     <string name="settings-scene-back">Voltar</string>
     <!-- The caption for the "Resume game" button on the settings pause frame -->
     <string name="settings-pause-resume">Voltar ao jogo</string>
-    
+    <!-- The caption for the buttons on other settings panels to go back to the main panel -->
+    <string name="settings-back-to-root">Voltar</string>
+
+    <!-- The input management panel on the settings screen -->
+    <!-- Title for the keyboard arrange -->
+    <string name="settings-keyboard-title">Configuração do teclado</string>
+    <!-- Title for the joystick arrange -->
+    <string name="settings-joystick-title">Configuração do joystick</string>
+    <!-- The captions for the action names on the input management panel -->
+    <string name="input-settings-dash">Jato / Interagir / Cancelar</string>
+    <string name="input-settings-jump">Saltar / Confirmar</string>
+    <string name="input-settings-bomb">Bombardeio</string>
+    <string name="input-settings-switch-screen-left">Tela à esquerda</string>
+    <string name="input-settings-switch-screen-right">Tela à direita</string>
+    <string name="input-settings-pause">Pausar</string>
+    <string name="input-settings-keyboard-left">Esquerda</string>
+    <string name="input-settings-keyboard-right">Direita</string>
+    <string name="input-settings-keyboard-up">Para cima</string>
+    <string name="input-settings-keyboard-down">Para baixo</string>
+    <!-- The text that shows when a input button is selected -->
+    <string name="input-settings-remap">Press...</string>
+
+    <!-- The language selection panel on the settings screen -->
+    <!-- Title for the panel -->
+    <string name="settings-language-select-title">Mudar idioma</string>
+
     <!-- The mid-level screen. It can be either a "gameover" screen or a "level complete" screen,
         depending on the configuration. -->
     <!-- The "Game Over" title -->
@@ -245,4 +272,49 @@
 
     <!-- The label that will be shown on a message sign (just a '?') -->
     <string name="message-sign-display">?</string>
+
+        <!-- Test signs -->
+        <formatter name="room1-00-sign1">
+            Use {$leftbtn} and {$rightbtn} to move left and right.\r Press {$jumpbtn} to jump.
+        </formatter>
+        <string name="room1-01-sign1">
+            Water lies ahead. You cannot sink in it; however, you will float. Use it to your advantage.
+        </string>
+        <string name="room1-01-sign2">
+            Be careful of spikes! If you land in them, you will lose a large chunk of your health!
+        </string>
+        <string name="room1-03-sign1">
+            There is a blue block blocking your passage ahead. You might have to find another path...
+        </string>
+        <string name="room1-03-sign2">
+            Pay attention to the minimap on the bottom right corner of your GUI.\r It can be very useful if you get lost.
+        </string>
+        <string name="room1-04-sign1">
+            There seems to be something down there...
+        </string>
+        <string name="room1-05-sign1">
+            This path is too high for you to jump right now.\r Maybe you can find something that helps you?
+        </string>
+        <string name="room1-07-sign1">
+            You have to find a way to break those green blocks.\f (I wonder how those signs can still be readable
+            underwater...)
+        </string>
+        <string name="room1-08-sign1">
+            Those blinking points must have something to do with the other path you skipped.
+        </string>
+        <string name="room1-09-sign1">
+            Open your eyes! There might be more to see in this room than you think...\r (upper left?)
+        </string>
+        <string name="room1-10-sign1">
+            The only way is up.
+        </string>
+        <string name="room1-10-sign2">
+            Now you will fight an enemy that is strong enough to maybe destroy you, so be careful!
+        </string>
+        <string name="room2-00-sign1">
+            I am using the M+ M Type-1 font.\nThe quick brown fox jumps over the lazy dog.
+        </string>
+        <string name="room2-01-sign1">
+           These arrow-decorated slates are one-time passages! If you go through, you cannot come back.
+        </string>
 </language>

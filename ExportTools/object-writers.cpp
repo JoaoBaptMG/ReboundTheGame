@@ -107,6 +107,31 @@ bool write_props_MessageSign(Object obj, ostream& out)
     return obj.everythingOk();
 }
 
+bool write_props_SwitchingBlock(Object obj, ostream& out)
+{
+    string name = obj.getPropertyString("parent-cluster");
+    size_t id = obj.getPropertyInt("cluster-time");
+
+    write_varlength(out, name.size());
+    out.write(name.data(), name.size() * sizeof(char));
+    write_varlength(out, id);
+
+    return obj.everythingOk();
+}
+
+bool write_props_SwitchingBlockCluster(Object obj, ostream& out)
+{
+    size_t numBlockTimes = obj.getPropertyInt("total-times");
+    size_t numVisibleTimes = obj.getPropertyInt("visible-times");
+    float durationSeconds = obj.getPropertyFloat("duration");
+
+    write_varlength(out, numBlockTimes);
+    write_varlength(out, numVisibleTimes);
+    out.write((const char*)&durationSeconds, sizeof(float));
+
+    return obj.everythingOk();
+}
+
 unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
 {
     { "Player", doNothing },
@@ -128,4 +153,6 @@ unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
     { "props::PushableCrate", writeBox },
     { "props::Water", write_props_Water },
     { "props::MessageSign", write_props_MessageSign },
+    { "props::SwitchingBlock", write_props_SwitchingBlock },
+    { "props::SwitchingBlockCluster", write_props_SwitchingBlockCluster },
 };

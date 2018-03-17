@@ -9,6 +9,8 @@
 #include "ui/UIButtonGroup.hpp"
 #include "ui/UIPointer.hpp"
 
+#include "language/LocalizationManager.hpp"
+
 struct Settings;
 class ResourceManager;
 class InputManager;
@@ -35,6 +37,8 @@ class PauseScene final : public Scene
     
     size_t currentFrame;
     std::unique_ptr<PauseFrame> pauseFrames[3];
+
+    LocalizationManager::CallbackEntry callbackEntry;
 
 public:
     PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);

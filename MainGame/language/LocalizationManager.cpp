@@ -2,7 +2,7 @@
 #include <SFML/System.hpp>
 
 constexpr auto DefaultLanguageDescriptor = "en-us.lang";
-constexpr auto DefaultFontName = "Roboto-Medium.ttf";
+constexpr auto DefaultFontName = "mplus-1m-medium.ttf";
 
 auto buildErrorForString(const LangID& id)
 {
@@ -66,20 +66,40 @@ bool isLanguageDescriptorPresent(std::string name)
     return descs.find(name) != descs.end();
 }
 
+std::string getLanguageDescriptorName(std::string lang)
+{
+    LanguageDescriptor languageDescriptor;
+    sf::FileInputStream file;
+
+    if (!file.open(getPathOfLanguageDescriptor(lang)) ||
+        !readFromStream(file, languageDescriptor))
+        return "";
+
+    auto it = languageDescriptor.strings.find("metadata-english-name");
+    if (it == languageDescriptor.strings.end())
+        return "Unknown Language";
+
+    auto it2 = languageDescriptor.strings.find("metadata-native-name");
+    if (it2 == languageDescriptor.strings.end())
+        return it->second.string;
+
+    return it2->second.string + " / " + it->second.string;
+}
+
 void LocalizationManager::loadLanguageDescriptor(std::string name)
 {
     error = false;
     
-    if (!isLanguageDescriptorPresent(name))
+    if (!isLanguageDescriptorPresent(name)) error = true;
+    else
     {
-        error = true;
-        return;
+        sf::FileInputStream file;
+        if (!file.open(getPathOfLanguageDescriptor(name)) ||
+            !readFromStream(file, languageDescriptor))
+            error = true;
     }
-    
-    sf::FileInputStream file;
-    if (!file.open(getPathOfLanguageDescriptor(name)) ||
-        !readFromStream(file, languageDescriptor))
-        error = true;
+
+    for (auto& callback : languageChangeCallbacks) callback();
 }
 
 std::string LocalizationManager::getString(const LangID& id) const
@@ -277,6 +297,11 @@ std::string LocalizationManager::getFontName() const
     if (!languageDescriptor.fontName.empty())
         return languageDescriptor.fontName;
     return DefaultFontName;
+}
+
+LocalizationManager::CallbackEntry LocalizationManager::registerLanguageChangeCallback(LocalizationManager::Callback callback)
+{
+    return CallbackEntry(languageChangeCallbacks, languageChangeCallbacks.insert(languageChangeCallbacks.end(), callback));
 }
 
 std::string languageDescriptorForLocale(std::string locale)

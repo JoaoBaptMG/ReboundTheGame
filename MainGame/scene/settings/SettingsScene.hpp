@@ -2,6 +2,7 @@
 
 #include "scene/Scene.hpp"
 #include "scene/pause/PauseFrame.hpp"
+#include "SettingsPanel.hpp"
 
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
@@ -14,7 +15,6 @@
 #include "ui/UISlider.hpp"
 
 #include "language/LangID.hpp"
-#include "data/LevelData.hpp"
 
 struct Settings;
 class ResourceManager;
@@ -26,28 +26,27 @@ class PauseScene;
 class SettingsBase
 {
     sf::Vector2f centerPosition;
-    TextDrawable titles[3];
-    size_t musicVolume, soundVolume;
-    bool fullscreen, vsync;
-    
-    UITextSwitch fullscreenSwitch, vsyncSwitch;
-    UIButton languageButton;
-    UISlider musicSlider, soundSlider;
-    UIButton keyboardButton, joystickButton, backButton;
-    UIButtonGroup buttonGroup;
+    std::unique_ptr<SettingsPanel> curSettingsPanel;
+    SettingsPanel* nextSettingsPanel;
+    LangID backId;
     
 protected:
     SettingsBase(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
         sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
-    ~SettingsBase() {}
+    ~SettingsBase() = default;
     
     void update(std::chrono::steady_clock::time_point curTime);
     void render(Renderer& renderer);
     
     void activate();
     void deactivate();
-    
+
     std::function<void()> backAction;
+
+public:
+    void changeSettingsPanel(SettingsPanel* panel);
+
+    friend class SettingsPanel;
 };
 
 class SettingsScene : public Scene, public SettingsBase

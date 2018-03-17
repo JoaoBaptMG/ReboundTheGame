@@ -79,29 +79,39 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
 
 void GUI::configureText()
 {
-    auto& locManager = gameScene.getLocalizationManager();
-    auto config = parseConfigString(locManager.getString("ingame-gui-level-config"));
+    auto& lm = gameScene.getLocalizationManager();
+    auto config = parseConfigString(lm.getString("ingame-gui-level-config"));
     
-    levelLabel.setString(locManager.getString("ingame-gui-level-label"));
+    levelLabel.setString(lm.getString("ingame-gui-level-label"));
     levelLabel.setFontSize(config.labelSize);
     levelLabel.setDefaultColor(sf::Color::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelLabel.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
     //levelLabel.setWordWrappingWidth(68);
-    configTextDrawable(levelLabel, gameScene.getLocalizationManager());
+    configTextDrawable(levelLabel, lm);
     levelLabel.buildGeometry();
-    
-    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {});
-    levelID.setString(builtID);
+
+    levelID.setString(lm.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {}));
     levelID.setFontSize(config.idSize);
     levelID.setDefaultColor(sf::Color::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelID.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelID.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
     //levelID.setWordWrappingWidth(68);
-    configTextDrawable(levelID, gameScene.getLocalizationManager());
+    configTextDrawable(levelID, lm);
     levelID.buildGeometry();
+
+    callbackEntry = lm.registerLanguageChangeCallback([=,&lm]
+    {
+        levelLabel.setString(lm.getString("ingame-gui-level-label"));
+        configTextDrawable(levelLabel, lm);
+        levelLabel.buildGeometry();
+
+        levelID.setString(lm.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {}));
+        configTextDrawable(levelID, lm);
+        levelID.buildGeometry();
+    });
 }
 
 void GUI::setLevelNumber(size_t number)
@@ -112,9 +122,8 @@ void GUI::setLevelNumber(size_t number)
     guiMap.setCurRoom(gameScene.getCurrentRoomID());
     guiMap.presentRoom(gameScene.getCurrentRoomID());
     
-    auto& locManager = gameScene.getLocalizationManager();
-    auto builtID = locManager.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {});
-    levelID.setString(builtID);
+    auto& lm = gameScene.getLocalizationManager();
+    levelID.setString(lm.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {}));
     levelID.buildGeometry();
 }
 

@@ -47,7 +47,7 @@ MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManag
     : messageBackground(rm.load<sf::Texture>("message-background.png")),
       messageIcon(rm.load<sf::Texture>("message-next.png")), localizationManager(lm),
       messageText(rm.load<FontHandler>(lm.getFontName())), currentText(), letterPeriod(DefaultLetterPeriod),
-      lineOffset(0), curState(Idle)
+      lineOffset(0), curState(Idle), spawnNewMessage(true)
 {
     messageText.setFontSize(24);
     float desiredHeight = messageBackground.getTextureSize().y - 32;
@@ -171,7 +171,11 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
                 if (curState == FullStopPageBreak)
                 {
                     initTime = curTime + FadeInterval;
-                    if (curBreak == breakPoints.end()) curState = CloseBox;
+                    if (curBreak == breakPoints.end())
+                    {
+                        spawnNewMessage = true;
+                        curState = CloseBox;
+                    }
                     else curState = FadingPage;
                 }
                 else
@@ -183,7 +187,8 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
         } break;
 
         case CloseBox:
-            if (messageBackground.getOpacity() == 0) curState = Idle;
+            if (messageBackground.getOpacity() == 0)
+                curState = Idle;
             [[fallthrough]];
         case FadingPage:
         {
@@ -195,7 +200,7 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
             {
                 curState = NextCharacter;
 
-                if (messageText.getString() != currentText)
+                if (spawnNewMessage)
                 {
                     buildMessageText();
                     firstVisibleCharacter = curCharacter = 0;
@@ -204,6 +209,8 @@ void MessageBox::update(std::chrono::steady_clock::time_point curTime)
 
                     setAlphaAll(0, messageText.getAllVertices());
                     setAlphaAll(0, messageText.getAllVertices(true));
+
+                    spawnNewMessage = false;
                 }
                 else
                 {

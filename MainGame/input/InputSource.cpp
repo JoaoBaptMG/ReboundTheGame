@@ -1,6 +1,7 @@
 #include "InputSource.hpp"
 
 #include <algorithm>
+#include "language/KeyboardKeyName.hpp"
 
 constexpr auto MaxWheels = std::max(sf::Mouse::HorizontalWheel, sf::Mouse::VerticalWheel);
 
@@ -50,4 +51,13 @@ bool readFromStream(sf::InputStream& stream, InputSource& in)
 bool writeToStream(OutputStream& stream, const InputSource& in)
 {
     return writeToStream(stream, in.type, varLength(in.attribute));
+}
+
+std::string InputSource::getInputName(LocalizationManager& lm)
+{
+    switch (type)
+    {
+        case Type::Keyboard: return scanCodeToKeyName(attribute, lm);
+    }
+    return "";
 }

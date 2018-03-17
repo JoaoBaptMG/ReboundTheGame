@@ -33,7 +33,12 @@ bool InputManager::handleEvent(const sf::Event& event)
     switch (event.type)
     {
         case sf::Event::KeyPressed:
-            dispatchData(InputSource::keyboardKey(event.key.scanCode), 1.0f);
+            if (curPickAllKeyboardCallback)
+            {
+                curPickAllKeyboardCallback(InputSource::keyboardKey(event.key.scanCode), 1.0f);
+                curPickAllKeyboardCallback = Callback();
+            }
+            else dispatchData(InputSource::keyboardKey(event.key.scanCode), 1.0f);
             return true;
         case sf::Event::KeyReleased:
             dispatchData(InputSource::keyboardKey(event.key.scanCode), 0.0f);
@@ -53,7 +58,12 @@ bool InputManager::handleEvent(const sf::Event& event)
             dispatchMouseMovement(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
             return true;
         case sf::Event::JoystickButtonPressed:
-            dispatchData(InputSource::joystickButton(event.joystickButton.button), 1.0f);
+            if (curPickAllJoystickCallback)
+            {
+                curPickAllJoystickCallback(InputSource::joystickButton(event.joystickButton.button), 1.0f);
+                curPickAllJoystickCallback = Callback();
+            }
+            else dispatchData(InputSource::joystickButton(event.joystickButton.button), 1.0f);
             return true;
         case sf::Event::JoystickButtonReleased:
             dispatchData(InputSource::joystickButton(event.joystickButton.button), 0.0f);
@@ -83,4 +93,14 @@ InputManager::MouseMoveEntry InputManager::registerMouseMoveCallback(InputManage
     intmax_t priority)
 {
     return MouseMoveEntry(mouseMoveCallbacks, mouseMoveCallbacks.emplace(priority, callback));
+}
+
+void InputManager::addPickAllKeyboardCallback(InputManager::Callback callback)
+{
+    curPickAllKeyboardCallback = callback;
+}
+
+void InputManager::addPickAllJoystickCallback(InputManager::Callback callback)
+{
+    curPickAllJoystickCallback = callback;
 }

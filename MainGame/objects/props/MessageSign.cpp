@@ -3,7 +3,6 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
-#include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
 #include "gameplay/ScriptedPlayerController.hpp"
 #include <streamReaders.hpp>
@@ -16,12 +15,14 @@ MessageSign::MessageSign(GameScene& scene)
       signBox(scene.getResourceManager().load<sf::Texture>("sign-background.png")),
       signLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName()))
 {
-    signLabel.setString(scene.getLocalizationManager().getString("message-sign-display"));
+    auto& lm = scene.getLocalizationManager();
+
+    signLabel.setString(lm.getString("message-sign-display"));
     signLabel.setFontSize(48);
     signLabel.setDefaultColor(sf::Color::Black);
     signLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     signLabel.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-    configTextDrawable(signLabel, scene.getLocalizationManager());
+    configTextDrawable(signLabel, lm);
     signLabel.buildGeometry();
 
     auto bounds = signLabel.getLocalBounds();
@@ -36,6 +37,20 @@ MessageSign::MessageSign(GameScene& scene)
     signPole.setAnchorPoint(sf::Vector2f(size.x/2, size.y));
 
     interactionRadius = 40;
+
+    callbackEntry = lm.registerLanguageChangeCallback([=,&lm]
+    {
+        signLabel.setString(lm.getString("message-sign-display"));
+        configTextDrawable(signLabel, lm);
+        signLabel.buildGeometry();
+
+        auto bounds = signLabel.getLocalBounds();
+        if (bounds.width < 48) bounds.width = 48;
+        if (bounds.height < 48) bounds.height = 48;
+
+        signBox.setDestinationRect(sf::FloatRect(0, 0, bounds.width + 16, bounds.height + 16));
+        signBox.setAnchorPoint(sf::Vector2f(bounds.width/2 + 8, bounds.height/2 + 8));
+    });
 }
 
 bool props::readFromStream(sf::InputStream& stream, MessageSign::ConfigStruct& config)

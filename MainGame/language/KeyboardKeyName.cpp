@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include <cctype>
 #include <utf8.h>
+#include <algorithm>
+#include "UnixKeyboardMaps.hpp"
 
 namespace sf
 {
@@ -35,11 +37,7 @@ static void initializeKeyMapper()
     std::atexit([]{ XFree(keysyms); });
 }
 
-extern const sf::Uint32 codeMaps0x100[96], codeMaps0x200[96], codeMaps0x300[96], codeMaps0x400[64];
-extern const sf::Uint32 codeMaps0x600[96], codeMaps0x700[32], codeMaps0x800[96], codeMaps0x900[32];
-extern const sf::Uint32 codeMaps0xA00[96], codeMaps0xB00[96], codeMaps0xC00[32], codeMaps0xD00[96];
-
-std::string scanCodeToKeyName(sf::Uint32 code)
+std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
 {
     if (!keysyms) initializeKeyMapper();
 
@@ -51,7 +49,8 @@ std::string scanCodeToKeyName(sf::Uint32 code)
         sf::Uint32 charCode = 0;
 
         // ASCII character;
-        if (key >= 32 && key <= 126) charCode = islower(key) ? toupper(key) : key;
+        if (key == 32) return lm.getString("key-name-space");
+        else if (key > 32 && key <= 126) charCode = islower(key) ? toupper(key) : key;
         else if (key >= 0xA0 && key <= 0xDF) charCode = key;
         else if (key == 0xF7) charCode = 0xF7;
         else if (key >= 0xE0 && key <= 0xFE) charCode = key - 0x20;
@@ -71,10 +70,34 @@ std::string scanCodeToKeyName(sf::Uint32 code)
         else if (key == 0xCDF) charCode = 0x2017;
         else if (key >= 0xCE0 && key <= 0xCFF) charCode = codeMaps0xC00[key - 0xCE0];
         else if (key >= 0xDA0 && key <= 0xDFF) charCode = codeMaps0xD00[key - 0xDA0];
-        else if (key >= 0x20AC) charCode = 0x20AC;
+        else if (key == 0x20AC) charCode = 0x20AC;
         else if (key >= 0x1000000) charCode = key & 0xFFFF;
-        else if (key >= 0xFFB0 && key <= 0xFFB9) return "Num " + std::to_string(key - 0xFFB0);
-        else if (key >= 0xFFBE && key <= 0xFFE0) return 'F' + std::to_string(key - 0xFFBD);
+        else if (key >= 0xFFB0 && key <= 0xFFB9)
+            return lm.getFormattedString("keyboard-key-name-numkey", {}, {{"n", key-0xFFB0}}, {});
+        else if (key >= 0xFFBE && key <= 0xFFE0)
+            return lm.getFormattedString("keyboard-key-name-fkey", {}, {{"n", key-0xFFBD}}, {});
+        else
+        {
+            LangID id = "";
+
+            if (key >= 0xFF50 && key <= 0xFF58) id = miscKeys1[key-0xFF50];
+            else if (key >= 0xFFAA && key <= 0xFFAF) id = miscKeys2[key-0xFFAA];
+            else if (key >= 0xFF60 && key <= 0xFF6B) id = miscKeys3[key-0xFF60];
+            else if (key >= 0xFFE1 && key <= 0xFFEC) id = miscKeys4[key-0xFFE1];
+            else
+            {
+                struct Comparator
+                {
+                    bool operator()(const MiscPair& first, sf::Uint32 second) const { return first.code < second; }
+                    bool operator()(sf::Uint32 first, const MiscPair& second) const { return first < second.code; }
+                };
+
+                auto pair = std::equal_range(scrambledMiscKeys, scrambledMiscKeys+scrambledMiscKeysSize, key, Comparator());
+                if (pair.first != pair.second) id = pair.first->id;
+            }
+
+            if (id != "") return lm.getString(id);
+        }
 
         if (charCode > 0)
         {
@@ -84,7 +107,7 @@ std::string scanCodeToKeyName(sf::Uint32 code)
         }
     }
 
-    return "";
+    return lm.getFormattedString("key-name-unknown", {}, {{"n", code}}, {});
 }
 
 #endif

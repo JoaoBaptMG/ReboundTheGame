@@ -3,4 +3,6 @@
 #include <string>
 #include <SFML/System.hpp>
 
-std::string scanCodeToKeyName(sf::Uint32 code);
+#include "LocalizationManager.hpp"
+
+std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm);

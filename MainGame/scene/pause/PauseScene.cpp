@@ -15,9 +15,9 @@
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
-#include "language/LocalizationManager.hpp"
 
 #include "data/LevelData.hpp"
+#include "language/convenienceConfigText.hpp"
 
 using namespace std::literals::chrono_literals;
 constexpr auto TransitionTime = 1s;
@@ -76,6 +76,19 @@ PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm
     
     switchFrameRight.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenRight, 0);
     switchFrameRight.registerSource(im, settings.inputSettings.joystickSettings.switchScreenRight, 1);
+
+    callbackEntry = lm.registerLanguageChangeCallback([=,&lm]
+    {
+        int k = 0;
+
+        for (auto& button : frameButtons)
+        {
+            button.getCaption()->setString(lm.getString(ButtonIdentifiers[k]));
+            configTextDrawable(*button.getCaption(), lm);
+            button.getCaption()->buildGeometry();
+            k++;
+        }
+    });
 }
 
 void PauseScene::update(std::chrono::steady_clock::time_point curTime)

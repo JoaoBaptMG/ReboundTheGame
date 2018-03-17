@@ -3,4 +3,5 @@
 <level number="2" song="z3.volcano.ogg">
     <room id="0" name="room2-00" starting="true"/>
     <room id="1" name="room2-01"/>
+    <room id="2" name="room2-02"/>
 </level>

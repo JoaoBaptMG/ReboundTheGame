@@ -6,6 +6,8 @@
 #include <streamReaders.hpp>
 #include <streamWriters.hpp>
 
+class LocalizationManager;
+
 class InputSource final
 {
 private:
@@ -18,7 +20,7 @@ private:
     InputSource() = default;
     InputSource(Type type, uint32_t attr) : type(type), attribute(attr) {}
 public:
-    size_t getAttribute() const { return attribute; }
+    std::string getInputName(LocalizationManager& lm);
 
     static InputSource keyboardKey(size_t scanCode);
     

@@ -9,6 +9,8 @@
 #include "drawables/TextDrawable.hpp"
 #include "gameplay/Script.hpp"
 
+#include "language/LocalizationManager.hpp"
+
 class GameScene;
 class Renderer;
 
@@ -20,6 +22,8 @@ namespace props
         SegmentedSprite signBox;
         TextDrawable signLabel;
         std::string messageString;
+
+        LocalizationManager::CallbackEntry callbackEntry;
 
     public:
         MessageSign(GameScene& scene);

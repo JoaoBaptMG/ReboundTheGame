@@ -37,6 +37,7 @@ class MessageBox final
     enum State { Idle, OpenBox, NextCharacter, FullStop, FullStopPageBreak, FadingPage, CloseBox } curState;
     std::vector<size_t>::iterator curBreak, curStop;
     size_t firstVisibleCharacter, curCharacter, lineOffset;
+    bool spawnNewMessage;
     
 public:
     MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);

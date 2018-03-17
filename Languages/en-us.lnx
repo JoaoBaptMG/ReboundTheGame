@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<language name="en-us">
+<language name="en-us" font-name="mplus-1m-medium.ttf">
     
     <!--
     
@@ -118,6 +118,31 @@
     <string name="settings-scene-back">Back</string>
     <!-- The caption for the "Resume game" button on the settings pause frame -->
     <string name="settings-pause-resume">Resume game</string>
+    <!-- The caption for the buttons on other settings panels to go back to the main panel -->
+    <string name="settings-back-to-root">Back</string>
+
+    <!-- The input management panel on the settings screen -->
+    <!-- Title for the keyboard arrange -->
+    <string name="settings-keyboard-title">Keyboard settings</string>
+    <!-- Title for the joystick arrange -->
+    <string name="settings-joystick-title">Joystick settings</string>
+    <!-- The captions for the action names on the input management panel -->
+    <string name="input-settings-dash">Dash / Interact / Cancel</string>
+    <string name="input-settings-jump">Jump / Confirm</string>
+    <string name="input-settings-bomb">Lie bombs</string>
+    <string name="input-settings-switch-screen-left">Switch to left screen</string>
+    <string name="input-settings-switch-screen-right">Switch to right screen</string>
+    <string name="input-settings-pause">Pause</string>
+    <string name="input-settings-keyboard-left">Left</string>
+    <string name="input-settings-keyboard-right">Right</string>
+    <string name="input-settings-keyboard-up">Up</string>
+    <string name="input-settings-keyboard-down">Down</string>
+    <!-- The text that shows when a input button is selected -->
+    <string name="input-settings-remap">Press...</string>
+
+    <!-- The language selection panel on the settings screen -->
+    <!-- Title for the panel -->
+    <string name="settings-language-select-title">Choose your language</string>
     
     <!-- The mid-level screen. It can be either a "gameover" screen or a "level complete" screen,
         depending on the configuration. -->
@@ -178,9 +203,12 @@
     <!-- The name of the "Enhanced Dash" powerup -->
     <string name="powerup10-name">Enhanced Dash</string>
 
-    <!-- OBS: message colors
+    <!-- OBS: message commands
          To color some word with a certain color, you use the character sequence \ci or \c[id],
-         where id is the color ID as declared (the first only if i is only one character). -->
+         where id is the color ID as declared (the first only if i is only one character).
+         Use the character sequence \r to put a full stop on the message (wait for input before
+         continue the message).
+         Use the character sequence \f to issue a page break. -->
 
     <!-- The message for getting a new powerup -->
     <formatter name="msg-powerup-collect">You acquired the \c2{$pname}\c0 powerup!\r</formatter>
@@ -283,8 +311,10 @@
     <string name="room1-10-sign2">
         Now you will fight an enemy that is strong enough to maybe destroy you, so be careful!
     </string>
+    <string name="room2-00-sign1">
+        I am using the M+ M Type-1 font.\nThe quick brown fox jumps over the lazy dog.
+    </string>
     <string name="room2-01-sign1">
        These arrow-decorated slates are one-time passages! If you go through, you cannot come back.
     </string>
-    
 </language>

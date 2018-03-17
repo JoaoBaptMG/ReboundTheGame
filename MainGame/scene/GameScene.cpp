@@ -33,13 +33,13 @@ T clamp(T cur, T min, T max)
     return cur < min ? min : cur > max ? max : cur;
 }
 
-StringSpecifierMap buildKeySpecifierMap(const Settings& settings)
+StringSpecifierMap buildKeySpecifierMap(const Settings& settings, LocalizationManager& lm)
 {
     const auto& key = settings.inputSettings.keyboardSettings;
 
-    auto buildString = [](InputSource source)
+    auto buildString = [&lm](InputSource source)
     {
-        return u8"\uFFFF\x05" + scanCodeToKeyName(source.getAttribute()) + u8"\uFFFF\x01";
+        return u8"\uFFFF\x05" + source.getInputName(lm) + u8"\uFFFF\x01";
     };
 
     return
@@ -64,7 +64,7 @@ GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, Resourc
 #endif
 {
     gameSpace.setGravity(cpVect{0.0f, 1024.0f});
-    keysMap = buildKeySpecifierMap(settings);
+    keysMap = buildKeySpecifierMap(settings, lm);
 }
 
 void GameScene::loadLevel(std::string levelName)
@@ -408,4 +408,9 @@ void GameScene::pause()
     
     pausing = true;
     pauseLag -= duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
+}
+
+void GameScene::resume()
+{
+    keysMap = buildKeySpecifierMap(settings, localizationManager);
 }

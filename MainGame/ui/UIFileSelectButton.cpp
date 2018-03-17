@@ -56,7 +56,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     
     auto indexStr = lm.getFormattedString("file-select-index", {}, { { "i", index+1 } }, {});
     fileName.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
-    fileName.setString(indexStr + getLevelNameForNumber(lm, sg.getCurLevel()));
+    fileName.setString(indexStr + ' ' + getLevelNameForNumber(lm, sg.getCurLevel()));
     fileName.setFontSize(TextSize);
     fileName.setDefaultColor(sf::Color::White);
     fileName.setOutlineThickness(1);

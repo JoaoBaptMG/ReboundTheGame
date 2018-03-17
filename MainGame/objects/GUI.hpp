@@ -7,6 +7,8 @@
 #include <chronoUtils.hpp>
 #include "drawables/GUIMap.hpp"
 
+#include "language/LocalizationManager.hpp"
+
 class GameScene;
 class Renderer;
 
@@ -38,6 +40,8 @@ class GUI final
     
     std::chrono::steady_clock::time_point lastTime;
     float healthBlinkPhase;
+
+    LocalizationManager::CallbackEntry callbackEntry;
     
 public:
     GUI(GameScene& scene);
