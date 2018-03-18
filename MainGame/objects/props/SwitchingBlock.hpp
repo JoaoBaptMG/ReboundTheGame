@@ -19,7 +19,7 @@ namespace props
 
     class SwitchingBlock final : public ::GameObject
     {
-        Sprite blockSprite;
+        Sprite blockSprite, fadeSprite;
         std::shared_ptr<cp::Shape> blockShape;
 
         bool visible;
@@ -27,7 +27,7 @@ namespace props
         size_t blockTime;
         SwitchingBlockCluster* parentBlockCluster;
 
-        std::chrono::steady_clock::time_point switchTime, curTime;
+        std::chrono::steady_clock::time_point fadeTime, curTime;
 
         void setupPhysics();
 
@@ -42,6 +42,9 @@ namespace props
 
         void switchOn();
         void switchOff();
+        void doFade();
+
+        static std::chrono::steady_clock::duration getFadeDuration();
 
         auto getPosition() const { return blockShape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { blockShape->getBody()->setPosition(pos); }

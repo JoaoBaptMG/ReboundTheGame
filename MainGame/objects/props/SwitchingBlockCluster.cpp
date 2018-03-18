@@ -10,10 +10,13 @@
 
 #include "scene/GameScene.hpp"
 
+#include <utility>
+#include <iostream>
+
 using namespace props;
 
 SwitchingBlockCluster::SwitchingBlockCluster(GameScene& scene) : GameObject(scene),
-    prevNumber(0), numVisibleTimes(0)
+    prevNumber(0), numVisibleTimes(0), fadeRequested(false)
 {
 
 }
@@ -47,17 +50,33 @@ void SwitchingBlockCluster::unregisterSwitchBlock(size_t id, SwitchingBlock* blo
     blockTimes.at(id).erase(std::remove(blockTimes.at(id).begin(), blockTimes.at(id).end(), block), blockTimes.at(id).end());
 }
 
+template <typename T, typename U>
+auto divModTruncated(const T& dividend, const U& divisor)
+{
+    auto quotient = dividend / divisor;
+    auto remainder = dividend % divisor;
+    if (remainder <= decltype(remainder)(0))
+    {
+        quotient -= 1;
+        remainder += divisor;
+    }
+    return std::make_pair(quotient, remainder);
+};
+
 void SwitchingBlockCluster::update(std::chrono::steady_clock::time_point curTime)
 {
     if (isNull(initTime))
     {
         initTime = curTime + 4*duration;
-        prevNumber = -4;
+        prevNumber = -1;
     }
 
-    if (curTime < initTime) return;
+    auto halfDuration = SwitchingBlock::getFadeDuration()/2;
 
-    intmax_t curNumber = (curTime - initTime) / duration;
+    if (curTime < initTime - halfDuration) return;
+    auto pair = divModTruncated(curTime - initTime, duration);
+
+    intmax_t curNumber = pair.first;
     if (curNumber != prevNumber)
     {
         size_t appearId = curNumber % blockTimes.size();
@@ -65,6 +84,18 @@ void SwitchingBlockCluster::update(std::chrono::steady_clock::time_point curTime
 
         for (auto block : blockTimes.at(appearId)) block->switchOn();
         for (auto block : blockTimes.at(disappearId)) block->switchOff();
+
+        fadeRequested = false;
+    }
+    if (!fadeRequested && pair.second >= duration - halfDuration)
+    {
+        size_t appearId = (curNumber + 1) % blockTimes.size();
+        size_t disappearId = (curNumber - numVisibleTimes + blockTimes.size() + 1) % blockTimes.size();
+
+        for (auto block : blockTimes.at(appearId)) block->doFade();
+        if (prevNumber >= 0) for (auto block : blockTimes.at(disappearId)) block->doFade();
+
+        fadeRequested = true;
     }
 
     prevNumber = curNumber;

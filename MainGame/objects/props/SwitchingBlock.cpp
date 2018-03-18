@@ -13,10 +13,16 @@
 
 using namespace props;
 
+std::chrono::steady_clock::duration SwitchingBlock::getFadeDuration()
+{
+    return 20 * UpdateFrequency;
+}
+
 SwitchingBlock::SwitchingBlock(GameScene &scene) : GameObject(scene),
     blockSprite(scene.getResourceManager().load<sf::Texture>("switching-block.png")),
+    fadeSprite(scene.getResourceManager().load<sf::Texture>("switching-block-fade.png")),
     visible(false), blockClusterName(), blockTime(0), parentBlockCluster(nullptr),
-    switchTime(), curTime()
+    fadeTime(), curTime()
 {
 
 }
@@ -79,12 +85,15 @@ void SwitchingBlock::update(std::chrono::steady_clock::time_point curTime)
         if (parentBlockCluster == nullptr) remove();
         else parentBlockCluster->registerSwitchBlock(blockTime, this);
     }
+
+    float fadeFactor = 2 * toSeconds<float>(curTime - fadeTime) / toSeconds<float>(getFadeDuration());
+    if (fadeFactor > 1) fadeFactor = 2 - fadeFactor;
+    if (fadeFactor == 0) fadeFactor = 0;
+    fadeSprite.setOpacity(fadeFactor);
 }
 
 void SwitchingBlock::switchOn()
 {
-    switchTime = curTime;
-
     auto body = blockShape->getBody();
     if (!cpSpaceContainsBody(gameScene.getGameSpace(), *body))
     {
@@ -96,8 +105,6 @@ void SwitchingBlock::switchOn()
 
 void SwitchingBlock::switchOff()
 {
-    switchTime = curTime;
-
     auto body = blockShape->getBody();
     if (cpSpaceContainsBody(gameScene.getGameSpace(), *body))
     {
@@ -105,6 +112,11 @@ void SwitchingBlock::switchOff()
         gameScene.getGameSpace().remove(body);
     }
     visible = false;
+}
+
+void SwitchingBlock::doFade()
+{
+    fadeTime = curTime;
 }
 
 bool SwitchingBlock::notifyScreenTransition(cpVect displacement)
@@ -115,11 +127,9 @@ bool SwitchingBlock::notifyScreenTransition(cpVect displacement)
 
 void SwitchingBlock::render(Renderer& renderer)
 {
-    if (visible)
-    {
-        renderer.pushTransform();
-        renderer.currentTransform.translate(getDisplayPosition());
-        renderer.pushDrawable(blockSprite, {}, 36);
-        renderer.popTransform();
-    }
+    renderer.pushTransform();
+    renderer.currentTransform.translate(getDisplayPosition());
+    if (visible) renderer.pushDrawable(blockSprite, {}, 36);
+    if (fadeSprite.getOpacity() > 0) renderer.pushDrawable(fadeSprite, {}, 37);
+    renderer.popTransform();
 }

@@ -18,7 +18,7 @@ namespace props
         std::vector<std::vector<SwitchingBlock*>> blockTimes;
         std::chrono::steady_clock::time_point initTime;
         std::chrono::steady_clock::duration duration;
-        intmax_t prevNumber;
+        intmax_t prevNumber; bool fadeRequested;
         size_t numVisibleTimes;
 
     public:
