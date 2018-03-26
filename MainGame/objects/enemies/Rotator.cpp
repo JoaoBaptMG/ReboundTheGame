@@ -6,6 +6,8 @@
 #include <chronoUtils.hpp>
 #include <vector_math.hpp>
 
+#include "objects/GameObjectFactory.hpp"
+
 #include <cppmunk/CircleShape.h>
 #include <cppmunk/PolyShape.h>
 
@@ -114,3 +116,4 @@ void Rotator::render(Renderer& renderer)
     renderer.popTransform();
 }
 
+REGISTER_GAME_OBJECT(enemies::Rotator);

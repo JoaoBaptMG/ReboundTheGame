@@ -7,6 +7,8 @@
 #include "objects/Bomb.hpp"
 #include "particles/TextureExplosion.hpp"
 
+#include "objects/GameObjectFactory.hpp"
+
 #include <functional>
 #include <limits>
 #include <cppmunk/Body.h>
@@ -146,3 +148,6 @@ bool DashCrate::isDestructionViable() const
     auto player = gameScene.getObjectByName<Player>("player");
     return player && player->canBreakDash();
 }
+
+REGISTER_GAME_OBJECT(props::BombCrate);
+REGISTER_GAME_OBJECT(props::DashCrate);

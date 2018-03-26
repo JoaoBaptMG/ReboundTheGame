@@ -13,6 +13,8 @@
 #include <cppmunk/Space.h>
 #include <cppmunk/Arbiter.h>
 
+#include "objects/GameObjectFactory.hpp"
+
 using namespace props;
 using namespace cp;
 
@@ -163,3 +165,4 @@ void PushableCrate::render(Renderer& renderer)
     renderer.popTransform();
 }
 
+REGISTER_GAME_OBJECT(props::PushableCrate);

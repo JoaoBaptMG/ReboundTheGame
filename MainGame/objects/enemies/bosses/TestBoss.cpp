@@ -6,6 +6,8 @@
 #include "objects/Room.hpp"
 #include "particles/TextureExplosion.hpp"
 
+#include "objects/GameObjectFactory.hpp"
+
 #include <cppmunk/Body.h>
 #include <cppmunk/CircleShape.h>
 #include <cppmunk/PolyShape.h>
@@ -206,3 +208,5 @@ void TimedLevelWarper::update(std::chrono::steady_clock::time_point curTime)
         remove();
     }
 }
+
+REGISTER_GAME_OBJECT(enemies::bosses::TestBoss);

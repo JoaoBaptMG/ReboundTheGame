@@ -34,6 +34,9 @@ public:
     
     void setButtons(std::vector<UIButton>& buttons) { setButtons(buttons.data(), buttons.size()); }
     void setButtons(const std::vector<UIButton*>& buttons);
+
+    auto& getButtons() { return buttons; }
+    const auto& getButtons() const { return buttons; }
     
     auto getCurrentId() const { return currentId; }
     auto getCurrentButton() const { return currentId >= buttons.size() ? nullptr : buttons.at(currentId); }

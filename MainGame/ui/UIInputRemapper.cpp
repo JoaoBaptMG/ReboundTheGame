@@ -25,12 +25,16 @@ void UIInputRemapper::initialize(InputManager& inputManager)
     
     setPressAction([&inputManager,this] ()
     {
-        static_cast<UIInputRemappingButtonGroup*>(parentGroup)->setRemappingButton(this);
+        auto parentGroup = static_cast<UIInputRemappingButtonGroup*>(this->parentGroup);
+        parentGroup->setRemappingButton(this);
 
         auto callback = [=](InputSource source, float value)
         {
-            remapSource = source;
-            static_cast<UIInputRemappingButtonGroup*>(parentGroup)->setRemappingButton(nullptr);
+            if (value < 0.5f)
+            {
+                parentGroup->assignRemappingUniquely(remapSource, source);
+                parentGroup->setRemappingButton(nullptr);
+            }
         };
 
         if (forJoystick) inputManager.addPickAllJoystickCallback(callback);
@@ -96,11 +100,36 @@ void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, Loc
 
 UIInputRemappingButtonGroup::UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings,
     TravelingMode travelingMode) : UIButtonGroup(inputManager, settings, travelingMode), inputManager(inputManager),
-    currentRemappingButton(nullptr) {}
+    currentRemappingButton(nullptr), sourceCollection(nullptr), sourceCollectionSize() {}
+
+void UIInputRemappingButtonGroup::setSourceCollection(InputSource* collection, size_t size)
+{
+    sourceCollection = collection;
+    sourceCollectionSize = size;
+}
 
 void UIInputRemappingButtonGroup::setRemappingButton(UIInputRemapper* newRemappingButton)
 {
     if (currentRemappingButton == newRemappingButton) return;
     else if (currentRemappingButton != nullptr) currentRemappingButton->resetRemappingState(inputManager);
     currentRemappingButton = newRemappingButton;
+}
+
+void UIInputRemappingButtonGroup::assignRemappingUniquely(InputSource& curSource, InputSource newSource)
+{
+    for (size_t i = 0; i < sourceCollectionSize; i++)
+        if (sourceCollection[i] == newSource)
+        {
+            sourceCollection[i] = curSource;
+
+            for (auto button : getButtons())
+            {
+                auto btn = dynamic_cast<UIInputRemapper*>(button);
+                if (btn) btn->resetText();
+            }
+
+            break;
+        }
+
+    curSource = newSource;
 }

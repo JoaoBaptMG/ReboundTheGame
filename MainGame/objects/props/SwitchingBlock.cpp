@@ -11,6 +11,8 @@
 #include <chronoUtils.hpp>
 #include <streamReaders.hpp>
 
+#include "objects/GameObjectFactory.hpp"
+
 using namespace props;
 
 std::chrono::steady_clock::duration SwitchingBlock::getFadeDuration()
@@ -133,3 +135,5 @@ void SwitchingBlock::render(Renderer& renderer)
     if (fadeSprite.getOpacity() > 0) renderer.pushDrawable(fadeSprite, {}, 37);
     renderer.popTransform();
 }
+
+REGISTER_GAME_OBJECT(props::SwitchingBlock);

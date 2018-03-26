@@ -1,5 +1,6 @@
 #include "Player.hpp"
 
+#include "GameObjectFactory.hpp"
 #include "input/InputPlayerController.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
@@ -781,3 +782,4 @@ void Player::render(Renderer& renderer)
     }
 }
 
+REGISTER_GAME_OBJECT(Player);

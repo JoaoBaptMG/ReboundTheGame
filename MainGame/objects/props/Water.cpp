@@ -7,6 +7,8 @@
 
 #include <assert.hpp>
 
+#include "objects/GameObjectFactory.hpp"
+
 cpFloat catet(cpFloat h, cpFloat c) { ASSERT(h*h - c*c >= 0); return sqrt(h*h - c*c); }
 
 cpFloat intersectQuarterCircle(cpBB bb, cpFloat radius)
@@ -138,3 +140,4 @@ void Water::render(Renderer& renderer)
     renderer.popTransform();
 }
 
+REGISTER_GAME_OBJECT(props::Water);

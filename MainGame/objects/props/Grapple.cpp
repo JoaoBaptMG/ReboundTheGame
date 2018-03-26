@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <chipmunk/chipmunk.h>
 
+#include "objects/GameObjectFactory.hpp"
+
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
 #include "scene/GameScene.hpp"
@@ -123,3 +125,5 @@ void Grapple::render(Renderer& renderer)
 
     renderer.popTransform();
 }
+
+REGISTER_GAME_OBJECT(props::Grapple);

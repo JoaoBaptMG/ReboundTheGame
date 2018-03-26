@@ -7,6 +7,8 @@
 #include "gameplay/ScriptedPlayerController.hpp"
 #include <streamReaders.hpp>
 
+#include "objects/GameObjectFactory.hpp"
+
 using namespace props;
 
 MessageSign::MessageSign(GameScene& scene)
@@ -93,3 +95,4 @@ void MessageSign::render(Renderer& renderer)
     renderer.popTransform();
 }
 
+REGISTER_GAME_OBJECT(props::MessageSign);

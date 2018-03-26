@@ -81,11 +81,11 @@ int main(int argc, char **argv)
 
         auto curTime = std::chrono::steady_clock::now();
 
-		while (curTime <= updateTime)
-		{
-			std::this_thread::sleep_until(updateTime);
-			curTime = std::chrono::steady_clock::now();
-		}
+        while (curTime <= updateTime)
+        {
+            std::this_thread::sleep_until(updateTime);
+            curTime = std::chrono::steady_clock::now();
+        }
 
         while (curTime > updateTime)
         {

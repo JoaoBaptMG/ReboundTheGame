@@ -8,6 +8,8 @@
 #include "defaults.hpp"
 #include "gameplay/ScriptedPlayerController.hpp"
 
+#include "objects/GameObjectFactory.hpp"
+
 #include <cppmunk/PolyShape.h>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_unsafe.h>
@@ -128,3 +130,5 @@ void Powerup::render(Renderer& renderer)
     renderer.pushDrawable(vertices, sf::RenderStates(texture.get()), 25);
     renderer.popTransform();
 }
+
+REGISTER_GAME_OBJECT(collectibles::Powerup);

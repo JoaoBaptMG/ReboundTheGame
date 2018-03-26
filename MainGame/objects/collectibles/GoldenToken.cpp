@@ -3,6 +3,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
+#include "objects/GameObjectFactory.hpp"
 #include <chronoUtils.hpp>
 
 #include <cppmunk/CircleShape.h>
@@ -90,3 +91,5 @@ void GoldenToken::render(Renderer& renderer)
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }
+
+REGISTER_GAME_OBJECT(collectibles::GoldenToken);

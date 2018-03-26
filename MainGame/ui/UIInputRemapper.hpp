@@ -41,11 +41,15 @@ void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, Loc
 class UIInputRemappingButtonGroup final : public UIButtonGroup
 {
     UIInputRemapper* currentRemappingButton;
+    InputSource* sourceCollection;
+    size_t sourceCollectionSize;
     InputManager& inputManager;
 
 public:
     UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =
         TravelingMode::Vertical);
 
+    void setSourceCollection(InputSource* collection, size_t size);
     void setRemappingButton(UIInputRemapper* newRemappingButton);
+    void assignRemappingUniquely(InputSource& curSource, InputSource newSource);
 };

@@ -5,6 +5,8 @@
 #include "resources/ResourceManager.hpp"
 #include <chronoUtils.hpp>
 
+#include "objects/GameObjectFactory.hpp"
+
 #include <cppmunk/CircleShape.h>
 #include <cppmunk/PolyShape.h>
 
@@ -102,3 +104,5 @@ void Floater::render(Renderer& renderer)
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }
+
+REGISTER_GAME_OBJECT(enemies::Floater);

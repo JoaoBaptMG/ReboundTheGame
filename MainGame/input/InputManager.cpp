@@ -34,14 +34,16 @@ bool InputManager::handleEvent(const sf::Event& event)
     {
         case sf::Event::KeyPressed:
             if (curPickAllKeyboardCallback)
-            {
                 curPickAllKeyboardCallback(InputSource::keyboardKey(event.key.scanCode), 1.0f);
-                curPickAllKeyboardCallback = Callback();
-            }
             else dispatchData(InputSource::keyboardKey(event.key.scanCode), 1.0f);
             return true;
         case sf::Event::KeyReleased:
-            dispatchData(InputSource::keyboardKey(event.key.scanCode), 0.0f);
+            if (curPickAllKeyboardCallback)
+            {
+                curPickAllKeyboardCallback(InputSource::keyboardKey(event.key.scanCode), 0.0f);
+                curPickAllKeyboardCallback = Callback();
+            }
+            else dispatchData(InputSource::keyboardKey(event.key.scanCode), 0.0f);
             return true;
         case sf::Event::MouseWheelScrolled:   
             dispatchData(InputSource::mouseWheel(event.mouseWheelScroll.wheel), event.mouseWheelScroll.delta);
@@ -59,14 +61,16 @@ bool InputManager::handleEvent(const sf::Event& event)
             return true;
         case sf::Event::JoystickButtonPressed:
             if (curPickAllJoystickCallback)
-            {
                 curPickAllJoystickCallback(InputSource::joystickButton(event.joystickButton.button), 1.0f);
-                curPickAllJoystickCallback = Callback();
-            }
             else dispatchData(InputSource::joystickButton(event.joystickButton.button), 1.0f);
             return true;
         case sf::Event::JoystickButtonReleased:
-            dispatchData(InputSource::joystickButton(event.joystickButton.button), 0.0f);
+            if (curPickAllJoystickCallback)
+            {
+                curPickAllJoystickCallback(InputSource::joystickButton(event.joystickButton.button), 0.0f);
+                curPickAllJoystickCallback = Callback();
+            }
+            else dispatchData(InputSource::joystickButton(event.joystickButton.button), 0.0f);
             return true;
         case sf::Event::JoystickMoved:
             dispatchData(InputSource::joystickAxis(event.joystickMove.axis), event.joystickMove.position);

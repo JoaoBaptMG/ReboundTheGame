@@ -5,6 +5,8 @@
 #include "defaults.hpp"
 #include <iostream>
 
+#include "objects/GameObjectFactory.hpp"
+
 using namespace background;
 
 Parallax::Parallax(GameScene& scene) : GameObject(scene), parallaxFactor(1.0f), internalDisplacement(0, 0),
@@ -67,3 +69,5 @@ bool Parallax::notifyScreenTransition(cpVect displacement)
     internalDisplacement += sf::Vector2f(displacement.x, displacement.y) * parallaxFactor;
     return true;
 }
+
+REGISTER_GAME_OBJECT(background::Parallax);

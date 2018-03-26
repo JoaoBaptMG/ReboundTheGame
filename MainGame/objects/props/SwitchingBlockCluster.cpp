@@ -13,6 +13,8 @@
 #include <utility>
 #include <iostream>
 
+#include "objects/GameObjectFactory.hpp"
+
 using namespace props;
 
 SwitchingBlockCluster::SwitchingBlockCluster(GameScene& scene) : GameObject(scene),
@@ -100,3 +102,5 @@ void SwitchingBlockCluster::update(std::chrono::steady_clock::time_point curTime
 
     prevNumber = curNumber;
 }
+
+REGISTER_GAME_OBJECT(props::SwitchingBlockCluster);

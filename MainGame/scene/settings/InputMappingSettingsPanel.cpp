@@ -66,6 +66,9 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputMa
     buttons.push_back(&backButton);
     buttonGroup.setButtons(buttons);
     buttonGroup.setPointer(pointer);
+
+    if (forJoystick) buttonGroup.setSourceCollection((InputSource*)&settings.inputSettings.joystickSettings, sizeof(JoystickSettings)/sizeof(InputSource));
+    else buttonGroup.setSourceCollection((InputSource*)&settings.inputSettings.keyboardSettings, sizeof(KeyboardSettings)/sizeof(InputSource));
 }
 
 void InputMappingSettingsPanel::initKeyboardInputScreen(sf::Vector2f pos, InputManager& inputManager,
