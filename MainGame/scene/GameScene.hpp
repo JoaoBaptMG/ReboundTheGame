@@ -96,6 +96,7 @@ public:
     const auto& getSavedGame() const { return savedGame; }
     
     MessageBox& getMessageBox() { return messageBox; }
+    Camera& getCamera() { return camera; }
     
     ResourceManager& getResourceManager() const { return resourceManager; }
     LocalizationManager& getLocalizationManager() const { return localizationManager; }

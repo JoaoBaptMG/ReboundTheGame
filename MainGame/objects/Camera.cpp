@@ -4,6 +4,9 @@
 #include <defaults.hpp>
 #include <chronoUtils.hpp>
 #include <cmath>
+#include <random>
+#include <functional>
+#include <algorithm>
 
 constexpr auto TransitionDuration = 20 * UpdateFrequency;
 
@@ -44,6 +47,27 @@ bool Camera::transitionOccuring() const
     return !isNull(transitionTime);
 }
 
+void Camera::applyShake(std::chrono::steady_clock::duration duration,
+    std::chrono::steady_clock::duration period, float amp)
+{
+    shakePeriod = period;
+    shakeTime = curTime + duration;
+    shakeSamples.resize(duration / shakePeriod + 2);
+
+    std::random_device init;
+	std::mt19937 rgen(init());
+	std::uniform_real_distribution<float> distribution(-amp, amp);
+	auto generator = std::bind(distribution, rgen);
+    auto generator2 = [&] { return sf::Vector2f(generator(), generator()); };
+
+    std::generate(shakeSamples.begin(), shakeSamples.end(), generator2);
+    for (size_t i = 0; i < shakeSamples.size(); i++)
+    {
+        float t = (float)i / shakeSamples.size();
+        shakeSamples[i] *= t*t;
+    }
+}
+
 sf::Vector2f Camera::getGlobalDisplacement() const
 {
     auto disp = position;
@@ -65,5 +89,29 @@ sf::Vector2f Camera::getGlobalDisplacement() const
         }
     }
     
-    return sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f - disp;
+    return sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f - disp + getShakeDisplacement();
+}
+
+sf::Vector2f Camera::getShakeDisplacement() const
+{
+    if (isNull(shakeTime)) return sf::Vector2f(0, 0);
+    if (curTime > shakeTime) return sf::Vector2f(0, 0);
+
+    auto sample = (shakeTime - curTime) / shakePeriod;
+    auto rem = (shakeTime - curTime) % shakePeriod;
+    float factor = toSeconds<float>(rem) / toSeconds<float>(shakePeriod);
+
+    auto s1 = shakeSamples.at(sample), s2 = shakeSamples.at(sample+1);
+    return s1 + factor * (s2 - s1);
+}
+
+bool Camera::isVisible(sf::Vector2f point) const
+{
+    return fabsf(point.x - position.x) <= PlayfieldWidth/2 && fabsf(point.y - position.y) <= PlayfieldHeight/2;
+}
+
+bool Camera::isVisible(sf::FloatRect rect) const
+{
+    sf::FloatRect centerRect(position.x - PlayfieldWidth/2, position.y - PlayfieldHeight/2, PlayfieldWidth, PlayfieldHeight);
+    return rect.intersects(centerRect);
 }

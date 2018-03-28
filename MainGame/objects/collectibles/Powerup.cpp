@@ -9,6 +9,7 @@
 #include "gameplay/ScriptedPlayerController.hpp"
 
 #include "objects/GameObjectFactory.hpp"
+#include "objects/Camera.hpp"
 
 #include <cppmunk/PolyShape.h>
 #include <chipmunk/chipmunk.h>
@@ -114,6 +115,7 @@ void Powerup::onCollect(Player& player)
         msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
         msgbox.display(script, msg);
     });
+
     remove();
 }
 
