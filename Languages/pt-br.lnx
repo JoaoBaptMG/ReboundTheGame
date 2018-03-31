@@ -35,7 +35,7 @@
     <!-- In-game GUI box: presentation of the label "level" and the level number (so traditional numerals
         can be used ;) ). If the word for "level" is too big to fit (e.g. "Livello" in Italian), you can
         either abbreviate it or reduce the font size. -->
-        
+         
     <!-- Font size of the "level" label and the level number, one after the other separated by a space.
         Default: 24 56 -->
     <string name="ingame-gui-level-config">24 56</string>

@@ -29,7 +29,7 @@
     </plural-forms>
 
     <!-- Ordinal plural form and pterm -->
-    <plural-forms category="ord">
+    <plural-forms category="ord"> 
         <plural-form type="first"><![CDATA[x % 10 == 1 && x % 100 != 11]]></plural-form>
         <plural-form type="second"><![CDATA[x % 10 == 2 && x % 100 != 12]]></plural-form>
         <plural-form type="third"><![CDATA[x % 10 == 3 && x % 100 != 13]]></plural-form>

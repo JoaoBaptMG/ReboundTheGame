@@ -44,16 +44,16 @@ constexpr cpFloat DashSpeedEnhanced = 800;
 constexpr cpFloat HardballAirFactor = 0.125;
 constexpr cpFloat HardballWaterFactor = 0.75;
 
-constexpr auto DashInterval = 40 * UpdateFrequency;
-constexpr auto DashIntervalEnhanced = 90 * UpdateFrequency;
-constexpr auto HardballChangeTime = 40 * UpdateFrequency;
-constexpr auto GrappleFade = 30 * UpdateFrequency;
+constexpr auto DashInterval = 40 * UpdatePeriod;
+constexpr auto DashIntervalEnhanced = 90 * UpdatePeriod;
+constexpr auto HardballChangeTime = 40 * UpdatePeriod;
+constexpr auto GrappleFade = 30 * UpdatePeriod;
 
-constexpr auto Invincibility = 60 * UpdateFrequency;
-constexpr auto InvincPeriod = 20 * UpdateFrequency;
+constexpr auto Invincibility = 60 * UpdatePeriod;
+constexpr auto InvincPeriod = 20 * UpdatePeriod;
 
-constexpr auto SpikeRespawnTime = 25 * UpdateFrequency;
-constexpr auto SpikeInvincibilityTime = 200 * UpdateFrequency;
+constexpr auto SpikeRespawnTime = 25 * UpdatePeriod;
+constexpr auto SpikeInvincibilityTime = 200 * UpdatePeriod;
 
 constexpr auto ExplosionDuration = 2 * SpikeRespawnTime;
 
@@ -181,7 +181,7 @@ void Player::update(std::chrono::steady_clock::time_point curTime)
         case CollisionState::Ground: actOnGround(); break;
         case CollisionState::WallLeft: actOnWalls(state); break;
         case CollisionState::WallRight: actOnWalls(state); break;
-        case CollisionState::Spike: hitSpikes(); return;
+        case CollisionState::Spike: hitSpikes(); interactionViable = false; return;
     }
     
     if (abilityLevel >= 5) observeBombAction();
@@ -231,7 +231,7 @@ void Player::applyMovementForces()
     }
     body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
-    auto dt = toSeconds<cpFloat>(UpdateFrequency);
+    auto dt = toSeconds<cpFloat>(UpdatePeriod);
     if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
     angle += radiansToDegrees(vel.x * dt / 32);
     angle -= 360 * round(angle/360);
@@ -241,7 +241,7 @@ void Player::applyWaterForces()
 {
     auto body = playerShape->getBody();
     auto vel = body->getVelocity();
-    auto dt = toSeconds<cpFloat>(UpdateFrequency);
+    auto dt = toSeconds<cpFloat>(UpdatePeriod);
     
     cpFloat density = hardballEnabled ? 0.4 : 1.6;
     
@@ -324,14 +324,16 @@ void Player::actOnGround(bool waterborne)
     dashConsumed = false;
     doubleJumpConsumed = false;
     reset(wallJumpTriggerTime);
-    
     if (controller.jump().isTriggered() && !chargingForHardball) jump();
 	if (abilityLevel >= 7 && !waterborne) observeHardballTrigger();
+    
+    interactionViable = controller.dash().isTriggered();
 }
 
 void Player::actAirborne()
 {
     const auto& controller = gameScene.getPlayerController();
+    auto vec = controller.movement().getValue();
     
     if (controller.jump().isReleased()) decayJump();
     
@@ -342,6 +344,9 @@ void Player::actAirborne()
         if (abilityLevel >= 3) observeDashAction();
         if (abilityLevel >= 4 && !wallJumped) observeDoubleJumpAction();
     }
+    
+    bool dashImpossible = abilityLevel >= 3 ? fabsf(vec.x) < 0.5 && fabsf(vec.y) < 0.5 : true;
+    interactionViable = controller.dash().isTriggered() && dashImpossible;
 }
 
 void Player::actOnWalls(Player::CollisionState state)
@@ -352,13 +357,15 @@ void Player::actOnWalls(Player::CollisionState state)
     {
         if (controller.jump().isTriggered()) wallJump(state);
         else if (previousWallState == CollisionState::None &&
-            curTime - wallJumpTriggerTime < 6 * UpdateFrequency) wallJump(state);
+            curTime - wallJumpTriggerTime < 6 * UpdatePeriod) wallJump(state);
         else
         {
             previousWallState = state;
             wallJumpTriggerTime = curTime;
         }
     }
+    
+    interactionViable = false;
 }
 
 bool Player::observeWallJumpTrigger()
@@ -368,7 +375,7 @@ bool Player::observeWallJumpTrigger()
     if (controller.jump().isTriggered())
     {
         if (previousWallState == CollisionState::None) wallJumpTriggerTime = curTime;
-        else if (curTime - wallJumpTriggerTime < 6 * UpdateFrequency)
+        else if (curTime - wallJumpTriggerTime < 6 * UpdatePeriod)
         {
             wallJump(previousWallState);
             previousWallState = CollisionState::None;
@@ -746,6 +753,11 @@ float Player::getDashDisplay() const
     
     if (!dashConsumed) return 1;
     else return std::max(1.0f - toSeconds<float>(curTime - dashTime)/toSeconds<float>(dashInterval), 0.0f);
+}
+
+bool Player::wantsToInteract() const
+{
+    return interactionViable;
 }
 
 void Player::render(Renderer& renderer)

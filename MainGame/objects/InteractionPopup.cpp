@@ -9,7 +9,7 @@
 
 #include <chronoUtils.hpp>
 
-auto FadeInterval = 12 * UpdateFrequency;
+auto FadeInterval = 12 * UpdatePeriod;
 
 InteractionPopup::InteractionPopup(GameScene& scene)
     : GameObject(scene), collapsing(false),

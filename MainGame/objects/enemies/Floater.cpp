@@ -88,7 +88,7 @@ void Floater::update(std::chrono::steady_clock::time_point curTime)
 
     cpVect pos = originalPos + cpVect{ 0, yDisplacement };
     auto dx = pos - collisionBody->getPosition();
-    collisionBody->setVelocity(dx * (1.0 / toSeconds<cpFloat>(UpdateFrequency)));
+    collisionBody->setVelocity(dx * (1.0 / toSeconds<cpFloat>(UpdatePeriod)));
 }
 
 bool Floater::notifyScreenTransition(cpVect displacement)

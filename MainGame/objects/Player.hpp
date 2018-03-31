@@ -44,7 +44,7 @@ class Player final : public GameObject
 
     cpVect graphicalDisplacement;
     cpFloat angle, lastFade;
-    bool dashConsumed, doubleJumpConsumed;
+    bool dashConsumed, doubleJumpConsumed, interactionViable;
     bool chargingForHardball, hardballEnabled, grappleEnabled;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
@@ -117,6 +117,8 @@ public:
     cpFloat hardballFactor() const;
     void addToWaterArea(cpFloat area) { waterArea += area; }
 
+    bool wantsToInteract() const;
+    
     void applyMovementForces();
     void applyWaterForces();
     CollisionState enumerateAndActOnArbiters();

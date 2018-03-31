@@ -17,7 +17,7 @@ using namespace props;
 
 std::chrono::steady_clock::duration SwitchingBlock::getFadeDuration()
 {
-    return 20 * UpdateFrequency;
+    return 20 * UpdatePeriod;
 }
 
 SwitchingBlock::SwitchingBlock(GameScene &scene) : GameObject(scene),

@@ -116,7 +116,7 @@ void Water::update(std::chrono::steady_clock::time_point curTime)
         {
             for (intmax_t k = -32; k <= 32; k++)
                 shape.setVelocity(pos.x + k - rect.l,
-                    vel.y * toSeconds<float>(UpdateFrequency) * cosf(M_PI*k/64) / 20);
+                    vel.y * toSeconds<float>(UpdatePeriod) * cosf(M_PI*k/64) / 20);
         }
     }
 

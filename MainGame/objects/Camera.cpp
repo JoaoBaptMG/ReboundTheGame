@@ -8,7 +8,7 @@
 #include <functional>
 #include <algorithm>
 
-constexpr auto TransitionDuration = 20 * UpdateFrequency;
+constexpr auto TransitionDuration = 20 * UpdatePeriod;
 
 void Camera::update(std::chrono::steady_clock::time_point curTime)
 {

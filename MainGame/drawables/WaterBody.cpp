@@ -221,7 +221,7 @@ void WaterBody::update(std::chrono::steady_clock::time_point curTime)
         startingTime = curTime;
     }
 
-    curT = (curTime - startingTime)/UpdateFrequency;
+    curT = (curTime - startingTime)/UpdatePeriod;
 
     if (!topHidden) updateSimulation();
 }

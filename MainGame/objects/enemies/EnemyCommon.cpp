@@ -9,7 +9,7 @@
 
 using namespace enemies;
 
-constexpr auto BlinkDuration = 12 * UpdateFrequency;
+constexpr auto BlinkDuration = 12 * UpdatePeriod;
 
 EnemyCommon::EnemyCommon(GameScene& gameScene) : Enemy(gameScene), touchDamage(0), curTime(), blinkTime()
 {

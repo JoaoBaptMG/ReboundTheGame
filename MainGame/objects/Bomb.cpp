@@ -10,7 +10,7 @@
 
 using namespace std::literals::chrono_literals;
 
-constexpr auto DetonationTime = 48 * UpdateFrequency;
+constexpr auto DetonationTime = 48 * UpdatePeriod;
 constexpr float SinePhase = 4;
 constexpr float SinePower = 2;
 

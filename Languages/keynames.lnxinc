@@ -21,6 +21,9 @@
     <string name="key-name-num-subtract">Num -</string>
     <string name="key-name-num-decimal">Num .</string>
     <string name="key-name-num-divide">Num /</string>
+    <string name="key-name-num-clear">Num Clear</string>
+    <string name="key-name-num-return">Num Enter</string>
+    <string name="key-name-num-equal">Num = </string>
     <string name="key-name-select">Select</string>
     <string name="key-name-print">Print</string>
     <string name="key-name-execute">Execute</string>
@@ -49,4 +52,19 @@
     <string name="key-name-escape">Esc</string>
     <string name="key-name-num-lock">Num Lock</string>
     <string name="key-name-delete">Delete</string>
+    <string name="key-name-macos-return">Return</string>
+    <string name="key-name-macos-delete">Delete</string>
+    <string name="key-name-macos-command">LCmd</string>
+    <string name="key-name-macos-shift">LShift</string>
+    <string name="key-name-macos-option">LOption</string>
+    <string name="key-name-macos-control">LCtrl</string>
+    <string name="key-name-macos-right-command">RCmd</string>
+    <string name="key-name-macos-right-shift">RShift</string>
+    <string name="key-name-macos-right-option">ROption</string>
+    <string name="key-name-macos-right-control">RCmd</string>
+    <string name="key-name-macos-function">Function</string>
+    <string name="key-name-macos-volup">VolUp</string>
+    <string name="key-name-macos-voldown">VolDown</string>
+    <string name="key-name-macos-mute">Mute</string>
+    <string name="key-name-macos-fwd-delete">FwdDel</string>
 </language>

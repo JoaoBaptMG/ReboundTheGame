@@ -8,8 +8,8 @@
 #include "particles/ParticleBatch.hpp"
 #include "scene/GameScene.hpp"
 
-constexpr auto FadeDuration = 30 * UpdateFrequency;
-constexpr auto TotalDuration = 200 * UpdateFrequency;
+constexpr auto FadeDuration = 30 * UpdatePeriod;
+constexpr auto TotalDuration = 200 * UpdatePeriod;
 
 PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<sf::Texture>& texture)
     : GameObject(scene), playerSprite(texture), position(player.getDisplayPosition()), spawnedParticle(false)

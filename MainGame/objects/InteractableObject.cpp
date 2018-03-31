@@ -30,8 +30,7 @@ void InteractableObject::update(std::chrono::steady_clock::time_point curTime)
         currentPopup = nullptr;
     }
 
-    auto interactionViable = gameScene.getPlayerController().dash().isTriggered();
-    if (popup && interactionViable) interact();
+    if (popup && player && player->wantsToInteract()) interact();
 }
 
 bool InteractableObject::notifyScreenTransition(cpVect displacement)

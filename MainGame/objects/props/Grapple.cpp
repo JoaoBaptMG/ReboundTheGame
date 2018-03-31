@@ -18,8 +18,8 @@ using namespace props;
 constexpr float ExciteRadius = 192;
 constexpr float ExciteForce = 512;
 
-constexpr auto WobblePeriod = 60 * UpdateFrequency;
-constexpr auto GrappleFade = 30 * UpdateFrequency;
+constexpr auto WobblePeriod = 60 * UpdatePeriod;
+constexpr auto GrappleFade = 30 * UpdatePeriod;
 
 Grapple::Grapple(GameScene& gameScene) : GameObject(gameScene), isExcited(false), lastFade(0),
     sprite(gameScene.getResourceManager().load<sf::Texture>("grapple.png")),
@@ -71,7 +71,7 @@ void Grapple::update(std::chrono::steady_clock::time_point curTime)
             auto param = ExciteForce;
             auto n = cpvnormalize(pos - player->getPosition());
             auto vdot = cpvdot(n, body->getVelocity());
-            auto dt = toSeconds<cpFloat>(UpdateFrequency);
+            auto dt = toSeconds<cpFloat>(UpdatePeriod);
 
             body->applyForceAtLocalPoint(n * param * body->getMass(), cpvzero);
         }

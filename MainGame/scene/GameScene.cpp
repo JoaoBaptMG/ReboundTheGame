@@ -265,7 +265,7 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     }
     
     inputPlayerController.update();
-    gameSpace.step(toSeconds<cpFloat>(UpdateFrequency));
+    gameSpace.step(toSeconds<cpFloat>(UpdatePeriod));
     
     auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
 

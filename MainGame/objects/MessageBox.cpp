@@ -19,14 +19,14 @@
 
 using namespace std::literals::chrono_literals;
 
-constexpr auto DefaultLetterPeriod = 2 * UpdateFrequency;
-constexpr auto FadeInterval = 24 * UpdateFrequency;
+constexpr auto DefaultLetterPeriod = 2 * UpdatePeriod;
+constexpr auto FadeInterval = 24 * UpdatePeriod;
 constexpr size_t VisibleLines = 4;
 
 constexpr float FullFadePerFrame = 0.025;
 constexpr float MessageVerticalSpacing = 112;
 
-constexpr auto IconOscillationPeriod = 48 * UpdateFrequency;
+constexpr auto IconOscillationPeriod = 48 * UpdatePeriod;
 
 const sf::Color DisplayColors[] =
     {
@@ -75,7 +75,7 @@ void MessageBox::display(Script& script, std::string text)
 {
     if (text.empty()) return;
 
-    initTime = curTime + std::max(FadeInterval, UpdateFrequency *
+    initTime = curTime + std::max(FadeInterval, UpdatePeriod *
         intmax_t((1 - messageBackground.getOpacity())/FullFadePerFrame));
 
     currentText = std::move(text);

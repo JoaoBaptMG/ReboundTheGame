@@ -35,7 +35,7 @@ std::vector<std::string> getAllFilesInDir(std::string dir)
     std::vector<std::string> list;
     NSString* filename;
     while ((filename = [enumerator nextObject]))
-    list.emplace_back(filename.UTF8String);
+        list.emplace_back(filename.UTF8String);
     
     [pool drain];
     

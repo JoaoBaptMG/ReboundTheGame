@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
         while (curTime > updateTime)
         {
-            updateTime += UpdateFrequency;
+            updateTime += UpdatePeriod;
             sceneManager.update(updateTime);
 #if DEBUG_STEADY
             break;

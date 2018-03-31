@@ -102,7 +102,7 @@ void Powerup::onCollect(Player& player)
 {
     player.upgradeToAbilityLevel(abilityLevel);
     gameScene.getSavedGame().setAbilityLevel(abilityLevel);
-    gameScene.runCutsceneScript([=] (Script& script)
+    gameScene.runCutsceneScript([&gameScene = this->gameScene, abilityLevel = this->abilityLevel] (Script& script)
     {
         const auto& lm = gameScene.getLocalizationManager();
 
@@ -121,7 +121,7 @@ void Powerup::onCollect(Player& player)
 
 void Powerup::update(std::chrono::steady_clock::time_point curTime)
 {
-    rotationAngle += degreesToRadians(RotationSpeed) * toSeconds<float>(UpdateFrequency);
+    rotationAngle += degreesToRadians(RotationSpeed) * toSeconds<float>(UpdatePeriod);
     makeRotatedRect();
 }
 
