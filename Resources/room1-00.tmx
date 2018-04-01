@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="56" height="32" tilewidth="32" tileheight="32" infinite="0" nextobjectid="10">
+<map version="1.0" tiledversion="1.1.0" orientation="orthogonal" renderorder="right-down" width="56" height="32" tilewidth="32" tileheight="32" infinite="0" nextobjectid="11">
  <properties>
   <property name="tileset" value="level1"/>
  </properties>
- <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="20" columns="5">
-  <image source="tilemap1.png" width="160" height="128"/>
+ <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="25" columns="5">
+  <image source="tilemap1.png" width="160" height="160"/>
   <terraintypes>
    <terrain name="terrain" tile="-1"/>
   </terraintypes>
@@ -82,6 +82,7 @@
     <property name="message-formatter" value="room1-00-sign1"/>
    </properties>
   </object>
+  <object id="10" name="hopper0" type="enemies::Hopper" x="480" y="640" width="100" height="52"/>
  </objectgroup>
  <objectgroup name="warp-layer">
   <object id="7" name="0 -&gt; 1.0" type="right" x="1728" y="64" width="64" height="192"/>

@@ -203,7 +203,6 @@ void TimedLevelWarper::update(std::chrono::steady_clock::time_point curTime)
     
     if (curTime > initTime + std::chrono::seconds(5))
     {
-        
         gameScene.requestAdvanceScene(levelName);
         remove();
     }

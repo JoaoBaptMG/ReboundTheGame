@@ -132,6 +132,14 @@ bool write_props_SwitchingBlockCluster(Object obj, ostream& out)
     return obj.everythingOk();
 }
 
+bool write_enemies_Hopper(Object obj, ostream& out)
+{
+    uint8_t facingRight = obj.getPropertyBool("facing-right", true, false);
+    out.write((const char*)&facingRight, sizeof(uint8_t));
+    
+    return obj.everythingOk();
+}
+
 unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
 {
     { "Player", doNothing },
@@ -144,6 +152,7 @@ unordered_map<string,bool(*)(Object,ostream&)> objectWriters =
     
     { "enemies::Floater", doNothing },
     { "enemies::Rotator", writeBox },
+    { "enemies::Hopper", write_enemies_Hopper },
     
     { "enemies::bosses::TestBoss", write_enemies_bosses_TestBoss },
     

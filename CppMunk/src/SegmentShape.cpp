@@ -18,23 +18,23 @@ namespace cp
         cpSegmentShapeSetNeighbors(*shape, prev, next);
     }
     
-    cpVect SegmentShape::getA(const std::shared_ptr<Shape> shape)
+    cpVect SegmentShape::getA()
     {
-        return cpSegmentShapeGetA(*shape);
+        return cpSegmentShapeGetA(_shape);
     }
     
-    cpVect SegmentShape::getB(const std::shared_ptr<Shape> shape)
+    cpVect SegmentShape::getB()
     {
-        return cpSegmentShapeGetB(*shape);
+        return cpSegmentShapeGetB(_shape);
     }
     
-    cpVect SegmentShape::getNormal(const std::shared_ptr<Shape> shape)
+    cpVect SegmentShape::getNormal()
     {
-        return cpSegmentShapeGetNormal(*shape);
+        return cpSegmentShapeGetNormal(_shape);
     }
     
-    cpFloat SegmentShape::getRadius(const std::shared_ptr<Shape> shape)
+    cpFloat SegmentShape::getRadius()
     {
-        return cpSegmentShapeGetRadius(*shape);
+        return cpSegmentShapeGetRadius(_shape);
     }
 }

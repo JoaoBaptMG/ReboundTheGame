@@ -38,4 +38,7 @@ public:
 
     static constexpr cpCollisionType CollisionType = 'enmy';
     static constexpr cpCollisionType HitCollisionType = 'ehit';
+    
+    static constexpr cpCollisionType GroundStandCollisionType = 'enyg';
+    static constexpr cpCollisionType GroundStandHitCollisionType = 'ehtg';
 };
