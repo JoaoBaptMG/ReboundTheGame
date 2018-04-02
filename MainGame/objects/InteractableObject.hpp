@@ -6,7 +6,7 @@
 
 #include <cppmunk.h>
 #include <memory>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -24,7 +24,7 @@ public:
     explicit InteractableObject(GameScene& scene);
     virtual ~InteractableObject() = default;
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual bool notifyScreenTransition(cpVect displacement) override;
 
     virtual void interact() = 0;

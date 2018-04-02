@@ -18,7 +18,7 @@ void Script::runScript(Script::ScriptFunction function)
         return std::move(hostContinuation);
     });
     
-    currentSemaphore = [=] (std::chrono::steady_clock::time_point) { return false; };
+    currentSemaphore = [=] (FrameTime) { return false; };
 }
 
 void Script::cancelScript()
@@ -36,7 +36,7 @@ void Script::waitWhile(Script::SemaphoreFunc func)
     hostContinuation = hostContinuation.resume();
 }
 
-void Script::waitFor(std::chrono::steady_clock::duration dur)
+void Script::waitFor(FrameDuration dur)
 {
     waitWhile([=, initTime = curTime](auto curTime) { return curTime - initTime <= dur; });
 }
@@ -50,7 +50,7 @@ void Script::executeMain(std::function<void()> func)
     });
 }
 
-void Script::update(std::chrono::steady_clock::time_point curTime)
+void Script::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

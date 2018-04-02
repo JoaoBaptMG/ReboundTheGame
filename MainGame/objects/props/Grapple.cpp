@@ -44,7 +44,7 @@ bool Grapple::configure(const Grapple::ConfigStruct &config)
     return true;
 }
 
-void Grapple::update(std::chrono::steady_clock::time_point curTime)
+void Grapple::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

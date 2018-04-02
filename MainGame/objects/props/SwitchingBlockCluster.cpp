@@ -65,7 +65,7 @@ auto divModTruncated(const T& dividend, const U& divisor)
     return std::make_pair(quotient, remainder);
 };
 
-void SwitchingBlockCluster::update(std::chrono::steady_clock::time_point curTime)
+void SwitchingBlockCluster::update(FrameTime curTime)
 {
     if (isNull(initTime))
     {

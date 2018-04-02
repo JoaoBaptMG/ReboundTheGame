@@ -23,7 +23,7 @@ namespace background
         Parallax(GameScene& gameScene, std::string textureName);
         virtual ~Parallax() {}
 
-        virtual void update(std::chrono::steady_clock::time_point curTime);
+        virtual void update(FrameTime curTime);
         virtual void render(Renderer& renderer);
         virtual bool notifyScreenTransition(cpVect displacement);
 

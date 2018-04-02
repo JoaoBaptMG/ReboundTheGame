@@ -40,7 +40,7 @@ sf::FloatRect GUIMap::getBounds() const
     return extendedFrame ? ExtendedMapViewport : MapViewport;
 }
 
-void GUIMap::update(std::chrono::steady_clock::time_point curTime)
+void GUIMap::update(FrameTime curTime)
 {
     if (initTime == decltype(initTime)()) initTime = curTime;
     

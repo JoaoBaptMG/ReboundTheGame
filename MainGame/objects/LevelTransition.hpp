@@ -1,6 +1,6 @@
 #pragma once
 
-#include <chrono>
+#include <chronoUtils.hpp>
 #include "drawables/Quad.hpp"
 
 class Renderer;
@@ -8,7 +8,7 @@ class GameScene;
 
 class LevelTransition final
 {
-    std::chrono::steady_clock::time_point curTime, transitionTime;
+    FrameTime curTime, transitionTime;
     Quad screenQuad;
     std::string nextLevel;
     bool transitionDone;
@@ -20,6 +20,6 @@ public:
     
     void requestLevelTransition(std::string level);
     
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer);
 };

@@ -6,7 +6,7 @@
 #include "objects/Player.hpp"
 
 #include <cppmunk/Shape.h>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class ResourceManager;
@@ -34,7 +34,7 @@ public:
 
     void loadRoom(const RoomData& data, bool transition, cpVect displacement);
 
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer, bool transition);
     
     void clearTransition();

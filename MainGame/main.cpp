@@ -1,5 +1,5 @@
 #include <iostream>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <thread>
 #include <utility>
 #include <clocale>
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     
     auto scene = new TitleScene(settings, inputManager, resourceManager, localizationManager);
     
-    auto updateTime = std::chrono::steady_clock::now();
+    auto updateTime = FrameClock::now();
     
     SceneManager sceneManager;
     sceneManager.pushScene(scene);
@@ -79,12 +79,12 @@ int main(int argc, char **argv)
             }
         }
 
-        auto curTime = std::chrono::steady_clock::now();
+        auto curTime = FrameClock::now();
 
         while (curTime <= updateTime)
         {
             std::this_thread::sleep_until(updateTime);
-            curTime = std::chrono::steady_clock::now();
+            curTime = FrameClock::now();
         }
 
         while (curTime > updateTime)

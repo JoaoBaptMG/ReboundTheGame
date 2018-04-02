@@ -11,7 +11,7 @@
 #include <cstring>
 #include <random>
 #include <numeric>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <thread>
 #include "streams/MemoryOutputStream.hpp"
 #include "aes/tiny-AES-c-master/aes.hpp"

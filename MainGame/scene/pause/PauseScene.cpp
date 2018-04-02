@@ -91,7 +91,7 @@ PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm
     });
 }
 
-void PauseScene::update(std::chrono::steady_clock::time_point curTime)
+void PauseScene::update(FrameTime curTime)
 {
     this->curTime = curTime;
     
@@ -133,7 +133,7 @@ void PauseScene::unpause()
 {
     using namespace std::chrono;
     unpausing = true;
-    transitionTime = curTime - duration_cast<nanoseconds>((1 - transitionFactor) * TransitionTime);
+    transitionTime = curTime - duration_cast<FrameDuration>((1 - transitionFactor) * TransitionTime);
 }
 
 void PauseScene::render(Renderer &renderer)

@@ -14,7 +14,7 @@ constexpr auto DetonationTime = 48 * UpdatePeriod;
 constexpr float SinePhase = 4;
 constexpr float SinePower = 2;
 
-Bomb::Bomb(GameScene& scene, cpVect pos, std::chrono::steady_clock::time_point initialTime)
+Bomb::Bomb(GameScene& scene, cpVect pos, FrameTime initialTime)
     : GameObject(scene), position(pos), detonationTime(initialTime + DetonationTime),
     sprite(scene.getResourceManager().load<sf::Texture>("bomb.png"))
 {
@@ -27,7 +27,7 @@ Bomb::~Bomb()
     if (player) player->numBombs++;
 }
 
-void Bomb::update(std::chrono::steady_clock::time_point curTime)
+void Bomb::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

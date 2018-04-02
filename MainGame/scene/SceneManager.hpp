@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <memory>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class Scene;
 class Renderer;
@@ -16,7 +16,7 @@ class SceneManager final : util::non_copyable_movable
     std::unique_ptr<Scene> operationScene;
     size_t popCount;
     bool requestBelow;
-    std::chrono::steady_clock::time_point curTime;
+    FrameTime curTime;
 
 public:
     SceneManager();
@@ -26,11 +26,11 @@ public:
     void popScene(size_t count = 1);
     void replaceScene(Scene* scene, size_t count = 1);
     
-    void pushSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration);
-    void popSceneTransition(size_t count, std::chrono::steady_clock::duration duration);
-    void popSceneTransition(std::chrono::steady_clock::duration duration) { popSceneTransition(1, duration); }
-    void replaceSceneTransition(Scene* scene, size_t count, std::chrono::steady_clock::duration duration);
-    void replaceSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration)
+    void pushSceneTransition(Scene* scene, FrameDuration duration);
+    void popSceneTransition(size_t count, FrameDuration duration);
+    void popSceneTransition(FrameDuration duration) { popSceneTransition(1, duration); }
+    void replaceSceneTransition(Scene* scene, size_t count, FrameDuration duration);
+    void replaceSceneTransition(Scene* scene, FrameDuration duration)
     { replaceSceneTransition(scene, 1, duration); }
 
     void handleScreenTransition();
@@ -38,7 +38,7 @@ public:
     inline bool hasScenes() const { return !sceneStack.empty(); }
     auto currentScene() const { return sceneStack.back().get(); }
 
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer);
     
     void updateBelow() { requestBelow = true; }

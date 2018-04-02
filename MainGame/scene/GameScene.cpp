@@ -219,15 +219,13 @@ void GameScene::runCutsceneScript(Script::ScriptFunction function)
     });
 }
 
-void GameScene::update(std::chrono::steady_clock::time_point curTime)
+void GameScene::update(FrameTime curTime)
 {
-    using namespace std::chrono;
-    
     this->curTime = curTime;
     
     if (pausing)
     {
-        pauseLag += duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
+        pauseLag += curTime.time_since_epoch();
         std::cout << pauseLag.count() << std::endl;
         pausing = false;
     }
@@ -266,11 +264,9 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
     
     inputPlayerController.update();
     gameSpace.step(toSeconds<cpFloat>(UpdatePeriod));
-    
-    auto laggedTime = curTime - duration_cast<steady_clock::duration>(pauseLag);
 
-    room.update(laggedTime);
-    for (const auto& obj : gameObjects) obj->update(laggedTime);
+    room.update(curTime - pauseLag);
+    for (const auto& obj : gameObjects) obj->update(curTime - pauseLag);
 
     gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(),
         [](const auto& obj) { return obj->shouldRemove; }), gameObjects.end());
@@ -280,11 +276,11 @@ void GameScene::update(std::chrono::steady_clock::time_point curTime)
 
     checkWarps();
     
-    gui.update(laggedTime);
-    camera.update(laggedTime);
-    levelTransition.update(laggedTime);
-    cutsceneScript.update(curTime);
-    messageBox.update(laggedTime);
+    gui.update(curTime - pauseLag);
+    camera.update(curTime - pauseLag);
+    levelTransition.update(curTime - pauseLag);
+    cutsceneScript.update(curTime - pauseLag);
+    messageBox.update(curTime - pauseLag);
     
     if (requestedID != -1)
     {
@@ -404,10 +400,8 @@ void GameScene::render(Renderer& renderer)
 
 void GameScene::pause()
 {
-    using namespace std::chrono;
-    
     pausing = true;
-    pauseLag -= duration_cast<decltype(pauseLag)>(curTime.time_since_epoch());
+    pauseLag -= curTime.time_since_epoch();
 }
 
 void GameScene::resume()

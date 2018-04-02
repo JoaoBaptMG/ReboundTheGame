@@ -236,7 +236,7 @@ size_t FileSelectScene::getScrollSize() const
     return maxOffset;
 }
 
-void FileSelectScene::update(std::chrono::steady_clock::time_point curTime)
+void FileSelectScene::update(FrameTime curTime)
 {
     if (!scrollBar) return;
     

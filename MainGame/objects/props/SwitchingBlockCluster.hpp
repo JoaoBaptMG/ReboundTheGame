@@ -4,7 +4,7 @@
 #include "scene/GameScene.hpp"
 
 #include <vector>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -16,8 +16,8 @@ namespace props
     class SwitchingBlockCluster final : public ::GameObject
     {
         std::vector<std::vector<SwitchingBlock*>> blockTimes;
-        std::chrono::steady_clock::time_point initTime;
-        std::chrono::steady_clock::duration duration;
+        FrameTime initTime;
+        FrameDuration duration;
         intmax_t prevNumber; bool fadeRequested;
         size_t numVisibleTimes;
 
@@ -25,7 +25,7 @@ namespace props
         SwitchingBlockCluster(GameScene& scene);
         virtual ~SwitchingBlockCluster() = default;
 
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override {}
 
         void registerSwitchBlock(size_t id, SwitchingBlock* block);

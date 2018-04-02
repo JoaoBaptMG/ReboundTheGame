@@ -10,7 +10,7 @@
 
 constexpr auto TransitionDuration = 20 * UpdatePeriod;
 
-void Camera::update(std::chrono::steady_clock::time_point curTime)
+void Camera::update(FrameTime curTime)
 {
     this->curTime = curTime;
     
@@ -47,8 +47,8 @@ bool Camera::transitionOccuring() const
     return !isNull(transitionTime);
 }
 
-void Camera::applyShake(std::chrono::steady_clock::duration duration,
-    std::chrono::steady_clock::duration period, float amp)
+void Camera::applyShake(FrameDuration duration,
+    FrameDuration period, float amp)
 {
     shakePeriod = period;
     shakeTime = curTime + duration;

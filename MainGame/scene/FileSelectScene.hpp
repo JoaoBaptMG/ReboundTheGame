@@ -41,7 +41,7 @@ public:
         LocalizationManager& lm, FileAction action);
     virtual ~FileSelectScene() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;
     
     size_t getScrollSize() const;

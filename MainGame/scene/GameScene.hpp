@@ -19,7 +19,7 @@
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <type_traits>
 #include <exception>
 
@@ -74,8 +74,8 @@ class GameScene : public Scene
     Script cutsceneScript;
     StringSpecifierMap keysMap;
     
-    std::chrono::steady_clock::time_point curTime;
-    std::chrono::duration<size_t, std::milli> pauseLag;
+    FrameTime curTime;
+    FrameDuration pauseLag;
 
 public:
     GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
@@ -146,7 +146,7 @@ public:
     cpVect wrapPosition(cpVect pos);
     sf::Vector2f fitIntoRoom(sf::Vector2f vec);
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     void checkWarps();
     void checkWarp(Player* player, WarpData::Dir direction, cpVect pos);
     void notifyTransitionEnded();

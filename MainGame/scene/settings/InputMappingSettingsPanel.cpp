@@ -115,7 +115,7 @@ void InputMappingSettingsPanel::initJoystickInputScreen(sf::Vector2f pos, InputM
 
 }
 
-void InputMappingSettingsPanel::update(std::chrono::steady_clock::time_point curTime)
+void InputMappingSettingsPanel::update(FrameTime curTime)
 {
 
 }

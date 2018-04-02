@@ -53,7 +53,7 @@ void MapPauseFrame::setLevelData(const std::shared_ptr<LevelData>& levelData, si
         else map.hideRoom(i);
 }
 
-void MapPauseFrame::update(std::chrono::steady_clock::time_point curTime)
+void MapPauseFrame::update(FrameTime curTime)
 {
     map.update(curTime);
     mapController.update();

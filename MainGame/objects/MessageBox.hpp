@@ -29,8 +29,8 @@ class MessageBox final
     ButtonAction<6> messageAction;
 
     std::string currentText;
-    std::chrono::steady_clock::duration letterPeriod;
-    std::chrono::steady_clock::time_point curTime, initTime;
+    FrameDuration letterPeriod;
+    FrameTime curTime, initTime;
 
     std::vector<size_t> breakPoints, stopPoints;
 
@@ -52,6 +52,6 @@ public:
     void searchForSpecialMarkers(std::map<size_t,size_t>& colorChanges, std::list<size_t>& tempBreakPoints);
     void autoPlaceBreakPoints(std::list<size_t> tempBreakPoints);
 
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer);
 };

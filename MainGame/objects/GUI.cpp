@@ -139,7 +139,7 @@ void GUI::setVisibleMaps(const std::vector<bool>& visibleMaps)
         else guiMap.hideRoom(i);
 }
 
-void GUI::update(std::chrono::steady_clock::time_point curTime)
+void GUI::update(FrameTime curTime)
 {
     if (lastTime == decltype(lastTime)()) lastTime = curTime;
     

@@ -38,7 +38,7 @@ class GUI final
     
     void configureText();
     
-    std::chrono::steady_clock::time_point lastTime;
+    FrameTime lastTime;
     float healthBlinkPhase;
 
     LocalizationManager::CallbackEntry callbackEntry;
@@ -47,7 +47,7 @@ public:
     GUI(GameScene& scene);
     ~GUI() {}
 
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer);
 
     void setLevelNumber(size_t number);

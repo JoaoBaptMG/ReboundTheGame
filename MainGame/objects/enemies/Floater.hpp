@@ -4,7 +4,7 @@
 #include "drawables/Sprite.hpp"
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 #include <cppmunk/Body.h>
 #include <cppmunk/Shape.h>
@@ -20,7 +20,7 @@ namespace enemies
         cpVect originalPos;
         Sprite sprite;
 
-        std::chrono::steady_clock::time_point initialTime;
+        FrameTime initialTime;
         std::shared_ptr<cp::Shape> collisionShapes[4];
 
     public:
@@ -32,7 +32,7 @@ namespace enemies
         virtual bool onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape) override;
         virtual bool onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape) override;
 
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
         
         virtual bool notifyScreenTransition(cpVect displacement) override;

@@ -9,7 +9,7 @@ InteractableObject::InteractableObject(GameScene& scene)
 
 }
 
-void InteractableObject::update(std::chrono::steady_clock::time_point curTime)
+void InteractableObject::update(FrameTime curTime)
 {
     auto player = gameScene.getObjectByName<Player>("player");
 

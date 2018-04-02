@@ -96,7 +96,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, Inp
     buttonGroup.setPointer(pointer);
 }
 
-void LanguageSelectSettingsPanel::update(std::chrono::steady_clock::time_point curTime)
+void LanguageSelectSettingsPanel::update(FrameTime curTime)
 {
 
 }

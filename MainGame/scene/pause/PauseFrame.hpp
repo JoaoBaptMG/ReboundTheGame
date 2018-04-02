@@ -1,6 +1,6 @@
 #pragma once
 
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class Renderer;
 
@@ -10,7 +10,7 @@ public:
     PauseFrame() {}
     virtual ~PauseFrame() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) = 0;
+    virtual void update(FrameTime curTime) = 0;
     virtual void render(Renderer &renderer) = 0;
     
     virtual void activate() = 0;

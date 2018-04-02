@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -55,7 +55,7 @@ private:
     std::shared_ptr<ParticleEmitterSet> emitterSet;
     ParticleEmitter* emitter;
     
-    std::chrono::steady_clock::time_point lastTime, initialTime;
+    FrameTime lastTime, initialTime;
     size_t drawingDepth;
 
     sf::Vector2f position;
@@ -77,7 +77,7 @@ public:
         addParticle(pos, display, std::chrono::duration_cast<Duration>(lt));
     }
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;
     virtual bool notifyScreenTransition(cpVect displacement) override;
 

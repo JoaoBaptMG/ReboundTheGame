@@ -17,7 +17,7 @@ PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr
     
 }
 
-void PlayerDeath::update(std::chrono::steady_clock::time_point curTime)
+void PlayerDeath::update(FrameTime curTime)
 {
     if (initTime == decltype(initTime)()) initTime = curTime;
     

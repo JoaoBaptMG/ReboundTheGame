@@ -26,7 +26,7 @@ class PauseScene final : public Scene
     LocalizationManager& localizationManager;
     
     Sprite backgroundSprite;
-    std::chrono::steady_clock::time_point curTime, transitionTime;
+    FrameTime curTime, transitionTime;
     float transitionFactor;
     bool unpausing;
     
@@ -44,7 +44,7 @@ public:
     PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
     virtual ~PauseScene() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer &renderer) override;
     
     void setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,

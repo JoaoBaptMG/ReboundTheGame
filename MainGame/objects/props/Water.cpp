@@ -99,7 +99,7 @@ void Water::setRect(sf::IntRect rect)
                    (cpFloat)(rect.left + rect.width), (cpFloat)(rect.top + rect.height) };
 }
 
-void Water::update(std::chrono::steady_clock::time_point curTime)
+void Water::update(FrameTime curTime)
 {
     auto player = gameScene.getObjectByName<Player>("player");
 

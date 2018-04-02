@@ -94,7 +94,7 @@ MidLevelScene::MidLevelScene(Settings& settings, const SavedGame& sg, InputManag
     buttonGroup.setPointer(pointer);
 }
 
-void MidLevelScene::update(std::chrono::steady_clock::time_point curTime)
+void MidLevelScene::update(FrameTime curTime)
 {
     
 }

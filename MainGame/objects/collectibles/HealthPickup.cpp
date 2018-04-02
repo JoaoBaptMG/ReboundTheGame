@@ -57,7 +57,7 @@ void HealthPickup::onCollect(Player& player)
     remove();
 }
 
-void HealthPickup::update(std::chrono::steady_clock::time_point curTime)
+void HealthPickup::update(FrameTime curTime)
 {
 }
 

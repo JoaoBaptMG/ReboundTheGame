@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class LevelData;
 
@@ -15,14 +15,14 @@ class GUIMap final : public sf::Drawable
     sf::Vector2f displayPosition;
     size_t curRoom;
 
-    std::chrono::steady_clock::time_point initTime;
+    FrameTime initTime;
     bool extendedFrame;
     
 public:
     GUIMap(bool extendedFrame = false) : extendedFrame(extendedFrame) {}
     ~GUIMap() {}
     
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     
     auto getCurLevel() const { return curLevel; }
     void setCurLevel(std::shared_ptr<LevelData> level);

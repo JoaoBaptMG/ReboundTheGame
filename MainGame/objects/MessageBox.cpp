@@ -96,7 +96,7 @@ void MessageBox::displayFormattedString(Script &script, const LangID &id, const 
     display(script, localizationManager.getFormattedString(id, stringSpecifiers, numberSpecifiers, rawSpecifiers));
 }
 
-void MessageBox::update(std::chrono::steady_clock::time_point curTime)
+void MessageBox::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

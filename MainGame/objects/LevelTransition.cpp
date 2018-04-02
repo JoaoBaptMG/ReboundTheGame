@@ -21,7 +21,7 @@ void LevelTransition::requestLevelTransition(std::string name)
     transitionDone = false;
 }
 
-void LevelTransition::update(std::chrono::steady_clock::time_point curTime)
+void LevelTransition::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

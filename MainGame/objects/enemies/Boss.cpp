@@ -39,7 +39,7 @@ BossCaption::BossCaption(GameScene& scene, LangID captionID) : GameObject(scene)
     text.buildGeometry();
 }
 
-void BossCaption::update(std::chrono::steady_clock::time_point curTime)
+void BossCaption::update(FrameTime curTime)
 {
     this->curTime = curTime;
     if (isNull(initTime)) initTime = curTime;

@@ -11,13 +11,13 @@
 class Script
 {
 public:
-    using SemaphoreFunc = std::function<bool(std::chrono::steady_clock::time_point)>;
+    using SemaphoreFunc = std::function<bool(FrameTime)>;
     using ScriptFunction = std::function<void(Script&)>;
     
 private:
     boost::context::continuation hostContinuation, scriptContinuation;
     SemaphoreFunc currentSemaphore;
-    std::chrono::steady_clock::time_point curTime;
+    FrameTime curTime;
     //std::vector<Script> childrenScripts;
     
 public:
@@ -27,13 +27,13 @@ public:
     void runScript(ScriptFunction function);
     
     void waitWhile(SemaphoreFunc func);
-    void waitFor(std::chrono::steady_clock::duration dur);
+    void waitFor(FrameDuration dur);
     
     void executeMain(std::function<void()> func);
     
     void cancelScript();
     
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     
     auto getCurTime() const { return curTime; }
 };

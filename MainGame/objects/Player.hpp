@@ -7,7 +7,8 @@
 #include <SFML/Graphics.hpp>
 #include <cppmunk/Shape.h>
 #include <cppmunk/Body.h>
-#include <chrono>
+#include <chronoUtils.hpp>
+#include <chronoUtils.hpp>
 #include <cmath>
 
 #include <type_traits>
@@ -33,7 +34,7 @@ class Player final : public GameObject
 {
     enum class CollisionState { None, Ground, WallLeft, WallRight, Ceiling, Spike };
     
-    using TimePoint = std::chrono::steady_clock::time_point;
+    using TimePoint = FrameTime;
     
     Sprite sprite, grappleSprite;
     std::shared_ptr<cp::Shape> playerShape;
@@ -65,7 +66,7 @@ public:
 
     void setupPhysics();
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;
 
     auto getPosition() const { return playerShape->getBody()->getPosition(); }
@@ -139,7 +140,7 @@ public:
     void decayJump();
     void wallJump(CollisionState state);
     void dash();
-    void lieBomb(std::chrono::steady_clock::time_point curTime);
+    void lieBomb(FrameTime curTime);
     
     void abortDash();
     void disableDashBatch();

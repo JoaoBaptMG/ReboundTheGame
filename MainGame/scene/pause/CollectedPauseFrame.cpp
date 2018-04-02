@@ -91,7 +91,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
     }
 }
 
-void CollectedPauseFrame::update(std::chrono::steady_clock::time_point curTime)
+void CollectedPauseFrame::update(FrameTime curTime)
 {
     
 }

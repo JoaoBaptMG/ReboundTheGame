@@ -34,7 +34,7 @@ InteractionPopup::InteractionPopup(GameScene& scene)
     popupBox.setAnchorPoint(sf::Vector2f(bounds.width/2 + 4, bounds.height/2 + 4));
 }
 
-void InteractionPopup::update(std::chrono::steady_clock::time_point curTime)
+void InteractionPopup::update(FrameTime curTime)
 {
     this->curTime = curTime;
     if (isNull(destTime)) destTime = curTime + FadeInterval;

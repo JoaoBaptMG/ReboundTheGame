@@ -5,7 +5,7 @@
 #include "drawables/TextDrawable.hpp"
 
 #include "language/LangID.hpp"
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -26,13 +26,13 @@ namespace enemies
     class BossCaption : public ::GameObject
     {
         TextDrawable text;
-        std::chrono::steady_clock::time_point curTime, initTime;
+        FrameTime curTime, initTime;
         
     public:
         BossCaption(GameScene& scene, LangID captionID);
         virtual ~BossCaption() {}
         
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
     };
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 #include <generic_ptrs.hpp>
 #include <streamReaders.hpp>

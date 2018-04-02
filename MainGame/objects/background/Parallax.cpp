@@ -43,7 +43,7 @@ bool Parallax::configure(const ConfigStruct& config)
     return true;
 }
 
-void Parallax::update(std::chrono::steady_clock::time_point curTime) {}
+void Parallax::update(FrameTime curTime) {}
 
 void Parallax::render(Renderer& renderer)
 {

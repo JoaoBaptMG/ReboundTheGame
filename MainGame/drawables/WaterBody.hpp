@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 
 using OpaqueWaterPtr = std::unique_ptr<sf::RenderTexture, void(*)(const sf::RenderTexture*)>;
@@ -25,7 +25,7 @@ class WaterBody final : public sf::Drawable
     StaticWaveProperties generatedWaves[8];
 
     sf::Vector2f drawingSize;
-    std::chrono::steady_clock::time_point startingTime, curTime;
+    FrameTime startingTime, curTime;
     sf::Vertex quad[4];
     sf::Color color, coastColor;
 
@@ -44,7 +44,7 @@ public:
     void recreateQuad();
     void resetWaves();
     void resetSimulationTextures();
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void updateSimulation();
 
     void setVelocity(float point, float newVel);

@@ -52,7 +52,7 @@ void EnemyCommon::die()
     remove();
 }
 
-void EnemyCommon::update(std::chrono::steady_clock::time_point curTime)
+void EnemyCommon::update(FrameTime curTime)
 {
     this->curTime = curTime;
     

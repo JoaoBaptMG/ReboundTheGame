@@ -17,7 +17,7 @@ Transition::Transition(Scene* prevScene, Scene* nextScene, decltype(transitionBe
     
 }
 
-void Transition::update(std::chrono::steady_clock::time_point curTime)
+void Transition::update(FrameTime curTime)
 {
     transitionFactor = 2 * toSeconds<float>(curTime - transitionBegin) /
         toSeconds<float>(transitionEnd - transitionBegin);

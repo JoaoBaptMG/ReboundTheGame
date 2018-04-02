@@ -1,6 +1,6 @@
 #pragma once
 
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <vector>
 #include <SFML/Graphics.hpp>
 
@@ -14,9 +14,9 @@ public:
 private:
     sf::Vector2f position;
     GameScene& gameScene;
-    std::chrono::steady_clock::time_point curTime, transitionTime, shakeTime;
+    FrameTime curTime, transitionTime, shakeTime;
     std::vector<sf::Vector2f> shakeSamples;
-    std::chrono::steady_clock::duration shakePeriod;
+    FrameDuration shakePeriod;
     Direction transitionDirection;
 
     sf::Vector2f getShakeDisplacement() const;
@@ -31,9 +31,9 @@ public:
     bool isVisible(sf::Vector2f point) const;
     bool isVisible(sf::FloatRect rect) const;
     
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     sf::Vector2f getGlobalDisplacement() const;
 
-    void applyShake(std::chrono::steady_clock::duration duration,
-        std::chrono::steady_clock::duration period, float amp);
+    void applyShake(FrameDuration duration,
+        FrameDuration period, float amp);
 };

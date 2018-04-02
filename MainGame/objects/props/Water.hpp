@@ -7,7 +7,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <chipmunk/chipmunk.h>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -34,7 +34,7 @@ namespace props
             return sf::Vector2f((float)std::round(pos.x), (float)std::round(pos.y));
         }
         
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
         
         virtual bool notifyScreenTransition(cpVect displacement) override;

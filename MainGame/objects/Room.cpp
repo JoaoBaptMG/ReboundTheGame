@@ -66,7 +66,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
     gameScene.getGameSpace().add(roomBody);
 }
 
-void Room::update(std::chrono::steady_clock::time_point curTime) {}
+void Room::update(FrameTime curTime) {}
 
 void Room::render(Renderer& renderer, bool transition)
 {

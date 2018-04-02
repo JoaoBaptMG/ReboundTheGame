@@ -124,7 +124,7 @@ DestructibleCrate::~DestructibleCrate()
     }
 }
 
-void DestructibleCrate::update(std::chrono::steady_clock::time_point curTime)
+void DestructibleCrate::update(FrameTime curTime)
 {
 
 }

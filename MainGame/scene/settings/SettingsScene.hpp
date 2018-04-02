@@ -35,7 +35,7 @@ protected:
         sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
     ~SettingsBase() = default;
     
-    void update(std::chrono::steady_clock::time_point curTime);
+    void update(FrameTime curTime);
     void render(Renderer& renderer);
     
     void activate();
@@ -58,7 +58,7 @@ public:
     SettingsScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
     virtual ~SettingsScene() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override { SettingsBase::update(curTime); }
+    virtual void update(FrameTime curTime) override { SettingsBase::update(curTime); }
     virtual void render(Renderer& renderer) override;
 };
 
@@ -69,7 +69,7 @@ public:
         UIPointer& pointer, PauseScene* scene);
     virtual ~SettingsPauseFrame() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override { SettingsBase::update(curTime); }
+    virtual void update(FrameTime curTime) override { SettingsBase::update(curTime); }
     virtual void render(Renderer &renderer) override;
     
     virtual void activate() override { SettingsBase::activate(); }

@@ -78,7 +78,7 @@ void TestBoss::setupPhysics()
     Enemy::setupPhysics();
 }
 
-void TestBoss::update(std::chrono::steady_clock::time_point curTime)
+void TestBoss::update(FrameTime curTime)
 {
     EnemyCommon::update(curTime);
     
@@ -179,7 +179,7 @@ bool TestBossProjectile::onCollisionAttack(Player& player, std::shared_ptr<cp::S
     return false;
 }
 
-void TestBossProjectile::update(std::chrono::steady_clock::time_point curTime)
+void TestBossProjectile::update(FrameTime curTime)
 {
     collisionBody->eachArbiter([=] (cp::Arbiter arbiter)
     {
@@ -197,7 +197,7 @@ void TestBossProjectile::render(Renderer& renderer)
     renderer.popTransform();
 }
 
-void TimedLevelWarper::update(std::chrono::steady_clock::time_point curTime)
+void TimedLevelWarper::update(FrameTime curTime)
 {
     if (isNull(initTime)) initTime = curTime;
     

@@ -3,7 +3,7 @@
 #include "objects/Enemy.hpp"
 #include "drawables/Sprite.hpp"
 
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -13,10 +13,10 @@ namespace enemies
     class EnemyCommon : public ::Enemy
     {
         size_t health, touchDamage, dashDamage, bombDamage;
-        std::chrono::steady_clock::time_point blinkTime;
+        FrameTime blinkTime;
         
     protected:
-        std::chrono::steady_clock::time_point curTime;
+        FrameTime curTime;
         
         void addDashShape(std::shared_ptr<cp::Shape> shape, InteractionHandler& handler);
         void addBombShape(std::shared_ptr<cp::Shape> shape, InteractionHandler& handler);
@@ -44,7 +44,7 @@ namespace enemies
         virtual void damage(size_t amount);
         virtual void die();
         
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
         
         auto getHealth() const { return health; }

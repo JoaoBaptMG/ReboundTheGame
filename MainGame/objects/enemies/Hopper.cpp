@@ -126,7 +126,7 @@ void Hopper::die()
     gameScene.addObject(std::move(explosion));
 }
 
-void Hopper::update(std::chrono::steady_clock::time_point curTime)
+void Hopper::update(FrameTime curTime)
 {
     EnemyCommon::update(curTime);
     

@@ -6,7 +6,7 @@
 #include "drawables/Sprite.hpp"
 
 #include <vector>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 #include <cppmunk/PolyShape.h>
 
@@ -27,7 +27,7 @@ namespace props
         size_t blockTime;
         SwitchingBlockCluster* parentBlockCluster;
 
-        std::chrono::steady_clock::time_point fadeTime, curTime;
+        FrameTime fadeTime, curTime;
 
         void setupPhysics();
 
@@ -35,7 +35,7 @@ namespace props
         SwitchingBlock(GameScene& scene);
         virtual ~SwitchingBlock();
 
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
 
         virtual bool notifyScreenTransition(cpVect displacement) override;
@@ -44,7 +44,7 @@ namespace props
         void switchOff();
         void doFade();
 
-        static std::chrono::steady_clock::duration getFadeDuration();
+        static FrameDuration getFadeDuration();
 
         auto getPosition() const { return blockShape->getBody()->getPosition(); }
         void setPosition(cpVect pos) { blockShape->getBody()->setPosition(pos); }

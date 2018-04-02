@@ -213,7 +213,7 @@ void WaterBody::resetSimulationTextures()
             texture->reset();
 }
 
-void WaterBody::update(std::chrono::steady_clock::time_point curTime)
+void WaterBody::update(FrameTime curTime)
 {
     if (startingTime == decltype(startingTime)())
     {

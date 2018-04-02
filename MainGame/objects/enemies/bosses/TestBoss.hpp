@@ -1,7 +1,7 @@
 #pragma once
 
 #include "objects/enemies/Boss.hpp"
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class GameScene;
 class Renderer;
@@ -16,7 +16,7 @@ namespace enemies
             std::shared_ptr<cp::Shape> collisionShapes[3];
             InteractionHandler bombShapeHandler;
             cpFloat leftSpan, rightSpan;
-            std::chrono::steady_clock::time_point initTime;
+            FrameTime initTime;
             
             void setupPhysics();
             
@@ -27,7 +27,7 @@ namespace enemies
             virtual size_t playerDamage(Player& player, const std::shared_ptr<cp::Shape> shape) const override;
             virtual void die() override;
             
-            virtual void update(std::chrono::steady_clock::time_point curTime) override;
+            virtual void update(FrameTime curTime) override;
             virtual void render(Renderer& renderer) override;
             
 #pragma pack(push, 1)
@@ -59,20 +59,20 @@ namespace enemies
             virtual bool onCollisionAttack(Player& player, std::shared_ptr<cp::Shape> shape) override;
             virtual bool onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape) override { return true; }
             
-            virtual void update(std::chrono::steady_clock::time_point curTime) override;
+            virtual void update(FrameTime curTime) override;
             virtual void render(Renderer& renderer) override;
         };
         
         class TimedLevelWarper : public ::GameObject
         {
             std::string levelName;
-            std::chrono::steady_clock::time_point initTime;
+            FrameTime initTime;
             
         public:
             TimedLevelWarper(GameScene& scene, std::string level) : GameObject(scene), levelName(level) {}
             virtual ~TimedLevelWarper() {}
             
-            virtual void update(std::chrono::steady_clock::time_point curTime) override;
+            virtual void update(FrameTime curTime) override;
             virtual void render(Renderer& renderer) override {}
         };
     }

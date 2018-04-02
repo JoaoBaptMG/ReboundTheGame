@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <functional>
 #include <string>
 #include <non_copyable_movable.hpp>

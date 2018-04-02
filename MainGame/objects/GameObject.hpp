@@ -5,7 +5,8 @@
 #include <chipmunk/chipmunk.h>
 
 #include <memory>
-#include <chrono>
+#include <chronoUtils.hpp>
+#include <chronoUtils.hpp>
 #include <functional>
 #include <SFML/System.hpp>
 
@@ -27,7 +28,7 @@ public:
         name() {}
     inline void remove() { shouldRemove = true; }
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) = 0;
+    virtual void update(FrameTime curTime) = 0;
     virtual void render(Renderer& renderer) = 0;
 
     virtual bool notifyScreenTransition(cpVect displacement) { return false; }

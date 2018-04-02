@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 
 enum class MeterSize { Small, Normal };
@@ -60,7 +60,7 @@ public:
     void setPosition(sf::Vector2f pos) { position = pos; }
     void setPosition(float x, float y) { position = sf::Vector2f(x, y); }
 
-    void update(std::chrono::steady_clock::time_point);
+    void update(FrameTime);
     void updateVertices();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

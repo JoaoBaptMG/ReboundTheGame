@@ -119,7 +119,7 @@ PushableCrate::~PushableCrate()
     }
 }
 
-void PushableCrate::update(std::chrono::steady_clock::time_point curTime)
+void PushableCrate::update(FrameTime curTime)
 {
     auto player = gameScene.getObjectByName<Player>("player");
     

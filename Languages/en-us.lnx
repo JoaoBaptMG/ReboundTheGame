@@ -129,7 +129,7 @@
     <!-- The captions for the action names on the input management panel -->
     <string name="input-settings-dash">Dash / Interact / Cancel</string>
     <string name="input-settings-jump">Jump / Confirm</string>
-    <string name="input-settings-bomb">Lie bombs</string>
+    <string name="input-settings-bomb">Lay bombs</string>
     <string name="input-settings-switch-screen-left">Switch to left screen</string>
     <string name="input-settings-switch-screen-right">Switch to right screen</string>
     <string name="input-settings-pause">Pause</string>
@@ -278,7 +278,7 @@
         Use {$leftbtn} and {$rightbtn} to move left and right.\r Press {$jumpbtn} to jump.
     </formatter>
     <string name="room1-01-sign1">
-        Water lies ahead. You cannot sink in it; however, you will float. Use it to your advantage.
+        Water lays ahead. You cannot sink in it; however, you will float. Use it to your advantage.
     </string>
     <string name="room1-01-sign2">
         Be careful of spikes! If you land in them, you will lose a large chunk of your health!

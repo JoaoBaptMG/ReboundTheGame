@@ -78,6 +78,17 @@ static sf::Glsl::Vec4 operator*(float s, sf::Glsl::Vec4 v2)
     return sf::Glsl::Vec4(s * v2.x, s * v2.y, s * v2.z, s * v2.w);
 }
 
+inline static auto convertDuration(FrameDuration duration)
+{
+    return std::chrono::duration_cast<ParticleBatch::Duration>(duration);
+}
+
+inline static auto convertTime(FrameTime time)
+{
+    using namespace std::chrono;
+    return ParticleBatch::TimePoint(convertDuration(time.time_since_epoch()));
+}
+
 ParticleBatch::ParticleBatch(GameScene &scene, std::string emitterSetName, std::string emitterName,
     bool persistent, size_t depth)
     : GameObject(scene), vertices(sf::Triangles), drawingDepth(depth), aborted(false),
@@ -103,7 +114,7 @@ void ParticleBatch::addParticle(ParticleBatch::PositionInfo pos,
     pos.position += position;
     positionAttributes.push_back(pos);
     displayAttributes.push_back(display);
-    lifeAttributes.push_back({ lastTime, lastTime + lifetime, lifetime });
+    lifeAttributes.push_back({ convertTime(lastTime), convertTime(lastTime) + lifetime, lifetime });
     vertices.resize(6*positionAttributes.size());
 }
 
@@ -122,7 +133,7 @@ void ParticleBatch::removeParticle(size_t index)
     vertices.resize(6*positionAttributes.size());
 }
 
-void ParticleBatch::update(std::chrono::steady_clock::time_point curTime)
+void ParticleBatch::update(FrameTime curTime)
 {
     if (lastTime == decltype(lastTime)()) lastTime = curTime;
     if (initialTime == decltype(initialTime)()) initialTime = curTime;
@@ -140,17 +151,17 @@ void ParticleBatch::update(std::chrono::steady_clock::time_point curTime)
         auto& display = displayAttributes[i];
         auto& life = lifeAttributes[i];
         
-        auto factor = toSeconds<float>(curTime - life.beginTime) / toSeconds<float>(life.lifetime);
+        auto factor = toSeconds<float>(convertTime(curTime) - life.beginTime) / toSeconds<float>(life.lifetime);
         if (factor >= 1.0) factor = 1.0;
         display.curColor = display.beginColor + factor * (display.endColor - display.beginColor);
         display.curSize = display.beginSize + factor * (display.endSize - display.beginSize);
     }
 
     for (size_t i = 0; i < lifeAttributes.size(); i++)
-        if (curTime > lifeAttributes[i].endTime) removeParticle(i);
+        if (convertTime(curTime) > lifeAttributes[i].endTime) removeParticle(i);
 
     if (!aborted && curTime - initialTime <= emitter->getTotalLifetime())
-        emitter->generateNewParticles(*this, curTime - initialTime, lastTime - initialTime);
+        emitter->generateNewParticles(*this, convertDuration(curTime - initialTime), convertDuration(lastTime - initialTime));
     else if (positionAttributes.empty()) remove();
 
     lastTime = curTime;

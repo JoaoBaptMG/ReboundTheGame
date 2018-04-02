@@ -48,7 +48,7 @@ TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture
     : TextureExplosion(scene, tex, duration, velocityRect, acceleration, TextureExplosion::Size,
         tex->getSize().x/pieceSizeX, tex->getSize().y/pieceSizeY, depth) {}
 
-void TextureExplosion::update(std::chrono::steady_clock::time_point curTime)
+void TextureExplosion::update(FrameTime curTime)
 {
     if (lastTime == decltype(lastTime)()) lastTime = curTime;
     if (initialTime == decltype(initialTime)()) initialTime = curTime;

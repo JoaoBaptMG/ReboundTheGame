@@ -13,7 +13,7 @@ class Renderer;
 class TextTestScene final : public Scene
 {
     std::unique_ptr<FontHandler> fontHandler;
-    std::chrono::steady_clock::time_point initTime;
+    FrameTime initTime;
     TextDrawable testText;
     ResourceManager& resourceManager;
     
@@ -25,6 +25,6 @@ public:
     
     virtual ~TextTestScene() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer &renderer) override;
 };

@@ -4,7 +4,7 @@
 #include "drawables/Sprite.hpp"
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 #include <cppmunk/Body.h>
 #include <cppmunk/Shape.h>
@@ -26,7 +26,7 @@ namespace collectibles
 
         virtual void onCollect(Player& player) override;
 
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
     
 #pragma pack(push, 1)

@@ -36,7 +36,7 @@ namespace enemies
         virtual size_t playerDamage(Player& player, const std::shared_ptr<cp::Shape> shape) const override;
         virtual void die() override;
         
-        virtual void update(std::chrono::steady_clock::time_point curTime) override;
+        virtual void update(FrameTime curTime) override;
         virtual void render(Renderer& renderer) override;
     
         struct ConfigStruct

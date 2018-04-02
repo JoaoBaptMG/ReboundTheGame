@@ -161,7 +161,7 @@ Player::~Player()
     }
 }
 
-void Player::update(std::chrono::steady_clock::time_point curTime)
+void Player::update(FrameTime curTime)
 {
     this->curTime = curTime;
     
@@ -613,7 +613,7 @@ void Player::abortHardball()
     chargingForHardball = false;
 }
 
-void Player::lieBomb(std::chrono::steady_clock::time_point curTime)
+void Player::lieBomb(FrameTime curTime)
 {
     numBombs--;
     gameScene.addObject(std::make_unique<Bomb>(gameScene, getPosition() + graphicalDisplacement, curTime));

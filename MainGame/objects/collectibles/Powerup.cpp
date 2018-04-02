@@ -119,7 +119,7 @@ void Powerup::onCollect(Player& player)
     remove();
 }
 
-void Powerup::update(std::chrono::steady_clock::time_point curTime)
+void Powerup::update(FrameTime curTime)
 {
     rotationAngle += degreesToRadians(RotationSpeed) * toSeconds<float>(UpdatePeriod);
     makeRotatedRect();

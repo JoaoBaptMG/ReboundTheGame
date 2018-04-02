@@ -57,7 +57,7 @@ SettingsBase::SettingsBase(Settings& settings, InputManager& im, ResourceManager
     curSettingsPanel.reset(new RootSettingsPanel(settings, im, rm, lm, this, pointer));
 }
 
-void SettingsBase::update(std::chrono::steady_clock::time_point curTime)
+void SettingsBase::update(FrameTime curTime)
 {
     if (nextSettingsPanel)
     {

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <memory>
 
 #include "objects/GameObject.hpp"
@@ -13,7 +13,7 @@ class Renderer;
 class TextureExplosion final : public GameObject
 {
 public:
-    using TimePoint = std::chrono::steady_clock::time_point;
+    using TimePoint = FrameTime;
     using Duration = TimePoint::duration;
 
     struct TexPiece
@@ -44,6 +44,6 @@ public:
     auto getPosition() { return globalPosition; }
     void setPosition(sf::Vector2f pos) { globalPosition = pos; }
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;
 };

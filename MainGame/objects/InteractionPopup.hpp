@@ -6,7 +6,7 @@
 #include "drawables/TextDrawable.hpp"
 
 #include <memory>
-#include <chrono>
+#include <chronoUtils.hpp>
 #include <SFML/System.hpp>
 
 class GameScene;
@@ -17,7 +17,7 @@ class InteractionPopup final : public GameObject
     SegmentedSprite popupBox;
     TextDrawable popupLabel;
 
-    std::chrono::steady_clock::time_point curTime, destTime;
+    FrameTime curTime, destTime;
 
     sf::Vector2f position;
     bool collapsing;
@@ -26,7 +26,7 @@ public:
     explicit InteractionPopup(GameScene& scene);
     virtual ~InteractionPopup() = default;
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;
 
     virtual bool notifyScreenTransition(cpVect displacement) override;

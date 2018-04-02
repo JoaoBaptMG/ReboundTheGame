@@ -40,7 +40,7 @@ void GUIMeter::setQuadColor(size_t ind, sf::Color color)
     vertices[ind+3].color = color;
 }
 
-void GUIMeter::update(std::chrono::steady_clock::time_point)
+void GUIMeter::update(FrameTime)
 {
     if (current != target)
     {

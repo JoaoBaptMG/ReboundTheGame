@@ -85,7 +85,7 @@ bool Rotator::onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape)
     return true;
 }
 
-void Rotator::update(std::chrono::steady_clock::time_point curTime)
+void Rotator::update(FrameTime curTime)
 {
     auto pos = collisionBody->getPosition();
     auto spd = collisionBody->getVelocity();

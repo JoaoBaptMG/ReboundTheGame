@@ -29,6 +29,6 @@ public:
         LocalizationManager &lm, std::string nextLevel, bool gameover = true);
     virtual ~MidLevelScene() {}
     
-    virtual void update(std::chrono::steady_clock::time_point curTime) override;
+    virtual void update(FrameTime curTime) override;
     virtual void render(Renderer &renderer) override;
 };

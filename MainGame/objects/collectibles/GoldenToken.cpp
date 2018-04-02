@@ -65,7 +65,7 @@ void GoldenToken::onCollect(Player& player)
     remove();
 }
 
-void GoldenToken::update(std::chrono::steady_clock::time_point curTime)
+void GoldenToken::update(FrameTime curTime)
 {
     if (initialTime == decltype(initialTime)())
         initialTime = curTime;

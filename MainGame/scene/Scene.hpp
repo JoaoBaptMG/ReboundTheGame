@@ -1,7 +1,7 @@
 #pragma once
 
 #include <non_copyable_movable.hpp>
-#include <chrono>
+#include <chronoUtils.hpp>
 
 class Renderer;
 class SceneManager;
@@ -17,7 +17,7 @@ public:
     Scene() : sceneManager(nullptr) {}
     virtual ~Scene() {}
 
-    virtual void update(std::chrono::steady_clock::time_point curTime) = 0;
+    virtual void update(FrameTime curTime) = 0;
     virtual void render(Renderer &renderer) = 0;
     
     virtual void pause() {}

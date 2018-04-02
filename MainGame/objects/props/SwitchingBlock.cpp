@@ -15,7 +15,7 @@
 
 using namespace props;
 
-std::chrono::steady_clock::duration SwitchingBlock::getFadeDuration()
+FrameDuration SwitchingBlock::getFadeDuration()
 {
     return 20 * UpdatePeriod;
 }
@@ -77,7 +77,7 @@ SwitchingBlock::~SwitchingBlock()
     }
 }
 
-void SwitchingBlock::update(std::chrono::steady_clock::time_point curTime)
+void SwitchingBlock::update(FrameTime curTime)
 {
     this->curTime = curTime;
 

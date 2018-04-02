@@ -88,7 +88,7 @@ TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceM
     buttonGroup.setPointer(pointer);
 }
 
-void TitleScene::update(std::chrono::steady_clock::time_point curTime)
+void TitleScene::update(FrameTime curTime)
 {
 }
 

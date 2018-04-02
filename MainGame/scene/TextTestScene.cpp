@@ -4,7 +4,7 @@
 #include "ColorList.hpp"
 #include "rendering/Renderer.hpp"
 
-#include <chrono>
+#include <chronoUtils.hpp>
 #include "chronoUtils.hpp"
 
 const std::string DemoStrings[] =
@@ -75,7 +75,7 @@ void TextTestScene::setupDemo()
     }
 }
 
-void TextTestScene::update(std::chrono::steady_clock::time_point curTime)
+void TextTestScene::update(FrameTime curTime)
 {
     if (initTime == decltype(initTime)()) initTime = curTime;
     

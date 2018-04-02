@@ -34,7 +34,7 @@ void SceneManager::replaceScene(Scene* scene, size_t count)
     popCount = count-1;
 }
 
-void SceneManager::pushSceneTransition(Scene* scene, std::chrono::steady_clock::duration duration)
+void SceneManager::pushSceneTransition(Scene* scene, FrameDuration duration)
 {
     if (duration == decltype(duration)()) pushScene(scene);
     else
@@ -46,7 +46,7 @@ void SceneManager::pushSceneTransition(Scene* scene, std::chrono::steady_clock::
     }
 }
 
-void SceneManager::popSceneTransition(size_t count, std::chrono::steady_clock::duration duration)
+void SceneManager::popSceneTransition(size_t count, FrameDuration duration)
 {
     if (count == 0) return;
     
@@ -61,7 +61,7 @@ void SceneManager::popSceneTransition(size_t count, std::chrono::steady_clock::d
     }
 }
 
-void SceneManager::replaceSceneTransition(Scene* scene, size_t count, std::chrono::steady_clock::duration duration)
+void SceneManager::replaceSceneTransition(Scene* scene, size_t count, FrameDuration duration)
 {
     if (duration == decltype(duration)()) replaceScene(scene);
     else
@@ -100,7 +100,7 @@ void SceneManager::handleScreenTransition()
     scheduledOperation = None;
 }
 
-void SceneManager::update(std::chrono::steady_clock::time_point curTime)
+void SceneManager::update(FrameTime curTime)
 {
     this->curTime = curTime;
     handleScreenTransition();

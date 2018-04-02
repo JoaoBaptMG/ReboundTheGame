@@ -166,7 +166,7 @@ RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, Resou
     buttonGroup.setPointer(pointer);
 }
 
-void RootSettingsPanel::update(std::chrono::steady_clock::time_point curTime)
+void RootSettingsPanel::update(FrameTime curTime)
 {
     musicSlider.update();
     soundSlider.update();

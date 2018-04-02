@@ -78,7 +78,7 @@ bool Floater::onCollisionHit(Player& player, std::shared_ptr<cp::Shape> shape)
     return true;
 }
 
-void Floater::update(std::chrono::steady_clock::time_point curTime)
+void Floater::update(FrameTime curTime)
 {
     if (initialTime == decltype(initialTime)())
         initialTime = curTime;
