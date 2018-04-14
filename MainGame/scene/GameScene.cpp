@@ -54,6 +54,27 @@ StringSpecifierMap buildKeySpecifierMap(const Settings& settings, LocalizationMa
         };
 }
 
+StringSpecifierMap buildJoystickSpecifierMap(const Settings& settings, LocalizationManager& lm)
+{
+    const auto& jtk = settings.inputSettings.joystickSettings;
+
+    auto buildString = [&lm](InputSource source)
+    {
+        return u8"\uFFFF\x05" + source.getInputName(lm) + u8"\uFFFF\x01";
+    };
+
+    return
+        {
+            {"dashbtn", buildString(jtk.dashInput)},
+            {"jumpbtn", buildString(jtk.jumpInput)},
+            {"bombbtn", buildString(jtk.bombInput)},
+            {"leftbtn", lm.getString("input-joystick-left")},
+            {"rightbtn", lm.getString("input-joystick-right")},
+            {"upbtn", lm.getString("input-joystick-up")},
+            {"downbtn", lm.getString("input-joystick-down")},
+        };
+}
+
 GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
     : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
     sceneRequested(NextScene::None), savedGame(sg), inputPlayerController(im, settings.inputSettings),
@@ -65,6 +86,7 @@ GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, Resourc
 {
     gameSpace.setGravity(cpVect{0.0f, 1024.0f});
     keysMap = buildKeySpecifierMap(settings, lm);
+    joystickMap = buildJoystickSpecifierMap(settings, lm);
 }
 
 void GameScene::loadLevel(std::string levelName)
@@ -407,4 +429,11 @@ void GameScene::pause()
 void GameScene::resume()
 {
     keysMap = buildKeySpecifierMap(settings, localizationManager);
+    joystickMap = buildJoystickSpecifierMap(settings, localizationManager);
+}
+
+const StringSpecifierMap& GameScene::getInputSpecifierMap() const
+{
+    if (inputManager.isJoystickCurrent()) return joystickMap;
+    else return keysMap;
 }

@@ -129,7 +129,7 @@ void Powerup::onCollect(Player& player)
 
         LangID messagePowerup = abilityLevel > 10 ? "msg-secret-powerup-collect" : "msg-powerup-collect";
         std::string msg = lm.getFormattedString(messagePowerup, {{"pname", parm}}, {}, {}) + "\n";
-        msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
+        msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getInputSpecifierMap());
         msgbox.display(script, msg);
     });
 

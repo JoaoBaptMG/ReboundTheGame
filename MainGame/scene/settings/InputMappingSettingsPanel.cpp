@@ -15,11 +15,20 @@
 
 #include <defaults.hpp>
 
+#include <array>
+
 constexpr float FrameWidth = PlayfieldWidth;
 constexpr float ButtonHeight = 32;
 constexpr float ButtonSpace = 4;
 constexpr float ButtonCaptionSize = 28;
 constexpr float TotalHeight = 500;
+
+struct InputMapping
+{
+    LangID langID;
+    InputSource& source;
+    UIInputRemapper::InputDest inputDest;
+};
 
 InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm,
     LocalizationManager &lm, SettingsBase* curSettings, UIPointer& pointer, bool forJoystick)
@@ -39,8 +48,7 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputMa
     title.buildGeometry();
 
     pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
-    if (forJoystick) initJoystickInputScreen(pos, im, settings.inputSettings, rm, lm);
-    else initKeyboardInputScreen(pos, im, settings.inputSettings, rm, lm);
+    buildInputScreen(pos, im, settings.inputSettings, rm, lm, forJoystick);
 
     createCommonTextualButton(backButton, rm, lm, "ui-select-field.png", "ui-select-field.png",
         sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
@@ -68,30 +76,46 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputMa
     buttonGroup.setPointer(pointer);
 }
 
-void InputMappingSettingsPanel::initKeyboardInputScreen(sf::Vector2f pos, InputManager& inputManager,
-    InputSettings& settings, ResourceManager &rm, LocalizationManager& lm)
+void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, InputManager& inputManager,
+    InputSettings& settings, ResourceManager &rm, LocalizationManager& lm, bool forJoystick)
 {
-    static const struct { LangID langID; InputSource& source; } KeyboardMappings[] =
+    std::array<InputMapping,12> inputMappings = !forJoystick ? std::array<InputMapping,12>
     {
-        { "input-settings-dash", settings.keyboardSettings.dashInput },
-        { "input-settings-jump", settings.keyboardSettings.jumpInput },
-        { "input-settings-bomb", settings.keyboardSettings.bombInput },
+        InputMapping{ "input-settings-dash", settings.keyboardSettings.dashInput, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-jump", settings.keyboardSettings.jumpInput, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-bomb", settings.keyboardSettings.bombInput, UIInputRemapper::InputDest::Keyboard },
 
-        { "input-settings-keyboard-left", settings.keyboardSettings.moveLeft },
-        { "input-settings-keyboard-right", settings.keyboardSettings.moveRight },
-        { "input-settings-keyboard-up", settings.keyboardSettings.moveUp },
-        { "input-settings-keyboard-down", settings.keyboardSettings.moveDown },
+        InputMapping{ "input-settings-keyboard-left", settings.keyboardSettings.moveLeft, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-keyboard-right", settings.keyboardSettings.moveRight, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-keyboard-up", settings.keyboardSettings.moveUp, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-keyboard-down", settings.keyboardSettings.moveDown, UIInputRemapper::InputDest::Keyboard },
 
-        { "input-settings-switch-screen-left", settings.keyboardSettings.switchScreenLeft },
-        { "input-settings-switch-screen-right", settings.keyboardSettings.switchScreenRight },
-        { "input-settings-pause", settings.keyboardSettings.pauseInput },
-        { "input-settings-ok", settings.keyboardSettings.okInput },
-        { "input-settings-cancel", settings.keyboardSettings.cancelInput },
+        InputMapping{ "input-settings-switch-screen-left", settings.keyboardSettings.switchScreenLeft, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-switch-screen-right", settings.keyboardSettings.switchScreenRight, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-pause", settings.keyboardSettings.pauseInput, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-ok", settings.keyboardSettings.okInput, UIInputRemapper::InputDest::Keyboard },
+        InputMapping{ "input-settings-cancel", settings.keyboardSettings.cancelInput, UIInputRemapper::InputDest::Keyboard },
+    } : std::array<InputMapping,12>
+    {
+        InputMapping{ "input-settings-dash", settings.joystickSettings.dashInput, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-jump", settings.joystickSettings.jumpInput, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-bomb", settings.joystickSettings.bombInput, UIInputRemapper::InputDest::JoystickButton },
+
+        InputMapping{ "input-settings-joystick-hor-movement", settings.joystickSettings.movementAxisX, UIInputRemapper::InputDest::HorJoystickAxis },
+        InputMapping{ "input-settings-joystick-vert-movement", settings.joystickSettings.movementAxisY, UIInputRemapper::InputDest::VertJoystickAxis },
+        InputMapping{ "input-settings-joystick-hor-movement-2", settings.joystickSettings.movementAxisXAlt, UIInputRemapper::InputDest::HorJoystickAxis },
+        InputMapping{ "input-settings-joystick-vert-movement-2", settings.joystickSettings.movementAxisYAlt, UIInputRemapper::InputDest::VertJoystickAxis },
+
+        InputMapping{ "input-settings-switch-screen-left", settings.joystickSettings.switchScreenLeft, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-switch-screen-right", settings.joystickSettings.switchScreenRight, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-pause", settings.joystickSettings.pauseInput, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-ok", settings.joystickSettings.okInput, UIInputRemapper::InputDest::JoystickButton },
+        InputMapping{ "input-settings-cancel", settings.joystickSettings.cancelInput, UIInputRemapper::InputDest::JoystickButton },
     };
 
-    for (const auto& mapping : KeyboardMappings)
+    for (const auto& mapping : inputMappings)
     {
-        mappingButtons.emplace_back(std::make_unique<UIInputRemapper>(inputManager, mapping.source, lm, false));
+        mappingButtons.emplace_back(std::make_unique<UIInputRemapper>(inputManager, mapping.source, lm, mapping.inputDest));
         auto& button = mappingButtons.back();
 
         createCommonInputRemapper(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
@@ -114,50 +138,6 @@ void InputMappingSettingsPanel::initKeyboardInputScreen(sf::Vector2f pos, InputM
         if (i >= 0 && i <= 2) return std::make_pair(0, 2);
         else if (i >= 3 && i <= 6) return std::make_pair(3, 6);
         else return std::make_pair(7, 11);
-    });
-}
-
-void InputMappingSettingsPanel::initJoystickInputScreen(sf::Vector2f pos, InputManager& inputManager,
-    InputSettings& settings, ResourceManager &rm, LocalizationManager& lm)
-{
-    static const struct { LangID langID; InputSource& source; } JoystickMappings[] =
-    {
-        { "input-settings-dash", settings.joystickSettings.dashInput },
-        { "input-settings-jump", settings.joystickSettings.jumpInput },
-        { "input-settings-bomb", settings.joystickSettings.bombInput },
-
-        { "input-settings-switch-screen-left", settings.joystickSettings.switchScreenLeft },
-        { "input-settings-switch-screen-right", settings.joystickSettings.switchScreenRight },
-        { "input-settings-pause", settings.joystickSettings.pauseInput },
-        { "input-settings-ok", settings.joystickSettings.okInput },
-        { "input-settings-cancel", settings.joystickSettings.cancelInput },
-    };
-
-    for (const auto& mapping : JoystickMappings)
-    {
-        mappingButtons.emplace_back(std::make_unique<UIInputRemapper>(inputManager, mapping.source, lm, true));
-        auto& button = mappingButtons.back();
-
-        createCommonInputRemapper(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            mapping.langID, ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
-        button->setPosition(pos);
-
-        button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
-        button->getActiveSprite()->setOpacity(0.5);
-        button->getActiveSprite()->setOpacity(0.5);
-        button->setDepth(3200);
-
-        pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
-    }
-
-    mappingButtons.shrink_to_fit();
-
-    buttonGroup.setGroupingFunction([](size_t i)
-    {
-        if (i >= 0 && i <= 2) return std::make_pair(0, 2);
-        else if (i >= 3 && i <= 7) return std::make_pair(3, 7);
-        else return std::make_pair(8, 11);
     });
 }
 

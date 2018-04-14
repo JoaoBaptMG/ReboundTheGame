@@ -17,14 +17,14 @@ UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& se
     {
         travel.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
         travel.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
+        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisX,    0);
         travel.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     }    
     else
     {
         travel.registerButton(inputManager, settings.keyboardSettings.moveUp,    AxisDirection::Negative, 0);
         travel.registerButton(inputManager, settings.keyboardSettings.moveDown,  AxisDirection::Positive, 0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisY, 0);
+        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisY,    0);
         travel.registerAxis(inputManager, settings.joystickSettings.movementAxisYAlt, 1);
     }
     

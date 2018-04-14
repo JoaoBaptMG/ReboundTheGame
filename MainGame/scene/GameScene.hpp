@@ -72,7 +72,7 @@ class GameScene : public Scene
     LevelTransition levelTransition;
     MessageBox messageBox;
     Script cutsceneScript;
-    StringSpecifierMap keysMap;
+    StringSpecifierMap keysMap, joystickMap;
     
     FrameTime curTime;
     FrameDuration pauseLag;
@@ -118,7 +118,7 @@ public:
         nextLevelRequested = nextLevel;
     }
 
-    const auto& getKeySpecifierMap() const { return keysMap; }
+    const StringSpecifierMap& getInputSpecifierMap() const;
 
     const PlayerController& getPlayerController() const
     {

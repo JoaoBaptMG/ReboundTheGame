@@ -77,7 +77,7 @@ void MessageSign::interact()
     {
         if (messageString[0] == 2)
         {
-            const auto& keyMap = gameScene.getKeySpecifierMap();
+            const auto& keyMap = gameScene.getInputSpecifierMap();
             gameScene.getMessageBox().displayFormattedString(script, messageString.substr(1), {}, {}, keyMap);
         }
         else gameScene.getMessageBox().displayString(script, messageString);

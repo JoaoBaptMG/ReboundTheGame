@@ -22,15 +22,13 @@ class InputMappingSettingsPanel final : public SettingsPanel
     UIButton backButton;
     UIInputRemappingButtonGroup buttonGroup;
 
+    void buildInputScreen(sf::Vector2f pos, InputManager& inputManager, InputSettings& settings,
+        ResourceManager &rm, LocalizationManager& lm, bool forJoystick);
+
 public:
     InputMappingSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
         SettingsBase* curSettings, UIPointer& pointer, bool forJoystick);
     virtual ~InputMappingSettingsPanel() = default;
-
-    void initKeyboardInputScreen(sf::Vector2f pos, InputManager& inputManager, InputSettings& settings,
-        ResourceManager &rm, LocalizationManager& lm);
-    void initJoystickInputScreen(sf::Vector2f pos, InputManager& inputManager, InputSettings& settings,
-        ResourceManager &rm, LocalizationManager& lm);
 
     virtual void update(FrameTime curTime) override;
     virtual void render(Renderer& renderer) override;

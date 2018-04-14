@@ -14,7 +14,7 @@
 #include "language/KeyboardKeyName.hpp"
 
 UIInputRemapper::UIInputRemapper(InputManager& inputManager, InputSource& source, LocalizationManager& lm,
-    bool forJoystick) : UIInputRemapper(source, lm, forJoystick)
+    UIInputRemapper::InputDest inputDest) : UIInputRemapper(source, lm, inputDest)
 {
     initialize(inputManager);
 }
@@ -37,10 +37,12 @@ void UIInputRemapper::initialize(InputManager& inputManager)
             }
         };
 
-        if (forJoystick) inputManager.addPickAllJoystickCallback(callback);
-        else inputManager.addPickAllKeyboardCallback(callback);
+        if (inputDest == InputDest::Keyboard) inputManager.addPickAllKeyboardCallback(callback);
+        else inputManager.addPickAllJoystickCallback(callback, inputDest != InputDest::JoystickButton);
 
-        sourceCaption.setString(localizationManager.getString("input-settings-remap"));
+        static const LangID RemapStrings[] = { "input-settings-remap", "input-settings-remap",
+            "input-settings-hor-axis-remap", "input-settings-vert-axis-remap" };
+        sourceCaption.setString(localizationManager.getString(RemapStrings[(size_t)inputDest]));
         sourceCaption.buildGeometry();
     });
 }
@@ -55,8 +57,8 @@ void UIInputRemapper::resetRemappingState(InputManager& inputManager)
 {
     resetText();
 
-    if (forJoystick) inputManager.addPickAllJoystickCallback(InputManager::Callback());
-    else inputManager.addPickAllKeyboardCallback(InputManager::Callback());
+    if (inputDest == InputDest::Keyboard) inputManager.addPickAllKeyboardCallback(InputManager::Callback());
+    else inputManager.addPickAllJoystickCallback(InputManager::Callback());
 }
 
 void UIInputRemapper::render(Renderer& renderer)

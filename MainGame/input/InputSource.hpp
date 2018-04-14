@@ -27,11 +27,13 @@ public:
     static InputSource keyboardKey(size_t scanCode);
     
     static InputSource mouseButton(sf::Mouse::Button button);
-    static InputSource mouseX, mouseY;
+    static InputSource mouseX, mouseY, invertedMouseX, invertedMouseY;
     static InputSource mouseWheel(sf::Mouse::Wheel wheel);
+    static InputSource invertedMouseWheel(sf::Mouse::Wheel wheel);
 
     static InputSource joystickButton(unsigned int button);
     static InputSource joystickAxis(sf::Joystick::Axis axis);
+    static InputSource invertedJoystickAxis(sf::Joystick::Axis axis);
 
     friend bool operator==(InputSource in1, InputSource in2);
     friend bool operator<(InputSource in1, InputSource in2);

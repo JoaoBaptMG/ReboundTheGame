@@ -13,15 +13,19 @@ class LocalizationManager;
 
 class UIInputRemapper final : public UIButton
 {
+public:
+    enum class InputDest { Keyboard, JoystickButton, HorJoystickAxis, VertJoystickAxis };
+
+private:
     TextDrawable sourceCaption;
     InputSource& remapSource;
     LocalizationManager& localizationManager;
-    bool forJoystick;
+    InputDest inputDest;
 
 public:
-    explicit UIInputRemapper(InputSource& source, LocalizationManager& lm, bool forJoystick) : UIButton(),
-        remapSource(source), localizationManager(lm), forJoystick(forJoystick) {}
-    UIInputRemapper(InputManager& inputManager, InputSource& source, LocalizationManager& lm, bool forJoystick);
+    explicit UIInputRemapper(InputSource& source, LocalizationManager& lm, InputDest inputDest) : UIButton(),
+        remapSource(source), localizationManager(lm), inputDest(inputDest) {}
+    UIInputRemapper(InputManager& inputManager, InputSource& source, LocalizationManager& lm, InputDest inputDest);
     void initialize(InputManager& inputManager);
     virtual ~UIInputRemapper() {}
     

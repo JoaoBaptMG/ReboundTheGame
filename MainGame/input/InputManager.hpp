@@ -23,12 +23,14 @@ private:
     std::unordered_map<const InputSource*,PriorityMap> variableCallbacks;
     std::multimap<intmax_t,MouseMoveCallback> mouseMoveCallbacks;
     Callback curPickAllKeyboardCallback, curPickAllJoystickCallback;
+    enum { None, Positive, Negative } joystickPickAllAxisState;
+    bool joystickPickAllAxesOnly, joystickCurrent;
 
 public:
     using CallbackEntry = util::ContainerEntry<PriorityMap>;
     using MouseMoveEntry = util::ContainerEntry<decltype(mouseMoveCallbacks)>;
 
-    InputManager() {}
+    InputManager() : joystickPickAllAxisState(None), joystickCurrent(false) {}
     ~InputManager() {}
 
     CallbackEntry registerCallback(InputSource source, Callback callback, intmax_t priority = 0);
@@ -36,11 +38,13 @@ public:
     MouseMoveEntry registerMouseMoveCallback(MouseMoveCallback callback, intmax_t priority = 0);
 
     void addPickAllKeyboardCallback(Callback callback);
-    void addPickAllJoystickCallback(Callback callback);
+    void addPickAllJoystickCallback(Callback callback, bool axesOnly = false);
+    void handleJoystickPickAllResponseAxis(sf::Joystick::Axis axis, float val);
 
     void dispatchData(InputSource source, float val);
     void dispatchMouseMovement(sf::Vector2i pos);
 
     bool handleEvent(const sf::Event& event);
+    bool isJoystickCurrent() const { return joystickCurrent; }
 };
 

@@ -10,6 +10,9 @@
 #include "defaults.hpp"
 #include <chronoUtils.hpp>
 
+#include "settings/Settings.hpp"
+#include "settings/InputSettings.hpp"
+
 const LangID Titles[] =
 {
     "pause-collected-powerups",
@@ -21,12 +24,13 @@ constexpr auto TitleSize = 32;
 constexpr auto ButtonSize = 24;
 
 constexpr auto RotationPeriod = 72_frames;
+constexpr float TravelAmount = 240;
 
 static ScissorRectPush scissorRectPush{};
 
 CollectedPauseFrame::CollectedPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager& lm) : localizationManager(lm), scrollBar(im, rm, getTotalHeight(), 512),
-    showSecretPowerups(false)
+    LocalizationManager& lm) : localizationManager(lm), showSecretPowerups(false),
+    scrollBar(im, rm, 600, 512)
 {
     scrollBar.setDepth(3106);
     scrollBar.setPosition(sf::Vector2f((ScreenWidth+PlayfieldWidth)/2 - 8, 64));
@@ -129,6 +133,11 @@ CollectedPauseFrame::CollectedPauseFrame(const Settings& settings, InputManager&
         sprite.setAnchorPoint(sf::Vector2f(sprite.getTextureSize()/2u));
         sprite.setBlendColor(sf::Color::Black);
     }
+
+    travel.registerButton(im, settings.inputSettings.keyboardSettings.moveUp,    AxisDirection::Negative, 0);
+    travel.registerButton(im, settings.inputSettings.keyboardSettings.moveDown,  AxisDirection::Positive, 0);
+    travel.registerAxis(im, settings.inputSettings.joystickSettings.movementAxisY,    0);
+    travel.registerAxis(im, settings.inputSettings.joystickSettings.movementAxisYAlt, 1);
 }
 
 void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
@@ -203,6 +212,10 @@ void CollectedPauseFrame::update(FrameTime curTime)
 {
     if (isNull(initTime)) initTime = curTime;
     this->curTime = curTime;
+
+    auto ofs = scrollBar.getCurrentOffset();
+    float dt = toSeconds<float>(UpdatePeriod);
+    scrollBar.setCurrentOffset(ofs + TravelAmount * dt * travel.getValue());
 }
 
 void CollectedPauseFrame::render(Renderer &renderer)
@@ -311,7 +324,7 @@ void CollectedPauseFrame::render(Renderer &renderer)
 
 void CollectedPauseFrame::activate()
 {
-
+    
 }
 void CollectedPauseFrame::deactivate()
 {

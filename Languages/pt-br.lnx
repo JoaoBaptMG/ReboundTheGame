@@ -64,6 +64,16 @@
     <!-- Generic joystick button labels -->
     <formatter name="joystick-button-id">JoyBtn {#n}</formatter>
     <formatter name="joystick-axis-id">JoyAxis {#n}</formatter>
+    <formatter name="joystick-inv-axis-id">Inv JoyAxis {#n}</formatter>
+
+    <!-- The generic input labels for use on messages -->
+    <string name="input-joystick-left">Esquerda</string>
+    <string name="input-joystick-right">Direita</string>
+    <string name="input-joystick-up">Para cima</string>
+    <string name="input-joystick-down">Para baixo</string>
+
+    <!-- The caption for no input registered -->
+    <string name="input-source-none">Nada</string>
 
     <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
     <!-- The caption for the "New game" button. -->
@@ -148,8 +158,14 @@
     <string name="input-settings-keyboard-right">Direita</string>
     <string name="input-settings-keyboard-up">Para cima</string>
     <string name="input-settings-keyboard-down">Para baixo</string>
+    <string name="input-settings-joystick-hor-movement">Horizontal</string>
+    <string name="input-settings-joystick-vert-movement">Vertical</string>
+    <string name="input-settings-joystick-hor-movement-2">Horizontal (Alt)</string>
+    <string name="input-settings-joystick-vert-movement-2">Vertical (Alt)</string>
     <!-- The text that shows when a input button is selected -->
     <string name="input-settings-remap">Press...</string>
+    <string name="input-settings-hor-axis-remap">Direita...</string>
+    <string name="input-settings-vert-axis-remap">Para baixo...</string>
 
     <!-- The language selection panel on the settings screen -->
     <!-- Title for the panel -->

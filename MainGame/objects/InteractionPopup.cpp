@@ -18,7 +18,7 @@ InteractionPopup::InteractionPopup(GameScene& scene)
 {
     popupBox.setOpacity(0);
 
-    auto str = gameScene.getKeySpecifierMap().find("dashbtn")->second;
+    auto str = gameScene.getInputSpecifierMap().find("dashbtn")->second;
     popupLabel.setString(str.substr(4, str.size()-8));
     popupLabel.setFontSize(24);
     popupLabel.setDefaultColor(sf::Color(255, 255, 255, 0));

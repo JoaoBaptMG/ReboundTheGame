@@ -44,7 +44,7 @@ constexpr cpFloat DashSpeedEnhanced = 800;
 constexpr cpFloat HardballAirFactor = 0.125;
 constexpr cpFloat HardballWaterFactor = 0.75;
 
-constexpr cpFloat MoveRegenRate = 2.5/60;
+constexpr cpFloat MoveRegenRate = 2.5;
 
 constexpr auto DashInterval = 40_frames;
 constexpr auto DashIntervalEnhanced = 90_frames;
@@ -340,8 +340,9 @@ void Player::actOnGround(bool waterborne)
     if (moveRegen && !waterborne)
     {
         cpFloat spd = fabs(playerShape->getBody()->getVelocity().x);
+        float dt = toSeconds<float>(UpdatePeriod);
         if (spd > 0.08 * MaxHorSpeedEnhanced)
-            microHeal(MoveRegenRate * spd / MaxHorSpeedEnhanced);
+            microHeal(MoveRegenRate * spd * dt / MaxHorSpeedEnhanced);
     }
     
     interactionViable = controller.dash().isTriggered();

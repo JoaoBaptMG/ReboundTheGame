@@ -67,6 +67,16 @@
     <!-- Generic joystick button labels -->
     <formatter name="joystick-button-id">JoyBtn {#n}</formatter>
     <formatter name="joystick-axis-id">JoyAxis {#n}</formatter>
+    <formatter name="joystick-inv-axis-id">Inv JoyAxis {#n}</formatter>
+
+    <!-- The generic input labels for use on messages -->
+    <string name="input-joystick-left">Left</string>
+    <string name="input-joystick-right">Right</string>
+    <string name="input-joystick-up">Up</string>
+    <string name="input-joystick-down">Down</string>
+
+    <!-- The caption for no input registered -->
+    <string name="input-source-none">None</string>
     
     <!-- The title menu: the captions of the four buttons present there. The title itself should NOT be translated. -->
     <!-- The caption for the "New game" button. -->
@@ -151,8 +161,14 @@
     <string name="input-settings-keyboard-right">Right</string>
     <string name="input-settings-keyboard-up">Up</string>
     <string name="input-settings-keyboard-down">Down</string>
+    <string name="input-settings-joystick-hor-movement">Horizontal Move</string>
+    <string name="input-settings-joystick-vert-movement">Vertical Move</string>
+    <string name="input-settings-joystick-hor-movement-2">Horizontal Move (Alt)</string>
+    <string name="input-settings-joystick-vert-movement-2">Vertical Move (Alt)</string>
     <!-- The text that shows when a input button is selected -->
     <string name="input-settings-remap">Press...</string>
+    <string name="input-settings-hor-axis-remap">Move right...</string>
+    <string name="input-settings-vert-axis-remap">Move down...</string>
 
     <!-- The language selection panel on the settings screen -->
     <!-- Title for the panel -->

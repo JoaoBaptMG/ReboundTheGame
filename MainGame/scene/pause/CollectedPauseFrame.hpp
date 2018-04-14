@@ -6,6 +6,7 @@
 #include "drawables/Sprite.hpp"
 
 #include "ui/UIScrollBar.hpp"
+#include "input/CommonActions.hpp"
 
 struct Settings;
 class ResourceManager;
@@ -16,6 +17,7 @@ struct SavedGame;
 class CollectedPauseFrame : public PauseFrame
 {
     UIScrollBar scrollBar;
+    AxisAction<1,2> travel;
 
     TextDrawable titles[3];
     TextDrawable powerupLabels[12];

@@ -1,5 +1,6 @@
 #include "InputManager.hpp"
 
+#include "preventSleeping.hpp"
 #include <iostream>
 
 void InputManager::dispatchData(InputSource source, float val)
@@ -36,6 +37,7 @@ bool InputManager::handleEvent(const sf::Event& event)
             if (curPickAllKeyboardCallback)
                 curPickAllKeyboardCallback(InputSource::keyboardKey(event.key.scanCode), 1.0f);
             else dispatchData(InputSource::keyboardKey(event.key.scanCode), 1.0f);
+            joystickCurrent = false;
             return true;
         case sf::Event::KeyReleased:
             if (curPickAllKeyboardCallback)
@@ -44,9 +46,11 @@ bool InputManager::handleEvent(const sf::Event& event)
                 curPickAllKeyboardCallback = Callback();
             }
             else dispatchData(InputSource::keyboardKey(event.key.scanCode), 0.0f);
+            joystickCurrent = false;
             return true;
         case sf::Event::MouseWheelScrolled:   
             dispatchData(InputSource::mouseWheel(event.mouseWheelScroll.wheel), event.mouseWheelScroll.delta);
+            dispatchData(InputSource::invertedMouseWheel(event.mouseWheelScroll.wheel), -event.mouseWheelScroll.delta);
             return true;
         case sf::Event::MouseButtonPressed:   
             dispatchData(InputSource::mouseButton(event.mouseButton.button), 1.0f);
@@ -57,23 +61,37 @@ bool InputManager::handleEvent(const sf::Event& event)
         case sf::Event::MouseMoved:
             dispatchData(InputSource::mouseX, (float)event.mouseMove.x);
             dispatchData(InputSource::mouseY, (float)event.mouseMove.y);
+            dispatchData(InputSource::invertedMouseX, -(float)event.mouseMove.x);
+            dispatchData(InputSource::invertedMouseY, -(float)event.mouseMove.y);
             dispatchMouseMovement(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
             return true;
         case sf::Event::JoystickButtonPressed:
-            if (curPickAllJoystickCallback)
+            if (curPickAllJoystickCallback && !joystickPickAllAxesOnly)
                 curPickAllJoystickCallback(InputSource::joystickButton(event.joystickButton.button), 1.0f);
             else dispatchData(InputSource::joystickButton(event.joystickButton.button), 1.0f);
+            preventComputerFromSleeping();
+            joystickCurrent = true;
             return true;
         case sf::Event::JoystickButtonReleased:
-            if (curPickAllJoystickCallback)
+            if (curPickAllJoystickCallback && !joystickPickAllAxesOnly)
             {
                 curPickAllJoystickCallback(InputSource::joystickButton(event.joystickButton.button), 0.0f);
                 curPickAllJoystickCallback = Callback();
             }
             else dispatchData(InputSource::joystickButton(event.joystickButton.button), 0.0f);
+            preventComputerFromSleeping();
+            joystickCurrent = true;
             return true;
         case sf::Event::JoystickMoved:
-            dispatchData(InputSource::joystickAxis(event.joystickMove.axis), event.joystickMove.position/100.0f);
+            if (curPickAllJoystickCallback)
+                handleJoystickPickAllResponseAxis(event.joystickMove.axis, event.joystickMove.position);
+            else
+            {
+                dispatchData(InputSource::joystickAxis(event.joystickMove.axis), event.joystickMove.position/100.0f);
+                dispatchData(InputSource::invertedJoystickAxis(event.joystickMove.axis), -event.joystickMove.position/100.0f);
+            }
+            preventComputerFromSleeping();
+            joystickCurrent = true;
             return true;
         default: return false;
     }
@@ -104,7 +122,37 @@ void InputManager::addPickAllKeyboardCallback(InputManager::Callback callback)
     curPickAllKeyboardCallback = callback;
 }
 
-void InputManager::addPickAllJoystickCallback(InputManager::Callback callback)
+void InputManager::addPickAllJoystickCallback(InputManager::Callback callback, bool axesOnly)
 {
     curPickAllJoystickCallback = callback;
+    joystickPickAllAxesOnly = axesOnly;
+}
+
+void InputManager::handleJoystickPickAllResponseAxis(sf::Joystick::Axis axis, float val)
+{
+    if (joystickPickAllAxisState == Positive && val < 50.0f)
+    {
+        curPickAllJoystickCallback(InputSource::joystickAxis(axis), 0.0f);
+        curPickAllJoystickCallback = Callback();
+        joystickPickAllAxisState = None;
+    }
+    else if (joystickPickAllAxisState == Negative && val > -50.0f)
+    {
+        curPickAllJoystickCallback(InputSource::invertedJoystickAxis(axis), 0.0f);
+        curPickAllJoystickCallback = Callback();
+        joystickPickAllAxisState = None;
+    }
+    else if (joystickPickAllAxisState == None)
+    {
+        if (val >= 50.0f)
+        {
+            curPickAllJoystickCallback(InputSource::joystickAxis(axis), 1.0f);
+            joystickPickAllAxisState = Positive;
+        }
+        else if (val <= -50.0f)
+        {
+            curPickAllJoystickCallback(InputSource::invertedJoystickAxis(axis), 1.0f);
+            joystickPickAllAxisState = Negative;
+        }
+    }
 }
