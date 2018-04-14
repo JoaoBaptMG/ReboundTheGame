@@ -6,7 +6,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 
-constexpr auto TransitionDuration = 60 * UpdatePeriod;
+constexpr auto TransitionDuration = 60_frames;
 
 LevelTransition::LevelTransition(GameScene &scene) : gameScene(scene), curTime(), transitionTime(),
     screenQuad(sf::FloatRect(0, 0, ScreenWidth, ScreenHeight), sf::Color::Black), transitionDone(false)

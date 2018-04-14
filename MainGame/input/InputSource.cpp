@@ -5,6 +5,8 @@
 
 constexpr auto MaxWheels = std::max(sf::Mouse::HorizontalWheel, sf::Mouse::VerticalWheel);
 
+InputSource InputSource::none{InputSource::Type::None, 0};
+
 InputSource InputSource::mouseX{InputSource::Type::MouseAxis, MaxWheels + 1};
 InputSource InputSource::mouseY{InputSource::Type::MouseAxis, MaxWheels + 2};
 
@@ -58,6 +60,10 @@ std::string InputSource::getInputName(LocalizationManager& lm)
     switch (type)
     {
         case Type::Keyboard: return scanCodeToKeyName(attribute, lm);
+        case Type::JoystickButton:
+            return lm.getFormattedString("joystick-button-id", {}, {{"n",attribute+1}}, {});
+        case Type::JoystickAxis:
+            return lm.getFormattedString("joystick-axis-id", {}, {{"n",attribute+1}}, {});
     }
     return "";
 }

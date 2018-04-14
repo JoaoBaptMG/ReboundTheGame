@@ -10,7 +10,7 @@
 #include "AudioSettings.hpp"
 #include "gameplay/SavedGame.hpp"
 
-constexpr size_t SettingsVersion = 3;
+constexpr size_t SettingsVersion = 0;
 
 struct KeyPair
 {

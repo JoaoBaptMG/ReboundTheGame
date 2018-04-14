@@ -16,8 +16,8 @@ void UIButton::initialize(InputManager& inputManager, intmax_t priority)
     mouseMovedEntry = inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
         if (!active) return;
-        
-        if (state == State::Normal && bounds.contains(sf::Vector2f(position) - this->position))
+
+        if (state == State::Normal && isInBounds(sf::Vector2f(position)))
         {
             if (parentGroup) parentGroup->setCurrentButton(this);
             else
@@ -26,7 +26,7 @@ void UIButton::initialize(InputManager& inputManager, intmax_t priority)
                 if (overAction) overAction();
             }
         }
-        else if (state != State::Normal && !bounds.contains(sf::Vector2f(position) - this->position))
+        else if (state != State::Normal && !isInBounds(sf::Vector2f(position)))
         {
             if (parentGroup) parentGroup->setCurrentButton(nullptr);
             else
@@ -56,6 +56,13 @@ void UIButton::initialize(InputManager& inputManager, intmax_t priority)
             }
         }
     }, priority);
+}
+
+bool UIButton::isInBounds(sf::Vector2f position) const
+{
+    if (!isnanf(globalBounds.left) && !isnanf(globalBounds.top))
+        if (!globalBounds.contains(position)) return false;
+    return bounds.contains(position - this->position);
 }
 
 void UIButton::autoComputeBounds()

@@ -17,7 +17,7 @@
 #include "aes/tiny-AES-c-master/aes.hpp"
 #endif
 
-SavedGame::SavedGame() : levelInfoDoubleArmor(0), secretItems{0, 0, 0, 0, 0}
+SavedGame::SavedGame() : levelInfo(0), goldenTokens{}, pickets{}, otherSecrets{}
 {
     
 }
@@ -26,10 +26,39 @@ size_t SavedGame::getGoldenTokenCount() const
 {
     size_t count = 0;
     
-    for (uint8_t k : (uint8_t[]){ secretItems[0], secretItems[1], secretItems[2], uint8_t(secretItems[3] & 0x3F) })
+    for (uint8_t k : goldenTokens)
         count += BitCounts[k];
     
     ASSERT(count <= 30);
+    return count;
+}
+
+size_t SavedGame::getPicketCount() const
+{
+    size_t count = 0;
+
+    for (uint8_t k : pickets)
+        count += BitCounts[k];
+
+    ASSERT(count <= 1000);
+    return count;
+}
+
+size_t SavedGame::getPicketCountForLevel(size_t id) const
+{
+    ASSERT(id >= 1 && id <= 10);
+    id--;
+    size_t count = 0;
+
+    size_t begin = 12*id + ((id+1)/2);
+
+    for (size_t i = begin; i < begin+12; i++)
+        count += BitCounts[pickets[i]];
+
+    if (id % 2 == 0) count += BitCounts[pickets[begin+12] & 0x0F];
+    else count += BitCounts[pickets[begin-1] & 0xF0];
+
+    ASSERT(count <= 100);
     return count;
 }
 
@@ -89,19 +118,20 @@ bool writeBinaryVector(OutputStream& stream, const std::vector<bool>& vector)
     return stream.write((char*)vals.get(), memSize*sizeof(uint8_t));
 }
 
-#define ALL(v,e) std::all_of(std::begin(v), std::end(v), (e))
+#define ALL(v,e) std::all_of(std::begin(v), std::end(v), [&](auto&& x){ return e; })
 
 bool readFromStream(sf::InputStream& stream, SavedGame& savedGame)
 {
-    return readFromStream(stream, savedGame.levelInfoDoubleArmor, savedGame.secretItems) &&
-        ALL(savedGame.mapsRevealed, [&](auto& vec) { return readBinaryVector(stream, vec); });
+    return readFromStream(stream, savedGame.levelInfo, savedGame.goldenTokens, savedGame.pickets,
+        savedGame.otherSecrets) && ALL(savedGame.mapsRevealed, readBinaryVector(stream, x));
 }
 
 bool writeToStream(OutputStream& stream, const SavedGame& savedGame)
 {
-    return writeToStream(stream, savedGame.levelInfoDoubleArmor, savedGame.secretItems) &&
-        ALL(savedGame.mapsRevealed, [&](auto& vec) { return writeBinaryVector(stream, vec); });
+    return writeToStream(stream, savedGame.levelInfo, savedGame.goldenTokens, savedGame.pickets,
+        savedGame.otherSecrets) && ALL(savedGame.mapsRevealed, writeBinaryVector(stream, x));
 }
+#undef ALL
 
 #if !CRYPT_OFF
 uint64_t getCryptoRandomKey()
@@ -132,6 +162,7 @@ uint64_t getCryptoRandomKey()
 }
 
 constexpr size_t ScramblerSize = 7;
+constexpr size_t EncryptRuns = 3;
 
 std::vector<size_t> bitScramblerVector(uint64_t key, size_t size)
 {
@@ -166,10 +197,13 @@ bool readEncryptedSaveFile(sf::InputStream& stream, SavedGame& savedGame, SavedG
     
     uint8_t aesKey[32];
     generateAESKey(key.aesGeneratorKey, aesKey);
-    AES_ctx ctx;
-    AES_init_ctx_iv(&ctx, aesKey, aesKey+16);
-    
-    AES_CBC_decrypt_buffer(&ctx, scrambledMem.data(), scrambledMem.size());
+
+    for (size_t i = 0; i < EncryptRuns; i++)
+    {
+        AES_ctx ctx;
+        AES_init_ctx_iv(&ctx, aesKey, aesKey+16);
+        AES_CBC_decrypt_buffer(&ctx, scrambledMem.data(), scrambledMem.size());
+    }
     
     uint8_t padSize = scrambledMem.back();
     scrambledMem.resize(scrambledMem.size() - padSize);
@@ -237,9 +271,12 @@ bool writeEncryptedSaveFile(OutputStream& stream, const SavedGame& savedGame, Sa
     uint8_t aesKey[32];
     generateAESKey(key.aesGeneratorKey, aesKey);
     
-    AES_ctx ctx;
-    AES_init_ctx_iv(&ctx, aesKey, aesKey+16);
-    AES_CBC_encrypt_buffer(&ctx, scrambledMem.data(), scrambledMem.size());
+    for (size_t i = 0; i < EncryptRuns; i++)
+    {
+        AES_ctx ctx;
+        AES_init_ctx_iv(&ctx, aesKey, aesKey+16);
+        AES_CBC_encrypt_buffer(&ctx, scrambledMem.data(), scrambledMem.size());
+    }
     
     return writeToStream(stream, scrambledMem);
 }

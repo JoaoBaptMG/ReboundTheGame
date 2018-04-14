@@ -18,8 +18,8 @@ using namespace props;
 constexpr float ExciteRadius = 192;
 constexpr float ExciteForce = 512;
 
-constexpr auto WobblePeriod = 60 * UpdatePeriod;
-constexpr auto GrappleFade = 30 * UpdatePeriod;
+constexpr auto WobblePeriod = 60_frames;
+constexpr auto GrappleFade = 30_frames;
 
 Grapple::Grapple(GameScene& gameScene) : GameObject(gameScene), isExcited(false), lastFade(0),
     sprite(gameScene.getResourceManager().load<sf::Texture>("grapple.png")),

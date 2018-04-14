@@ -67,33 +67,34 @@ public:
     void setAction(decltype(action) action) { this->action = action; }
 };
 
-template <size_t N>
+template <size_t ButN, size_t AxisN>
 class AxisAction final : public AxisActionBase
 {
-    InputManager::CallbackEntry callbackEntries[3*N];
+    InputManager::CallbackEntry buttonCallbackEntries[2*ButN];
+    InputManager::CallbackEntry axisCallbackEntries[AxisN];
 
 public:
     AxisAction() {}
     ~AxisAction() {}
 
-    void registerAxis(InputManager& inputManager, const InputSource& source, size_t n)
+    void registerButton(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
-        if (n < N) callbackEntries[3*n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+        if (n < ButN) buttonCallbackEntries[2*n + (dir == AxisDirection::Positive)] =
+            inputManager.registerVariableCallback(source, [=](InputSource source, float val)
             {
-                valuePos = val;
-                valueNeg = 0;
+                if (dir == AxisDirection::Positive) valuePos = val; else valueNeg = val;
                 if (action) action(valuePos - valueNeg);
             });
     }
 
-    void registerButton(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
+    void registerAxis(InputManager& inputManager, const InputSource& source, size_t n)
     {
-        if (n < N) callbackEntries[3*n + (dir == AxisDirection::Positive ? 2 : 1)] =
-                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
-                       {
-                           if (dir == AxisDirection::Positive) valuePos = val; else valueNeg = val;
-                           if (action) action(valuePos - valueNeg);
-                       });
+        if (n < AxisN) axisCallbackEntries[n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+        {
+            valuePos = val;
+            valueNeg = 0;
+            if (action) action(valuePos - valueNeg);
+        });
     }
 };
 
@@ -118,49 +119,52 @@ public:
     void setAction(decltype(action) action) { this->action = action; }
 };
 
-template <size_t N>
+template <size_t ButN, size_t AxisN>
 class DualAxisAction final : public DualAxisActionBase
 {
-    InputManager::CallbackEntry callbackEntries[6*N];
+    InputManager::CallbackEntry buttonCallbackEntriesX[2*ButN];
+    InputManager::CallbackEntry axisCallbackEntriesX[AxisN];
+    InputManager::CallbackEntry buttonCallbackEntriesY[2*ButN];
+    InputManager::CallbackEntry axisCallbackEntriesY[AxisN];
 
 public:
-    void registerAxisForX(InputManager& inputManager, const InputSource& source, size_t n)
-    {
-        if (n < N) callbackEntries[6*n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
-            {
-                valuePos.x = val;
-                valueNeg.x = 0;
-                if (action) action(valuePos - valueNeg);
-            });
-    }
-
-    void registerAxisForY(InputManager& inputManager, const InputSource& source, size_t n)
-    {
-        if (n < N) callbackEntries[6*n+3] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
-            {
-                valuePos.y = val;
-                valueNeg.y = 0;
-                if (action) action(valuePos - valueNeg);
-            });
-    }
-
     void registerButtonForX(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
-        if (n < N) callbackEntries[6*n + (dir == AxisDirection::Positive ? 2 : 1)] =
-                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
-                       {
-                           if (dir == AxisDirection::Positive) valuePos.x = val; else valueNeg.x = val;
-                           if (action) action(valuePos - valueNeg);
-                       });
+        if (n < ButN) buttonCallbackEntriesX[2*n + (dir == AxisDirection::Positive)] =
+            inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+            {
+                if (dir == AxisDirection::Positive) valuePos.x = val; else valueNeg.x = val;
+                if (action) action(valuePos - valueNeg);
+            });
     }
 
     void registerButtonForY(InputManager& inputManager, const InputSource& source, AxisDirection dir, size_t n)
     {
-        if (n < N) callbackEntries[6*n + (dir == AxisDirection::Negative ? 5 : 4)] =
-                       inputManager.registerVariableCallback(source, [=](InputSource source, float val)
-                       {
-                           if (dir == AxisDirection::Positive) valuePos.y = val; else valueNeg.y = val;
-                           if (action) action(valuePos - valueNeg);
-                       });
+        if (n < ButN) buttonCallbackEntriesY[2*n + (dir == AxisDirection::Positive)] =
+            inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+            {
+                if (dir == AxisDirection::Positive) valuePos.y = val; else valueNeg.y = val;
+                if (action) action(valuePos - valueNeg);
+            });
+    }
+
+    void registerAxisForX(InputManager& inputManager, const InputSource& source, size_t n)
+    {
+        if (n < AxisN) axisCallbackEntriesX[n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+        {
+            valuePos.x = val;
+            valueNeg.x = 0;
+            if (action) action(valuePos - valueNeg);
+        });
+    }
+
+    void registerAxisForY(InputManager& inputManager, const InputSource& source, size_t n)
+    {
+        if (n < AxisN) axisCallbackEntriesY[n] = inputManager.registerVariableCallback(source, [=](InputSource source, float val)
+        {
+            valuePos.y = val;
+            valueNeg.y = 0;
+            if (action) action(valuePos - valueNeg);
+        });
     }
 };

@@ -58,7 +58,9 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
     headerLabel(rm.load<FontHandler>(lm.getFontName()))
 {
     sceneFrame.setBlendColor(sf::Color(128, 128, 128, 255));
-    
+
+    auto globalBounds = sf::FloatRect((ScreenWidth - ButtonSize)/2, 64, ButtonSize, ScreenHeight - 128);
+
     size_t k = 0;
     for (auto& pair : settings.savedKeys)
     {
@@ -68,7 +70,8 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
         fileButtons.emplace_back(std::make_unique<UIFileSelectButton>(curSg, im, rm, lm, k));
         fileButtons[k]->setPosition(sf::Vector2f(ScreenWidth/2, k*128 + 128));
         fileButtons[k]->setDepth(60);
-        
+        fileButtons[k]->setGlobalBounds(globalBounds);
+
         if (action == FileAction::Save)
         {
             fileButtons[k]->setPressAction([&, savedGame, k, file = pair.name, this]
@@ -82,6 +85,7 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
                     fileButtons[k] = std::make_unique<UIFileSelectButton>(savedGame, im, rm, lm, k);
                     fileButtons[k]->setPosition(sf::Vector2f(ScreenWidth/2, k*128 + 128));
                     fileButtons[k]->setDepth(60);
+                    fileButtons[k]->setGlobalBounds(globalBounds);
                     getSceneManager().popSceneTransition(1s);
                 }
             });
@@ -122,6 +126,7 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
         
         dummyButton->setPosition(sf::Vector2f(ScreenWidth/2, k*128 + 128));
         dummyButton->setDepth(60);
+        dummyButton->setGlobalBounds(globalBounds);
         
         dummyButton->setPressAction([&, savedGame, k, this]
         {
@@ -136,6 +141,7 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
                 dummyButton = std::make_unique<UIFileSelectButton>(savedGame, im, rm, lm, k);
                 dummyButton->setPosition(sf::Vector2f(ScreenWidth/2, k*128 + 128));
                 dummyButton->setDepth(60);
+                dummyButton->setGlobalBounds(globalBounds);
                 getSceneManager().popSceneTransition(1s);
             }
         });
@@ -168,6 +174,7 @@ FileSelectScene::FileSelectScene(Settings& settings, const SavedGame& savedGame,
         
         dummyButton->setPosition(sf::Vector2f(ScreenWidth/2, k*128 + 128));
         dummyButton->setDepth(60);
+        dummyButton->setGlobalBounds(globalBounds);
         
         dummyButton->deactivate();
     }

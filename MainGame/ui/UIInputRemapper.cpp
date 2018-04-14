@@ -32,7 +32,7 @@ void UIInputRemapper::initialize(InputManager& inputManager)
         {
             if (value < 0.5f)
             {
-                parentGroup->assignRemappingUniquely(remapSource, source);
+                parentGroup->assignRemappingUniquely(*this, source);
                 parentGroup->setRemappingButton(nullptr);
             }
         };
@@ -100,13 +100,7 @@ void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, Loc
 
 UIInputRemappingButtonGroup::UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings,
     TravelingMode travelingMode) : UIButtonGroup(inputManager, settings, travelingMode), inputManager(inputManager),
-    currentRemappingButton(nullptr), sourceCollection(nullptr), sourceCollectionSize() {}
-
-void UIInputRemappingButtonGroup::setSourceCollection(InputSource* collection, size_t size)
-{
-    sourceCollection = collection;
-    sourceCollectionSize = size;
-}
+    currentRemappingButton(nullptr) {}
 
 void UIInputRemappingButtonGroup::setRemappingButton(UIInputRemapper* newRemappingButton)
 {
@@ -115,21 +109,24 @@ void UIInputRemappingButtonGroup::setRemappingButton(UIInputRemapper* newRemappi
     currentRemappingButton = newRemappingButton;
 }
 
-void UIInputRemappingButtonGroup::assignRemappingUniquely(InputSource& curSource, InputSource newSource)
+void UIInputRemappingButtonGroup::setGroupingFunction(decltype(groupingFunction) func) { groupingFunction = func; }
+
+void UIInputRemappingButtonGroup::assignRemappingUniquely(UIInputRemapper& button, InputSource newSource)
 {
-    for (size_t i = 0; i < sourceCollectionSize; i++)
-        if (sourceCollection[i] == newSource)
-        {
-            sourceCollection[i] = curSource;
+    if (groupingFunction)
+    {
+        auto& buttons = getButtons();
+        auto id = std::find(buttons.begin(), buttons.end(), &button) - buttons.begin();
+        auto interval = groupingFunction(id);
 
-            for (auto button : getButtons())
-            {
-                auto btn = dynamic_cast<UIInputRemapper*>(button);
-                if (btn) btn->resetText();
-            }
+        for (size_t i = interval.first; i <= interval.second; i++)
+            if (auto btn = reinterpret_cast<UIInputRemapper*>(buttons[i]))
+                if (btn->remapSource == newSource)
+                {
+                    btn->remapSource = button.remapSource;
+                    btn->resetText();
+                }
+    }
 
-            break;
-        }
-
-    curSource = newSource;
+    button.remapSource = newSource;
 }

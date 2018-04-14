@@ -158,8 +158,8 @@ void flipConstraintHorizontally(std::shared_ptr<cp::Constraint>& constraint)
     }
     else if (auto spring = dynamic_cast<cp::DampedSpring*>(constraint.get()))
     {
-        spring->setAnchorA(cpvfliphor(pivot->getAnchorA()));
-        spring->setAnchorB(cpvfliphor(pivot->getAnchorB()));
+        spring->setAnchorA(cpvfliphor(spring->getAnchorA()));
+        spring->setAnchorB(cpvfliphor(spring->getAnchorB()));
     }
     else if (auto spring = dynamic_cast<cp::DampedRotarySpring*>(constraint.get()))
         spring->setRestAngle(-spring->getRestAngle());

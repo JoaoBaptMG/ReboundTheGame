@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include "UIButton.hpp"
 #include "UIButtonGroup.hpp"
 
@@ -31,6 +32,8 @@ public:
     void resetRemappingState(InputManager& inputManager);
     
     virtual void render(Renderer &renderer) override;
+
+    friend class UIInputRemappingButtonGroup;
 };
 
 void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, LocalizationManager& lm,
@@ -41,15 +44,14 @@ void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, Loc
 class UIInputRemappingButtonGroup final : public UIButtonGroup
 {
     UIInputRemapper* currentRemappingButton;
-    InputSource* sourceCollection;
-    size_t sourceCollectionSize;
+    std::function<std::pair<size_t,size_t>(size_t)> groupingFunction;
     InputManager& inputManager;
 
 public:
     UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =
         TravelingMode::Vertical);
 
-    void setSourceCollection(InputSource* collection, size_t size);
+    void setGroupingFunction(decltype(groupingFunction) func);
     void setRemappingButton(UIInputRemapper* newRemappingButton);
-    void assignRemappingUniquely(InputSource& curSource, InputSource newSource);
+    void assignRemappingUniquely(UIInputRemapper& button, InputSource newSource);
 };

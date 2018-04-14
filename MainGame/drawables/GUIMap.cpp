@@ -2,13 +2,13 @@
 
 #include <map>
 
-#include <SFML/OpenGL.hpp>
 #include <assert.hpp>
 #include <chronoUtils.hpp>
 #include <rectUtils.hpp>
 #include "defaults.hpp"
 #include "gameplay/MapGenerator.hpp"
 #include "data/LevelData.hpp"
+#include "ScissorRectUtils.hpp"
 
 // Optimization
 struct MapTextureData
@@ -17,7 +17,8 @@ struct MapTextureData
     sf::Texture texture;
     MapTextureData() : vertArray(sf::PrimitiveType::Triangles) {}
 };
-static std::map<std::weak_ptr<LevelData>,MapTextureData,std::owner_less<std::weak_ptr<LevelData>>> staticLevelTextures;
+using WeakLvlPtr = std::weak_ptr<LevelData>;
+static std::map<WeakLvlPtr,MapTextureData,std::owner_less<WeakLvlPtr>> staticLevelTextures;
 void clearMapTextures() { staticLevelTextures.clear(); }
 
 const sf::Color BlinkColor = sf::Color(255, 128, 128, 255);
@@ -156,14 +157,11 @@ void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (!curLevel) return;
     
-    auto scissorRect = states.transform.transformRect(getBounds());
+    ScissorRectGuard guard{states.transform.transformRect(getBounds())};
     
     states.transform.translate(-curLevel->roomMaps.at(curRoom).x, -curLevel->roomMaps.at(curRoom).y);
     states.transform.translate(-displayPosition);
     states.texture = mapTexture;
     
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(scissorRect.left, ScreenHeight - scissorRect.top - scissorRect.height, scissorRect.width, scissorRect.height);
     target.draw(vertArray, states);
-    glDisable(GL_SCISSOR_TEST);
 }

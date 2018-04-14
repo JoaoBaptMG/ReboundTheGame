@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="36" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="42">
+ <properties>
+  <property name="tileset" value="level2"/>
+ </properties>
+ <tileset firstgid="1" name="tilemap2" tilewidth="32" tileheight="32" tilecount="25" columns="5">
+  <image source="tilemap2.png" width="160" height="160"/>
+  <terraintypes>
+   <terrain name="terrain" tile="0"/>
+  </terraintypes>
+  <tile id="0" terrain=",,,0"/>
+  <tile id="1" terrain=",,0,0"/>
+  <tile id="2" terrain=",,0,"/>
+  <tile id="3" terrain=",0,0,0"/>
+  <tile id="4" terrain="0,,0,0"/>
+  <tile id="5" terrain=",0,,0"/>
+  <tile id="6" terrain="0,0,0,0"/>
+  <tile id="7" terrain="0,,0,"/>
+  <tile id="8" terrain="0,0,,0"/>
+  <tile id="9" terrain="0,0,0,"/>
+  <tile id="10" terrain=",0,,"/>
+  <tile id="11" terrain="0,0,,"/>
+  <tile id="12" terrain="0,,,"/>
+ </tileset>
+ <tileset firstgid="26" name="tilemap2" tilewidth="32" tileheight="32" tilecount="25" columns="5">
+  <image source="tilemap2.png" width="160" height="160"/>
+  <terraintypes>
+   <terrain name="terrain" tile="0"/>
+  </terraintypes>
+  <tile id="0" terrain=",,,0"/>
+  <tile id="1" terrain=",,0,0"/>
+  <tile id="2" terrain=",,0,"/>
+  <tile id="3" terrain=",0,0,0"/>
+  <tile id="4" terrain="0,,0,0"/>
+  <tile id="5" terrain=",0,,0"/>
+  <tile id="6" terrain="0,0,0,0"/>
+  <tile id="7" terrain="0,,0,"/>
+  <tile id="8" terrain="0,0,,0"/>
+  <tile id="9" terrain="0,0,0,"/>
+  <tile id="10" terrain=",0,,"/>
+  <tile id="11" terrain="0,0,,"/>
+  <tile id="12" terrain="0,,,"/>
+ </tileset>
+ <layer name="main-layer" width="36" height="18">
+  <data encoding="csv">
+7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+7,10,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,9,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+12,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,
+0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,3,0,0,0,0,0,0,0,0,0,0,0,1,2,2,3,0,0,6,7,
+2,2,2,2,2,2,2,2,2,2,2,2,2,4,7,7,5,2,2,2,2,2,2,2,2,2,2,2,4,7,7,5,2,2,4,7,
+7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+</data>
+ </layer>
+ <objectgroup name="object-layer">
+  <object id="39" name="powerup11" type="collectibles::Powerup" x="452" y="424" width="48" height="48">
+   <properties>
+    <property name="level" type="int" value="11"/>
+   </properties>
+  </object>
+  <object id="40" name="powerup12" type="collectibles::Powerup" x="936" y="424" width="48" height="48">
+   <properties>
+    <property name="level" type="int" value="12"/>
+   </properties>
+  </object>
+  <object id="41" name="background" type="background::Parallax" x="262" y="190">
+   <properties>
+    <property name="factor" type="float" value="0.28"/>
+    <property name="name" type="file" value="background2.png"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="warp-layer">
+  <object id="13" name="0 -&gt; 1.2" type="left" x="0" y="416" width="64" height="96"/>
+ </objectgroup>
+</map>

@@ -47,6 +47,7 @@ class Player final : public GameObject
     cpFloat angle, lastFade;
     bool dashConsumed, doubleJumpConsumed, interactionViable;
     bool chargingForHardball, hardballEnabled, grappleEnabled;
+    bool doubleArmor, moveRegen;
     
     TimePoint wallJumpTriggerTime, dashTime, hardballTime,
          grappleTime, spikeTime, invincibilityTime, curTime;
@@ -55,6 +56,7 @@ class Player final : public GameObject
 
     size_t abilityLevel, grapplePoints;
     size_t health, maxHealth, numBombs;
+    cpFloat microHealth;
     cpFloat waterArea;
 
     struct { cpVect pos; size_t roomID; bool hardball; } lastSafeEntries[8];
@@ -89,6 +91,9 @@ public:
 
     void heal(size_t amount);
     bool damage(size_t amount, bool overrideInvincibility = false);
+    void microHeal(float amount);
+    bool microDamage(float amount);
+    void die();
 
     bool canPushCrates() const { return abilityLevel >= 2 && !hardballOnAir(); }
     bool canBreakDash() const { return abilityLevel >= 8; }
@@ -105,6 +110,8 @@ public:
     float getDashDisplay() const;
     
     void upgradeToAbilityLevel(size_t level);
+    void enableDoubleArmor();
+    void enableMoveRegen();
     void upgradeHealth();
 
     bool isDashing() const;

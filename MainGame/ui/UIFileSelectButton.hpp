@@ -13,9 +13,10 @@ class UIFileSelectButton : public UIButton
 {
     Sprite powerupSprites[10];
     Sprite goldenTokenSprite;
+    Sprite picketSprite;
     bool rtl;
     
-    TextDrawable fileName, goldenTokenAmount;
+    TextDrawable fileName, goldenTokenAmount, picketAmount;
     
 public:
     UIFileSelectButton(const SavedGame& sg, InputManager& im, ResourceManager& rm, LocalizationManager& lm, size_t k);

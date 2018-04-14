@@ -17,10 +17,11 @@ class UIButtonGroup
     std::vector<UIButton*> buttons;
     UIPointer* pointer;
     size_t currentId;
+    float previousTravelValue;
     bool active;
 
     ButtonAction<2> select;
-    AxisAction<1> travel;
+    AxisAction<1,2> travel;
     
 public:
     UIButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =

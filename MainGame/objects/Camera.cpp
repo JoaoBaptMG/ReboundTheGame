@@ -8,7 +8,7 @@
 #include <functional>
 #include <algorithm>
 
-constexpr auto TransitionDuration = 20 * UpdatePeriod;
+constexpr auto TransitionDuration = 20_frames;
 
 void Camera::update(FrameTime curTime)
 {

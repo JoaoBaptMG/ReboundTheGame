@@ -35,6 +35,7 @@ void UISlider::initialize(InputManager& inputManager, ResourceManager& resourceM
     slideAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
     slideAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
     slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
+    slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     
     sliderMoveEntry = inputManager.registerMouseMoveCallback([&,this] (sf::Vector2i position)
     {
@@ -55,11 +56,9 @@ void UISlider::update()
     auto captionDisplacement = getCaptionDisplacement();
     
     float x;
-    if (rtl)
-        x = bounds.left + captionDisplacement.x + sliderKnob.getTextureSize().x/2 + sliderBody.getTextureSize().x - 
-            (mousePosition.x - getPosition().x);
-    else
-        x = mousePosition.x - getPosition().x - (bounds.left + bounds.width - captionDisplacement.x - 
+    if (rtl) x = bounds.left + captionDisplacement.x + sliderKnob.getTextureSize().x/2 +
+        sliderBody.getTextureSize().x - (mousePosition.x - getPosition().x);
+    else x = mousePosition.x - getPosition().x - (bounds.left + bounds.width - captionDisplacement.x - 
             sliderKnob.getTextureSize().x/2 - sliderBody.getTextureSize().x);
     
     if (state == State::Pressed && x >= -40 && x <= sliderBody.getTextureSize().x + 40)

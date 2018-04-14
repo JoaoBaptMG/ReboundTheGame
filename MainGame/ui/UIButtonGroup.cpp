@@ -8,22 +8,24 @@
 #include <cmath>
 
 UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode)
-    : currentId(-1), active(true), pointer(nullptr)
+    : currentId(-1), active(true), pointer(nullptr), previousTravelValue(0)
 {
-    select.registerSource(inputManager, settings.keyboardSettings.jumpInput, 0);
-    select.registerSource(inputManager, settings.joystickSettings.jumpInput, 1);
+    select.registerSource(inputManager, settings.keyboardSettings.okInput, 0);
+    select.registerSource(inputManager, settings.joystickSettings.okInput, 1);
     
     if (travelingMode == TravelingMode::Horizontal)
     {
         travel.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
         travel.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
         travel.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
+        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     }    
     else
     {
         travel.registerButton(inputManager, settings.keyboardSettings.moveUp,    AxisDirection::Negative, 0);
         travel.registerButton(inputManager, settings.keyboardSettings.moveDown,  AxisDirection::Positive, 0);
         travel.registerAxis(inputManager, settings.joystickSettings.movementAxisY, 0);
+        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisYAlt, 1);
     }
     
     select.setAction([=](bool pressed)
@@ -45,13 +47,16 @@ UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& se
     travel.setAction([=](float val)
     {
         if (pointer) pointer->hide();
-        
+
+        float prev = previousTravelValue;
+        previousTravelValue = val;
+
         if (!active || (val > -0.5 && val < 0.5) || buttons.size() <= 1) return;
         if (currentId < buttons.size() && getCurrentButton()->state == UIButton::State::Pressed) return;
         
-        if (currentId >= buttons.size()) setCurrentId(val >= 0.5 ? 0 : buttons.size()-1);
-        else if (val >= 0.5) setCurrentId((currentId + 1) % buttons.size());
-        else setCurrentId((currentId + buttons.size() - 1) % buttons.size());
+        if (val >= 0.5 && prev < 0.5) setCurrentId(currentId >= buttons.size() ? 0 : (currentId + 1) % buttons.size());
+        else if (val <= -0.5 && prev > -0.5)
+            setCurrentId(currentId >= buttons.size() ? buttons.size()-1 : (currentId + buttons.size() - 1) % buttons.size());
     });
 }
 

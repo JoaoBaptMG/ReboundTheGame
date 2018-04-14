@@ -22,8 +22,8 @@ Boss::~Boss()
     gameScene.setCurrentBoss(nullBossMeter());
 }
 
-constexpr auto CaptionDuration = 90 * UpdatePeriod;
-constexpr auto CaptionFade = 15 * UpdatePeriod;
+constexpr auto CaptionDuration = 90_frames;
+constexpr auto CaptionFade = 15_frames;
 
 BossCaption::BossCaption(GameScene& scene, LangID captionID) : GameObject(scene),
     text(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName()))

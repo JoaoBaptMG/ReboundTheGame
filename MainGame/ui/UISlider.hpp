@@ -12,7 +12,7 @@ class LocalizationManager;
 class UISlider final : public UIButton
 {
     Sprite sliderBody, sliderKnob;
-    AxisAction<1> slideAxis;
+    AxisAction<1,2> slideAxis;
     
     InputManager::MouseMoveEntry sliderMoveEntry;
     

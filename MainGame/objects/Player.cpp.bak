@@ -44,8 +44,6 @@ constexpr cpFloat DashSpeedEnhanced = 800;
 constexpr cpFloat HardballAirFactor = 0.125;
 constexpr cpFloat HardballWaterFactor = 0.75;
 
-constexpr cpFloat MoveRegenRate = 2.5/60;
-
 constexpr auto DashInterval = 40_frames;
 constexpr auto DashIntervalEnhanced = 90_frames;
 constexpr auto HardballChangeTime = 40_frames;
@@ -67,23 +65,14 @@ Player::Player(GameScene& scene)
     : abilityLevel(0), angle(0), lastFade(0), GameObject(scene), health(BaseHealth), maxHealth(BaseHealth),
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0), dashBatch(nullptr),
-    doubleArmor(false), moveRegen(false), hardballBatch(nullptr), curEntry(0), previousWallState(CollisionState::None),
-    microHealth(0), sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
+    hardballBatch(nullptr), curEntry(0), previousWallState(CollisionState::None),
+    sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
-#warning Remove this!
-    if (scene.getSavedGame().getCurLevel() == 2)
-    {
-        for (size_t i = 0; i < 76; i++) scene.getSavedGame().setPicket(i, true);
-        for (size_t i = 100; i < 133; i++) scene.getSavedGame().setPicket(i, true);
-    }
-
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
 	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
-    if (scene.getSavedGame().getDoubleArmor()) enableDoubleArmor();
-    if (scene.getSavedGame().getMoveRegen()) enableMoveRegen();
     maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;
     health = maxHealth;
 	setName("player");
@@ -203,7 +192,7 @@ void Player::update(FrameTime curTime)
     if (onWater())
     {
         applyWaterForces();
-        if (canWaterJump()) actOnGround(true);
+        if (canWaterJump()) actOnGround();
         if (state == CollisionState::Ceiling)
             observeHardballTrigger();
     }
@@ -336,13 +325,7 @@ void Player::actOnGround(bool waterborne)
     doubleJumpConsumed = false;
     reset(wallJumpTriggerTime);
     if (controller.jump().isTriggered() && !chargingForHardball) jump();
-	if (abilityLevel >= 7) observeHardballTrigger();
-    if (moveRegen && !waterborne)
-    {
-        cpFloat spd = fabs(playerShape->getBody()->getVelocity().x);
-        if (spd > 0.08 * MaxHorSpeedEnhanced)
-            microHeal(MoveRegenRate * spd / MaxHorSpeedEnhanced);
-    }
+	if (abilityLevel >= 7 && !waterborne) observeHardballTrigger();
     
     interactionViable = controller.dash().isTriggered();
 }
@@ -688,11 +671,15 @@ void Player::heal(size_t amount)
 bool Player::damage(size_t amount, bool overrideInvincibility)
 {
     if (!overrideInvincibility && invincibilityTime != decltype(invincibilityTime)()) return false;
-
-    if (doubleArmor) amount /= 2;
+    
     if (health <= amount)
     {
-        die();
+        health = 0;
+        
+        disableDashBatch();
+    
+        gameScene.addObject(std::make_unique<PlayerDeath>(gameScene, *this, sprite.getTexture()));
+        remove();
         return true;
     }
     else health -= amount;
@@ -701,60 +688,14 @@ bool Player::damage(size_t amount, bool overrideInvincibility)
     return false;
 }
 
-void Player::microHeal(float amount)
-{
-    microHealth += amount;
-
-    if (microHealth >= 1)
-    {
-        size_t newAmount = floor(microHealth);
-        microHealth -= newAmount;
-        heal(newAmount);
-    }
-}
-
-bool Player::microDamage(float amount)
-{
-    if (doubleArmor) amount /= 2;
-    microHealth -= amount;
-
-    if (microHealth < 0)
-    {
-        size_t newAmount = -floor(microHealth);
-        microHealth += newAmount;
-        if (doubleArmor) newAmount *= 2;
-        return damage(newAmount, true);
-    }
-    return false;
-}
-
-void Player::die()
-{
-    health = 0;
-    disableDashBatch();
-    gameScene.addObject(std::make_unique<PlayerDeath>(gameScene, *this, sprite.getTexture()));
-    remove();
-}
-
 void Player::upgradeToAbilityLevel(size_t level)
 {
-    ASSERT(level <= 10);
     if (abilityLevel < level)
     {
         abilityLevel = level;
         setPlayerSprite();
         gameScene.getSavedGame().setAbilityLevel(level);
     }
-}
-
-void Player::enableDoubleArmor()
-{
-    doubleArmor = true;
-}
-
-void Player::enableMoveRegen()
-{
-    moveRegen = true;
 }
 
 void Player::upgradeHealth()

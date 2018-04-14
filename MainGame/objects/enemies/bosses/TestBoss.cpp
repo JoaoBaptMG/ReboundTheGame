@@ -19,8 +19,8 @@ using namespace enemies;
 using namespace enemies::bosses;
 
 constexpr size_t MaxHealth = 12;
-constexpr auto SpawnPeriod = 120 * UpdatePeriod;
-constexpr auto ExplosionDuration = 200 * UpdatePeriod;
+constexpr auto SpawnPeriod = 120_frames;
+constexpr auto ExplosionDuration = 200_frames;
 
 TestBoss::TestBoss(GameScene& scene) : Boss(scene, "test-boss-present"),
     mainSprite(scene.getResourceManager().load<sf::Texture>("test-boss.png"))

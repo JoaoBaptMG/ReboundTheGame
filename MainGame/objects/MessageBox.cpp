@@ -19,14 +19,14 @@
 
 using namespace std::literals::chrono_literals;
 
-constexpr auto DefaultLetterPeriod = 2 * UpdatePeriod;
-constexpr auto FadeInterval = 24 * UpdatePeriod;
+constexpr auto DefaultLetterPeriod = 2_frames;
+constexpr auto FadeInterval = 24_frames;
 constexpr size_t VisibleLines = 4;
 
 constexpr float FullFadePerFrame = 0.025;
 constexpr float MessageVerticalSpacing = 112;
 
-constexpr auto IconOscillationPeriod = 48 * UpdatePeriod;
+constexpr auto IconOscillationPeriod = 48_frames;
 
 const sf::Color DisplayColors[] =
     {
@@ -63,12 +63,17 @@ MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManag
     messageBackground.setOpacity(0);
     messageIcon.setOpacity(0);
 
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.bombInput, 0);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.dashInput, 1);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.jumpInput, 2);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.bombInput, 3);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.dashInput, 4);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.jumpInput, 5);
+    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.bombInput,   0);
+    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.dashInput,   1);
+    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.jumpInput,   2);
+    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.okInput,     3);
+    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.cancelInput, 4);
+
+    messageAction.registerSource(im, settings.inputSettings.joystickSettings.bombInput,   5);
+    messageAction.registerSource(im, settings.inputSettings.joystickSettings.dashInput,   6);
+    messageAction.registerSource(im, settings.inputSettings.joystickSettings.jumpInput,   7);
+    messageAction.registerSource(im, settings.inputSettings.joystickSettings.okInput,     8);
+    messageAction.registerSource(im, settings.inputSettings.joystickSettings.cancelInput, 9);
 }
 
 void MessageBox::display(Script& script, std::string text)

@@ -73,7 +73,7 @@ bool InputManager::handleEvent(const sf::Event& event)
             else dispatchData(InputSource::joystickButton(event.joystickButton.button), 0.0f);
             return true;
         case sf::Event::JoystickMoved:
-            dispatchData(InputSource::joystickAxis(event.joystickMove.axis), event.joystickMove.position);
+            dispatchData(InputSource::joystickAxis(event.joystickMove.axis), event.joystickMove.position/100.0f);
             return true;
         default: return false;
     }

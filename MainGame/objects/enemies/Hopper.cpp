@@ -120,7 +120,7 @@ void Hopper::die()
     auto grav = gameScene.getGameSpace().getGravity();
     auto displayGravity = sf::Vector2f(grav.x, grav.y);
     
-    auto explosion = std::make_unique<TextureExplosion>(gameScene, hopperBody.getTexture(), 100 * UpdatePeriod,
+    auto explosion = std::make_unique<TextureExplosion>(gameScene, hopperBody.getTexture(), 100_frames,
         sf::FloatRect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 4, 4, 160);
     explosion->setPosition(roundVec(mainBody->getPosition()));
     gameScene.addObject(std::move(explosion));

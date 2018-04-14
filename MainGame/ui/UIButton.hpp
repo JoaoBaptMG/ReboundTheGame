@@ -16,7 +16,7 @@ class UIButton : util::non_copyable
 {
     std::unique_ptr<Sprite> normalSprite, activeSprite, pressedSprite;
     std::unique_ptr<TextDrawable> caption;
-    sf::FloatRect bounds;
+    sf::FloatRect bounds, globalBounds;
     sf::Vector2f position, captionDisplacement;
     size_t depth;
     
@@ -29,9 +29,12 @@ protected:
     bool active;
     UIButtonGroup *parentGroup;
     enum class State { Normal, Active, Pressed } state;
-    
+
+    bool isInBounds(sf::Vector2f position) const;
+
 public:
-    UIButton() : state(State::Normal), active(true), parentGroup(nullptr) {}
+    UIButton() : state(State::Normal), active(true), parentGroup(nullptr), bounds(),
+        globalBounds(NAN, NAN, NAN, NAN) {}
     explicit UIButton(InputManager& inputManager, intmax_t priority = 0);
     void initialize(InputManager& inputManager, intmax_t priority = 0);
     virtual ~UIButton() {}
@@ -55,6 +58,9 @@ public:
     auto getBounds() const { return bounds; }
     void setBounds(const sf::FloatRect& rect) { bounds = rect; }
     void autoComputeBounds();
+
+    auto getGlobalBounds() const { return globalBounds; }
+    void setGlobalBounds(const sf::FloatRect& rect) { globalBounds = rect; }
     
     auto getPressAction() const { return pressAction; }
     void setPressAction(decltype(pressAction) act) { pressAction = act; }

@@ -17,7 +17,7 @@ using namespace props;
 
 FrameDuration SwitchingBlock::getFadeDuration()
 {
-    return 20 * UpdatePeriod;
+    return 20_frames;
 }
 
 SwitchingBlock::SwitchingBlock(GameScene &scene) : GameObject(scene),

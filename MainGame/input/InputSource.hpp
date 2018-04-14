@@ -11,7 +11,7 @@ class LocalizationManager;
 class InputSource final
 {
 private:
-    enum class Type : uint8_t { Keyboard, MouseButton, MouseAxis, JoystickButton, JoystickAxis };
+    enum class Type : uint8_t { None, Keyboard, MouseButton, MouseAxis, JoystickButton, JoystickAxis };
 
     Type type;
     size_t attribute;
@@ -21,6 +21,8 @@ private:
     InputSource(Type type, uint32_t attr) : type(type), attribute(attr) {}
 public:
     std::string getInputName(LocalizationManager& lm);
+
+    static InputSource none;
 
     static InputSource keyboardKey(size_t scanCode);
     

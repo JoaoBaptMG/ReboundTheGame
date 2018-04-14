@@ -21,12 +21,9 @@ struct FrameClock
 using FrameTime = FrameClock::time_point;
 using FrameDuration = FrameClock::duration;
 
-namespace frame_literals
+inline static constexpr FrameDuration operator ""_frames(unsigned long long val)
 {
-    inline static constexpr FrameDuration operator ""_frames(unsigned long long val)
-    {
-        return FrameDuration(val);
-    }
+    return FrameDuration(val);
 }
 
 using FloatSeconds = std::chrono::duration<float>;

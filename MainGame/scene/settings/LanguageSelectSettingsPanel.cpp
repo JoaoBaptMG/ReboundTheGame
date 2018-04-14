@@ -64,7 +64,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, Inp
 
         button->setPressAction([&, lang, curSettings = this->curSettings]
         {
-            lm.loadLanguageDescriptor(lang);
+            lm.loadLanguageDescriptor(settings.languageFile = lang);
             curSettings->changeSettingsPanel(new RootSettingsPanel(settings, im, rm, lm, curSettings, pointer));
         });
 

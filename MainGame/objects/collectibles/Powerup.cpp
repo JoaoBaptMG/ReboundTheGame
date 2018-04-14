@@ -67,12 +67,14 @@ bool Powerup::configure(const Powerup::ConfigStruct& config)
     collisionBody->setPosition(pos);
 
     abilityLevel = config.abilityLevel;
-    if (abilityLevel > 10) return false;
+    if (abilityLevel > 12) return false;
 
     std::string name = "powerup" + std::to_string(abilityLevel) + ".png";
     texture = gameScene.getResourceManager().load<sf::Texture>(name);
     
-    return gameScene.getSavedGame().getAbilityLevel() < abilityLevel;
+    return abilityLevel == 11 ? !gameScene.getSavedGame().getDoubleArmor() :
+        abilityLevel == 12 ? !gameScene.getSavedGame().getMoveRegen() :
+        gameScene.getSavedGame().getAbilityLevel() < abilityLevel;
 }
 
 void Powerup::setupPhysics()
@@ -100,8 +102,22 @@ Powerup::~Powerup()
 
 void Powerup::onCollect(Player& player)
 {
-    player.upgradeToAbilityLevel(abilityLevel);
-    gameScene.getSavedGame().setAbilityLevel(abilityLevel);
+    if (abilityLevel == 11)
+    {
+        player.enableDoubleArmor();
+        gameScene.getSavedGame().setDoubleArmor(true);
+    }
+    else if (abilityLevel == 12)
+    {
+        player.enableMoveRegen();
+        gameScene.getSavedGame().setMoveRegen(true);
+    }
+    else
+    {
+        player.upgradeToAbilityLevel(abilityLevel);
+        gameScene.getSavedGame().setAbilityLevel(abilityLevel);
+    }
+    
     gameScene.runCutsceneScript([&gameScene = this->gameScene, abilityLevel = this->abilityLevel] (Script& script)
     {
         const auto& lm = gameScene.getLocalizationManager();
@@ -111,7 +127,8 @@ void Powerup::onCollect(Player& player)
 
         auto &msgbox = gameScene.getMessageBox();
 
-        std::string msg = lm.getFormattedString("msg-powerup-collect", {{"pname", parm}}, {}, {}) + "\n";
+        LangID messagePowerup = abilityLevel > 10 ? "msg-secret-powerup-collect" : "msg-powerup-collect";
+        std::string msg = lm.getFormattedString(messagePowerup, {{"pname", parm}}, {}, {}) + "\n";
         msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getKeySpecifierMap());
         msgbox.display(script, msg);
     });

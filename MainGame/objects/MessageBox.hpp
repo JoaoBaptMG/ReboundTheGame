@@ -26,7 +26,7 @@ class MessageBox final
     LocalizationManager& localizationManager;
     float actualMessageHeight;
 
-    ButtonAction<6> messageAction;
+    ButtonAction<10> messageAction;
 
     std::string currentText;
     FrameDuration letterPeriod;

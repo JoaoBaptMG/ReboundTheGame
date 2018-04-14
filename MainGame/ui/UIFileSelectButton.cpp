@@ -18,8 +18,10 @@ constexpr float ButtonSpace = 8;
 UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, ResourceManager& rm,
     LocalizationManager& lm, size_t index) : UIButton(im), rtl(lm.isRTL()),
     goldenTokenSprite(rm.load<sf::Texture>("golden-token.png")),
+    picketSprite(rm.load<sf::Texture>("icon-picket.png")),
     fileName(rm.load<FontHandler>(lm.getFontName())),
-    goldenTokenAmount(rm.load<FontHandler>(lm.getFontName()))
+    goldenTokenAmount(rm.load<FontHandler>(lm.getFontName())),
+    picketAmount(rm.load<FontHandler>(lm.getFontName()))
 {
     sf::FloatRect centerRect(4, 4, 4, 4);
     sf::FloatRect destRect(0, 0, ButtonSize, 128);
@@ -79,6 +81,18 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     goldenTokenAmount.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(goldenTokenAmount, lm);
     goldenTokenAmount.buildGeometry();
+
+    auto pStr = lm.getFormattedString("file-select-picket-count", {}, { { "n", sg.getPicketCount() } }, {});
+    picketAmount.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    picketAmount.setString(pStr);
+    picketAmount.setFontSize(TextSize);
+    picketAmount.setDefaultColor(sf::Color::White);
+    picketAmount.setOutlineThickness(1);
+    picketAmount.setDefaultOutlineColor(sf::Color::Black);
+    picketAmount.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
+    picketAmount.setVerticalAnchor(TextDrawable::VertAnchor::Center);
+    configTextDrawable(picketAmount, lm);
+    picketAmount.buildGeometry();
     
     setDepth(10);
 }
@@ -117,8 +131,17 @@ void UIFileSelectButton::render(Renderer& renderer)
     float disp = -ButtonSize/2 + ButtonBorder + ButtonSpace + bounds.width/2;
     renderer.currentTransform.translate(rtl ? disp : -disp, -28);
     renderer.pushDrawable(goldenTokenAmount, {}, getDepth()+4);
-    renderer.currentTransform.translate(rtl ? bounds.width/2 + ButtonSpace : -bounds.width/2 - ButtonSpace - 24, 0);
+    disp = bounds.width/2 + ButtonSpace + 24;
+    renderer.currentTransform.translate(rtl ? disp : -disp, 0);
     renderer.pushDrawable(goldenTokenSprite, {}, getDepth()+4);
+    bounds = picketAmount.getLocalBounds();
+    disp = bounds.width/2 + ButtonSpace + 36;
+    renderer.currentTransform.translate(rtl ? disp : -disp, 0);
+    renderer.pushDrawable(picketAmount, {}, getDepth()+4);
+    disp = bounds.width/2 + ButtonSpace + 16;
+    renderer.currentTransform.translate(rtl ? disp : -disp, 4);
+    renderer.pushDrawable(picketSprite, {}, getDepth()+4);
+
     renderer.popTransform();
     
     renderer.popTransform();

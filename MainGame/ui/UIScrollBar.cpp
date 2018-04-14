@@ -16,7 +16,7 @@ UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priorit
 {
     scrollRange.setCenterRect(sf::FloatRect(3, 3, 2, 2));
     scrollThumb.setCenterRect(sf::FloatRect(3, 3, 2, 2));
-    
+
     mouseEntry = im.registerMouseMoveCallback([=](sf::Vector2i pos)
     {
         lastMousePos = mousePosition;

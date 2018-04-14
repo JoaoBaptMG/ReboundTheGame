@@ -17,6 +17,8 @@ InputPlayerController::InputPlayerController(InputManager &inputManager, const I
     pauseb.registerSource(inputManager, settings.joystickSettings.pauseInput, 1);
     movementd.registerAxisForX(inputManager, settings.joystickSettings.movementAxisX, 0);
     movementd.registerAxisForY(inputManager, settings.joystickSettings.movementAxisY, 0);
+    movementd.registerAxisForX(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
+    movementd.registerAxisForY(inputManager, settings.joystickSettings.movementAxisYAlt, 1);
 }
 
 void InputPlayerController::update()

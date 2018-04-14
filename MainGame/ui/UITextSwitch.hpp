@@ -14,7 +14,7 @@ class UITextSwitch final : public UIButton
     TextDrawable switchCaption;
     std::string trueString, falseString;
     
-    AxisAction<1> switchAxis;
+    AxisAction<1,2> switchAxis;
     
     bool* switchTarget;
     std::function<void(bool)> switchAction;

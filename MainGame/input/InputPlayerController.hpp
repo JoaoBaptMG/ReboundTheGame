@@ -13,7 +13,7 @@ public:
     InputPlayerController(InputManager &manager, const InputSettings &settings);
 
     ButtonAction<2> jumpb, dashb, bombb, pauseb;
-    DualAxisAction<1> movementd;
+    DualAxisAction<1,2> movementd;
 
     void update();
     

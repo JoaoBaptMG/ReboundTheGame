@@ -8,6 +8,8 @@ bool readFromStream(sf::InputStream &stream, InputSettings& settings)
                                   settings.keyboardSettings.switchScreenLeft,
                                   settings.keyboardSettings.switchScreenRight,
                                   settings.keyboardSettings.pauseInput,
+                                  settings.keyboardSettings.okInput,
+                                  settings.keyboardSettings.cancelInput,
                                   settings.keyboardSettings.moveUp,
                                   settings.keyboardSettings.moveDown,
                                   settings.keyboardSettings.moveLeft,
@@ -19,8 +21,12 @@ bool readFromStream(sf::InputStream &stream, InputSettings& settings)
                                   settings.joystickSettings.switchScreenLeft,
                                   settings.joystickSettings.switchScreenRight,
                                   settings.joystickSettings.pauseInput,
+                                  settings.joystickSettings.okInput,
+                                  settings.joystickSettings.cancelInput,
                                   settings.joystickSettings.movementAxisX,
-                                  settings.joystickSettings.movementAxisY);
+                                  settings.joystickSettings.movementAxisY,
+                                  settings.joystickSettings.movementAxisXAlt,
+                                  settings.joystickSettings.movementAxisYAlt);
 }
 
 bool writeToStream(OutputStream& stream, const InputSettings& settings)
@@ -31,6 +37,8 @@ bool writeToStream(OutputStream& stream, const InputSettings& settings)
                                  settings.keyboardSettings.switchScreenLeft,
                                  settings.keyboardSettings.switchScreenRight,
                                  settings.keyboardSettings.pauseInput,
+                                 settings.keyboardSettings.okInput,
+                                 settings.keyboardSettings.cancelInput,
                                  settings.keyboardSettings.moveUp,
                                  settings.keyboardSettings.moveDown,
                                  settings.keyboardSettings.moveLeft,
@@ -42,8 +50,12 @@ bool writeToStream(OutputStream& stream, const InputSettings& settings)
                                  settings.joystickSettings.switchScreenLeft,
                                  settings.joystickSettings.switchScreenRight,
                                  settings.joystickSettings.pauseInput,
+                                 settings.joystickSettings.okInput,
+                                 settings.joystickSettings.cancelInput,
                                  settings.joystickSettings.movementAxisX,
-                                 settings.joystickSettings.movementAxisY);
+                                 settings.joystickSettings.movementAxisY,
+                                 settings.joystickSettings.movementAxisXAlt,
+                                 settings.joystickSettings.movementAxisYAlt);
 }
 
 bool readFromStream(sf::InputStream &stream, VideoSettings& settings)
