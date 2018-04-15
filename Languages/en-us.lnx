@@ -288,7 +288,7 @@
         Your dash coverage is increased threefold and you can now Dash upwards by pressing {$dashbtn} and {$upbtn}.
     </formatter>
     <formatter name="msg-powerup-description11">
-        All damage you take will reduced by half! Now you can endure twice your health.
+        All damage you take will be reduced by half! Now you can endure twice your health.
     </formatter>
     <formatter name="msg-powerup-description12">
         You can regenerate your health by simply rolling. You have to be on the floor to regenerate, though.
