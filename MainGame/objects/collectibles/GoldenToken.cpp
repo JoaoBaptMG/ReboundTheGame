@@ -84,6 +84,7 @@ GoldenToken::~GoldenToken()
 void GoldenToken::onCollect(Player& player)
 {
     gameScene.getSavedGame().setGoldenToken(tokenId, true);
+    gameScene.playSound("golden-token-collect.wav");
     player.upgradeHealth();
     remove();
 }

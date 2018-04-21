@@ -40,6 +40,9 @@
 #include <iostream>
 #include <algorithm>
 
+#include "audio/AudioManager.hpp"
+#include "audio/Sound.hpp"
+
 using namespace std::literals::chrono_literals;
 
 constexpr auto DefaultLetterPeriod = 2_frames;
@@ -66,11 +69,12 @@ static constexpr bool isContained(T comp, T first, Ts... next)
     return comp == first || isContained(comp, next...);
 }
 
-MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm)
-    : messageBackground(rm.load<sf::Texture>("message-background.png")),
-      messageIcon(rm.load<sf::Texture>("message-next.png")), localizationManager(lm),
-      messageText(rm.load<FontHandler>(lm.getFontName())), currentText(), letterPeriod(DefaultLetterPeriod),
-      lineOffset(0), curState(Idle), spawnNewMessage(true)
+MessageBox::MessageBox(Services& services)
+    : messageBackground(services.resourceManager.load<sf::Texture>("message-background.png")),
+      messageIcon(services.resourceManager.load<sf::Texture>("message-next.png")),
+      messageText(loadDefaultFont(services)),
+      currentText(), localizationManager(services.localizationManager),
+      letterPeriod(DefaultLetterPeriod), lineOffset(0), curState(Idle), spawnNewMessage(true)
 {
     messageText.setFontSize(24);
     float desiredHeight = messageBackground.getTextureSize().y - 32;
@@ -81,22 +85,23 @@ MessageBox::MessageBox(const Settings& settings, InputManager& im, ResourceManag
     messageText.setWordWrappingWidth(messageBackground.getTextureSize().x - 32);
     messageText.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     messageText.setVerticalAnchor(TextDrawable::VertAnchor::Top);
-    configTextDrawable(messageText, lm);
+    configTextDrawable(messageText, services.localizationManager);
     
     messageBackground.setOpacity(0);
     messageIcon.setOpacity(0);
 
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.bombInput,   0);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.dashInput,   1);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.jumpInput,   2);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.okInput,     3);
-    messageAction.registerSource(im, settings.inputSettings.keyboardSettings.cancelInput, 4);
+    const auto& inputSettings = services.settings.inputSettings;
+    messageAction.registerSource(services.inputManager, inputSettings.keyboardSettings.bombInput,   0);
+    messageAction.registerSource(services.inputManager, inputSettings.keyboardSettings.dashInput,   1);
+    messageAction.registerSource(services.inputManager, inputSettings.keyboardSettings.jumpInput,   2);
+    messageAction.registerSource(services.inputManager, inputSettings.keyboardSettings.okInput,     3);
+    messageAction.registerSource(services.inputManager, inputSettings.keyboardSettings.cancelInput, 4);
 
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.bombInput,   5);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.dashInput,   6);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.jumpInput,   7);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.okInput,     8);
-    messageAction.registerSource(im, settings.inputSettings.joystickSettings.cancelInput, 9);
+    messageAction.registerSource(services.inputManager, inputSettings.joystickSettings.bombInput,   5);
+    messageAction.registerSource(services.inputManager, inputSettings.joystickSettings.dashInput,   6);
+    messageAction.registerSource(services.inputManager, inputSettings.joystickSettings.jumpInput,   7);
+    messageAction.registerSource(services.inputManager, inputSettings.joystickSettings.okInput,     8);
+    messageAction.registerSource(services.inputManager, inputSettings.joystickSettings.cancelInput, 9);
 }
 
 void MessageBox::display(Script& script, std::string text)

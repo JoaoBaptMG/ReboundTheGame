@@ -45,6 +45,8 @@
 #include "language/LocalizationManager.hpp"
 #include "language/LanguageDescriptor.hpp"
 #include "language/KeyboardKeyName.hpp"
+#include "audio/AudioManager.hpp"
+#include "Services.hpp"
 
 #include "scene/TitleScene.hpp"
 
@@ -78,8 +80,12 @@ int main(int argc, char **argv)
     
     LocalizationManager localizationManager(true);
     localizationManager.loadLanguageDescriptor(settings.languageFile);
-    
-    auto scene = new TitleScene(settings, inputManager, resourceManager, localizationManager);
+
+    AudioManager audioManager;
+
+    Services services { audioManager, inputManager, localizationManager, resourceManager, settings };
+
+    auto scene = new TitleScene(services);
     
     auto updateTime = FrameClock::now();
     
@@ -135,6 +141,8 @@ int main(int argc, char **argv)
         windowHandler.prepareForDraw();
         sceneManager.render(windowHandler.getRenderer());
         windowHandler.display();
+
+        audioManager.update();
     }
 
     clearMapTextures();

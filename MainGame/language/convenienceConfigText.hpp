@@ -23,7 +23,12 @@
 
 #pragma once
 
+#include <memory>
 #include "drawables/TextDrawable.hpp"
 #include "LocalizationManager.hpp"
+#include "Services.hpp"
+
+struct FontHandler;
 
 void configTextDrawable(TextDrawable& text, LocalizationManager& manager);
+std::shared_ptr<FontHandler> loadDefaultFont(Services& services);

@@ -11,7 +11,7 @@ function(add_resource fname)
     set(EXTENSIONS ".tmx" ".lvx" ".tsx" ".pex")
     set(TOOLS tmxToMap lvxToLvl tsxToTs pexToPe)
     set(TOOL_OUTPUTS ".map" ".lvl" ".ts" ".pe")
-	set(COPY_EXTENSIONS ".png" ".ttf")
+	set(COPY_EXTENSIONS ".png" ".ttf" ".wav")
 
     get_filename_component(ext ${fname} EXT)
     list(FIND EXTENSIONS ${ext} toolIndex)

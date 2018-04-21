@@ -32,14 +32,15 @@
 const sf::Vector2f GlobalPosition(ScreenWidth/2, ScreenHeight/2);
 const float ControllerMovementSpeed = 2;
 
-MapPauseFrame::MapPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
-    const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos, const std::vector<bool>& visibleMaps)
-    : mapFrame(rm.load<sf::Texture>("pause-map-frame.png")), map(true), active(true), state(Outside),
-    mapController(im, settings.inputSettings)
+MapPauseFrame::MapPauseFrame(Services& services, const std::shared_ptr<LevelData>& levelData,
+    size_t curRoom, sf::Vector2f pos, const std::vector<bool>& visibleMaps)
+    : mapFrame(services.resourceManager.load<sf::Texture>("pause-map-frame.png")),
+    mapController(services.inputManager, services.settings.inputSettings),
+    map(true), active(true), state(Outside)
 {
     setLevelData(levelData, curRoom, pos, visibleMaps);
     
-    mouseMoveEntry = im.registerMouseMoveCallback([=] (sf::Vector2i position)
+    mouseMoveEntry = services.inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
         if (!active) return;
         
@@ -55,7 +56,7 @@ MapPauseFrame::MapPauseFrame(const Settings& settings, InputManager& im, Resourc
         }
     });
     
-    mouseClickEntry = im.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
+    mouseClickEntry = services.inputManager.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
     [=] (InputSource, float val)
     {
         if (!active) return;

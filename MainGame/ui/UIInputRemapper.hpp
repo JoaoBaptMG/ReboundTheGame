@@ -31,8 +31,7 @@
 #include "input/CommonActions.hpp"
 #include "settings/InputSettings.hpp"
 
-class ResourceManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class UIInputRemapper final : public UIButton
 {
@@ -48,8 +47,8 @@ private:
 public:
     explicit UIInputRemapper(InputSource& source, LocalizationManager& lm, InputDest inputDest) : UIButton(),
         remapSource(source), localizationManager(lm), inputDest(inputDest) {}
-    UIInputRemapper(InputManager& inputManager, InputSource& source, LocalizationManager& lm, InputDest inputDest);
-    void initialize(InputManager& inputManager);
+    UIInputRemapper(Services& services, InputSource& source, InputDest inputDest);
+    void initialize(Services& services);
     virtual ~UIInputRemapper() {}
     
     auto& getSourceCaption() { return sourceCaption; }
@@ -63,7 +62,7 @@ public:
     friend class UIInputRemappingButtonGroup;
 };
 
-void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, LocalizationManager& lm,
+void createCommonInputRemapper(UIInputRemapper& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement);
@@ -75,7 +74,7 @@ class UIInputRemappingButtonGroup final : public UIButtonGroup
     InputManager& inputManager;
 
 public:
-    UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =
+    UIInputRemappingButtonGroup(Services& services, TravelingMode travelingMode =
         TravelingMode::Vertical);
 
     void setGroupingFunction(decltype(groupingFunction) func);

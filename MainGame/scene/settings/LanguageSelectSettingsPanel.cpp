@@ -47,31 +47,30 @@ constexpr float SmallButtonHeight = 24;
 constexpr float SmallCaptionSize = 20;
 constexpr float TotalHeight = 472;
 
-LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager &lm, SettingsBase* curSettings, UIPointer& pointer) : SettingsPanel(curSettings, pointer),
-    backButton(im), buttonGroup(im, settings.inputSettings)
+LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer)
+    : SettingsPanel(curSettings, pointer), backButton(services.inputManager), buttonGroup(services)
 {
     auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
 
-    title.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
-    title.setString(lm.getString("settings-language-select-title"));
+    title.setFontHandler(loadDefaultFont(services));
+    title.setString(services.localizationManager.getString("settings-language-select-title"));
     title.setFontSize(ButtonCaptionSize);
     title.setDefaultColor(sf::Color::Yellow);
     title.setOutlineThickness(1);
     title.setDefaultOutlineColor(sf::Color::Black);
     title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-    configTextDrawable(title, lm);
+    configTextDrawable(title, services.localizationManager);
     title.buildGeometry();
 
     pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
 
     for (std::string lang : getAllLanguageDescriptors())
     {
-        languageButtons.emplace_back(std::make_unique<UIButton>(im));
+        languageButtons.emplace_back(std::make_unique<UIButton>(services.inputManager));
         auto& button = languageButtons.back();
 
-        createCommonTextualButton(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, SmallButtonHeight),
             "", SmallCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
             TextDrawable::Alignment::Direct);
@@ -87,8 +86,9 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, Inp
 
         button->setPressAction([&, lang, curSettings = this->curSettings]
         {
-            lm.loadLanguageDescriptor(settings.languageFile = lang);
-            curSettings->changeSettingsPanel(new RootSettingsPanel(settings, im, rm, lm, curSettings, pointer));
+            playConfirm(services);
+            services.localizationManager.loadLanguageDescriptor(services.settings.languageFile = lang);
+            curSettings->changeSettingsPanel(new RootSettingsPanel(services, curSettings, pointer));
         });
 
         pos += sf::Vector2f(0, SmallButtonHeight + SmallButtonSpace);
@@ -96,7 +96,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, Inp
 
     languageButtons.shrink_to_fit();
 
-    createCommonTextualButton(backButton, rm, lm, "ui-select-field.png", "ui-select-field.png",
+    createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
         "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
         TextDrawable::Alignment::Center);
@@ -109,7 +109,8 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Settings& settings, Inp
 
     backButton.setPressAction([&, curSettings = this->curSettings]
     {
-        curSettings->changeSettingsPanel(new RootSettingsPanel(settings, im, rm, lm, curSettings, pointer));
+        playConfirm(services);
+        curSettings->changeSettingsPanel(new RootSettingsPanel(services, curSettings, pointer));
     });
 
     std::vector<UIButton*> buttons;

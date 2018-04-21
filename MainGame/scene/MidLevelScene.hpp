@@ -25,6 +25,7 @@
 
 #include "Scene.hpp"
 
+#include "Services.hpp"
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
 #include "ui/UIButton.hpp"
@@ -33,9 +34,6 @@
 
 struct Settings;
 struct SavedGame;
-class InputManager;
-class ResourceManager;
-class LocalizationManager;
 
 class MidLevelScene : public Scene
 {
@@ -48,8 +46,7 @@ class MidLevelScene : public Scene
     UIButtonGroup buttonGroup;
 
 public:
-    MidLevelScene(Settings& settings, const SavedGame& sg, InputManager& im, ResourceManager& rm,
-        LocalizationManager &lm, std::string nextLevel, bool gameover = true);
+    MidLevelScene(Services& services, const SavedGame& sg, std::string nextLevel, bool gameover = true);
     virtual ~MidLevelScene() {}
     
     virtual void update(FrameTime curTime) override;

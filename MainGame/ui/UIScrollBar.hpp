@@ -28,7 +28,7 @@
 #include "input/InputManager.hpp"
 #include "drawables/SegmentedSprite.hpp"
 
-class ResourceManager;
+#include "Services.hpp"
 class Renderer;
 
 class UIScrollBar final : util::non_copyable
@@ -50,8 +50,8 @@ private:
     InputManager::CallbackEntry clickEntry, wheelEntry;
     
 public:
-    UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priority = 0);
-    UIScrollBar(InputManager& im, ResourceManager& rm, float viewSize, float scrollLength,
+    UIScrollBar(Services& services, intmax_t priority = 0);
+    UIScrollBar(Services& services, float viewSize, float scrollLength,
         Direction dir = Direction::Vertical, intmax_t priority = 0);
     ~UIScrollBar() {}
     

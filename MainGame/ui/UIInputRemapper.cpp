@@ -36,32 +36,37 @@
 #include "language/convenienceConfigText.hpp"
 #include "language/KeyboardKeyName.hpp"
 
-UIInputRemapper::UIInputRemapper(InputManager& inputManager, InputSource& source, LocalizationManager& lm,
-    UIInputRemapper::InputDest inputDest) : UIInputRemapper(source, lm, inputDest)
+#include "audio/AudioManager.hpp"
+#include "audio/Sound.hpp"
+
+UIInputRemapper::UIInputRemapper(Services& services, InputSource& source, UIInputRemapper::InputDest inputDest)
+    : UIInputRemapper(source, services.localizationManager, inputDest)
 {
-    initialize(inputManager);
+    initialize(services);
 }
 
-void UIInputRemapper::initialize(InputManager& inputManager)
+void UIInputRemapper::initialize(Services& services)
 {
-    UIButton::initialize(inputManager);
+    UIButton::initialize(services.inputManager);
     
-    setPressAction([&inputManager,this] ()
+    setPressAction([&services,this] ()
     {
         auto parentGroup = static_cast<UIInputRemappingButtonGroup*>(this->parentGroup);
         parentGroup->setRemappingButton(this);
 
-        auto callback = [=](InputSource source, float value)
+        playConfirm(services);
+        auto callback = [=,&services](InputSource source, float value)
         {
             if (value < 0.5f)
             {
+                services.audioManager.playSound(services.resourceManager.load<Sound>("ui-keybind.wav"));
                 parentGroup->assignRemappingUniquely(*this, source);
                 parentGroup->setRemappingButton(nullptr);
             }
         };
 
-        if (inputDest == InputDest::Keyboard) inputManager.addPickAllKeyboardCallback(callback);
-        else inputManager.addPickAllJoystickCallback(callback, inputDest != InputDest::JoystickButton);
+        if (inputDest == InputDest::Keyboard) services.inputManager.addPickAllKeyboardCallback(callback);
+        else services.inputManager.addPickAllJoystickCallback(callback, inputDest != InputDest::JoystickButton);
 
         static const LangID RemapStrings[] = { "input-settings-remap", "input-settings-remap",
             "input-settings-hor-axis-remap", "input-settings-vert-axis-remap" };
@@ -100,31 +105,31 @@ void UIInputRemapper::render(Renderer& renderer)
     renderer.popTransform();
 }
 
-void createCommonInputRemapper(UIInputRemapper& button, ResourceManager& rm, LocalizationManager& lm,
+void createCommonInputRemapper(UIInputRemapper& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement)
 {
-    createCommonTextualButton(button, rm, lm, activeResourceName, pressedResourceName, centerRect, destRect,
+    createCommonTextualButton(button, services, activeResourceName, pressedResourceName, centerRect, destRect,
         captionString, captionSize, textColor, outlineThickness, outlineColor, captionDisplacement);
     
     auto& caption = button.getSourceCaption();
-    caption.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    caption.setFontHandler(loadDefaultFont(services));
     caption.setFontSize(captionSize);
     caption.setDefaultColor(textColor);
     caption.setOutlineThickness(outlineThickness);
     caption.setDefaultOutlineColor(outlineColor);
     caption.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     caption.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-    configTextDrawable(caption, lm);
+    configTextDrawable(caption, services.localizationManager);
     
     caption.setWordWrappingWidth(destRect.width - 2 * captionDisplacement.x);
     caption.setWordAlignment(TextDrawable::Alignment::Inverse);
     button.resetText();
 }
 
-UIInputRemappingButtonGroup::UIInputRemappingButtonGroup(InputManager& inputManager, const InputSettings& settings,
-    TravelingMode travelingMode) : UIButtonGroup(inputManager, settings, travelingMode), inputManager(inputManager),
+UIInputRemappingButtonGroup::UIInputRemappingButtonGroup(Services& services, TravelingMode travelingMode)
+    : UIButtonGroup(services, travelingMode), inputManager(services.inputManager),
     currentRemappingButton(nullptr) {}
 
 void UIInputRemappingButtonGroup::setRemappingButton(UIInputRemapper* newRemappingButton)

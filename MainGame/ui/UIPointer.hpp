@@ -25,6 +25,7 @@
 
 #include "drawables/Sprite.hpp"
 #include "input/InputManager.hpp"
+#include "Services.hpp"
 
 class ResourceManager;
 class Renderer;
@@ -36,7 +37,7 @@ class UIPointer final
     InputManager::MouseMoveEntry callbackEntry;
     
 public:
-    UIPointer(InputManager& im, ResourceManager& rm);
+    UIPointer(Services& services);
     ~UIPointer() {}
     
     void render(Renderer& renderer);

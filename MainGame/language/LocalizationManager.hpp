@@ -33,6 +33,7 @@
 #include "LangID.hpp"
 #include "LanguageDescriptor.hpp"
 #include "execDir.hpp"
+#include "Services.hpp"
 
 using StringSpecifierMap = std::unordered_map<LangID,LangID>;
 using RawSpecifierMap = std::unordered_map<LangID,std::string>;

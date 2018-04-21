@@ -27,7 +27,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <hb.h>
+#include <harfbuzz/hb.h>
 
 struct StringProperties
 {

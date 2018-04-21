@@ -66,7 +66,9 @@ void Bomb::detonate()
     auto batch = std::make_unique<ParticleBatch>(gameScene, "player-particles.pe", "bomb");
     batch->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(batch));
-    
+
+    gameScene.playSound("bomb-detonate.wav");
+
     gameScene.getGameSpace().pointQuery(position, 48, CP_SHAPE_FILTER_ALL,
     [=](std::shared_ptr<cp::Shape> shape, cpVect point, cpFloat distance, cpVect gradient)
     {

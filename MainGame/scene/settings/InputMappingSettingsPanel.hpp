@@ -33,10 +33,7 @@
 
 #include "language/LangID.hpp"
 
-struct Settings;
-class ResourceManager;
-class InputManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class InputMappingSettingsPanel final : public SettingsPanel
 {
@@ -45,12 +42,10 @@ class InputMappingSettingsPanel final : public SettingsPanel
     UIButton backButton;
     UIInputRemappingButtonGroup buttonGroup;
 
-    void buildInputScreen(sf::Vector2f pos, InputManager& inputManager, InputSettings& settings,
-        ResourceManager &rm, LocalizationManager& lm, bool forJoystick);
+    void buildInputScreen(sf::Vector2f pos, Services& services, bool forJoystick);
 
 public:
-    InputMappingSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
-        SettingsBase* curSettings, UIPointer& pointer, bool forJoystick);
+    InputMappingSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer, bool forJoystick);
     virtual ~InputMappingSettingsPanel() = default;
 
     virtual void update(FrameTime curTime) override;

@@ -38,29 +38,32 @@ constexpr float ButtonSize = 576;
 constexpr float ButtonBorder = 4;
 constexpr float ButtonSpace = 8;
 
-UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, ResourceManager& rm,
-    LocalizationManager& lm, size_t index) : UIButton(im), rtl(lm.isRTL()),
-    goldenTokenSprite(rm.load<sf::Texture>("golden-token.png")),
-    picketSprite(rm.load<sf::Texture>("icon-picket.png")),
-    fileName(rm.load<FontHandler>(lm.getFontName())),
-    goldenTokenAmount(rm.load<FontHandler>(lm.getFontName())),
-    picketAmount(rm.load<FontHandler>(lm.getFontName()))
+UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, size_t index)
+    : UIButton(services.inputManager), rtl(services.localizationManager.isRTL()),
+    goldenTokenSprite(services.resourceManager.load<sf::Texture>("golden-token.png")),
+    picketSprite(services.resourceManager.load<sf::Texture>("icon-picket.png")),
+    fileName(loadDefaultFont(services)),
+    goldenTokenAmount(loadDefaultFont(services)),
+    picketAmount(loadDefaultFont(services))
 {
     sf::FloatRect centerRect(4, 4, 4, 4);
     sf::FloatRect destRect(0, 0, ButtonSize, 128);
     sf::Vector2f destCenter(destRect.width/2, destRect.height/2);
     
-    auto normalSprite = std::make_unique<SegmentedSprite>(rm.load<sf::Texture>("ui-file-button-frame.png"));
+    auto normalSprite = std::make_unique<SegmentedSprite>(
+        services.resourceManager.load<sf::Texture>("ui-file-button-frame.png"));
     normalSprite->setCenterRect(centerRect);
     normalSprite->setDestinationRect(destRect);
     normalSprite->setAnchorPoint(destCenter);
     
-    auto activeSprite = std::make_unique<SegmentedSprite>(rm.load<sf::Texture>("ui-file-button-frame-active.png"));
+    auto activeSprite = std::make_unique<SegmentedSprite>(
+        services.resourceManager.load<sf::Texture>("ui-file-button-frame-active.png"));
     activeSprite->setCenterRect(centerRect);
     activeSprite->setDestinationRect(destRect);
     activeSprite->setAnchorPoint(destCenter);
     
-    auto pressedSprite = std::make_unique<SegmentedSprite>(rm.load<sf::Texture>("ui-file-button-frame-pressed.png"));
+    auto pressedSprite = std::make_unique<SegmentedSprite>(
+        services.resourceManager.load<sf::Texture>("ui-file-button-frame-pressed.png"));
     pressedSprite->setCenterRect(centerRect);
     pressedSprite->setDestinationRect(destRect);
     pressedSprite->setAnchorPoint(destCenter);
@@ -73,14 +76,15 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     size_t k = 0;
     for (auto& sprite : powerupSprites)
     {
-        sprite.setTexture(rm.load<sf::Texture>("powerup" + std::to_string(k+1) + ".png"));
+        sprite.setTexture(services.resourceManager.load<sf::Texture>("powerup" + std::to_string(k+1) + ".png"));
         bool is = sg.getAbilityLevel() > k;
         sprite.setBlendColor(sf::Color(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
         k++;
     }
-    
+
+    auto& lm = services.localizationManager;
     auto indexStr = lm.getFormattedString("file-select-index", {}, { { "i", index+1 } }, {});
-    fileName.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    fileName.setFontHandler(loadDefaultFont(services));
     fileName.setString(indexStr + ' ' + getLevelNameForNumber(lm, sg.getCurLevel()));
     fileName.setFontSize(TextSize);
     fileName.setDefaultColor(sf::Color::White);
@@ -94,7 +98,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     fileName.buildGeometry();
 
     auto gtStr = lm.getFormattedString("file-select-golden-token-count", {}, { { "n", sg.getGoldenTokenCount() } }, {});
-    goldenTokenAmount.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    goldenTokenAmount.setFontHandler(loadDefaultFont(services));
     goldenTokenAmount.setString(gtStr);
     goldenTokenAmount.setFontSize(TextSize);
     goldenTokenAmount.setDefaultColor(sf::Color::White);
@@ -106,7 +110,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, InputManager& im, Re
     goldenTokenAmount.buildGeometry();
 
     auto pStr = lm.getFormattedString("file-select-picket-count", {}, { { "n", sg.getPicketCount() } }, {});
-    picketAmount.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    picketAmount.setFontHandler(loadDefaultFont(services));
     picketAmount.setString(pStr);
     picketAmount.setFontSize(TextSize);
     picketAmount.setDefaultColor(sf::Color::White);

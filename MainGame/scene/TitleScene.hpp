@@ -25,14 +25,11 @@
 
 #include "Scene.hpp"
 
+#include "Services.hpp"
 #include "drawables/Sprite.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIButtonGroup.hpp"
 #include "ui/UIPointer.hpp"
-
-struct Settings;
-class ResourceManager;
-class LocalizationManager;
 
 class TitleScene : public Scene
 {
@@ -43,7 +40,7 @@ class TitleScene : public Scene
     bool rtl;
     
 public:
-    TitleScene(Settings& settings, InputManager& inputManager, ResourceManager& rm, LocalizationManager& lm);
+    TitleScene(Services& services);
     virtual ~TitleScene() {}
     
     virtual void update(FrameTime curTime) override;

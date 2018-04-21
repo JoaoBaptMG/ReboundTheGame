@@ -39,10 +39,7 @@
 
 #include "language/LangID.hpp"
 
-struct Settings;
-class ResourceManager;
-class InputManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class PauseScene;
 
@@ -54,8 +51,7 @@ class SettingsBase
     LangID backId;
     
 protected:
-    SettingsBase(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
-        sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
+    SettingsBase(Services& services, sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
     ~SettingsBase() = default;
     
     void update(FrameTime curTime);
@@ -78,7 +74,7 @@ class SettingsScene : public Scene, public SettingsBase
     UIPointer pointer;
     
 public:
-    SettingsScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
+    SettingsScene(Services& services);
     virtual ~SettingsScene() {}
     
     virtual void update(FrameTime curTime) override { SettingsBase::update(curTime); }
@@ -88,8 +84,7 @@ public:
 class SettingsPauseFrame : public SettingsBase, public PauseFrame
 {
 public:
-    SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
-        UIPointer& pointer, PauseScene* scene);
+    SettingsPauseFrame(Services& services, UIPointer& pointer, PauseScene* scene);
     virtual ~SettingsPauseFrame() {}
     
     virtual void update(FrameTime curTime) override { SettingsBase::update(curTime); }

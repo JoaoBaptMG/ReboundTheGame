@@ -28,10 +28,10 @@
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
 
-UIPointer::UIPointer(InputManager& im, ResourceManager& rm)
-    : pointer(rm.load<sf::Texture>("ui-pointer.png"), sf::Vector2f(0, 0)), position(NAN, NAN)
+UIPointer::UIPointer(Services& services)
+    : pointer(services.resourceManager.load<sf::Texture>("ui-pointer.png"), sf::Vector2f(0, 0)), position(NAN, NAN)
 {
-    callbackEntry = im.registerMouseMoveCallback([=] (sf::Vector2i position)
+    callbackEntry = services.inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
     {
         this->position = sf::Vector2f(position);
     });

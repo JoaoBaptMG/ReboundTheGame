@@ -75,29 +75,34 @@ sf::Vector2f SettingsPanel::getCenterPosition() const { return curSettings->cent
 void SettingsPanel::executeBackAction() { if (curSettings->backAction) curSettings->backAction(); }
 const LangID& SettingsPanel::getBackId() const { return curSettings->backId; }
 
-RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
-    SettingsBase* curSettings, UIPointer& pointer) : SettingsPanel(curSettings, pointer),
-     fullscreen(settings.videoSettings.fullscreen), vsync(settings.videoSettings.vsyncEnabled),
-     musicVolume(settings.audioSettings.musicVolume), soundVolume(settings.audioSettings.soundVolume),
-     fullscreenSwitch(im, settings.inputSettings, &fullscreen), vsyncSwitch(im, settings.inputSettings, &vsync),
-     languageButton(im), musicSlider(im, rm, settings.inputSettings, lm.isRTL(), &musicVolume, 100),
-     soundSlider(im, rm, settings.inputSettings, lm.isRTL(), &soundVolume, 100),
-     keyboardButton(im), joystickButton(im), backButton(im), buttonGroup(im, settings.inputSettings)
+RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer)
+    : SettingsPanel(curSettings, pointer),
+     fullscreen(services.settings.videoSettings.fullscreen),
+     vsync(services.settings.videoSettings.vsyncEnabled),
+     musicVolume(services.settings.audioSettings.musicVolume),
+     soundVolume(services.settings.audioSettings.soundVolume),
+     fullscreenSwitch(services, &fullscreen),
+     vsyncSwitch(services, &vsync),
+     languageButton(services.inputManager),
+     musicSlider(services, &musicVolume, 100),
+     soundSlider(services, &soundVolume, 100),
+     keyboardButton(services.inputManager), joystickButton(services.inputManager),
+     backButton(services.inputManager), buttonGroup(services)
 {
     auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
 
     size_t k = 0;
     for (auto& title : titles)
     {
-        title.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
-        title.setString(lm.getString(Titles[k]));
+        title.setFontHandler(loadDefaultFont(services));
+        title.setString(services.localizationManager.getString(Titles[k]));
         title.setFontSize(ButtonCaptionSize);
         title.setDefaultColor(sf::Color::Yellow);
         title.setOutlineThickness(1);
         title.setDefaultOutlineColor(sf::Color::Black);
         title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-        configTextDrawable(title, lm);
+        configTextDrawable(title, services.localizationManager);
         title.buildGeometry();
         k++;
     }
@@ -105,14 +110,14 @@ RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, Resou
     k = 0;
     for (auto button : { &fullscreenSwitch, &vsyncSwitch })
     {
-        createCommonTextSwitch(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextSwitch(*button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
             VideoIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         button->setPosition(pos + sf::Vector2f(0, (k+1) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
-    createCommonTextualButton(languageButton, rm, lm, "ui-select-field.png", "ui-select-field.png",
+    createCommonTextualButton(languageButton, services, "ui-select-field.png", "ui-select-field.png",
         sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
         VideoIdentifiers[2], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
     languageButton.setPosition(pos + sf::Vector2f(0, 3 * (ButtonHeight + ButtonSpace)));
@@ -120,7 +125,7 @@ RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, Resou
     k = 0;
     for (auto button : { &musicSlider, &soundSlider })
     {
-        createCommonTextualButton(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
             SoundIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         button->setPosition(pos + sf::Vector2f(0, (k+5) * (ButtonHeight + ButtonSpace)));
@@ -130,14 +135,14 @@ RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, Resou
     k = 0;
     for (auto button : { &keyboardButton, &joystickButton })
     {
-        createCommonTextualButton(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
             InputIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         button->setPosition(pos + sf::Vector2f(0, (k+8) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
-    createCommonTextualButton(backButton, rm, lm, "ui-select-field.png", "ui-select-field.png",
+    createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
         getBackId(), ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
         TextDrawable::Alignment::Center);
@@ -154,32 +159,35 @@ RootSettingsPanel::RootSettingsPanel(Settings& settings, InputManager& im, Resou
 
     fullscreenSwitch.setSwitchAction([&] (bool val)
     {
-        settings.videoSettings.fullscreen = val;
+        services.settings.videoSettings.fullscreen = val;
         GlobalUpdateWindowHandler = true;
     });
 
     vsyncSwitch.setSwitchAction([&] (bool val)
     {
-        settings.videoSettings.vsyncEnabled = val;
+        services.settings.videoSettings.vsyncEnabled = val;
         GlobalUpdateWindowHandler = true;
     });
 
     languageButton.setPressAction([&, curSettings = this->curSettings]
     {
-        curSettings->changeSettingsPanel(new LanguageSelectSettingsPanel(settings, im, rm, lm, curSettings, pointer));
+        playConfirm(services);
+        curSettings->changeSettingsPanel(new LanguageSelectSettingsPanel(services, curSettings, pointer));
     });
 
-    musicSlider.setSlideAction([&] (size_t val) { settings.audioSettings.musicVolume = val; });
-    soundSlider.setSlideAction([&] (size_t val) { settings.audioSettings.soundVolume = val; });
+    musicSlider.setSlideAction([&] (size_t val) { services.settings.audioSettings.musicVolume = val; });
+    soundSlider.setSlideAction([&] (size_t val) { services.settings.audioSettings.soundVolume = val; });
 
     keyboardButton.setPressAction([&, curSettings = this->curSettings]
     {
-        curSettings->changeSettingsPanel(new InputMappingSettingsPanel(settings, im, rm, lm, curSettings, pointer, false));
+        playConfirm(services);
+        curSettings->changeSettingsPanel(new InputMappingSettingsPanel(services, curSettings, pointer, false));
     });
 
     joystickButton.setPressAction([&, curSettings = this->curSettings]
     {
-        curSettings->changeSettingsPanel(new InputMappingSettingsPanel(settings, im, rm, lm, this->curSettings, pointer, true));
+        playConfirm(services);
+        curSettings->changeSettingsPanel(new InputMappingSettingsPanel(services, curSettings, pointer, true));
     });
 
     backButton.setPressAction([=] { executeBackAction(); });
@@ -228,6 +236,7 @@ void RootSettingsPanel::activate()
     musicSlider.activate();
     soundSlider.activate();
 
+    languageButton.activate();
     keyboardButton.activate();
     joystickButton.activate();
     backButton.activate();
@@ -243,6 +252,7 @@ void RootSettingsPanel::deactivate()
     musicSlider.deactivate();
     soundSlider.deactivate();
 
+    languageButton.deactivate();
     keyboardButton.deactivate();
     joystickButton.deactivate();
     backButton.deactivate();

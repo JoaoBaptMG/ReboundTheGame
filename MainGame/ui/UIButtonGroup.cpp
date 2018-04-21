@@ -30,25 +30,26 @@
 #include <algorithm>
 #include <cmath>
 
-UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode)
+UIButtonGroup::UIButtonGroup(Services& services, TravelingMode travelingMode)
     : currentId(-1), active(true), pointer(nullptr), previousTravelValue(0)
 {
-    select.registerSource(inputManager, settings.keyboardSettings.okInput, 0);
-    select.registerSource(inputManager, settings.joystickSettings.okInput, 1);
+    auto& settings = services.settings.inputSettings;
+    select.registerSource(services.inputManager, settings.keyboardSettings.okInput, 0);
+    select.registerSource(services.inputManager, settings.joystickSettings.okInput, 1);
     
     if (travelingMode == TravelingMode::Horizontal)
     {
-        travel.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
-        travel.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisX,    0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
+        travel.registerButton(services.inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
+        travel.registerButton(services.inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
+        travel.registerAxis(services.inputManager, settings.joystickSettings.movementAxisX,    0);
+        travel.registerAxis(services.inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     }    
     else
     {
-        travel.registerButton(inputManager, settings.keyboardSettings.moveUp,    AxisDirection::Negative, 0);
-        travel.registerButton(inputManager, settings.keyboardSettings.moveDown,  AxisDirection::Positive, 0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisY,    0);
-        travel.registerAxis(inputManager, settings.joystickSettings.movementAxisYAlt, 1);
+        travel.registerButton(services.inputManager, settings.keyboardSettings.moveUp,    AxisDirection::Negative, 0);
+        travel.registerButton(services.inputManager, settings.keyboardSettings.moveDown,  AxisDirection::Positive, 0);
+        travel.registerAxis(services.inputManager, settings.joystickSettings.movementAxisY,    0);
+        travel.registerAxis(services.inputManager, settings.joystickSettings.movementAxisYAlt, 1);
     }
     
     select.setAction([=](bool pressed)
@@ -73,6 +74,9 @@ UIButtonGroup::UIButtonGroup(InputManager& inputManager, const InputSettings& se
 
         float prev = previousTravelValue;
         previousTravelValue = val;
+
+        if (buttons.size() == 1 && currentId >= buttons.size())
+            setCurrentId(0);
 
         if (!active || (val > -0.5 && val < 0.5) || buttons.size() <= 1) return;
         if (currentId < buttons.size() && getCurrentButton()->state == UIButton::State::Pressed) return;

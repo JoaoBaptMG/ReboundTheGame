@@ -56,26 +56,25 @@ constexpr float ButtonWidth = 192;
 constexpr float ButtonHeight = 44;
 constexpr size_t ButtonCaptionSize = 24;
 
-PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm)
-    : settings(settings), inputManager(im), resourceManager(rm), localizationManager(lm),
-    backgroundSprite(rm.load<sf::Texture>("pause-background.png")), transitionFactor(0),
-    pointer(im, rm), unpausing(false), currentFrame(1), pauseFrames
+PauseScene::PauseScene(Services& services) : services(services),
+    backgroundSprite(services.resourceManager.load<sf::Texture>("pause-background.png")), transitionFactor(0),
+    pointer(services), unpausing(false), currentFrame(1), pauseFrames
     { 
-        std::unique_ptr<PauseFrame>(new CollectedPauseFrame(settings, im, rm, lm)),
-        std::unique_ptr<PauseFrame>(new MapPauseFrame(settings, im, rm, lm)),
-        std::unique_ptr<PauseFrame>(new SettingsPauseFrame(settings, im, rm, lm, pointer, this)),
+        std::unique_ptr<PauseFrame>(new CollectedPauseFrame(services)),
+        std::unique_ptr<PauseFrame>(new MapPauseFrame(services)),
+        std::unique_ptr<PauseFrame>(new SettingsPauseFrame(services, pointer, this)),
     }
 {
     for (auto& pauseFrame : pauseFrames) if (pauseFrame) pauseFrame->deactivate();
     pauseFrames[currentFrame]->activate();
-    
+
     int k = 0;
     for (auto& button : frameButtons)
     {
-        button.initialize(im);
+        button.initialize(services.inputManager);
         
         auto color = k == currentFrame ? sf::Color::Green : sf::Color::White;
-        createCommonTextualButton(button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
             ButtonCaptionSize, color, 1, sf::Color::Black, sf::Vector2f(0, 0),
             TextDrawable::Alignment::Center);
@@ -86,21 +85,24 @@ PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm
         button.setPosition(sf::Vector2f(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
         button.setDepth(2800);
         
-        button.setPressAction([=] { switchPauseFrame(k); });
+        button.setPressAction([=,&services] { playConfirm(services); switchPauseFrame(k); });
         
         k++;
     }
-    
-    quitPause.registerSource(im, settings.inputSettings.keyboardSettings.pauseInput, 0);
-    quitPause.registerSource(im, settings.inputSettings.joystickSettings.pauseInput, 1);
-    
-    switchFrameLeft.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenLeft, 0);
-    switchFrameLeft.registerSource(im, settings.inputSettings.joystickSettings.switchScreenLeft, 1);
-    
-    switchFrameRight.registerSource(im, settings.inputSettings.keyboardSettings.switchScreenRight, 0);
-    switchFrameRight.registerSource(im, settings.inputSettings.joystickSettings.switchScreenRight, 1);
 
-    callbackEntry = lm.registerLanguageChangeCallback([=,&lm]
+    auto& inputSettings = services.settings.inputSettings;
+    
+    quitPause.registerSource(services.inputManager, inputSettings.keyboardSettings.pauseInput, 0);
+    quitPause.registerSource(services.inputManager, inputSettings.joystickSettings.pauseInput, 1);
+    
+    switchFrameLeft.registerSource(services.inputManager, inputSettings.keyboardSettings.switchScreenLeft, 0);
+    switchFrameLeft.registerSource(services.inputManager, inputSettings.joystickSettings.switchScreenLeft, 1);
+    
+    switchFrameRight.registerSource(services.inputManager, inputSettings.keyboardSettings.switchScreenRight, 0);
+    switchFrameRight.registerSource(services.inputManager, inputSettings.joystickSettings.switchScreenRight, 1);
+
+    callbackEntry = services.localizationManager.registerLanguageChangeCallback(
+    [=, &lm = services.localizationManager]
     {
         int k = 0;
 
@@ -112,6 +114,8 @@ PauseScene::PauseScene(Settings& settings, InputManager& im, ResourceManager& rm
             k++;
         }
     });
+
+    playConfirm(services);
 }
 
 void PauseScene::update(FrameTime curTime)
@@ -131,8 +135,16 @@ void PauseScene::update(FrameTime curTime)
         switchFrameLeft.update();
         switchFrameRight.update();
         if (quitPause.isTriggered()) unpause();
-        if (switchFrameLeft.isTriggered()) switchPauseFrame((currentFrame + 2) % 3);
-        if (switchFrameRight.isTriggered()) switchPauseFrame((currentFrame + 1) % 3);
+        if (switchFrameLeft.isTriggered())
+        {
+            playCursor(services);
+            switchPauseFrame((currentFrame + 2) % 3);
+        }
+        if (switchFrameRight.isTriggered())
+        {
+            playCursor(services);
+            switchPauseFrame((currentFrame + 1) % 3);
+        }
     }
     else
     {
@@ -157,6 +169,8 @@ void PauseScene::unpause()
     using namespace std::chrono;
     unpausing = true;
     transitionTime = curTime - duration_cast<FrameDuration>((1 - transitionFactor) * TransitionTime);
+
+    playConfirm(services);
 }
 
 void PauseScene::render(Renderer &renderer)

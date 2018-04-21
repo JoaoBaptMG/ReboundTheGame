@@ -140,7 +140,9 @@ void Powerup::onCollect(Player& player)
         player.upgradeToAbilityLevel(abilityLevel);
         gameScene.getSavedGame().setAbilityLevel(abilityLevel);
     }
-    
+
+    gameScene.playSound("powerup-collect.wav");
+
     gameScene.runCutsceneScript([&gameScene = this->gameScene, abilityLevel = this->abilityLevel] (Script& script)
     {
         const auto& lm = gameScene.getLocalizationManager();

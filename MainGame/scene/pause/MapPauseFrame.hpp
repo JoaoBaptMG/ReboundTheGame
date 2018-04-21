@@ -25,6 +25,7 @@
 
 #include "PauseFrame.hpp"
 
+#include "Services.hpp"
 #include "drawables/Sprite.hpp"
 #include "drawables/GUIMap.hpp"
 
@@ -51,7 +52,7 @@ class MapPauseFrame : public PauseFrame
     enum { Outside, Inside, Clicked } state;
     
 public:
-    MapPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm,
+    MapPauseFrame(Services& services,
         const std::shared_ptr<LevelData>& levelData = nullptr, size_t curRoom = 0, sf::Vector2f pos = {},
         const std::vector<bool>& visibleMaps = {});
     virtual ~MapPauseFrame() {}

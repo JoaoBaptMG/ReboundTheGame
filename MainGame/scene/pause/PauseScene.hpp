@@ -26,6 +26,7 @@
 #include "scene/Scene.hpp"
 #include "PauseFrame.hpp"
 
+#include "Services.hpp"
 #include "drawables/Sprite.hpp"
 #include "input/CommonActions.hpp"
 #include "ui/UIButton.hpp"
@@ -43,10 +44,7 @@ class LevelData;
 
 class PauseScene final : public Scene
 {
-    Settings& settings;
-    InputManager& inputManager;
-    ResourceManager& resourceManager;
-    LocalizationManager& localizationManager;
+    Services& services;
     
     Sprite backgroundSprite;
     FrameTime curTime, transitionTime;
@@ -64,7 +62,7 @@ class PauseScene final : public Scene
     LocalizationManager::CallbackEntry callbackEntry;
 
 public:
-    PauseScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
+    PauseScene(Services& services);
     virtual ~PauseScene() {}
     
     virtual void update(FrameTime curTime) override;

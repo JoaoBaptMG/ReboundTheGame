@@ -34,33 +34,34 @@
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
+constexpr size_t MaxDelay = 2;
 
-UISlider::UISlider(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings,
-    bool rtl, size_t* target, size_t max) : UISlider(target, max)
+UISlider::UISlider(Services& services, size_t* target, size_t max) : UIButton(),
+    slideTarget(target), slideMaximum(max), rtl(false), soundPlayDelay(0), prevX(0), services(services)
 {
-    initialize(inputManager, resourceManager, settings, rtl);
+    initialize(services);
 }
 
-void UISlider::initialize(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings,
-    bool rtl)
+void UISlider::initialize(Services& services)
 {
-    UIButton::initialize(inputManager);
+    UIButton::initialize(services.inputManager);
  
-    this->rtl = rtl;
+    rtl = services.localizationManager.isRTL();
     
-    sliderBody.setTexture(resourceManager.load<sf::Texture>("ui-slider.png"));
-    sliderKnob.setTexture(resourceManager.load<sf::Texture>("ui-slider-knob.png"));
+    sliderBody.setTexture(services.resourceManager.load<sf::Texture>("ui-slider.png"));
+    sliderKnob.setTexture(services.resourceManager.load<sf::Texture>("ui-slider-knob.png"));
     
     if (rtl) sliderBody.setAnchorPoint(sf::Vector2f(0, sliderBody.getTextureSize().y/2));
     else sliderBody.setAnchorPoint(sf::Vector2f(sliderBody.getTextureSize().x, sliderBody.getTextureSize().y/2));
     sliderKnob.centerAnchorPoint();
+
+    auto& settings = services.settings.inputSettings;
+    slideAxis.registerButton(services.inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
+    slideAxis.registerButton(services.inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
+    slideAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisX, 0);
+    slideAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     
-    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
-    slideAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
-    slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
-    slideAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
-    
-    sliderMoveEntry = inputManager.registerMouseMoveCallback([&,this] (sf::Vector2i position)
+    sliderMoveEntry = services.inputManager.registerMouseMoveCallback([&,this] (sf::Vector2i position)
     {
         mousePosition = position;
     });
@@ -72,8 +73,16 @@ void UISlider::update()
     if (!parentGroup || this != parentGroup->getCurrentButton()) return;
     
     auto val = rtl ? -slideAxis.getValue() : slideAxis.getValue();
-    if (val >= 0.5 && *slideTarget < slideMaximum) slideAction(++(*slideTarget));
-    else if (val <= -0.5 && *slideTarget > 0) slideAction(--(*slideTarget));
+    if (val >= 0.5 && *slideTarget < slideMaximum)
+    {
+        updateSoundDelay();
+        slideAction(++(*slideTarget));
+    }
+    else if (val <= -0.5 && *slideTarget > 0)
+    {
+        updateSoundDelay();
+        slideAction(--(*slideTarget));
+    }
     
     auto bounds = getBounds();
     auto captionDisplacement = getCaptionDisplacement();
@@ -86,10 +95,24 @@ void UISlider::update()
     
     if (state == State::Pressed && x >= -40 && x <= sliderBody.getTextureSize().x + 40)
     {
+        if (prevX != x) updateSoundDelay();
+
         float factor = x/sliderBody.getTextureSize().x;
         if (factor < 0) factor = 0; else if (factor > 1) factor = 1;
         *slideTarget = std::roundf(slideMaximum * factor);
         slideAction(*slideTarget);
+    }
+
+    prevX = x;
+}
+
+void UISlider::updateSoundDelay()
+{
+    soundPlayDelay++;
+    if (soundPlayDelay >= MaxDelay)
+    {
+        soundPlayDelay = 0;
+        playCursor(services);
     }
 }
 

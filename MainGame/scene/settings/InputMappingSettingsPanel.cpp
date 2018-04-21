@@ -53,27 +53,27 @@ struct InputMapping
     UIInputRemapper::InputDest inputDest;
 };
 
-InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager &lm, SettingsBase* curSettings, UIPointer& pointer, bool forJoystick)
-    : SettingsPanel(curSettings, pointer), backButton(im), buttonGroup(im, settings.inputSettings)
+InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, SettingsBase* curSettings,
+    UIPointer& pointer, bool forJoystick) : SettingsPanel(curSettings, pointer),
+    backButton(services.inputManager), buttonGroup(services)
 {
     auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
 
-    title.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
-    title.setString(lm.getString(forJoystick ? "settings-joystick-title" : "settings-keyboard-title"));
+    title.setFontHandler(loadDefaultFont(services));
+    title.setString(services.localizationManager.getString(forJoystick ? "settings-joystick-title" : "settings-keyboard-title"));
     title.setFontSize(ButtonCaptionSize);
     title.setDefaultColor(sf::Color::Yellow);
     title.setOutlineThickness(1);
     title.setDefaultOutlineColor(sf::Color::Black);
     title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-    configTextDrawable(title, lm);
+    configTextDrawable(title, services.localizationManager);
     title.buildGeometry();
 
     pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
-    buildInputScreen(pos, im, settings.inputSettings, rm, lm, forJoystick);
+    buildInputScreen(pos, services, forJoystick);
 
-    createCommonTextualButton(backButton, rm, lm, "ui-select-field.png", "ui-select-field.png",
+    createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
         "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
         TextDrawable::Alignment::Center);
@@ -86,10 +86,12 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputMa
 
     backButton.setPressAction([&, curSettings = this->curSettings]
     {
-        if (forJoystick) im.addPickAllJoystickCallback(InputManager::Callback());
-        else im.addPickAllKeyboardCallback(InputManager::Callback());
+        playConfirm(services);
 
-        curSettings->changeSettingsPanel(new RootSettingsPanel(settings, im, rm, lm, curSettings, pointer));
+        if (forJoystick) services.inputManager.addPickAllJoystickCallback(InputManager::Callback());
+        else services.inputManager.addPickAllKeyboardCallback(InputManager::Callback());
+
+        curSettings->changeSettingsPanel(new RootSettingsPanel(services, curSettings, pointer));
     });
 
     std::vector<UIButton*> buttons;
@@ -99,9 +101,10 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Settings& settings, InputMa
     buttonGroup.setPointer(pointer);
 }
 
-void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, InputManager& inputManager,
-    InputSettings& settings, ResourceManager &rm, LocalizationManager& lm, bool forJoystick)
+void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, Services& services, bool forJoystick)
 {
+    auto& settings = services.settings.inputSettings;
+
     std::array<InputMapping,12> inputMappings = !forJoystick ? std::array<InputMapping,12>
     {
         InputMapping{ "input-settings-dash", settings.keyboardSettings.dashInput, UIInputRemapper::InputDest::Keyboard },
@@ -138,10 +141,10 @@ void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, InputManager&
 
     for (const auto& mapping : inputMappings)
     {
-        mappingButtons.emplace_back(std::make_unique<UIInputRemapper>(inputManager, mapping.source, lm, mapping.inputDest));
+        mappingButtons.emplace_back(std::make_unique<UIInputRemapper>(services, mapping.source, mapping.inputDest));
         auto& button = mappingButtons.back();
 
-        createCommonInputRemapper(*button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonInputRemapper(*button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
             mapping.langID, ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         button->setPosition(pos);

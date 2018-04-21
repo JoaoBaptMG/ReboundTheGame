@@ -28,9 +28,9 @@
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
 
+#include "Services.hpp"
+
 struct SavedGame;
-class ResourceManager;
-class LocalizationManager;
 
 class UIFileSelectButton : public UIButton
 {
@@ -42,7 +42,7 @@ class UIFileSelectButton : public UIButton
     TextDrawable fileName, goldenTokenAmount, picketAmount;
     
 public:
-    UIFileSelectButton(const SavedGame& sg, InputManager& im, ResourceManager& rm, LocalizationManager& lm, size_t k);
+    UIFileSelectButton(const SavedGame& sg, Services& services, size_t k);
     virtual ~UIFileSelectButton() {}
     
     sf::FloatRect getBounds() const;

@@ -25,6 +25,7 @@
 
 #include "Scene.hpp"
 
+#include "Services.hpp"
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
 #include "drawables/SegmentedSprite.hpp"
@@ -37,9 +38,6 @@
 
 struct Settings;
 struct SavedGame;
-class InputManager;
-class ResourceManager;
-class LocalizationManager;
 
 class Renderer;
 
@@ -60,8 +58,7 @@ private:
     TextDrawable headerLabel;
 
 public:
-    FileSelectScene(Settings& settings, const SavedGame& savedGame, InputManager& im, ResourceManager& rm,
-        LocalizationManager& lm, FileAction action);
+    FileSelectScene(Services& services, const SavedGame& savedGame, FileAction action);
     virtual ~FileSelectScene() {}
     
     virtual void update(FrameTime curTime) override;

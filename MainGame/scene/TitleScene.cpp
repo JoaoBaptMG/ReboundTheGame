@@ -51,19 +51,19 @@ const LangID ButtonIdentifiers[] =
     "title-button-exit",
 };
 
-TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceManager& rm, LocalizationManager& lm)
-    : background(rm.load<sf::Texture>("title-background.png"), sf::Vector2f(0, 0)),
-    foreground(rm.load<sf::Texture>("title-foreground.png"), sf::Vector2f(0, 0)),
-    pointer(inputManager, rm), buttonGroup(inputManager, settings.inputSettings)
+TitleScene::TitleScene(Services& services)
+    : background(services.resourceManager.load<sf::Texture>("title-background.png"), sf::Vector2f(0, 0)),
+    foreground(services.resourceManager.load<sf::Texture>("title-foreground.png"), sf::Vector2f(0, 0)),
+    pointer(services), buttonGroup(services)
 {
-    rtl = lm.isRTL();
+    rtl = services.localizationManager.isRTL();
     
     size_t k = 0;
     for (auto& button : buttons)
     {
-        button.initialize(inputManager);
+        button.initialize(services.inputManager);
         
-        createCommonTextualButton(button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
             ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         
@@ -79,8 +79,9 @@ TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceM
     buttons[0].setPressAction([&,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new GameScene(settings, SavedGame(), inputManager, rm, lm);
+
+        playConfirm(services);
+        auto scene = new GameScene(services, SavedGame());
         scene->loadLevel("level1.lvl");
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
@@ -88,22 +89,25 @@ TitleScene::TitleScene(Settings& settings, InputManager& inputManager, ResourceM
     buttons[1].setPressAction([&,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new FileSelectScene(settings, SavedGame(), inputManager, rm, lm, FileSelectScene::FileAction::Load);
+
+        playConfirm(services);
+        auto scene = new FileSelectScene(services, SavedGame(), FileSelectScene::FileAction::Load);
         getSceneManager().pushSceneTransition(scene, 1s);
     });
     
     buttons[2].setPressAction([&,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new SettingsScene(settings, inputManager, rm, lm);
+
+        playConfirm(services);
+        auto scene = new SettingsScene(services);
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
     
     buttons[3].setPressAction([&,this]
     {
         if (this != getSceneManager().currentScene()) return;
+        playConfirm(services);
         getSceneManager().popScene();
     });
     

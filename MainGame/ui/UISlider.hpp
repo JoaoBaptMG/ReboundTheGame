@@ -29,8 +29,7 @@
 #include "input/CommonActions.hpp"
 #include "settings/InputSettings.hpp"
 
-class ResourceManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class UISlider final : public UIButton
 {
@@ -40,17 +39,18 @@ class UISlider final : public UIButton
     InputManager::MouseMoveEntry sliderMoveEntry;
     
     size_t* slideTarget;
-    size_t slideMaximum;
+    size_t slideMaximum, soundPlayDelay;
     std::function<void(size_t)> slideAction;
     sf::Vector2i mousePosition;
+    float prevX;
     bool rtl;
+
+    Services& services;
     
 public:
-    UISlider(size_t* target = nullptr, size_t max = 0) : UIButton(), slideTarget(target), slideMaximum(max), rtl(false) {}
-    UISlider(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings, bool rtl,
-        size_t* target = nullptr, size_t max = 0);
-    void initialize(InputManager& inputManager, ResourceManager& resourceManager, const InputSettings& settings,
-        bool rtl);
+    UISlider(size_t* target = nullptr, size_t max = 0);
+    UISlider(Services& services, size_t* target = nullptr, size_t max = 0);
+    void initialize(Services& services);
     virtual ~UISlider() {}
     
     auto getSlideTarget() const { return slideTarget; }
@@ -61,7 +61,8 @@ public:
     
     auto getSlideAction() const { return slideAction; }
     void setSlideAction(decltype(slideAction) action) { slideAction = action; }
-    
+
+    void updateSoundDelay();
     void resetKnob();
     
     void update();

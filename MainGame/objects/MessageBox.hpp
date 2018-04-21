@@ -28,18 +28,15 @@
 #include <vector>
 #include <list>
 #include <chronoUtils.hpp>
-#include "input/InputManager.hpp"
 #include "input/CommonActions.hpp"
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
 #include "gameplay/Script.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/LangID.hpp"
+#include "Services.hpp"
 
 class Renderer;
-class ResourceManager;
-class LocalizationManager;
-struct Settings;
 
 class MessageBox final
 {
@@ -63,7 +60,7 @@ class MessageBox final
     bool spawnNewMessage;
     
 public:
-    MessageBox(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
+    MessageBox(Services& services);
     ~MessageBox() = default;
     
     void display(Script& script, std::string);

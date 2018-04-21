@@ -73,11 +73,11 @@ const LangID InputIdentifiers[] =
 
 extern bool GlobalUpdateWindowHandler;
 
-SettingsBase::SettingsBase(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
+SettingsBase::SettingsBase(Services& services,
     sf::Vector2f centerPos, UIPointer& pointer, LangID backId) : centerPosition(centerPos), backId(backId),
     nextSettingsPanel(nullptr)
 {
-    curSettingsPanel.reset(new RootSettingsPanel(settings, im, rm, lm, this, pointer));
+    curSettingsPanel.reset(new RootSettingsPanel(services, this, pointer));
 }
 
 void SettingsBase::update(FrameTime curTime)
@@ -96,14 +96,16 @@ void SettingsBase::activate() { curSettingsPanel->activate(); }
 void SettingsBase::deactivate() { curSettingsPanel->deactivate(); }
 void SettingsBase::changeSettingsPanel(SettingsPanel *panel) { nextSettingsPanel = panel; }
 
-SettingsScene::SettingsScene(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm)
-    : SettingsBase(settings, im, rm, lm, sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f, pointer, "settings-scene-back"),
-    sceneFrame(rm.load<sf::Texture>("settings-scene-frame.png")), pointer(im, rm)
+SettingsScene::SettingsScene(Services& services)
+    : SettingsBase(services, sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f, pointer, "settings-scene-back"),
+    sceneFrame(services.resourceManager.load<sf::Texture>("settings-scene-frame.png")), pointer(services)
 {
     using namespace std::literals::chrono_literals;
     backAction = [&,this]
     {
-        auto scene = new TitleScene(settings, im, rm, lm);
+        auto scene = new TitleScene(services);
+
+        playConfirm(services); 
         getSceneManager().replaceSceneTransition(scene, 1s);
     };
 }
@@ -120,9 +122,8 @@ void SettingsScene::render(Renderer& renderer)
     pointer.render(renderer);
 }
 
-SettingsPauseFrame::SettingsPauseFrame(Settings& settings, InputManager& im, ResourceManager& rm,
-    LocalizationManager& lm, UIPointer& pointer, PauseScene* scene) : SettingsBase(settings, im, rm, lm,
-    sf::Vector2f(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
+SettingsPauseFrame::SettingsPauseFrame(Services& services, UIPointer& pointer, PauseScene* scene)
+    : SettingsBase(services, sf::Vector2f(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
 {
     backAction = [=] { scene->unpause(); };
 }

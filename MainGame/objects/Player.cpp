@@ -210,7 +210,7 @@ void Player::update(FrameTime curTime)
     
     switch (state)
     {
-        case CollisionState::Ceiling:
+        case CollisionState::Ceiling: gameScene.playSound("player-wall.wav");
         case CollisionState::None: actAirborne(); break;
         case CollisionState::Ground: actOnGround(); break;
         case CollisionState::WallLeft: actOnWalls(state); break;
@@ -393,7 +393,9 @@ void Player::actAirborne()
 void Player::actOnWalls(Player::CollisionState state)
 {
     const auto& controller = gameScene.getPlayerController();
-    
+
+    gameScene.playSound("player-wall.wav");
+
     if (abilityLevel >= 1 && hardballEnabled == onWater())
     {
         if (controller.jump().isTriggered()) wallJump(state);
@@ -513,6 +515,7 @@ void Player::observeHardballTrigger()
             hardballBatch = batch.get();
             hardballBatch->setPosition(getDisplayPosition());
             gameScene.addObject(std::move(batch));
+            gameScene.playSound("player-hardball.wav");
         }
         
         if (vec.y <= 0.5 || !stopped)
@@ -682,6 +685,8 @@ void Player::hitSpikes()
         sf::FloatRect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
+
+    gameScene.playSound("player-hit-spike.wav");
 }
 
 void Player::respawnFromSpikes()
@@ -712,6 +717,8 @@ void Player::heal(size_t amount)
 bool Player::damage(size_t amount, bool overrideInvincibility)
 {
     if (!overrideInvincibility && invincibilityTime != decltype(invincibilityTime)()) return false;
+
+    if (!overrideInvincibility) gameScene.playSound("player-damage.wav");
 
     if (doubleArmor) amount /= 2;
     if (health <= amount)

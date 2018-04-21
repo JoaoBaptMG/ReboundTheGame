@@ -32,6 +32,7 @@
 #include "data/LevelData.hpp"
 #include "data/TileSet.hpp"
 #include "particles/ParticleEmitter.hpp"
+#include "audio/readWav.hpp"
 
 #include "FontHandler.hpp"
 
@@ -67,7 +68,8 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "pe",  loadParticleEmitterList },
     { "map", loadGenericResource<RoomData> },
     { "png", loadSFMLResource<sf::Texture> },
-    { "ttf", loadFontHandler }
+    { "ttf", loadFontHandler },
+    { "wav", loadWaveFile },
 };
 
 generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)

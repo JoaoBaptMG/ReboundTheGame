@@ -45,8 +45,7 @@ class LanguageSelectSettingsPanel final : public SettingsPanel
     UIButtonGroup buttonGroup;
 
 public:
-    LanguageSelectSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
-        SettingsBase* curSettings, UIPointer& pointer);
+    LanguageSelectSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer);
     virtual ~LanguageSelectSettingsPanel() = default;
 
     virtual void update(FrameTime curTime) override;

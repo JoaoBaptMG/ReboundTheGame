@@ -29,8 +29,7 @@
 #include "input/CommonActions.hpp"
 #include "settings/InputSettings.hpp"
 
-class ResourceManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class UITextSwitch final : public UIButton
 {
@@ -44,8 +43,8 @@ class UITextSwitch final : public UIButton
     
 public:
     UITextSwitch(bool* target = nullptr) : UIButton(), switchTarget(target) {}
-    explicit UITextSwitch(InputManager& inputManager, const InputSettings& settings, bool* target = nullptr);
-    void initialize(InputManager& inputManager, const InputSettings& settings);
+    explicit UITextSwitch(Services& services, bool* target = nullptr);
+    void initialize(Services& services);
     virtual ~UITextSwitch() {}
     
     auto getSwitchTarget() const { return switchTarget; }
@@ -68,7 +67,7 @@ public:
     virtual void render(Renderer &renderer) override;
 };
 
-void createCommonTextSwitch(UITextSwitch& button, ResourceManager& rm, LocalizationManager& lm,
+void createCommonTextSwitch(UITextSwitch& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement);

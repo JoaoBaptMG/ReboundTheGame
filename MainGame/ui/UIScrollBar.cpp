@@ -32,15 +32,15 @@
 
 constexpr float ScrollSize = 8;
 
-UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priority)
-    : scrollRange(rm.load<sf::Texture>("ui-scroll-bar.png"), sf::Vector2f(0, 0)),
-    scrollThumb(rm.load<sf::Texture>("ui-scroll-thumb.png"), sf::Vector2f(0, 0)),
+UIScrollBar::UIScrollBar(Services& services, intmax_t priority)
+    : scrollRange(services.resourceManager.load<sf::Texture>("ui-scroll-bar.png"), sf::Vector2f(0, 0)),
+    scrollThumb(services.resourceManager.load<sf::Texture>("ui-scroll-thumb.png"), sf::Vector2f(0, 0)),
     position(0,0), mousePosition(-1, -1), lastMousePos(-1, -1), dragging(false)
 {
     scrollRange.setCenterRect(sf::FloatRect(3, 3, 2, 2));
     scrollThumb.setCenterRect(sf::FloatRect(3, 3, 2, 2));
 
-    mouseEntry = im.registerMouseMoveCallback([=](sf::Vector2i pos)
+    mouseEntry = services.inputManager.registerMouseMoveCallback([=](sf::Vector2i pos)
     {
         lastMousePos = mousePosition;
         mousePosition = pos;
@@ -58,7 +58,7 @@ UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priorit
         }
     }, priority);
     
-    clickEntry = im.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
+    clickEntry = services.inputManager.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
     [=](InputSource, float val)
     {
         sf::Vector2f floatMousePos(mousePosition.x, mousePosition.y);
@@ -71,7 +71,7 @@ UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priorit
         
     }, priority);
     
-    wheelEntry = im.registerCallback(InputSource::mouseWheel(sf::Mouse::VerticalWheel),
+    wheelEntry = services.inputManager.registerCallback(InputSource::mouseWheel(sf::Mouse::VerticalWheel),
     [=](InputSource, float val)
     { 
         setCurrentOffset(getCurrentOffset() - ScrollSize * val);
@@ -80,8 +80,8 @@ UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, intmax_t priorit
     curOffset = 0;
 }
 
-UIScrollBar::UIScrollBar(InputManager& im, ResourceManager& rm, float viewSize, float scrollLength,
-    UIScrollBar::Direction dir, intmax_t priority) : UIScrollBar(im, rm, priority)
+UIScrollBar::UIScrollBar(Services& services, float viewSize, float scrollLength,
+    UIScrollBar::Direction dir, intmax_t priority) : UIScrollBar(services, priority)
 {
     computeSizes(dir, viewSize, scrollLength);
 }

@@ -34,24 +34,26 @@
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
 
-UITextSwitch::UITextSwitch(InputManager& inputManager, const InputSettings& settings, bool* target) : UITextSwitch(target)
+UITextSwitch::UITextSwitch(Services& services, bool* target) : UITextSwitch(target)
 {
-    initialize(inputManager, settings);
+    initialize(services);
 }
 
-void UITextSwitch::initialize(InputManager& inputManager, const InputSettings& settings)
+void UITextSwitch::initialize(Services& services)
 {
-    UIButton::initialize(inputManager);
+    UIButton::initialize(services.inputManager);
+
+    auto& settings = services.settings.inputSettings;
+    switchAxis.registerButton(services.inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
+    switchAxis.registerButton(services.inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
+    switchAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisX, 0);
+    switchAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     
-    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveLeft,  AxisDirection::Negative, 0);
-    switchAxis.registerButton(inputManager, settings.keyboardSettings.moveRight, AxisDirection::Positive, 0);
-    switchAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisX, 0);
-    switchAxis.registerAxis(inputManager, settings.joystickSettings.movementAxisXAlt, 1);
-    
-    setPressAction([=]
+    setPressAction([=,&services]
     { 
         if (switchTarget)
         {
+            playConfirm(services);
             *switchTarget = !*switchTarget;
             if (switchAction) switchAction(*switchTarget);
             resetText();
@@ -89,28 +91,28 @@ void UITextSwitch::render(Renderer& renderer)
     renderer.popTransform();
 }
 
-void createCommonTextSwitch(UITextSwitch& button, ResourceManager& rm, LocalizationManager& lm,
+void createCommonTextSwitch(UITextSwitch& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement)
 {
-    createCommonTextualButton(button, rm, lm, activeResourceName, pressedResourceName, centerRect, destRect,
+    createCommonTextualButton(button, services, activeResourceName, pressedResourceName, centerRect, destRect,
         captionString, captionSize, textColor, outlineThickness, outlineColor, captionDisplacement);
     
     auto& caption = button.getSwitchCaption();
-    caption.setFontHandler(rm.load<FontHandler>(lm.getFontName()));
+    caption.setFontHandler(loadDefaultFont(services));
     caption.setFontSize(captionSize);
     caption.setDefaultColor(textColor);
     caption.setOutlineThickness(outlineThickness);
     caption.setDefaultOutlineColor(outlineColor);
     caption.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     caption.setVerticalAnchor(TextDrawable::VertAnchor::Center);
-    configTextDrawable(caption, lm);
+    configTextDrawable(caption, services.localizationManager);
     
     caption.setWordWrappingWidth(destRect.width - 2 * captionDisplacement.x);
     caption.setWordAlignment(TextDrawable::Alignment::Inverse);
     
-    button.setTrueString(lm.getString("ui-switch-yes"));
-    button.setFalseString(lm.getString("ui-switch-no"));
+    button.setTrueString(services.localizationManager.getString("ui-switch-yes"));
+    button.setFalseString(services.localizationManager.getString("ui-switch-no"));
     button.resetText();
 }

@@ -39,6 +39,9 @@
 #include "scene/pause/PauseScene.hpp"
 #include "scene/MidLevelScene.hpp"
 
+#include "audio/AudioManager.hpp"
+#include "audio/Sound.hpp"
+
 #include <functional>
 #include <iterator>
 #include <SFML/System.hpp>
@@ -98,29 +101,29 @@ StringSpecifierMap buildJoystickSpecifierMap(const Settings& settings, Localizat
         };
 }
 
-GameScene::GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager &rm, LocalizationManager& lm)
-    : room(*this), resourceManager(rm), localizationManager(lm), inputManager(im), settings(settings),
-    sceneRequested(NextScene::None), savedGame(sg), inputPlayerController(im, settings.inputSettings),
-    messageBox(settings, im, rm, lm), objectsLoaded(false), curRoomID(-1), requestedID(-1), gui(*this),
+GameScene::GameScene(Services& services, SavedGame sg)
+    : room(*this), services(services), sceneRequested(NextScene::None), savedGame(sg),
+    inputPlayerController(services.inputManager, services.settings.inputSettings),
+    messageBox(services), objectsLoaded(false), curRoomID(-1), requestedID(-1), gui(*this),
     camera(*this), levelTransition(*this), pausing(false), pauseLag(0), currentPlayerController(nullptr)
 #if CP_DEBUG
 , debug(gameSpace)
 #endif
 {
     gameSpace.setGravity(cpVect{0.0f, 1024.0f});
-    keysMap = buildKeySpecifierMap(settings, lm);
-    joystickMap = buildJoystickSpecifierMap(settings, lm);
+    keysMap = buildKeySpecifierMap(services.settings, services.localizationManager);
+    joystickMap = buildJoystickSpecifierMap(services.settings, services.localizationManager);
 }
 
 void GameScene::loadLevel(std::string levelName)
 {
     this->levelName = levelName;
-    levelData = resourceManager.load<LevelData>(levelName);
+    levelData = services.resourceManager.load<LevelData>(levelName);
     
 #ifdef GENERATE_MAPS_IF_EMPTY
     if (levelData->roomMaps.empty())
     {
-        generateAllMapsForLevel(*levelData, resourceManager);
+        generateAllMapsForLevel(*levelData, services.resourceManager);
         
         FileOutputStream stream;
         ASSERT(stream.open(getExecutableDirectory() + "/Resources/" + levelName));
@@ -181,7 +184,7 @@ void GameScene::loadRoom(size_t id, bool transition, cpVect displacement, bool d
             
     }
     
-    currentRoomData = resourceManager.load<RoomData>(roomName);
+    currentRoomData = services.resourceManager.load<RoomData>(roomName);
     room.loadRoom(*currentRoomData, transition, displacement);
     visibleMaps.at(id) = true;
     objectsLoaded = false;
@@ -280,7 +283,7 @@ void GameScene::update(FrameTime curTime)
         if (sceneRequested == NextScene::Pause)
         {
             auto player = getObjectByName<Player>("player");
-            auto scene = new PauseScene(settings, inputManager, resourceManager, localizationManager);
+            auto scene = new PauseScene(services);
             scene->setMapLevelData(levelData, curRoomID, player->getDisplayPosition(), visibleMaps);
             scene->setCollectedFrameSavedGame(savedGame);
             getSceneManager().pushScene(scene);
@@ -289,16 +292,14 @@ void GameScene::update(FrameTime curTime)
         {
             using namespace std::literals::chrono_literals;
             
-            auto scene = new MidLevelScene(settings, savedGame, inputManager, resourceManager, localizationManager,
-                levelName);
+            auto scene = new MidLevelScene(services, savedGame, levelName);
             getSceneManager().replaceSceneTransition(scene, 1s);
         }
         else if (sceneRequested == NextScene::Advance)
         {
             using namespace std::literals::chrono_literals;
             
-            auto scene = new MidLevelScene(settings, savedGame, inputManager, resourceManager, localizationManager,
-                nextLevelRequested, false);
+            auto scene = new MidLevelScene(services, savedGame, nextLevelRequested, false);
             getSceneManager().replaceSceneTransition(scene, 1s);
             nextLevelRequested = "";
         }
@@ -401,7 +402,7 @@ void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect pos)
     {
         cpVect displacement = { 0, 0 };
         auto roomName = levelData->roomResourceNames.at(warp.roomId) + ".map";
-        auto destRoomData = resourceManager.load<RoomData>(roomName);
+        auto destRoomData = services.resourceManager.load<RoomData>(roomName);
         auto delta = destRoomData->warps.at(warp.warpId).c1 - warp.c1;
         
         switch (direction)
@@ -422,6 +423,11 @@ void GameScene::checkWarp(Player* player, WarpData::Dir direction, cpVect pos)
         
         loadRoom(warp.roomId, true, displacement);
     }
+}
+
+void GameScene::playSound(std::string soundName)
+{
+    services.audioManager.playSound(services.resourceManager.load<Sound>(soundName));
 }
 
 void GameScene::render(Renderer& renderer)
@@ -451,12 +457,12 @@ void GameScene::pause()
 
 void GameScene::resume()
 {
-    keysMap = buildKeySpecifierMap(settings, localizationManager);
-    joystickMap = buildJoystickSpecifierMap(settings, localizationManager);
+    keysMap = buildKeySpecifierMap(services.settings, services.localizationManager);
+    joystickMap = buildJoystickSpecifierMap(services.settings, services.localizationManager);
 }
 
 const StringSpecifierMap& GameScene::getInputSpecifierMap() const
 {
-    if (inputManager.isJoystickCurrent()) return joystickMap;
+    if (services.inputManager.isJoystickCurrent()) return joystickMap;
     else return keysMap;
 }

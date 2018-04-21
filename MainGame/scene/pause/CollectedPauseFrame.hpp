@@ -28,13 +28,10 @@
 #include "drawables/TextDrawable.hpp"
 #include "drawables/Sprite.hpp"
 
+#include "Services.hpp"
 #include "ui/UIScrollBar.hpp"
 #include "input/CommonActions.hpp"
 
-struct Settings;
-class ResourceManager;
-class InputManager;
-class LocalizationManager;
 struct SavedGame;
 
 class CollectedPauseFrame : public PauseFrame
@@ -59,7 +56,7 @@ class CollectedPauseFrame : public PauseFrame
 public:
     size_t getTotalHeight() const;
 
-    CollectedPauseFrame(const Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager& lm);
+    CollectedPauseFrame(Services& services);
     virtual ~CollectedPauseFrame() {}
 
     void setHealthData(size_t curHealth, size_t maxHealth);

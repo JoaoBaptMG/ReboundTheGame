@@ -53,12 +53,12 @@ const LangID ButtonIdentifiers[] =
     "mid-level-exit",
 };
 
-MidLevelScene::MidLevelScene(Settings& settings, const SavedGame& sg, InputManager& im, ResourceManager& rm,
-    LocalizationManager &lm, std::string nextLevel, bool gameover) : nextLevel(nextLevel),
-    title(rm.load<FontHandler>(lm.getFontName())), pointer(im, rm), buttonGroup(im, settings.inputSettings),
-    sceneFrame(rm.load<sf::Texture>("mid-level-scene-frame.png"), sf::Vector2f(0, 0))
+MidLevelScene::MidLevelScene(Services& services, const SavedGame& sg, std::string nextLevel, bool gameover)
+    : nextLevel(nextLevel), title(loadDefaultFont(services)),
+    pointer(services), buttonGroup(services),
+    sceneFrame(services.resourceManager.load<sf::Texture>("mid-level-scene-frame.png"), sf::Vector2f(0, 0))
 {
-    title.setString(lm.getString(gameover ? LangID("mid-level-gameover") : LangID("mid-level-advance")));
+    title.setString(services.localizationManager.getString(gameover ? LangID("mid-level-gameover") : LangID("mid-level-advance")));
     title.setFontSize(TitleCaptionSize);
     title.setDefaultColor(sf::Color::Yellow);
     title.setOutlineThickness(2);
@@ -67,15 +67,15 @@ MidLevelScene::MidLevelScene(Settings& settings, const SavedGame& sg, InputManag
     title.setVerticalAnchor(TextDrawable::VertAnchor::Top);
     title.setWordWrappingWidth(ScreenWidth - 2 * TitleSpace);
     title.setWordAlignment(TextDrawable::Alignment::Center);
-    configTextDrawable(title, lm);
+    configTextDrawable(title, services.localizationManager);
     title.buildGeometry();
     
     size_t k = 0;
     for (auto& button : buttons)
     {
-        button.initialize(im);
+        button.initialize(services.inputManager);
         
-        createCommonTextualButton(button, rm, lm, "ui-select-field.png", "ui-select-field.png",
+        createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
             ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
         
@@ -91,8 +91,9 @@ MidLevelScene::MidLevelScene(Settings& settings, const SavedGame& sg, InputManag
     buttons[0].setPressAction([&,sg,nextLevel,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new GameScene(settings, sg, im, rm, lm);
+
+        playConfirm(services);
+        auto scene = new GameScene(services, sg);
         scene->loadLevel(nextLevel);
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
@@ -100,16 +101,18 @@ MidLevelScene::MidLevelScene(Settings& settings, const SavedGame& sg, InputManag
     buttons[1].setPressAction([&,sg,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new FileSelectScene(settings, sg, im, rm, lm, FileSelectScene::FileAction::Save);
+
+        playConfirm(services);
+        auto scene = new FileSelectScene(services, sg, FileSelectScene::FileAction::Save);
         getSceneManager().pushSceneTransition(scene, 1s);
     });
     
     buttons[2].setPressAction([&,this]
     {
         if (this != getSceneManager().currentScene()) return;
-        
-        auto scene = new TitleScene(settings, im, rm, lm);
+
+        playConfirm(services);
+        auto scene = new TitleScene(services);
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
     

@@ -28,10 +28,9 @@
 #include <string>
 #include "language/LangID.hpp"
 
-class ResourceManager;
-class LocalizationManager;
+#include "Services.hpp"
 
-void createCommonTextualButton(UIButton& button, ResourceManager& rm, LocalizationManager& lm,
+void createCommonTextualButton(UIButton& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement,
@@ -39,3 +38,6 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
 
 void createCommonGraphicsButton(UIButton& button, ResourceManager& rm, std::string normalResourceName,
     std::string activeResourceName, std::string pressedResourceName);
+
+void playConfirm(Services& services);
+void playCursor(Services& services);

@@ -39,6 +39,8 @@
 #include "input/InputPlayerController.hpp"
 #include "input/CommonActions.hpp"
 #include "language/LocalizationManager.hpp"
+#include "audio/AudioManager.hpp"
+#include "Services.hpp"
 
 #include <cppmunk/Space.h>
 #include <SFML/Graphics.hpp>
@@ -54,8 +56,6 @@
 
 class Player;
 class Renderer;
-class ResourceManager;
-class InputManager;
 
 struct RoomData;
 
@@ -74,16 +74,13 @@ class GameScene : public Scene
     std::string levelName;
     LevelPersistentData levelPersistentData;
 
-    ResourceManager &resourceManager;
     std::shared_ptr<RoomData> currentRoomData;
     std::vector<std::unique_ptr<GameObject>> gameObjects, objectsToAdd;
     size_t curRoomID, requestedID;
     bool objectsLoaded, pausing;
     std::vector<bool> visibleMaps;
 
-    LocalizationManager &localizationManager;
-    InputManager& inputManager;
-    Settings& settings;
+    Services& services;
     SavedGame savedGame;
 
     InputPlayerController inputPlayerController;
@@ -101,7 +98,7 @@ class GameScene : public Scene
     FrameDuration pauseLag;
 
 public:
-    GameScene(Settings& settings, SavedGame sg, InputManager& im, ResourceManager& rm, LocalizationManager &lm);
+    GameScene(Services& services, SavedGame sg);
     virtual ~GameScene() {}
 
     cp::Space& getGameSpace() { return gameSpace; }
@@ -121,8 +118,9 @@ public:
     MessageBox& getMessageBox() { return messageBox; }
     Camera& getCamera() { return camera; }
     
-    ResourceManager& getResourceManager() const { return resourceManager; }
-    LocalizationManager& getLocalizationManager() const { return localizationManager; }
+    ResourceManager& getResourceManager() const { return services.resourceManager; }
+    LocalizationManager& getLocalizationManager() const { return services.localizationManager; }
+    AudioManager& getAudioManager() const { return services.audioManager; }
     LevelPersistentData& getLevelPersistentData() { return levelPersistentData; }
 
     void loadLevel(std::string levelName);
@@ -165,6 +163,7 @@ public:
     const Script& getCutsceneScript() const { return cutsceneScript; }
 
     void runCutsceneScript(Script::ScriptFunction function);
+    void playSound(std::string soundName);
 
     cpVect wrapPosition(cpVect pos);
     sf::Vector2f fitIntoRoom(sf::Vector2f vec);

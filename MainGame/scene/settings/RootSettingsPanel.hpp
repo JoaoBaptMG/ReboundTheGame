@@ -36,10 +36,7 @@
 
 #include "language/LangID.hpp"
 
-struct Settings;
-class ResourceManager;
-class InputManager;
-class LocalizationManager;
+#include "Services.hpp"
 
 class RootSettingsPanel final : public SettingsPanel
 {
@@ -54,8 +51,7 @@ class RootSettingsPanel final : public SettingsPanel
     UIButtonGroup buttonGroup;
 
 public:
-    RootSettingsPanel(Settings& settings, InputManager& im, ResourceManager& rm, LocalizationManager &lm,
-        SettingsBase* curSettings, UIPointer& pointer);
+    RootSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer);
     virtual ~RootSettingsPanel() = default;
 
     virtual void update(FrameTime curTime) override;

@@ -22,8 +22,8 @@
 
 
 #include "HarfBuzzWrapper.hpp"
-#include <hb.h>
-#include <hb-ot.h>
+#include <harfbuzz/hb.h>
+#include <harfbuzz/hb-ot.h>
 
 HarfBuzzWrapper::HarfBuzzWrapper(const char* data, size_t size)
 {

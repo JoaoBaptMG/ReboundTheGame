@@ -30,7 +30,10 @@
 #include "drawables/Sprite.hpp"
 #include "drawables/SegmentedSprite.hpp"
 
-void createCommonTextualButton(UIButton& button, ResourceManager& rm, LocalizationManager& lm,
+#include "audio/AudioManager.hpp"
+#include "audio/Sound.hpp"
+
+void createCommonTextualButton(UIButton& button, Services& services,
     std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
     sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
     float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement,
@@ -38,18 +41,18 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
 {
     sf::Vector2f destCenter(destRect.width/2, destRect.height/2);
     
-    auto activeSprite = std::make_unique<SegmentedSprite>(rm.load<sf::Texture>(activeResourceName));
+    auto activeSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>(activeResourceName));
     activeSprite->setCenterRect(centerRect);
     activeSprite->setDestinationRect(destRect);
     activeSprite->setAnchorPoint(destCenter);
     
-    auto pressedSprite = std::make_unique<SegmentedSprite>(rm.load<sf::Texture>(pressedResourceName));
+    auto pressedSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>(pressedResourceName));
     pressedSprite->setCenterRect(centerRect);
     pressedSprite->setDestinationRect(destRect);
     pressedSprite->setAnchorPoint(destCenter);
     
-    auto caption = std::make_unique<TextDrawable>(rm.load<FontHandler>(lm.getFontName()));
-    if (!captionString.empty()) caption->setString(lm.getString(captionString));
+    auto caption = std::make_unique<TextDrawable>(loadDefaultFont(services));
+    if (!captionString.empty()) caption->setString(services.localizationManager.getString(captionString));
     caption->setFontSize(captionSize);
     caption->setDefaultColor(textColor);
     caption->setOutlineThickness(outlineThickness);
@@ -58,7 +61,7 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
     caption->setVerticalAnchor(TextDrawable::VertAnchor::Center);
     caption->setWordWrappingWidth(destRect.width - 2 * captionDisplacement.x);
     caption->setWordAlignment(wordAlignment);
-    configTextDrawable(*caption, lm);
+    configTextDrawable(*caption, services.localizationManager);
     caption->buildGeometry();
     
     button.setActiveSprite(std::move(activeSprite));
@@ -66,10 +69,22 @@ void createCommonTextualButton(UIButton& button, ResourceManager& rm, Localizati
     button.setCaption(std::move(caption));
     button.setCaptionDisplacement(captionDisplacement);
     button.autoComputeBounds();
+
+    button.setOverAction([&] { playCursor(services); });
 }
 
 void createCommonGraphicsButton(UIButton& button, ResourceManager& rm, std::string normalResourceName,
     std::string activeResourceName, std::string pressedResourceName)
 {
     
+}
+
+void playConfirm(Services& services)
+{
+    services.audioManager.playSound(services.resourceManager.load<Sound>("ui-confirm.wav")); 
+}
+
+void playCursor(Services& services)
+{
+    services.audioManager.playSound(services.resourceManager.load<Sound>("ui-cursor.wav"));
 }

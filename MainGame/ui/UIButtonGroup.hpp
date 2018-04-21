@@ -30,6 +30,8 @@
 #include "input/CommonActions.hpp"
 #include "settings/Settings.hpp"
 
+#include "Services.hpp"
+
 class UIButton;
 class UIPointer;
 
@@ -47,8 +49,7 @@ class UIButtonGroup
     AxisAction<1,2> travel;
     
 public:
-    UIButtonGroup(InputManager& inputManager, const InputSettings& settings, TravelingMode travelingMode =
-        TravelingMode::Vertical);
+    UIButtonGroup(Services& services, TravelingMode travelingMode = TravelingMode::Vertical);
         
     void setButtons(std::initializer_list<std::reference_wrapper<UIButton>> buttons);
     void setButtons(UIButton* buttons, size_t size);

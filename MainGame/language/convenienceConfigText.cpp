@@ -22,6 +22,7 @@
 
 
 #include "convenienceConfigText.hpp"
+#include "resources/ResourceManager.hpp"
 
 void configTextDrawable(TextDrawable& text, LocalizationManager& manager)
 {
@@ -29,3 +30,7 @@ void configTextDrawable(TextDrawable& text, LocalizationManager& manager)
     text.setRTL(manager.isRTL());
 }
 
+std::shared_ptr<FontHandler> loadDefaultFont(Services& services)
+{
+    return services.resourceManager.load<FontHandler>(services.localizationManager.getFontName());
+}
