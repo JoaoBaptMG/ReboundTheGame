@@ -31,6 +31,7 @@
 #include <vector>
 #include <string>
 #include <SFML/System.hpp>
+#include <SFML/Graphics.hpp>
 
 class LocalizationManager;
 
@@ -39,6 +40,7 @@ class LevelData final
 public:
     uint16_t levelNumber;
     uint16_t startingRoom;
+    sf::Color mapColor;
     std::string songResourceName;
     std::vector<std::string> roomResourceNames;
     

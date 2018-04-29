@@ -68,9 +68,10 @@ namespace props
             sf::Vector2<int16_t> position;
             int16_t width, height;
             uint8_t hideTop;
+            sf::Color coastColor, color;
         };
 
-        static_assert(sizeof(ConfigStruct) == 9*sizeof(char), "Packing failed!");
+        static_assert(sizeof(ConfigStruct) == 17*sizeof(char), "Packing failed!");
     #pragma pack(pop)
 
         bool configure(const ConfigStruct& config);

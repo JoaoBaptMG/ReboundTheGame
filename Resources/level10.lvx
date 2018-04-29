@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<level number="10" song="z3.hellsgate.ogg" map-color="#8000ff">
+    <room id="0" name="room10-x" starting="true"/>
+</level>

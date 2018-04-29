@@ -36,6 +36,7 @@ class GUIMap final : public sf::Drawable
     sf::Texture* mapTexture;
     sf::VertexArray vertArray;
     sf::Vector2f displayPosition;
+    sf::Color mapBlinkColor;
     size_t curRoom;
 
     FrameTime initTime;
@@ -59,7 +60,7 @@ public:
     
     auto getExtendedFrame() const { return extendedFrame; }
     void setExtendedFrame(bool f) { extendedFrame = f; }
-    
+
     sf::FloatRect getBounds() const;
     
     void presentRoom(size_t room);

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<level number="4" song="z3.rebornmechanics.ogg" map-color="#ffff00">
+    <room id="0" name="room4-x" starting="true"/>
+</level>

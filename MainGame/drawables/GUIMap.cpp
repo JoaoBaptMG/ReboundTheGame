@@ -33,6 +33,8 @@
 #include "data/LevelData.hpp"
 #include "ScissorRectUtils.hpp"
 
+#include <iostream>
+
 // Optimization
 struct MapTextureData
 {
@@ -44,7 +46,6 @@ using WeakLvlPtr = std::weak_ptr<LevelData>;
 static std::map<WeakLvlPtr,MapTextureData,std::owner_less<WeakLvlPtr>> staticLevelTextures;
 void clearMapTextures() { staticLevelTextures.clear(); }
 
-const sf::Color BlinkColor = sf::Color(255, 128, 128, 255);
 constexpr float BlinkPeriod = 2;
 
 const sf::FloatRect MapViewport(-38, -38, 76, 76);
@@ -70,10 +71,10 @@ void GUIMap::update(FrameTime curTime)
     
     float t = toSeconds<float>(curTime - initTime);
     float weight = 0.5 - 0.5 * cosf(2 * M_PI * t / BlinkPeriod);
-    sf::Color finalColor(255 + weight * ((int)BlinkColor.r - 255),
-                         255 + weight * ((int)BlinkColor.g - 255),
-                         255 + weight * ((int)BlinkColor.b - 255),
-                         255 + weight * ((int)BlinkColor.a - 255));
+    sf::Color finalColor(255 + weight * ((int)mapBlinkColor.r - 255),
+                         255 + weight * ((int)mapBlinkColor.g - 255),
+                         255 + weight * ((int)mapBlinkColor.b - 255),
+                         255 + weight * ((int)mapBlinkColor.a - 255));
                         
     if (curLevel)
         for (size_t i = 0; i < curLevel->roomMaps.size(); i++)
@@ -90,6 +91,12 @@ void GUIMap::setCurLevel(std::shared_ptr<LevelData> level)
     if (curLevel != level)
     {
         curLevel = level;
+
+        mapBlinkColor.r = (uint8_t)((255 + (uint16_t)level->mapColor.r) / 2);
+        mapBlinkColor.g = (uint8_t)((255 + (uint16_t)level->mapColor.g) / 2);
+        mapBlinkColor.b = (uint8_t)((255 + (uint16_t)level->mapColor.b) / 2);
+        mapBlinkColor.a = 255;
+
         buildLevelTexture();
     }
 }

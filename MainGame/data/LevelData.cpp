@@ -87,8 +87,8 @@ bool readFromStream(sf::InputStream& stream, LevelData::MapData& map)
 
 bool readFromStream(sf::InputStream& stream, LevelData& level)
 {
-    return readFromStream(stream, level.levelNumber, level.startingRoom, level.songResourceName,
-        level.roomResourceNames, level.roomMaps);
+    return readFromStream(stream, level.levelNumber, level.startingRoom, level.mapColor,
+        level.songResourceName, level.roomResourceNames, level.roomMaps);
 }
 
 bool writeRLGrid(OutputStream& stream, const util::grid<bool>& grid)
@@ -140,7 +140,7 @@ bool writeToStream(OutputStream& stream, const LevelData::MapData& map)
 bool writeToStream(OutputStream& stream, const LevelData& level)
 {
     return stream.write("LEVEL", 5) && writeToStream(stream, level.levelNumber, level.startingRoom,
-        level.songResourceName, level.roomResourceNames, level.roomMaps);
+        level.mapColor, level.songResourceName, level.roomResourceNames, level.roomMaps);
 }
 
 std::string getLevelFileNameForNumber(size_t number)

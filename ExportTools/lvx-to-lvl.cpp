@@ -60,6 +60,25 @@ int lvxToLvl(string inFile, string outFile)
     auto startingRoomPos = out.tellp();
     out.write((const char*)&startingRoom, sizeof(uint16_t));
 
+    auto colorVal = lvl.ToElement()->Attribute("map-color");
+    if (colorVal == nullptr)
+    {
+        cout << "Attribute map-color is required!" << endl;
+        return -1;
+    }
+
+    if (colorVal[0] != '#')
+    {
+        cout << "Attribute map-color must a color of the form #rrggbb" << endl;
+        return -1;
+    }
+
+    uint32_t color = strtoull(colorVal+1, nullptr, 16);
+    uint32_t red = color & 0xFF0000;
+    uint32_t blue = color & 0xFF;
+    color = (color & 0xFF00FF00) | 0xFF000000 | (red >> 16) | (blue << 16);
+    out.write((const char*)&color, sizeof(uint32_t));
+
     write_varlength(out, songNameS);
     out.write(songName, songNameS * sizeof(char));
 

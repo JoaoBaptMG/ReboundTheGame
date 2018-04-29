@@ -4,6 +4,7 @@
     <import-from file="common-defs.tsxinc"/>
     
     <terrain name="basic" attribute="solid" corner-radius="2"/>
+    <terrain name="cornered" attribute="solid" corner-radius="32"/>
 
     <tile id="0" type="terrain-upper-left" name="basic"/>
     <tile id="1" type="terrain-up" name="basic"/>
@@ -30,4 +31,19 @@
     <tile id="22" type="semi-terrain2" name="up-solid"/>
     <tile id="23" type="semi-terrain2" name="down-solid"/>
     <tile id="24" type="none"/>
+    <tile id="25" type="terrain-upper-left" name="cornered"/>
+    <tile id="26" type="terrain-up" name="cornered"/>
+    <tile id="27" type="terrain-upper-right" name="cornered"/>
+    <tile id="28" type="terrain-center" name="cornered"/>
+    <tile id="29" type="terrain-center" name="cornered"/>
+    <tile id="30" type="terrain-left" name="cornered"/>
+    <tile id="31" type="terrain-center" name="cornered"/>
+    <tile id="32" type="terrain-right" name="cornered"/>
+    <tile id="33" type="terrain-center" name="cornered"/>
+    <tile id="34" type="terrain-center" name="cornered"/>
+    <tile id="35" type="terrain-lower-left" name="cornered"/>
+    <tile id="36" type="terrain-down" name="cornered"/>
+    <tile id="37" type="terrain-lower-right" name="cornered"/>
+    <tile id="38" type="none"/>
+    <tile id="39" type="none"/>
 </tileset>

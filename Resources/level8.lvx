@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<level number="8" song="z3.trail.ogg" map-color="#00c0c0">
+    <room id="0" name="room8-x" starting="true"/>
+</level>

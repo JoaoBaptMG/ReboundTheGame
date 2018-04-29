@@ -103,7 +103,12 @@ bool write_props_Water(Object obj, ostream& out)
     out.write((const char*)&height, sizeof(int16_t));
     
     uint8_t hideTop = obj.getPropertyBool("hide-top", true);
+    uint32_t coastColor = obj.getPropertyColor("coast-color", true, 0xFFFFFFFF);
+    uint32_t color = obj.getPropertyColor("color", true, 0xFFFF6464);
+
     out.write((const char*)&hideTop, sizeof(uint8_t));
+    out.write((const char*)&coastColor, sizeof(uint32_t));
+    out.write((const char*)&color, sizeof(uint32_t));
     
     return obj.everythingOk();
 }

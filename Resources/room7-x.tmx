@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="18" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="40">
+ <properties>
+  <property name="tileset" value="level1"/>
+ </properties>
+ <tileset firstgid="1" name="tilemap1" tilewidth="32" tileheight="32" tilecount="40" columns="5">
+  <image source="tilemap7.png" width="160" height="160"/>
+  <terraintypes>
+   <terrain name="terrain" tile="-1"/>
+  </terraintypes>
+  <tile id="0" terrain=",,,0"/>
+  <tile id="1" terrain=",,0,0"/>
+  <tile id="2" terrain=",,0,"/>
+  <tile id="3" terrain=",0,0,0"/>
+  <tile id="4" terrain="0,,0,0"/>
+  <tile id="5" terrain=",0,,0"/>
+  <tile id="6" terrain="0,0,0,0"/>
+  <tile id="7" terrain="0,,0,"/>
+  <tile id="8" terrain="0,0,,0"/>
+  <tile id="9" terrain="0,0,0,"/>
+  <tile id="10" terrain=",0,,"/>
+  <tile id="11" terrain="0,0,,"/>
+  <tile id="12" terrain="0,,,"/>
+ </tileset>
+ <layer name="main-layer" width="18" height="18">
+  <data encoding="csv">
+10,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,9,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+5,2,2,2,2,2,2,2,2,2,2,2,3,0,0,0,0,6,
+10,12,12,12,12,12,12,12,12,12,12,12,13,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2,2,4,
+8,0,0,11,12,12,12,12,12,12,12,12,12,12,12,12,12,9,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4
+</data>
+ </layer>
+ <objectgroup name="object-layer">
+  <object id="2" name="background" type="background::Parallax" x="289" y="96">
+   <properties>
+    <property name="factor" type="float" value="0.5"/>
+    <property name="name" type="file" value="background7.png"/>
+   </properties>
+  </object>
+  <object id="36" name="player" type="Player" x="64" y="64" width="64" height="64"/>
+  <object id="37" name="powerup" type="collectibles::Powerup" x="360" y="72" width="48" height="48">
+   <properties>
+    <property name="level" type="int" value="7"/>
+   </properties>
+  </object>
+  <object id="38" name="water" type="props::Water" x="0" y="160" width="576" height="416">
+   <properties>
+    <property name="color" type="color" value="#ff204a87"/>
+   </properties>
+  </object>
+  <object id="39" name="placeholder" type="background::Parallax" x="215" y="86">
+   <properties>
+    <property name="factor" type="float" value="0.5"/>
+    <property name="name" type="file" value="placeholder.png"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="warp-layer"/>
+</map>

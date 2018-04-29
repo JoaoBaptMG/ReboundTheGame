@@ -110,6 +110,14 @@ bool Water::configure(const ConfigStruct& config)
                          config.width, config.height);
     setRect(destRect);
     shape.setTopHidden(config.hideTop);
+
+    sf::Color color = config.color;
+    color.a = 128;
+    shape.setColor(color);
+
+    sf::Color coastColor = config.coastColor;
+    coastColor.a = 128;
+    shape.setCoastColor(coastColor);
     
     return true;
 }
