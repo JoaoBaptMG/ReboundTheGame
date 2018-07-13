@@ -27,7 +27,7 @@
 
 struct AudioCommand
 {
-    enum class Type { Play1, Play2, Update, Stop } type;
+    enum class Type { Play1, Play2, Update, Fade, Stop } type;
 
     AudioReference ref;
 
@@ -38,5 +38,6 @@ struct AudioCommand
         struct { const Sound* sound; float volume; } play1;
         struct { float logPitch, balance; } play2;
         struct { UpdateData data; float newVal; } update;
+        struct { size_t fadeCount; float fadeOfs; } fade;
     };
 };

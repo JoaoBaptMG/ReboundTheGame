@@ -29,6 +29,8 @@
 #include <unordered_map>
 #include <memory>
 #include <non_copyable_movable.hpp>
+#include <chronoUtils.hpp>
+#include <atomic>
 #include "AudioInstance.hpp"
 #include "AudioCommand.hpp"
 #include "readerwriterqueue/readerwriterqueue.h"
@@ -43,6 +45,7 @@ class AudioManager final : public util::non_copyable
     std::bitset<MaxSounds> instancesUsed;
     std::array<AudioInstance, MaxSounds> audioInstancesHostSide;
     std::array<AudioInstanceLight, MaxSounds> audioInstancesThreadSide;
+    std::atomic<size_t> samplesPassed;
 
     PaStream* currentStream;
     AudioReference findEmptyInstance();
@@ -58,5 +61,6 @@ public:
     void setSoundVolume(const AudioReference& ref, float volume);
     void setSoundLogPitch(const AudioReference& ref, float logPitch);
     void setSoundBalance(const AudioReference& ref, float balance);
+    void fadeSound(const AudioReference& ref, FrameDuration dur, float toVol = 0.0f);
     void stopSound(const AudioReference& ref);
 };

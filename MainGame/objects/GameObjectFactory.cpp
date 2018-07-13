@@ -31,7 +31,7 @@
 
 using FactoryParamMap = std::unordered_map<std::string, FactoryParams>;
 static size_t SchwartzCounter = 0;
-static typename std::aligned_storage_t<sizeof(FactoryParamMap), alignof(FactoryParamMap)> factoryParamsBuf;
+static std::aligned_storage_t<sizeof(FactoryParamMap), alignof(FactoryParamMap)> factoryParamsBuf;
 FactoryParamMap& factoryParams = reinterpret_cast<FactoryParamMap&>(factoryParamsBuf);
 
 BaseRegisterGameObject::BaseRegisterGameObject(const std::string& name, FactoryParams params)

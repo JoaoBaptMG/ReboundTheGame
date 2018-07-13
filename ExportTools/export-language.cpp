@@ -42,7 +42,7 @@ using namespace tinyxml2;
 
 struct LangString final
 {
-    string string;
+    string str;
     map<size_t,size_t> vcategoryAssociations;
 };
 
@@ -81,7 +81,7 @@ struct Vterm final
     struct Variant
     {
         vector<string> types;
-        string string;
+        string str;
     };
     
     vector<string> categories;
@@ -94,7 +94,7 @@ struct Pvterm final
     {
         string ptype;
         vector<string> vtypes;
-        string string;
+        string str;
     };
     
     string pcategory;
@@ -528,7 +528,7 @@ bool parseLanguage(XMLDocument& doc, const string& inFile, map<string,PluralForm
                     return false;
                 }
                 
-                var.string = parseString(text);
+                var.str = parseString(text);
                 vtermV.variants.push_back(move(var));
             }
             else
@@ -681,7 +681,7 @@ bool parseLanguage(XMLDocument& doc, const string& inFile, map<string,PluralForm
                     return false;
                 }
                 
-                var.string = parseString(text);
+                var.str = parseString(text);
                 pvtermV.variants.push_back(move(var));
             }
             else
@@ -728,7 +728,7 @@ bool parseLanguage(XMLDocument& doc, const string& inFile, map<string,PluralForm
                 return false;
             }
             
-            stringV.string = parseString(text);
+            stringV.str = parseString(text);
         }
         else
         {
@@ -1126,7 +1126,7 @@ int exportLanguage(string inFile, string outFile)
     for (const auto& string : strings)
     {
         write_str(out, string.first);
-        write_str(out, string.second.string);
+        write_str(out, string.second.str);
         write_varlength(out, string.second.vcategoryAssociations.size());
         for (const auto& pair : string.second.vcategoryAssociations)
         {
@@ -1202,7 +1202,7 @@ int exportLanguage(string inFile, string outFile)
                 write_varlength(out, (size_t)distance(catIterators.at(i)->second.variantTypes.begin(), typeIt));
             }
             
-            write_str(out, v.string);
+            write_str(out, v.str);
         }
     }
     
@@ -1235,7 +1235,7 @@ int exportLanguage(string inFile, string outFile)
                 write_varlength(out, (size_t)distance(catIterators.at(i)->second.variantTypes.begin(), typeIt));
             }
             
-            write_str(out, v.string);
+            write_str(out, v.str);
         }
     }
     

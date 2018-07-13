@@ -37,7 +37,7 @@ inline void checkAndThrow(PaError error)
     if (error) throw AudioException(error);
 }
 
-AudioManager::AudioManager() : commandQueue(64), audioStopQueue(64)
+AudioManager::AudioManager() : commandQueue(64), audioStopQueue(64), samplesPassed(0)
 {
     checkAndThrow(Pa_Initialize());
     checkAndThrow(Pa_OpenDefaultStream(&currentStream, 0, 2, paInt32, CanonicalSampleRate, paFramesPerBufferUnspecified,
@@ -140,6 +140,22 @@ void AudioManager::stopSound(const AudioReference& ref)
     commandQueue.enqueue(std::move(cmd));
 }
 
+void AudioManager::fadeSound(const AudioReference& ref, FrameDuration dur, float toVol)
+{
+    size_t numSamples = toSeconds<size_t>(CanonicalSampleRate * dur);
+    float fadeOfs = (toVol - audioInstancesHostSide[ref].volume) / numSamples;
+
+    AudioCommand cmd;
+    cmd.type = AudioCommand::Type::Fade;
+    cmd.ref = ref;
+    cmd.fade.fadeCount = numSamples;
+    cmd.fade.fadeOfs = fadeOfs;
+    commandQueue.enqueue(std::move(cmd));
+
+    audioInstancesHostSide[ref].fadeCount = numSamples;
+    audioInstancesHostSide[ref].fadeOfs = fadeOfs;
+}
+
 inline void updateSampleIncr(AudioInstanceLight& instance)
 {
     instance.sampleIncr = 65536ULL * exp2f(instance.logPitch) * instance.sound->sampleRate / CanonicalSampleRate;
@@ -148,8 +164,8 @@ inline void updateSampleIncr(AudioInstanceLight& instance)
 int AudioManager::audioFunction(int32_t* out, size_t numFrames)
 {
     AudioCommand cmd;
-    size_t i = 0;
-    while (commandQueue.try_dequeue(cmd) && i < 4)
+    size_t j = 0;
+    while (commandQueue.try_dequeue(cmd) && j < 4)
     {
         switch (cmd.type)
         {
@@ -174,18 +190,23 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
                         break;
                     case AudioCommand::Balance: audioInstancesThreadSide[cmd.ref].balance = cmd.update.newVal; break;
                 }
+            case AudioCommand::Type::Fade:
+                audioInstancesThreadSide[cmd.ref].fadeCount = cmd.fade.fadeCount;
+                audioInstancesThreadSide[cmd.ref].fadeOfs = cmd.fade.fadeOfs;
+                break;
             case AudioCommand::Type::Stop:
                 audioInstancesThreadSide[cmd.ref].sound = nullptr;
                 audioStopQueue.try_enqueue(cmd.ref);
                 break;
         }
 
-        i++;
+        j++;
     }
 
+    samplesPassed += numFrames;
     std::fill_n(out, 2*numFrames, 0);
 
-    i = 0;
+    j = 0;
     for (auto& instance : audioInstancesThreadSide)
     {
         if (!instance.sound) continue;
@@ -199,15 +220,33 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
             instance.curSample += instance.curSampleFractional >> 16;
             instance.curSampleFractional &= 65535ULL;
             if (instance.curSample >= instance.sound->data.size()) break;
+
+            if (instance.fadeCount > 0)
+            {
+                instance.volume += instance.fadeOfs;
+                instance.fadeCount--;
+
+                if (instance.fadeCount == 0 && instance.volume <= 0)
+                {
+                    instance.sound = nullptr;
+                    audioStopQueue.try_enqueue(j);
+                    break;
+                }
+            }
         }
 
         if (instance.curSample >= instance.sound->data.size())
         {
-            instance.sound = nullptr;
-            audioStopQueue.try_enqueue(i);
+            if (instance.sound->loopPoint != std::numeric_limits<size_t>::max())
+                instance.curSample -= instance.sound->data.size() - instance.sound->loopPoint;
+            else
+            {
+                instance.sound = nullptr;
+                audioStopQueue.try_enqueue(j);
+            }
         }
 
-        i++;
+        j++;
     }
 
     return paContinue;
@@ -216,6 +255,20 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
 void AudioManager::update()
 {
     AudioReference audioToStop;
+
+    for (auto& instance : audioInstancesHostSide)
+    {
+        if (instance.fadeCount > 0)
+        {
+            size_t fadeMax = std::min<size_t>(instance.fadeCount, samplesPassed);
+
+            instance.volume += fadeMax * instance.fadeOfs;
+            instance.fadeCount -= fadeMax;
+        }
+    }
+
+    samplesPassed = 0;
+
     while (audioStopQueue.try_dequeue(audioToStop))
     {
         audioInstancesHostSide[audioToStop].sound = nullptr;

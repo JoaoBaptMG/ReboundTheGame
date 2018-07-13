@@ -124,8 +124,8 @@ namespace Colors
     static const sf::Color CadmiumOrange(237, 135, 45);
     static const sf::Color CadmiumRed(227, 0, 34);
     static const sf::Color CadmiumYellow(255, 246, 0);
-    static const sf::Color CaféAuLait(166, 123, 91);
-    static const sf::Color CaféNoir(75, 54, 33);
+    static const sf::Color CafeAuLait(166, 123, 91);
+    static const sf::Color CafeNoir(75, 54, 33);
     static const sf::Color CalPolyPomonaGreen(30, 77, 43);
     static const sf::Color CambridgeBlue(163, 193, 173);
     static const sf::Color Camel(193, 154, 107);
@@ -330,7 +330,7 @@ namespace Colors
     static const sf::Color GreenYellow(173, 255, 47);
     static const sf::Color Grullo(169, 154, 134);
     static const sf::Color GuppieGreen(0, 255, 127);
-    static const sf::Color HalayàÚbe(102, 56, 84);
+    static const sf::Color HalayaUbe(102, 56, 84);
     static const sf::Color HanBlue(68, 108, 207);
     static const sf::Color HanPurple(82, 24, 250);
     static const sf::Color HansaYellow(233, 214, 107);

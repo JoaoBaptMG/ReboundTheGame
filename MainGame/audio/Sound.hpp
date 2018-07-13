@@ -29,5 +29,5 @@
 struct Sound
 {
     std::vector<float> data;
-    size_t sampleRate;
+    size_t sampleRate, loopPoint;
 };

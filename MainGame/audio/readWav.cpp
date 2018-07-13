@@ -24,6 +24,7 @@
 #include "readWav.hpp"
 
 #include <streamReaders.hpp>
+#include <limits>
 #include "Sound.hpp"
 
 util::generic_shared_ptr loadWaveFile(std::unique_ptr<sf::InputStream>& stream)
@@ -45,6 +46,7 @@ util::generic_shared_ptr loadWaveFile(std::unique_ptr<sf::InputStream>& stream)
 
     auto snd = std::make_shared<Sound>();
     snd->sampleRate = sampleRate;
+    snd->loopPoint = std::numeric_limits<size_t>::max();
     snd->data.resize(totalSoundSize * 8 / bitsPerSample);
 
     for (float& val : snd->data)

@@ -31,12 +31,13 @@ using AudioReference = size_t;
 struct AudioInstance
 {
     std::shared_ptr<Sound> sound = nullptr;
-    float volume, logPitch, balance;
+    size_t fadeCount;
+    float volume, fadeOfs, logPitch, balance;
 };
 
 struct AudioInstanceLight
 {
     const Sound* sound = nullptr;
-    size_t curSample = 0, curSampleFractional = 0, sampleIncr = 63356;
-    float volume, logPitch, balance;
+    size_t curSample = 0, curSampleFractional = 0, sampleIncr = 65536, fadeCount = 0;
+    float volume, fadeOfs, logPitch, balance;
 };
