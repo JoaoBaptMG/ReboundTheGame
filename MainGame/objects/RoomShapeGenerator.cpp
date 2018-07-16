@@ -26,6 +26,7 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <chronoUtils.hpp>
 
 #include <cppmunk/Space.h>
 #include <cppmunk/Body.h>
@@ -222,7 +223,30 @@ void convertShapes(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_
         attributes[i] = segment.isSemiTerrain ? TileSet::getSemiTerrainAttribute(segment.terrain) :
             tileSet.terrains[segment.terrain].terrainAttribute;
             
-        auto shape = std::make_shared<cp::SegmentShape>(body, endPoint1, endPoint2, cornerRadius);
+        std::shared_ptr<cp::Shape> shape;
+        if (cornerRadius > DefaultTileSize/4)
+            shape = std::make_shared<cp::SegmentShape>(body, endPoint1, endPoint2, cornerRadius);
+        else
+        {
+            std::vector<cpVect> points{endPoint1, endPoint2, endPoint2, endPoint1};
+
+            if (segment.isOtherEnd)
+            {
+                points[2].*pj -= DefaultTileSize/2;
+                points[3].*pj -= DefaultTileSize/2;
+            }
+            else
+            {
+                points[2].*pj += DefaultTileSize/2;
+                points[3].*pj += DefaultTileSize/2;
+            }
+
+            if (Vertical != segment.isOtherEnd)
+                std::swap(points[1], points[3]);
+            
+            shape = std::make_shared<cp::PolyShape>(body, points, cornerRadius);
+        }
+
         shape->setUserData(attributes+i);
         shapes.push_back(shape);
         i++;
@@ -251,7 +275,8 @@ inline size_t collectSingleObjects(std::vector<std::pair<size_t,size_t>>& single
 
 inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes, std::shared_ptr<cp::Body> body,
     const TileSet& tileSet, const util::grid<uint8_t>& layer,
-    const std::vector<std::pair<size_t,size_t>>& singleObjectLocations, TileSet::Attribute* attributes)
+    const std::vector<std::pair<size_t,size_t>>& singleObjectLocations, TileSet::Attribute* attributes,
+    std::unordered_map<void*,CrumblingData>& crumblingTiles)
 {
     size_t i = 0;
     for (const auto& p : singleObjectLocations)
@@ -273,12 +298,11 @@ inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes
                     cpFloat width = DefaultTileSize - shp.radius;
                     cpFloat height = DefaultTileSize - shp.radius;
                     shape = std::make_shared<cp::PolyShape>(body, std::vector<cpVect>
-                        { cpVect{dp.x-width/2, dp.y-height/2}, cpVect{dp.x+width/2, dp.y-height/2},
-                          cpVect{dp.x+width/2, dp.y+height/2}, cpVect{dp.x-width/2, dp.y+height/2} }, shp.radius);
+                        { cpVect{dp.x, dp.y}, cpVect{dp.x+width, dp.y},
+                          cpVect{dp.x+width, dp.y+height}, cpVect{dp.x, dp.y+height} }, shp.radius);
                 } break;
                 case TileSet::SingleObject::ShapeType::Circle:
-                    shape = std::make_shared<cp::CircleShape>(body, shp.radius, dp);
-                break;
+                    shape = std::make_shared<cp::CircleShape>(body, shp.radius, dp); break;
                 case TileSet::SingleObject::ShapeType::Segment:
                 {
                     cpVect pt1 = { dp.x+shp.points[0].x, dp.y+shp.points[0].y };
@@ -297,6 +321,17 @@ inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes
             attributes[i] = tileSet.singleObjects[identity.id].objectAttribute;
             shape->setUserData(attributes+i);
             shapes.push_back(shape);
+
+            if (attributes[i] == TileSet::Attribute::Crumbling)
+            {
+                using std::chrono::duration_cast;
+                auto waitTime = FrameDuration((size_t)(tileSet.singleObjects[identity.id].waitTime * 60));
+                auto crumbleTime = FrameDuration((size_t)(tileSet.singleObjects[identity.id].crumbleTime * 60));
+                auto crumblePieceSize = tileSet.singleObjects[identity.id].crumblePieceSize;
+                crumblingTiles.emplace(attributes+i, CrumblingData{ x, y, shape, waitTime, crumbleTime,
+                    crumblePieceSize, FrameTime(), false });
+            }
+
             i++;
         }
     }
@@ -304,7 +339,7 @@ inline void convertSingleObjects(std::vector<std::shared_ptr<cp::Shape>> &shapes
 
 std::vector<std::shared_ptr<cp::Shape>>
     generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body,
-    ShapeGeneratorDataOpaque& shapeGeneratorData)
+    ShapeGeneratorDataOpaque& shapeGeneratorData, std::unordered_map<void*,CrumblingData>& crumblingTiles)
 {
     const auto& layer = data.mainLayer;
 
@@ -322,7 +357,7 @@ std::vector<std::shared_ptr<cp::Shape>>
     convertShapes<false>(shapes, body, tileSet, horizontalSegments, attrs);
     convertShapes<true>(shapes, body, tileSet, verticalSegments, attrs + horizontalSegments.size());
     convertSingleObjects(shapes, body, tileSet, layer, singleObjectLocations,
-        attrs + (horizontalSegments.size() + verticalSegments.size()));
+        attrs + (horizontalSegments.size() + verticalSegments.size()), crumblingTiles);
 
     shapeGeneratorData = ShapeGeneratorDataOpaque(static_cast<void*>(attrs),
         [](void* ptr) { delete[] static_cast<TileSet::Attribute*>(ptr); });

@@ -28,6 +28,9 @@
 
 struct Sound
 {
+    bool stereo;
     std::vector<float> data;
     size_t sampleRate, loopPoint;
+
+    size_t size() const { return stereo ? data.size()/2 : data.size(); }
 };

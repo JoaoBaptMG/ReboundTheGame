@@ -60,7 +60,9 @@ public:
     void setTileData(util::grid<uint8_t>&& data) { tileData = std::move(data); vertexSize = 0; }
     
     auto getTexture() { return texture; }
-    const auto& getTileData() { return tileData; }
+    const auto& getTileData() const { return tileData; }
+
+    sf::FloatRect getTextureRectForTile(size_t tile) const;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

@@ -27,6 +27,7 @@
 #include "resources/ResourceManager.hpp"
 #include "objects/GameObject.hpp"
 #include "gameplay/MapGenerator.hpp"
+#include "particles/TextureExplosion.hpp"
 
 #include <assert.hpp>
 
@@ -39,7 +40,7 @@
 
 std::vector<std::shared_ptr<cp::Shape>>
     generateShapesForTilemap(const RoomData& data, const TileSet& tileSet, std::shared_ptr<cp::Body> body,
-    ShapeGeneratorDataOpaque& shaderGeneratorData);
+    ShapeGeneratorDataOpaque& shaderGeneratorData, std::unordered_map<void*,CrumblingData>& crumblingTiles);
 
 Room::Room(GameScene& scene) : gameScene(scene), shapeGeneratorData(nullptr, [](void*){}),
     transitionData(nullptr, [](void*){})
@@ -67,6 +68,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
         transitionShapes = std::move(roomShapes);
         transitionData = std::move(shapeGeneratorData);
         transitionBody = std::move(roomBody);
+        transitionCrumblingTiles = std::move(crumblingTiles);
         
         transitionBody->setPosition(transitionBody->getPosition() + displacement);
         gameScene.getGameSpace().reindexShapesForBody(transitionBody);
@@ -79,7 +81,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
 
     clearShapes();
     roomBody = std::make_unique<cp::Body>(cp::Body::Static);
-    roomShapes = generateShapesForTilemap(data, *tileSet, roomBody, shapeGeneratorData);
+    roomShapes = generateShapesForTilemap(data, *tileSet, roomBody, shapeGeneratorData, crumblingTiles);
     for (auto& shape : roomShapes)
     {
         shape->setElasticity(0.6);
@@ -89,7 +91,80 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
     gameScene.getGameSpace().add(roomBody);
 }
 
-void Room::update(FrameTime curTime) {}
+void setCrumbleOffset(std::unique_ptr<TextureExplosion>& explosion, FrameDuration crumbleTime)
+{
+    explosion->setOffsetFunction([=](float x, float y)
+    {
+        using std::chrono::duration_cast;
+        float factor = (1-y)/2;
+        return duration_cast<TextureExplosion::Duration>(factor * crumbleTime);
+    });
+}
+
+void Room::update(FrameTime curTime)
+{
+    auto checkCrumbling = [&,curTime,this](bool transition)
+    {
+        auto& roomBody = transition ? transitionBody : this->roomBody;
+        auto& tilemap = transition ? transitionalTilemap : mainLayerTilemap;
+        auto& crumblingTiles = transition ? transitionCrumblingTiles : this->crumblingTiles;
+
+        if (!roomBody) return;
+
+        roomBody->eachArbiter([&,curTime,this] (cp::Arbiter arbiter)
+        {
+            if (!cpShapeGetSensor(arbiter.getShapeA()) && !cpShapeGetSensor(arbiter.getShapeB()))
+            {
+                auto shp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                    arbiter.getShapeA() : arbiter.getShapeB();
+                auto otherShp = cpShapeGetCollisionType(arbiter.getShapeA()) == CollisionType ?
+                    arbiter.getShapeB() : arbiter.getShapeA();
+                if (cpShapeGetCollisionType(otherShp) == CollisionType) return;
+
+                void* attribute = cpShapeGetUserData(shp);
+                if (*(TileSet::Attribute*)attribute == TileSet::Attribute::Crumbling)
+                    if (isNull(crumblingTiles[attribute].initTime))
+                        crumblingTiles[attribute].initTime = curTime;
+            }
+        });
+
+        for (auto it = crumblingTiles.begin(); it != crumblingTiles.end();)
+        {
+            auto& data = it->second;
+            if (isNull(data.initTime)) { ++it; continue; }
+
+            if (!data.crumbling && curTime - data.initTime > data.waitTime)
+            {
+                auto grid = tilemap.getTileData();
+                auto texRect = tilemap.getTextureRectForTile(grid(data.x, data.y));
+                grid(data.x, data.y) = -1;
+                tilemap.setTileData(grid);
+                data.crumbling = true;
+
+                auto grav = gameScene.getGameSpace().getGravity();
+                auto displayGravity = sf::Vector2f((float)grav.x, (float)grav.y);
+                
+                auto explosion = std::make_unique<TextureExplosion>(gameScene, tilemap.getTexture(), texRect,
+                    90_frames, sf::FloatRect(-64, 8, 128, 32), displayGravity, TextureExplosion::Density,
+                    data.crumblePieceSize, data.crumblePieceSize, 25);
+                explosion->setPosition((float)DefaultTileSize * sf::Vector2f(data.x + 0.5, data.y + 0.5));
+                setCrumbleOffset(explosion, data.crumbleTime);
+                gameScene.addObject(std::move(explosion));
+            }
+            
+            if (curTime - data.initTime > data.waitTime + data.crumbleTime)
+            {
+                gameScene.getGameSpace().remove(data.shape);
+                gameScene.getGameSpace().reindexShapesForBody(roomBody);
+                it = crumblingTiles.erase(it);
+            }
+            else ++it;
+        }
+    };
+
+    checkCrumbling(false);
+    checkCrumbling(true);
+}
 
 void Room::render(Renderer& renderer, bool transition)
 {
@@ -110,7 +185,10 @@ void Room::clearShapes()
     roomBody = nullptr;
     
     for (auto shp : roomShapes)
-        gameScene.getGameSpace().remove(shp);
+    {
+        if (gameScene.getGameSpace().contains(shp))
+            gameScene.getGameSpace().remove(shp);
+    }
 
     roomShapes.clear();
 }
@@ -121,8 +199,12 @@ void Room::clearTransition()
     transitionBody = nullptr;
     
     for (auto shp : transitionShapes)
-        gameScene.getGameSpace().remove(shp);
+    {
+        if (gameScene.getGameSpace().contains(shp))
+            gameScene.getGameSpace().remove(shp);
+    }
 
     transitionShapes.clear();
     transitionData = ShapeGeneratorDataOpaque(nullptr, [](void*){});
+    transitionCrumblingTiles.clear();
 }

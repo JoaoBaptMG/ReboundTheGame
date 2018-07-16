@@ -119,6 +119,10 @@ namespace cp
         /// Remove a constraint from the simulation.
         void remove(std::shared_ptr<Constraint>);
 
+        bool contains(std::shared_ptr<Shape>);
+        bool contains(std::shared_ptr<Body>);
+        bool contains(std::shared_ptr<Constraint>);
+
         /// Query the space at a point and call @c for each shape found which is on a reasonable distance
         void pointQuery(cpVect point, cpFloat maxDistance, cpShapeFilter, PointQueryFunc) const;
         /// Query the space at a point and return the nearest shape found. Returns NULL if no shapes were found.

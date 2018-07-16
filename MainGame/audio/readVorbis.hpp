@@ -23,40 +23,7 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <string>
-#include <memory>
-#include <thread>
-#include <shared_mutex>
-#include <condition_variable>
+#include <SFML/System.hpp>
 #include <generic_ptrs.hpp>
-#include <non_copyable_movable.hpp>
-#include "ResourceLocator.hpp"
-#include "readerwriterqueue/readerwriterqueue.h"
 
-class ResourceManager : util::non_copyable_movable
-{
-    moodycamel::BlockingReaderWriterQueue<std::string,32> loadCommandQueue;
-    std::mutex cacheMutex;
-    std::condition_variable newResourceLoaded;
-    std::thread loadingThread;
-
-    std::unordered_map<std::string,util::generic_shared_ptr> cache;
-    std::unique_ptr<ResourceLocator> locator;
-
-public:
-    ResourceManager();
-    ~ResourceManager();
-
-    void loadLoop();
-    void requestLoadAsync(std::string id);
-    util::generic_shared_ptr load(std::string id);
-
-    template <typename T>
-    std::shared_ptr<T> load(std::string id) { return load(id).as<T>(); }
-
-    void collectUnusedResources();
-
-    ResourceLocator* getResourceLocator() { return locator.get(); }
-    void setResourceLocator(ResourceLocator* loc) { locator.reset(loc); }
-};
+util::generic_shared_ptr loadVorbisFile(std::unique_ptr<sf::InputStream>& stream);

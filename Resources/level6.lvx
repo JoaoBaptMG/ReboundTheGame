@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <level number="6" song="z3.sandtriangle.ogg" map-color="#008000">
-    <room id="0" name="room6-x" starting="true"/>
+    <room id="0" name="room6-00" starting="true"/>
+    <room id="1" name="room6-01"/>
+    <room id="2" name="room6-02"/>
 </level>

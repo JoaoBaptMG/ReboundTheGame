@@ -32,7 +32,7 @@
 #include "varlength.hpp"
 
 using namespace std;
-using namespace tinyxml2;
+using namespace tinyxml2; 
 
 int lvxToLvl(string inFile, string outFile)
 {

@@ -37,6 +37,16 @@ void Tilemap::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 }
 
+sf::FloatRect Tilemap::getTextureRectForTile(size_t tile) const
+{
+    if (tile == (uint8_t)-1) return sf::FloatRect{0, 0, 0, 0};
+    size_t stride = texture->getSize().x / tileSize;
+    size_t texS = tile % stride;
+    size_t texT = tile / stride;
+
+    return sf::FloatRect{(float)tileSize * texS, (float)tileSize * texT, (float)tileSize, (float)tileSize};
+}
+
 void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
 {
     auto invTransform = transform.getInverse();
@@ -78,7 +88,8 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
             {
                 auto cur = pt + sf::Vector2i(i, j);
 
-                if (cur.x < 0 || cur.y < 0 || cur.x >= (intmax_t)tileData.width() || cur.y >= (intmax_t)tileData.height())
+                if (cur.x < 0 || cur.y < 0 || cur.x >= (intmax_t)tileData.width()
+                    || cur.y >= (intmax_t)tileData.height() || tileData(cur.x, cur.y) == (uint8_t)-1)
                 {
                     for (size_t k = 0; k < 6; k++)
                     {

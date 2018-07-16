@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <level number="1" song="z3.breakout.ogg" map-color="#ff0000">
-    <room id="0" name="room1-x" starting="true"/>
+    <room id="0" name="room1-00" starting="true"/>
+    <room id="1" name="room1-01"/>
+    <room id="2" name="room1-02"/>
+    <room id="3" name="room1-03"/>
+    <room id="4" name="room1-04"/>
+    <room id="5" name="room1-05"/>
+    <room id="6" name="room1-06"/>
+    <room id="7" name="room1-07"/>
+    <room id="8" name="room1-08"/>
+    <room id="9" name="room1-09"/>
+    <room id="10" name="room1-10"/>
+    <room id="11" name="room1-11"/>
+    <room id="12" name="room1-12"/>
 </level>

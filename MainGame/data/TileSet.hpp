@@ -89,6 +89,8 @@ struct TileSet final
         };
 
         Attribute objectAttribute;
+        float waitTime, crumbleTime;
+        size_t crumblePieceSize;
         std::vector<Shape> shapes;
     };
 

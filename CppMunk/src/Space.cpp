@@ -51,6 +51,21 @@ namespace cp
         cpSpaceAddConstraint(_space, *constraint);
         _constraints.emplace(*constraint, constraint);
     }
+
+    bool Space::contains(std::shared_ptr<Shape> shape)
+    {
+        return cpSpaceContainsShape(_space, *shape);
+    }
+
+    bool Space::contains(std::shared_ptr<Body> body)
+    {
+        return cpSpaceContainsBody(_space, *body);
+    }
+
+    bool Space::contains(std::shared_ptr<Constraint> constraint)
+    {
+        return cpSpaceContainsConstraint(_space, *constraint);
+    }
     
     void Space::remove(std::shared_ptr<Shape> shape)
     {

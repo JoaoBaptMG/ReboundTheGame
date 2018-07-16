@@ -29,7 +29,9 @@
 #include "objects/Player.hpp"
 
 #include <cppmunk/Shape.h>
+#include <cppmunk/Arbiter.h>
 #include <chronoUtils.hpp>
+#include <unordered_map>
 
 class GameScene;
 class ResourceManager;
@@ -38,12 +40,23 @@ class GameObject;
 
 using ShapeGeneratorDataOpaque = std::unique_ptr<void, void(*)(void*)>;
 
+struct CrumblingData
+{
+    size_t x, y;
+    std::shared_ptr<cp::Shape> shape;
+    FrameDuration waitTime, crumbleTime;
+    size_t crumblePieceSize;
+    FrameTime initTime;
+    bool crumbling;
+};
+
 class Room final : util::non_copyable
 {
     GameScene& gameScene;
     
     std::vector<std::shared_ptr<cp::Shape>> roomShapes, transitionShapes;
     ShapeGeneratorDataOpaque shapeGeneratorData, transitionData;
+    std::unordered_map<void*,CrumblingData> crumblingTiles, transitionCrumblingTiles;
     std::shared_ptr<cp::Body> roomBody, transitionBody;
 
     std::shared_ptr<TileSet> tileSet;

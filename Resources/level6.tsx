@@ -18,13 +18,13 @@
     <tile id="10" type="terrain-lower-left" name="basic"/>
     <tile id="11" type="terrain-down" name="basic"/>
     <tile id="12" type="terrain-lower-right" name="basic"/>
-    <tile id="13" type="none"/>
-    <tile id="14" type="none"/>
+    <tile id="13" type="single-object" name="crumble-full"/>
+    <tile id="14" type="single-object" name="crumble-left"/>
     <tile id="15" type="single-object" name="left-spike"/>
     <tile id="16" type="single-object" name="right-spike"/>
     <tile id="17" type="single-object" name="up-spike"/>
     <tile id="18" type="single-object" name="down-spike"/>
-    <tile id="19" type="none"/>
+    <tile id="19" type="single-object" name="crumble-right"/>
     <tile id="20" type="semi-terrain2" name="left-solid"/>
     <tile id="21" type="semi-terrain2" name="right-solid"/>
     <tile id="22" type="semi-terrain2" name="up-solid"/>

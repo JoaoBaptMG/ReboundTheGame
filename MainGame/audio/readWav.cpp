@@ -45,6 +45,7 @@ util::generic_shared_ptr loadWaveFile(std::unique_ptr<sf::InputStream>& stream)
     if (!checkMagic(*stream, "data") || !readFromStream(*stream, totalSoundSize)) return generic_shared_ptr{};
 
     auto snd = std::make_shared<Sound>();
+    snd->stereo = false;
     snd->sampleRate = sampleRate;
     snd->loopPoint = std::numeric_limits<size_t>::max();
     snd->data.resize(totalSoundSize * 8 / bitsPerSample);

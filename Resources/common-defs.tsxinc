@@ -32,4 +32,24 @@
             <point x="32" y="0"/>
         </shape>
     </single-object>
+
+    <single-object name="crumble-top" attribute="crumbling">
+        <crumbling wait-time="0.1" crumble-time="0.3"/>
+        <shape type="box" width="32" height="16"/>
+    </single-object>
+
+    <single-object name="crumble-left" attribute="crumbling">
+        <crumbling wait-time="0.1" crumble-time="0.6"/>
+        <shape type="box" width="20" height="32"/>
+    </single-object>
+
+    <single-object name="crumble-right" attribute="crumbling">
+        <crumbling wait-time="0.1" crumble-time="0.6"/>
+        <shape type="box" x="12" width="20" height="32"/>
+    </single-object>
+
+    <single-object name="crumble-full" attribute="crumbling">
+        <crumbling wait-time="0.1" crumble-time="0.6"/>
+        <shape type="tile"/>
+    </single-object>
 </tileset>

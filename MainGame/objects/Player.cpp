@@ -105,6 +105,7 @@ Player::Player(GameScene& scene)
 
     grappleSprite.setOpacity(0);
 	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
+    upgradeToAbilityLevel(5);
     if (scene.getSavedGame().getDoubleArmor()) enableDoubleArmor();
     if (scene.getSavedGame().getMoveRegen()) enableMoveRegen();
     maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;

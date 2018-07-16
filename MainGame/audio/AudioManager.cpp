@@ -213,9 +213,17 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
 
         for (size_t i = 0; i < numFrames; i++)
         {
-            out[2*i] += Scale * instance.sound->data[instance.curSample] * instance.volume * (0.5 - instance.balance);
-            out[2*i+1] += Scale * instance.sound->data[instance.curSample] * instance.volume * (0.5 + instance.balance);
-
+            if (instance.sound->stereo)
+            {
+                out[2*i] += Scale * instance.sound->data[2*instance.curSample] * instance.volume * (0.5 - instance.balance);
+                out[2*i+1] += Scale * instance.sound->data[2*instance.curSample+1] * instance.volume * (0.5 + instance.balance);
+            }
+            else
+            {
+                out[2*i] += Scale * instance.sound->data[instance.curSample] * instance.volume * (0.5 - instance.balance);
+                out[2*i+1] += Scale * instance.sound->data[instance.curSample] * instance.volume * (0.5 + instance.balance);
+            }
+ 
             instance.curSampleFractional += instance.sampleIncr;
             instance.curSample += instance.curSampleFractional >> 16;
             instance.curSampleFractional &= 65535ULL;
@@ -235,10 +243,10 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
             }
         }
 
-        if (instance.curSample >= instance.sound->data.size())
+        if (instance.curSample >= instance.sound->size())
         {
             if (instance.sound->loopPoint != std::numeric_limits<size_t>::max())
-                instance.curSample -= instance.sound->data.size() - instance.sound->loopPoint;
+                instance.curSample -= instance.sound->size() - instance.sound->loopPoint;
             else
             {
                 instance.sound = nullptr;

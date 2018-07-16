@@ -156,9 +156,6 @@ void Powerup::onCollect(Player& player)
         std::string msg = lm.getFormattedString(messagePowerup, {{"pname", parm}}, {}, {}) + "\n";
         msg += lm.getFormattedString(pmsg, {}, {}, gameScene.getInputSpecifierMap());
         msgbox.display(script, msg);
-
-        if (abilityLevel < 10)
-            gameScene.requestAdvanceScene("level" + std::to_string(abilityLevel+1) + ".lvl");
     });
 
     remove();

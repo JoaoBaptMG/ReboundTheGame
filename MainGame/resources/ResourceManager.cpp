@@ -26,31 +26,70 @@
 
 using namespace util;
 
-ResourceManager::ResourceManager()
+
+ResourceManager::ResourceManager() : loadCommandQueue(12), loadingThread(&ResourceManager::loadLoop, this)
 {
+    
 }
 
 ResourceManager::~ResourceManager()
 {
+    loadCommandQueue.enqueue("");
+    loadingThread.join();
+}
+
+void ResourceManager::loadLoop()
+{
+    std::string id("---");
+
+    for (;;)
+    {
+        loadCommandQueue.wait_dequeue(id);
+        if (id.empty()) break;
+
+        std::unique_lock<std::mutex> lock(cacheMutex);
+        if (cache.find(id) != cache.end())
+        {
+            newResourceLoaded.notify_one();
+            continue;
+        }
+
+        lock.unlock();
+        auto type = id.substr(id.find_last_of('.') + 1);
+        auto ptr = ResourceLoader::loadFromStream(locator->getResource(id), type);
+        lock.lock();
+
+        cache.emplace(id, ptr);
+        newResourceLoaded.notify_one();
+    }
+}
+
+void ResourceManager::requestLoadAsync(std::string id)
+{
+    loadCommandQueue.enqueue(std::move(id));
 }
 
 generic_shared_ptr ResourceManager::load(std::string id)
 {
-    auto it = cache.find(id);
+    if (id.empty()) return generic_shared_ptr{};
 
+    std::unique_lock<std::mutex> lock(cacheMutex);
+    
+    auto it = cache.find(id);
     if (it == cache.end())
     {
-        auto type = id.substr(id.find_last_of('.') + 1);
-        auto ptr = ResourceLoader::loadFromStream(locator->getResource(id), type);
-        if (!ptr) throw ResourceLoadingError(id);
-        std::tie(it, std::ignore) = cache.emplace(id, ptr);
+        requestLoadAsync(id);
+        while ((it = cache.find(id)) == cache.end())
+            newResourceLoaded.wait(lock);
     }
 
+    if (!it->second) throw ResourceLoadingError(id);
     return it->second;
 }
 
 void ResourceManager::collectUnusedResources()
 {
+    std::unique_lock<std::mutex> lock(cacheMutex);
     for (auto it = cache.begin(); it != cache.end();)
     {
         if (it->second.use_count() == 1)

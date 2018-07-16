@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
+#include <cmath>
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -85,7 +86,8 @@ const unordered_map<string,size_t> ShapeTypes =
     { "tile", 0 },
     { "circle", 1 },
     { "segment", 2 },
-    { "polygon", 3 }
+    { "polygon", 3 },
+    { "box", 4 },
 };
 
 #pragma pack(push, 1)
@@ -98,15 +100,16 @@ struct terrain_params
 
 struct single_object_params
 {
-    uint8_t attribute;
-    
     struct shape_params
     {
         uint8_t type;
         int16_t radius;
         vector<int16_t> points;
     };
-    
+
+    uint8_t attribute;
+    float waitTime, crumbleTime;
+    size_t crumblePieceSize;
     vector<shape_params> shapes;
 };
 
@@ -164,7 +167,7 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
         }
 
         auto attrId = Attributes.find(attribute);
-        if (attrId == Attributes.end() || !(attrId->second == 2 || attrId->second == 1))
+        if (attrId == Attributes.end() || !(attrId->second == 1 || attrId->second == 2))
         {
             cout << "Error: invalid attribute " << attribute << " for terrain " << name;
             cout << " (valid attributes: solid, no-walljump)." << endl;
@@ -218,6 +221,35 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
         auto& obj = singleObjects[name];
         obj.attribute = (uint8_t)attrId->second;
 
+        if (attrId->second == 4)
+        {
+            auto crumbling = object.FirstChildElement("crumbling").ToElement();
+            if (!crumbling || crumbling != object.LastChildElement("crumbling").ToElement())
+            {
+                cout << "Error: single object" << name << " with crumbling attribute ";
+                cout << "must provide a single crumbling subnode." << endl;
+                return false;
+            }
+
+            obj.waitTime = crumbling->FloatAttribute("wait-time");
+            obj.crumbleTime = crumbling->FloatAttribute("crumble-time", NAN);
+
+            if (isnan(obj.crumbleTime))
+            {
+                cout << "Error: single object" << name << " with crumbling attribute ";
+                cout << "must provide a valid crumble-time." << endl;
+                return false;
+            }
+
+            obj.crumblePieceSize = crumbling->IntAttribute("crumble-piece-size", 8);
+        }
+        else if (object.FirstChildElement("crumbling").ToElement())
+        {
+            cout << "Error: single object" << name << " with non-crumbling attribute ";
+            cout << "must not provide a crumbling subnode." << endl;
+            return false;
+        }
+
         for (auto shape = object.FirstChildElement("shape"); shape.ToElement();
             shape = shape.NextSiblingElement("shape"))
         {
@@ -227,7 +259,7 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
             if (!type)
             {
                 cout << "Error: single object " << name << "'s shape must have a type";
-                cout << " (tile, circle, segment, polygon)." << endl;
+                cout << " (tile, circle, segment, polygon, box)." << endl;
                 return false;
             }
 
@@ -235,7 +267,7 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
             if (typeId == ShapeTypes.end())
             {
                 cout << "Error: invalid type " << type << " for single object " << name << "'s shape";
-                cout << " (valid attributes: tile, circle, segment, polygon)." << endl;
+                cout << " (valid attributes: tile, circle, segment, polygon, box)." << endl;
                 return false;
             }
 
@@ -246,13 +278,13 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
             if (radius < 0 || (typeId->second == 1 && radius == 0))
             {
                 cout << "Error: provide a valid radius for single object ";
-                const char* names[] = { "tile", "circle", "segment", "polygon" };
+                const char* names[] = { "tile", "circle", "segment", "polygon", "box" };
                 cout << name << "'s " << names[typeId->second] << " shape." << endl;
                 return false;
             }
             shp.radius = radius;
 
-            if (typeId->second > 1)
+            if (typeId->second == 2 || typeId->second == 3)
             {
                 for (auto point = shape.FirstChildElement("point"); point.ToElement();
                     point = point.NextSiblingElement("point"))
@@ -265,11 +297,45 @@ bool loadTerrains(XMLHandle tset, string inFile, unordered_map<string,terrain_pa
 
                 if (typeId->second == 2 && shp.points.size() != 4)
                 {
-                    cout << "Error: provide exactly two points for segment single object " << name << "'s shape." << endl;
+                    cout << "Error: provide exactly two points for single object " << name << "'s segment shape." << endl;
                     return false;
                 }
                 else if (shp.points.size() == 0)
                     cout << "Warning: single object " << name << "'s polyhgon shape does not have any points." << endl;
+            }
+            else if (typeId->second == 4)
+            {
+                auto width = selem->IntAttribute("width");
+                auto height = selem->IntAttribute("height");
+
+                if (width == 0 || height == 0)
+                {
+                    cout << "Error: provide a valid width and height for single object " << name << "'s box shape." << endl;
+                    return false;
+                }
+
+                int x, y; 
+
+                if (selem->Attribute("cx") && selem->Attribute("x"))
+                {
+                    cout << "Error: do not provide both x and cx attributes for single object " << name << "'s box shape." << endl;
+                    return false;
+                }
+                if (selem->QueryIntAttribute("cx", &x) == XML_SUCCESS) x -= width/2;
+                else x = selem->IntAttribute("x");
+
+                if (selem->Attribute("cy") && selem->Attribute("y"))
+                {
+                    cout << "Error: do not provide both y and cy attributes for single object " << name << "'s box shape." << endl;
+                    return false;
+                }
+                if (selem->QueryIntAttribute("cy", &y) == XML_SUCCESS) y -= height/2;
+                else y = selem->IntAttribute("y");
+
+                shp.points.push_back(x);
+                shp.points.push_back(y);
+                shp.points.push_back(x+width);
+                shp.points.push_back(y+height);
             }
             
             obj.shapes.push_back(shp);
@@ -328,11 +394,19 @@ int tsxToTs(string inFile, string outFile)
         const auto& object = pair.second;
 
         out.write((const char*)&object.attribute, sizeof(uint8_t));
+        if (object.attribute == 4)
+        {
+            out.write((const char*)&object.waitTime, sizeof(float));
+            out.write((const char*)&object.crumbleTime, sizeof(float));
+            write_varlength(out, object.crumblePieceSize);
+        }
         
         write_varlength(out, object.shapes.size());
         for (const auto& shape : object.shapes)
         {
-            out.write((const char*)&shape.type, sizeof(uint8_t));
+            uint8_t type = shape.type;
+            if (type == 4) type = 3;
+            out.write((const char*)&type, sizeof(uint8_t));
             
             switch (shape.type)
             {
@@ -341,6 +415,17 @@ int tsxToTs(string inFile, string outFile)
                 case 3:
                     write_varlength(out, shape.points.size()/2);
                     out.write((const char*)shape.points.data(), shape.points.size()*sizeof(int16_t));
+                    break;
+                case 4:
+                    write_varlength(out, 4);
+                    int16_t pts[8] =
+                    {
+                        shape.points[0], shape.points[1],
+                        shape.points[2], shape.points[1],
+                        shape.points[2], shape.points[3],
+                        shape.points[0], shape.points[3]
+                    };
+                    out.write((const char*)pts, sizeof(pts));
                     break;
             }
 

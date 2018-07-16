@@ -82,7 +82,7 @@ TitleScene::TitleScene(Services& services)
 
         playConfirm(services);
         auto scene = new GameScene(services, SavedGame());
-        scene->loadLevel("level1.lvl");
+        scene->loadLevel("level6.lvl");
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
     

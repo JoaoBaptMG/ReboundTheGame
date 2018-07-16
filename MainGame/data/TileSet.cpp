@@ -57,7 +57,10 @@ bool readFromStream(sf::InputStream& stream, TileSet::SingleObject::Shape& shape
 
 bool readFromStream(sf::InputStream& stream, TileSet::SingleObject& object)
 {
-    if (!readFromStream(stream, object.objectAttribute, object.shapes)) return false;
+    if (!readFromStream(stream, object.objectAttribute)) return false;
+    if (object.objectAttribute == TileSet::Attribute::Crumbling &&
+        !readFromStream(stream, object.waitTime, object.crumbleTime, varLength(object.crumblePieceSize))) return false;
+    if (!readFromStream(stream, object.shapes)) return false;
     return TileSet::isAttributeValid(object.objectAttribute);
 }
 
