@@ -97,12 +97,12 @@ std::string InputSource::getInputName(LocalizationManager& lm)
         case Type::None: return lm.getString("input-source-none");
         case Type::Keyboard: return scanCodeToKeyName(attribute, lm);
         case Type::JoystickButton:
-            return lm.getFormattedString("joystick-button-id", {}, {{"n",attribute+1}}, {});
+            return lm.getFormattedString("joystick-button-id", {}, {{"n",attribute}}, {});
         case Type::JoystickAxis:
         {
             if (attribute >= sf::Joystick::AxisCount)
-                return lm.getFormattedString("joystick-inv-axis-id", {}, {{"n",attribute-sf::Joystick::AxisCount+1}}, {});
-            return lm.getFormattedString("joystick-axis-id", {}, {{"n",attribute+1}}, {});
+                return lm.getFormattedString("joystick-inv-axis-id", {}, {{"n",attribute-sf::Joystick::AxisCount}}, {});
+            return lm.getFormattedString("joystick-axis-id", {}, {{"n",attribute}}, {});
         }
     }
     return "";

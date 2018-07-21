@@ -48,8 +48,8 @@ void clearMapTextures() { staticLevelTextures.clear(); }
 
 constexpr float BlinkPeriod = 2;
 
-const sf::FloatRect MapViewport(-38, -38, 76, 76);
-const sf::FloatRect ExtendedMapViewport(-268, -204, 536, 408);
+const sf::FloatRect MapViewport(-54, -54, 108, 108);
+const sf::FloatRect ExtendedMapViewport(-364, -204, 728, 408);
 
 constexpr uint8_t PresentSpeed = 6;
 

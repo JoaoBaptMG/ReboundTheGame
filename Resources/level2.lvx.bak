@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<level number="2" song="z3.volcano.ogg">
-    <room id="0" name="room2-00" starting="true"/>
-    <room id="1" name="room2-01"/>
-    <room id="2" name="room2-02"/>
-    <room id="3" name="room2-03"/>
-</level>

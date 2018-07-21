@@ -71,6 +71,7 @@ public:
     void setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,
         const std::vector<bool>& visibleMaps);
     void setCollectedFrameSavedGame(const SavedGame& sg);
+    void setCollectedFrameHealthData(size_t curHealth, size_t maxHealth);
     void unpause();
     
     void switchPauseFrame(size_t frame);

@@ -90,8 +90,8 @@ void MapPauseFrame::render(Renderer &renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 64);
-    renderer.pushDrawable(mapFrame, {}, 2800);
-    renderer.pushDrawable(map, {}, 2802);
+    renderer.pushDrawable(mapFrame, {}, 5000);
+    renderer.pushDrawable(map, {}, 5002);
     renderer.popTransform();
 }
 

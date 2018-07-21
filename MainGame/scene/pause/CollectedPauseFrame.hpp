@@ -39,7 +39,8 @@ class CollectedPauseFrame : public PauseFrame
     UIScrollBar scrollBar;
     AxisAction<1,2> travel;
 
-    TextDrawable titles[3];
+    TextDrawable titles[4];
+    TextDrawable healthLabel;
     TextDrawable powerupLabels[12];
     TextDrawable levelLabels[10], totalLabel;
     TextDrawable picketCount[10], totalPicketCount;

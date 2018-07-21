@@ -286,6 +286,7 @@ void GameScene::update(FrameTime curTime)
             auto scene = new PauseScene(services);
             scene->setMapLevelData(levelData, curRoomID, player->getDisplayPosition(), visibleMaps);
             scene->setCollectedFrameSavedGame(savedGame);
+            scene->setCollectedFrameHealthData(player->getHealth(), player->getMaxHealth());
             getSceneManager().pushScene(scene);
         }
         else if (sceneRequested == NextScene::Gameover)

@@ -45,7 +45,7 @@
 using namespace std::literals::chrono_literals;
 
 constexpr float TextSize = 32;
-constexpr float ButtonSize = 576;
+constexpr float ButtonSize = 720;
 constexpr float ButtonBorder = 4;
 constexpr float ButtonSpace = 8;
 constexpr float OffsetSpeed = 4;

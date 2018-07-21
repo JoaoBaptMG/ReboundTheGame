@@ -82,7 +82,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
         button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
-        button->setDepth(3200);
+        button->setDepth(5000);
 
         button->setPressAction([&, lang, curSettings = this->curSettings]
         {
@@ -105,7 +105,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
     backButton.getPressedSprite()->setBlendColor(sf::Color::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.getActiveSprite()->setOpacity(0.5);
-    backButton.setDepth(3200);
+    backButton.setDepth(5000);
 
     backButton.setPressAction([&, curSettings = this->curSettings]
     {
@@ -130,7 +130,7 @@ void LanguageSelectSettingsPanel::render(Renderer &renderer)
     renderer.pushTransform();
     renderer.currentTransform.translate(getCenterPosition());
     renderer.currentTransform.translate(0, -TotalHeight/2 + ButtonHeight/2);
-    renderer.pushDrawable(title, {}, 3200);
+    renderer.pushDrawable(title, {}, 5000);
     renderer.popTransform();
 
     for (auto& btn : languageButtons) btn->render(renderer);

@@ -52,8 +52,8 @@
         either abbreviate it or reduce the font size. -->
         
     <!-- Font size of the "level" label and the level number, one after the other separated by a space.
-        Default: 24 56 -->
-    <string name="ingame-gui-level-config">24 56</string>
+        Default: 32 90 -->
+    <string name="ingame-gui-level-config">32 90</string>
     <!-- Text on the "level" label. Default: "LEVEL" -->
     <string name="ingame-gui-level-label">LEVEL</string>
     <!-- Text on the "level" label. Default: "{#n}".
@@ -99,6 +99,10 @@
     <string name="pause-button-settings">SETTINGS</string>
     
     <!-- The collected items pause frame: the captions of the two titles present there -->
+    <!-- The "Current Health" title -->
+    <string name="pause-collected-current-health">Current Health</string>
+    <!-- The formatter for the health label -->
+    <formatter name="pause-collected-health-label">{#cur}/{#max}</formatter>
     <!-- The "Powerups" title -->
     <string name="pause-collected-powerups">Powerups</string>
     <!-- The "Golden Tokens" title -->
@@ -201,7 +205,7 @@
     <!-- The formatter used for the golden token count. -->
     <formatter name="file-select-golden-token-count">{#n}/30</formatter>
     <!-- The formatter used for the picket count. -->
-    <formatter name="file-select-picket-count">{#n}</formatter>
+    <formatter name="file-select-picket-count">{#n}/1000</formatter>
     <!-- The string for the "Cancel" button -->
     <string name="file-select-cancel">Cancel</string>
     <!-- The formatter for the index of the file in the screen -->
@@ -274,7 +278,7 @@
     <formatter name="msg-powerup-description7">
         You now can switch into Hardball form. This form is much denser than the normal form and will allow you to sink
         underwater and explore previously unexplorable areas.\f While standing on ground, hold {$downbtn} and then hold
-        {$dashbtn} for one second to switch into and out of Hardball. You can also switch while steadily floating on water.
+        {$dashbtn} for one second to switch into and out of Hardball. You can also switch while steadily floating on waer.
     </formatter>
     <formatter name="msg-powerup-description8">
         You can Dash into green colored blocks to break them.

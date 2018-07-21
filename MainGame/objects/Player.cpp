@@ -82,7 +82,7 @@ constexpr auto SpikeInvincibilityTime = 200_frames;
 
 constexpr auto ExplosionDuration = 2 * SpikeRespawnTime;
 
-constexpr size_t BaseHealth = 192;
+constexpr size_t BaseHealth = 160;
 constexpr size_t HealthIncr = 8;
 constexpr size_t SpikeDamage = 50;
 

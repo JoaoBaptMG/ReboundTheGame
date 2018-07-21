@@ -52,7 +52,7 @@ const LangID ButtonIdentifiers[] =
     "pause-button-settings",
 };
 
-constexpr float ButtonWidth = 192;
+constexpr float ButtonWidth = PlayfieldWidth/3;
 constexpr float ButtonHeight = 44;
 constexpr size_t ButtonCaptionSize = 24;
 
@@ -83,7 +83,7 @@ PauseScene::PauseScene(Services& services) : services(services),
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
         button.setPosition(sf::Vector2f(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
-        button.setDepth(2800);
+        button.setDepth(5000);
         
         button.setPressAction([=,&services] { playConfirm(services); switchPauseFrame(k); });
         
@@ -164,6 +164,11 @@ void PauseScene::setCollectedFrameSavedGame(const SavedGame& sg)
     static_cast<CollectedPauseFrame*>(pauseFrames[0].get())->setSavedGame(sg);
 }
 
+void PauseScene::setCollectedFrameHealthData(size_t curHealth, size_t maxHealth)
+{
+    static_cast<CollectedPauseFrame*>(pauseFrames[0].get())->setHealthData(curHealth, maxHealth);
+}
+
 void PauseScene::unpause()
 {
     using namespace std::chrono;
@@ -184,7 +189,7 @@ void PauseScene::render(Renderer &renderer)
         
     renderer.pushTransform();
     renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 2);
-    renderer.pushDrawable(backgroundSprite, {}, 2500);
+    renderer.pushDrawable(backgroundSprite, {}, 4800);
     renderer.popTransform();
     
     for (auto& button : frameButtons)

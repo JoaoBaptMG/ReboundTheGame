@@ -154,7 +154,7 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
         button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
-        button->setDepth(3200);
+        button->setDepth(5000);
     }
 
     fullscreenSwitch.setSwitchAction([&] (bool val)
@@ -211,7 +211,7 @@ void RootSettingsPanel::render(Renderer& renderer)
     int k = 0;
     for (auto& title : titles)
     {
-        renderer.pushDrawable(title, {}, 3200);
+        renderer.pushDrawable(title, {}, 5000);
         renderer.currentTransform.translate(0, (4-(k++)) * (ButtonHeight + ButtonSpace));
     }
     renderer.popTransform();

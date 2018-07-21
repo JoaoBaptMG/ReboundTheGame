@@ -34,7 +34,7 @@
 #include "data/LevelData.hpp"
 
 constexpr float TextSize = 32;
-constexpr float ButtonSize = 576;
+constexpr float ButtonSize = 720;
 constexpr float ButtonBorder = 4;
 constexpr float ButtonSpace = 8;
 
@@ -76,11 +76,13 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     size_t k = 0;
     for (auto& sprite : powerupSprites)
     {
+        bool is = k == 10 ? sg.getDoubleArmor() : k == 11 ? sg.getMoveRegen() : sg.getAbilityLevel() > k;
         sprite.setTexture(services.resourceManager.load<sf::Texture>("powerup" + std::to_string(k+1) + ".png"));
-        bool is = sg.getAbilityLevel() > k;
         sprite.setBlendColor(sf::Color(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
         k++;
     }
+
+    showSecretPowerups = sg.getDoubleArmor() || sg.getMoveRegen();
 
     auto& lm = services.localizationManager;
     auto indexStr = lm.getFormattedString("file-select-index", {}, { { "i", index+1 } }, {});
@@ -144,11 +146,16 @@ void UIFileSelectButton::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform.translate(rtl ? ButtonSize/2 - ButtonBorder - 56 :
         -ButtonSize/2 + ButtonBorder + ButtonSpace, 4);
-        
+
+    float powerupSpacing = showSecretPowerups ? 59 : 72;
+    size_t k = 0;
     for (auto& sprite : powerupSprites)
     {
         renderer.pushDrawable(sprite, {}, getDepth()+4);
-        renderer.currentTransform.translate(rtl ? -56 : 56, 0);
+        renderer.currentTransform.translate(rtl ? -powerupSpacing : powerupSpacing, 0);
+
+        k++;
+        if (k == 10 && !showSecretPowerups) break;
     }
     
     renderer.popTransform();

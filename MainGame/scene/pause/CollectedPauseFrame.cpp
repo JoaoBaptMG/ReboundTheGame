@@ -41,6 +41,7 @@ const LangID Titles[] =
     "pause-collected-powerups",
     "pause-collected-golden-tokens",
     "pause-collected-pickets",
+    "pause-collected-current-health",
 };
 
 constexpr auto TitleSize = 32;
@@ -59,7 +60,7 @@ static ScissorRectPush scissorRectPush{};
 CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManager(services.localizationManager),
     showSecretPowerups(false), scrollBar(services, 600, 512)
 {
-    scrollBar.setDepth(3106);
+    scrollBar.setDepth(5100);
     scrollBar.setPosition(sf::Vector2f((ScreenWidth+PlayfieldWidth)/2 - 8, 64));
 
     size_t i = 0;
@@ -77,6 +78,11 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         title.buildGeometry();
         i++;
     }
+
+    if (services.localizationManager.isRTL())
+        titles[3].setHorizontalAnchor(TextDrawable::HorAnchor::Right);
+    else titles[3].setHorizontalAnchor(TextDrawable::HorAnchor::Left);
+    titles[3].buildGeometry();
 
     for (auto& label : powerupLabels)
     {
@@ -126,7 +132,7 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
     }
 
     i = 0;
-    for (auto plabel : { &totalLabel, &totalPicketCount })
+    for (auto plabel : { &totalLabel, &totalPicketCount, &healthLabel })
     {
         auto& label = *plabel;
         label.setFontHandler(loadDefaultFont(services));
@@ -136,7 +142,7 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setDefaultColor(sf::Color::White);
         label.setOutlineThickness(1);
         label.setDefaultOutlineColor(sf::Color::Black);
-        if (services.localizationManager.isRTL() ^ (i == 1)) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
+        if (services.localizationManager.isRTL() ^ (i != 0)) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(label, services.localizationManager);
@@ -232,12 +238,15 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
 
 void CollectedPauseFrame::setHealthData(size_t curHealth, size_t maxHealth)
 {
-
+    auto str = localizationManager.getFormattedString("pause-collected-health-label", {},
+        {{"cur",curHealth},{"max",maxHealth}}, {});
+    healthLabel.setString(str);
+    healthLabel.buildGeometry();
 }
 
 size_t CollectedPauseFrame::getTotalHeight() const
 {
-    return 864 + (showSecretPowerups ? 56 : 0);
+    return 904 + (showSecretPowerups ? 56 : 0);
 }
 
 void CollectedPauseFrame::update(FrameTime curTime)
@@ -253,27 +262,34 @@ void CollectedPauseFrame::update(FrameTime curTime)
 void CollectedPauseFrame::render(Renderer &renderer)
 {
     constexpr float StandardSpacing = ContentWidth/2 + ColumnSpacing;
+    constexpr float HealthSpacing = ContentWidth*2/3;
 
     bool rtl = localizationManager.isRTL();
     auto rtlInvert = [rtl](float x) { return rtl ? -x : x; };
 
-    auto rect = sf::FloatRect((ScreenWidth - PlayfieldWidth)/2, 0, 576, 576);
+    auto rect = sf::FloatRect((ScreenWidth - PlayfieldWidth)/2, 0, PlayfieldWidth, PlayfieldHeight);
     scissorRectPush = ScissorRectPush(renderer.currentTransform.transformRect(rect));
-    renderer.pushDrawable(scissorRectPush, {}, 3100);
+    renderer.pushDrawable(scissorRectPush, {}, 5600);
 
     renderer.pushTransform();
 
-    renderer.currentTransform.translate(ScreenWidth/2, -scrollBar.getCurrentOffset() + 28);
-    renderer.pushDrawable(titles[0], {}, 3101);
+    renderer.currentTransform.translate(ScreenWidth/2 + rtlInvert(-HealthSpacing/2),
+        -scrollBar.getCurrentOffset() + 28);
+    renderer.pushDrawable(titles[3], {}, 5601);
+    renderer.currentTransform.translate(rtlInvert(HealthSpacing), 0);
+    renderer.pushDrawable(healthLabel, {}, 5601);
+
+    renderer.currentTransform.translate(rtlInvert(-HealthSpacing/2), 40);
+    renderer.pushDrawable(titles[0], {}, 5601);
 
     renderer.currentTransform.translate(rtlInvert(-ContentWidth/2 + 24), 48 + IconSpacing);
 
     size_t i = 0;
     for (auto& sprite : powerupSprites)
     {
-        renderer.pushDrawable(sprite, {}, 3102);
+        renderer.pushDrawable(sprite, {}, 5602);
         renderer.currentTransform.translate(rtlInvert(24 + IconSpacing), 0);
-        renderer.pushDrawable(powerupLabels[i], {}, 3103);
+        renderer.pushDrawable(powerupLabels[i], {}, 5603);
         renderer.currentTransform.translate(rtlInvert(-24 - IconSpacing), 0);
         i++;
         if (i == 5)
@@ -284,21 +300,22 @@ void CollectedPauseFrame::render(Renderer &renderer)
             renderer.currentTransform.translate(rtl ^ (i == 11) ? StandardSpacing : -StandardSpacing, 0);
     }
 
+    constexpr float TokenWidth = 480 + 27 * IconSpacing;
     renderer.currentTransform.translate(rtlInvert(ContentWidth/2 - 24 - StandardSpacing), -4);
-    renderer.pushDrawable(titles[1], {}, 3101);
-    renderer.currentTransform.translate(rtlInvert(-ContentWidth/2 + 24), 48 + IconSpacing);
-    
+    renderer.pushDrawable(titles[1], {}, 5601);
+    renderer.currentTransform.translate(rtlInvert(-TokenWidth/2 + 24), 48 + IconSpacing);
+
     i = 0;
     for (auto& sprite : goldenTokenSprites)
     {
-        renderer.pushDrawable(sprite, {}, 3102);
+        renderer.pushDrawable(sprite, {}, 5602);
         i++;
-        if (i % 3 == 0 && i < 30) renderer.currentTransform.translate(rtlInvert(48 + IconSpacing), -112);
-        else renderer.currentTransform.translate(0, 56);
+        if (i % 3 == 0 && i < 30) renderer.currentTransform.translate(rtlInvert(48 + 3 * IconSpacing), -112);
+        else renderer.currentTransform.translate(0, 48 + IconSpacing);
     }
 
-    renderer.currentTransform.translate(rtlInvert(-ContentWidth/2 + 24), -4);
-    renderer.pushDrawable(titles[2], {}, 3101);
+    renderer.currentTransform.translate(rtlInvert(-TokenWidth/2 + 24), -4);
+    renderer.pushDrawable(titles[2], {}, 5601);
     renderer.currentTransform.translate(rtlInvert(-ContentWidth/2), 34 + IconSpacing);
 
     auto drawPicket = [=, &renderer](size_t i)
@@ -307,16 +324,16 @@ void CollectedPauseFrame::render(Renderer &renderer)
 
         renderer.pushTransform();
         renderer.currentTransform.rotate(rtl ? -angle : angle);
-        renderer.pushDrawable(picketSprites[i], {}, 3103);
+        renderer.pushDrawable(picketSprites[i], {}, 5603);
         renderer.popTransform();
     };
 
     constexpr float LabelOffset = ContentWidth/2 - 12;
     for (i = 0; i < 10;)
     {
-        renderer.pushDrawable(levelLabels[i], {}, 3102);
+        renderer.pushDrawable(levelLabels[i], {}, 5602);
         renderer.currentTransform.translate(rtlInvert(LabelOffset - 40), 0);
-        renderer.pushDrawable(picketCount[i], {}, 3103);
+        renderer.pushDrawable(picketCount[i], {}, 5603);
         renderer.currentTransform.translate(rtl ? -22 : 22, 0);
         drawPicket(i);
         renderer.currentTransform.translate(rtlInvert(-LabelOffset + 18), 0);
@@ -329,15 +346,15 @@ void CollectedPauseFrame::render(Renderer &renderer)
     renderer.currentTransform.translate(rtlInvert(-StandardSpacing), 0);
 
     renderer.currentTransform.translate(rtl ? StandardSpacing + LabelOffset : 0, 0);
-    renderer.pushDrawable(totalLabel, {}, 3102);
+    renderer.pushDrawable(totalLabel, {}, 5602);
     renderer.currentTransform.translate(rtlInvert(StandardSpacing + LabelOffset - 40), 0);
-    renderer.pushDrawable(totalPicketCount, {}, 3102);
+    renderer.pushDrawable(totalPicketCount, {}, 5602);
     renderer.currentTransform.translate(rtl ? -22 : 22, 0);
     drawPicket(10);
     
     renderer.popTransform();
 
-    renderer.pushDrawable(ScissorRect::pop(), {}, 3104);
+    renderer.pushDrawable(ScissorRect::pop(), {}, 5604);
 
     renderer.currentTransform.translate(0, -64);
     scrollBar.render(renderer);

@@ -34,9 +34,10 @@ struct SavedGame;
 
 class UIFileSelectButton : public UIButton
 {
-    Sprite powerupSprites[10];
+    Sprite powerupSprites[12];
     Sprite goldenTokenSprite;
     Sprite picketSprite;
+    bool showSecretPowerups;
     bool rtl;
     
     TextDrawable fileName, goldenTokenAmount, picketAmount;

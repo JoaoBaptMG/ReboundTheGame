@@ -82,7 +82,7 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
     backButton.getPressedSprite()->setBlendColor(sf::Color::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.getActiveSprite()->setOpacity(0.5);
-    backButton.setDepth(3200);
+    backButton.setDepth(5000);
 
     backButton.setPressAction([&, curSettings = this->curSettings]
     {
@@ -152,7 +152,7 @@ void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, Services& ser
         button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
-        button->setDepth(3200);
+        button->setDepth(5000);
 
         pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
     }
@@ -177,7 +177,7 @@ void InputMappingSettingsPanel::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform.translate(getCenterPosition());
     renderer.currentTransform.translate(0, -TotalHeight/2 + ButtonHeight/2);
-    renderer.pushDrawable(title, {}, 3200);
+    renderer.pushDrawable(title, {}, 5000);
     renderer.popTransform();
 
     for (auto& btn : mappingButtons) btn->render(renderer);

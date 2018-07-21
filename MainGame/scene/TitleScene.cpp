@@ -37,10 +37,10 @@
 
 using namespace std::literals::chrono_literals;
 
-constexpr float ButtonHeight = 40;
-constexpr float ButtonSpace = 10;
-constexpr float SetBottomSpace = 24;
-constexpr size_t ButtonCaptionSize = 32;
+constexpr float ButtonHeight = 48;
+constexpr float ButtonSpace = 12;
+constexpr float SetBottomSpace = 32;
+constexpr size_t ButtonCaptionSize = 42;
 constexpr float ButtonTop = ScreenHeight - SetBottomSpace + ButtonSpace;
 
 const LangID ButtonIdentifiers[] =
@@ -82,7 +82,7 @@ TitleScene::TitleScene(Services& services)
 
         playConfirm(services);
         auto scene = new GameScene(services, SavedGame());
-        scene->loadLevel("level6.lvl");
+        scene->loadLevel("level1.lvl");
         getSceneManager().replaceSceneTransition(scene, 1s);
     });
     

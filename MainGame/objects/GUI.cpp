@@ -84,15 +84,15 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
     currentBoss(nullptr), lastIconName(""), drawDash(false), levelNumber(1), healthBlinkPhase(0)
 {
     playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
-    playerMeter.setPosition(4, 484);
+    playerMeter.setPosition(4, 452);
     
     dashMeter.setColors(sf::Color(162, 0, 255, 255), sf::Color::Yellow, sf::Color(80, 80, 80, 255));
-    dashMeter.setPosition(52, 484);
+    dashMeter.setPosition(52, 452);
     dashMeter.setIcon(scene.getResourceManager().load<sf::Texture>("icon-dash.png"));
     
     bossMeter.setColors(Colors::Orange, sf::Color::Yellow, sf::Color(80, 80, 80, 255));
-    bossMeter.setPosition(8, 484);
-    bossMeter.setHeight(432);
+    bossMeter.setPosition(8, 452);
+    bossMeter.setHeight(400);
     
     for (auto& sprite : bombSprites)
         sprite.setTexture(scene.getResourceManager().load<sf::Texture>("icon-bomb.png"));
@@ -254,7 +254,7 @@ void GUI::render(Renderer& renderer)
     if (drawDash) renderer.pushDrawable(dashMeter, {}, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(52, 484 - dashMeter.getFrameHeight() - 22);
+    renderer.currentTransform.translate(52, 452 - dashMeter.getFrameHeight() - 22);
     
     for (size_t i = 0; i < MaxBombs; i++)
     {
@@ -265,12 +265,12 @@ void GUI::render(Renderer& renderer)
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(46, 516);
+    renderer.currentTransform.translate(60, 487);
     renderer.pushDrawable(levelLabel, {}, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(46, 564);
+    renderer.currentTransform.translate(60, 563);
     renderer.pushDrawable(levelID, {}, 6600);
     renderer.popTransform();
     
@@ -281,7 +281,7 @@ void GUI::render(Renderer& renderer)
     if (currentBoss) renderer.pushDrawable(bossMeter, {}, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(50, 530);
+    renderer.currentTransform.translate(66, 514);
     renderer.pushDrawable(guiMap, {}, 6600);
     renderer.popTransform();
     
