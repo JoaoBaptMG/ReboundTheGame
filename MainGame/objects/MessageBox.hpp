@@ -36,6 +36,10 @@
 #include "language/LangID.hpp"
 #include "Services.hpp"
 
+#ifdef _WIN32
+#undef MessageBox
+#endif
+
 class Renderer;
 
 class MessageBox final

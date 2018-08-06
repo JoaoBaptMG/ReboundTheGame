@@ -99,7 +99,7 @@ class GameScene : public Scene
 
 public:
     GameScene(Services& services, SavedGame sg);
-    virtual ~GameScene() {}
+	virtual ~GameScene();
 
     cp::Space& getGameSpace() { return gameSpace; }
     const cp::Space& getGameSpace() const { return gameSpace; }

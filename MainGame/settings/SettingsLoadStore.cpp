@@ -34,6 +34,20 @@ static Settings defaultSettings()
         {
             {
 #if _WIN32
+				InputSource::keyboardKey(75),
+				InputSource::keyboardKey(76),
+				InputSource::keyboardKey(77),
+
+				InputSource::keyboardKey(71),
+				InputSource::keyboardKey(73),
+				InputSource::keyboardKey(1),
+				InputSource::keyboardKey(76),
+				InputSource::keyboardKey(75),
+
+				InputSource::keyboardKey(17),
+				InputSource::keyboardKey(31),
+				InputSource::keyboardKey(30),
+				InputSource::keyboardKey(32),
 #elif __APPLE__
                 InputSource::keyboardKey(0x56),
                 InputSource::keyboardKey(0x57),

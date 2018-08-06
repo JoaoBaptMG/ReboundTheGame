@@ -26,61 +26,70 @@
 #include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 #include <memory>
-
-using OpaqueWaterPtr = std::unique_ptr<sf::RenderTexture, void(*)(const sf::RenderTexture*)>;
+#include <mutex>
 
 class WaterBody final : public sf::Drawable
 {
-    static sf::Shader& getSimulationShader();
-    static sf::Shader& getDrawingShader();
+	static sf::Shader& getDrawingShader();
 
 #pragma pack(push, 1)
-    struct StaticWaveProperties
-    {
-        float ofs, amp, k, omega;
-        operator sf::Glsl::Vec4()
-        {
-            return sf::Glsl::Vec4{ofs, amp, k, omega};
-        }
-    };
+	struct StaticWaveProperties
+	{
+		float ofs, amp, k, omega;
+		operator sf::Glsl::Vec4()
+		{
+			return sf::Glsl::Vec4{ ofs, amp, k, omega };
+		}
+	};
 #pragma pack(pop)
 
-    StaticWaveProperties generatedWaves[8];
+	StaticWaveProperties generatedWaves[8];
 
-    sf::Vector2f drawingSize;
-    FrameTime startingTime, curTime;
-    sf::Vertex quad[4];
-    sf::Color color, coastColor;
+	struct DynamicWaveProperties
+	{
+		size_t width;
+		std::vector<float> previousFrame2, previousFrame, curFrame, newVelocity;
+		std::vector<sf::Uint8> texBuffer;
+		sf::Texture texture;
+		std::mutex updateMutex, velocityMutex;
+	};
 
-    OpaqueWaterPtr previousFrame2, previousFrame, curFrame, newVelocity;
+	sf::Vector2f drawingSize;
+	FrameTime startingTime, curTime;
+	sf::Vertex quad[4];
+	sf::Color color, coastColor;
+	DynamicWaveProperties* dynamicWaveProperties;
 
-    intmax_t curT;
-    mutable bool haltSimulation;
-    bool topHidden;
+	intmax_t curT;
+	mutable bool haltSimulation;
+	bool topHidden;
 
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    WaterBody(sf::Vector2f drawingSize);
-    ~WaterBody() {}
+	WaterBody(sf::Vector2f drawingSize);
+	~WaterBody();
 
-    void recreateQuad();
-    void resetWaves();
-    void resetSimulationTextures();
-    void update(FrameTime curTime);
-    void updateSimulation();
+	void recreateQuad();
+	void resetWaves();
+	void resetSimulationVectors();
+	void update(FrameTime curTime);
+	void updateSimulation();
 
-    void setVelocity(float point, float newVel);
+	void setVelocity(float point, float newVel);
 
-    auto getDrawingSize() const { return drawingSize; }
-    void setDrawingSize(sf::Vector2f size) { drawingSize = size; recreateQuad(); resetSimulationTextures(); }
+	auto getDrawingSize() const { return drawingSize; }
+	void setDrawingSize(sf::Vector2f size) { drawingSize = size; recreateQuad(); resetSimulationVectors(); }
 
-    auto getColor() const { return color; }
-    void setColor(sf::Color color) { this->color = color; }
+	auto getColor() const { return color; }
+	void setColor(sf::Color color) { this->color = color; }
 
-    auto getCoastColor() const { return coastColor; }
-    void setCoastColor(sf::Color color) { coastColor = color; }
-    
-    auto getTopHidden() const { return topHidden; }
-    void setTopHidden(bool top) { topHidden = top; recreateQuad(); resetWaves(); resetSimulationTextures(); }
+	auto getCoastColor() const { return coastColor; }
+	void setCoastColor(sf::Color color) { coastColor = color; }
+
+	auto getTopHidden() const { return topHidden; }
+	void setTopHidden(bool top) { topHidden = top; recreateQuad(); resetWaves(); resetSimulationVectors(); }
+
+	friend struct DynamicUpdateThreadInfo;
+	friend void dynamicWaveUpdateThread(void* ptr);
 };

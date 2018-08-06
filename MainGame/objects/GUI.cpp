@@ -39,8 +39,8 @@
 
 #include <chronoUtils.hpp>
 
-constexpr float FirstBlinkPeriod = 2.0;
-constexpr float SecondBlinkPeriod = 0.4;
+constexpr float FirstBlinkPeriod = 2.0f;
+constexpr float SecondBlinkPeriod = 0.4f;
 
 constexpr size_t FirstBlinkThreshold = 100;
 constexpr size_t SecondBlinkThreshold = 40;

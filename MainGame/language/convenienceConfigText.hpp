@@ -28,7 +28,7 @@
 #include "LocalizationManager.hpp"
 #include "Services.hpp"
 
-struct FontHandler;
+class FontHandler;
 
 void configTextDrawable(TextDrawable& text, LocalizationManager& manager);
 std::shared_ptr<FontHandler> loadDefaultFont(Services& services);

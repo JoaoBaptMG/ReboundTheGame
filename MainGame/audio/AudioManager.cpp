@@ -158,7 +158,8 @@ void AudioManager::fadeSound(const AudioReference& ref, FrameDuration dur, float
 
 inline void updateSampleIncr(AudioInstanceLight& instance)
 {
-    instance.sampleIncr = 65536ULL * exp2f(instance.logPitch) * instance.sound->sampleRate / CanonicalSampleRate;
+	if (instance.sound)
+		instance.sampleIncr = 65536ULL * exp2f(instance.logPitch) * instance.sound->sampleRate / CanonicalSampleRate;
 }
 
 int AudioManager::audioFunction(int32_t* out, size_t numFrames)
@@ -181,6 +182,7 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
                 updateSampleIncr(audioInstancesThreadSide[cmd.ref]);
                 break;
             case AudioCommand::Type::Update:
+				if (!audioInstancesThreadSide[cmd.ref].sound) break;
                 switch (cmd.update.data)
                 {
                     case AudioCommand::Volume: audioInstancesThreadSide[cmd.ref].volume = cmd.update.newVal; break;
@@ -189,12 +191,14 @@ int AudioManager::audioFunction(int32_t* out, size_t numFrames)
                         updateSampleIncr(audioInstancesThreadSide[cmd.ref]);
                         break;
                     case AudioCommand::Balance: audioInstancesThreadSide[cmd.ref].balance = cmd.update.newVal; break;
-                }
+				} break;
             case AudioCommand::Type::Fade:
+				if (!audioInstancesThreadSide[cmd.ref].sound) break;
                 audioInstancesThreadSide[cmd.ref].fadeCount = cmd.fade.fadeCount;
                 audioInstancesThreadSide[cmd.ref].fadeOfs = cmd.fade.fadeOfs;
                 break;
             case AudioCommand::Type::Stop:
+				if (!audioInstancesThreadSide[cmd.ref].sound) break;
                 audioInstancesThreadSide[cmd.ref].sound = nullptr;
                 audioStopQueue.try_enqueue(cmd.ref);
                 break;

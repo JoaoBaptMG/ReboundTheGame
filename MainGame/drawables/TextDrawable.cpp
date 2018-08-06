@@ -79,7 +79,7 @@ bool (*const WordWrappingAlgorithms[])(uint32_t,uint32_t) =
     [](uint32_t pc, uint32_t c) -> bool
     {
         const std::string nextForbidden = u8"!%),.:;?]}¢°’\"†‡℃〆〈《「『〕！％），．：；？］｝";
-        const std::string prevForbidden = u8"$([\{£¥‘\"々〇〉》」〔＄（［｛｠￥￦ #";
+        const std::string prevForbidden = u8"$([\\{£¥‘\"々〇〉》」〔＄（［｛｠￥￦ #";
 
         if (nextForbidden.find(c) != std::string::npos) return false;
         if (prevForbidden.find(pc) != std::string::npos) return false;
@@ -378,8 +378,8 @@ TextDrawable::GraphemeRange TextDrawable::getGraphemeClusterInterval(size_t begi
 
     const auto& clusterb = graphemeClusters.at(begin);
     const auto& clustere = graphemeClusters.at(end-1);
-    auto& vlist = outline ? verticesOutline : vertices;
-    return { &vlist[clusterb.vertexBegin], &vlist[clustere.vertexEnd] };
+    auto vlist = outline ? &verticesOutline[0] : &vertices[0];
+    return { vlist+clusterb.vertexBegin, vlist+clustere.vertexEnd };
 }
 
 TextDrawable::GraphemeRange TextDrawable::getGraphemeCluster(size_t index, bool outline)
@@ -388,8 +388,8 @@ TextDrawable::GraphemeRange TextDrawable::getGraphemeCluster(size_t index, bool 
     if (outline && verticesOutline.getVertexCount() == 0) return { nullptr, nullptr };
 
     const auto& cluster = graphemeClusters.at(index);
-    auto& vlist = outline ? verticesOutline : vertices;
-    return { &vlist[cluster.vertexBegin], &vlist[cluster.vertexEnd] };
+    auto vlist = outline ? &verticesOutline[0] : &vertices[0];
+    return { vlist+cluster.vertexBegin, vlist+cluster.vertexEnd };
 }
 
 size_t TextDrawable::getGraphemeClusterByteLocation(size_t index) const
@@ -428,8 +428,9 @@ TextDrawable::GraphemeRange TextDrawable::getAllVertices(bool outline)
     if (graphemeClusters.empty()) return { nullptr, nullptr };
     if (outline && verticesOutline.getVertexCount() == 0) return { nullptr, nullptr };
 
-    auto& vlist = outline ? verticesOutline : vertices;
-    return { &vlist[0], &vlist[vlist.getVertexCount()] };
+    auto vlist = outline ? &verticesOutline[0] : &vertices[0];
+	auto size = outline ? verticesOutline.getVertexCount() : vertices.getVertexCount();
+    return { vlist, vlist+size };
 }
 
 void TextDrawable::draw(sf::RenderTarget& target, sf::RenderStates states) const

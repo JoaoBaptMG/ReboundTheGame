@@ -29,7 +29,7 @@
 #include <utility>
 #include <list>
 #include <type_traits>
-#include <boost/context/all.hpp>
+#include <boost/context/continuation.hpp>
 
 class Script
 {

@@ -68,7 +68,7 @@ void ScissorRectPush::draw(sf::RenderTarget& target, sf::RenderStates states) co
     if ((scissorStack.back().prevScissorStatus = glIsEnabled(GL_SCISSOR_TEST)))
         glGetIntegerv(GL_SCISSOR_BOX, scissorStack.back().prevScissor);
 
-    if (isnanf(scissorRect.left) && isnanf(scissorRect.top))
+    if (std::isnan(scissorRect.left) && std::isnan(scissorRect.top))
         glDisable(GL_SCISSOR_TEST);
     else
     {

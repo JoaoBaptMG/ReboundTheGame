@@ -49,13 +49,13 @@ struct SavedGame
     void setCurLevel(size_t l)
     {
         ASSERT(l >= 1 && l <= 10);
-        levelInfo = (levelInfo / 10) * 10 + l - 1;
+        levelInfo = (uint8_t)((levelInfo / 10) * 10 + l - 1);
     }
     
     void setAbilityLevel(size_t l)
     {
         ASSERT(l >= 0 && l <= 10);
-        levelInfo = l * 10 + levelInfo % 10;
+        levelInfo = uint8_t(l * 10 + levelInfo % 10);
     }
     
     bool getDoubleArmor() const { return otherSecrets[1] & 4; }

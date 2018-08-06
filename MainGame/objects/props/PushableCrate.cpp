@@ -148,26 +148,22 @@ void PushableCrate::update(FrameTime curTime)
     
     if (player)
     {
+		auto body = shape->getBody();
+
         if (player->canPushCrates())
         {
-            auto body = shape->getBody();
             auto vel = body->getVelocity();
 
             body->setBodyType(CP_BODY_TYPE_DYNAMIC);
-
-            /*if (std::abs(vel.x) < 1.0)
-            {
-                vel.x = 0;
-                body->setVelocity(vel);
-            }
-            else
-            {
-                auto sgn = vel.x > 0 ? -1.0 : vel.x < 0 ? 1.0 : 0.0;
-                auto trans = cpvunrotate({ 18 * sgn * body->getMass(), 0 }, body->getRotation());
-                body->applyForceAtLocalPoint(trans, cpVect{0, 0});
-            }*/
+			body->eachArbiter([](cp::Arbiter arbiter)
+			{
+				printf("Arbiter!\n");
+			});
         }
-        else shape->getBody()->setBodyType(CP_BODY_TYPE_KINEMATIC);
+		else
+		{
+			body->setBodyType(CP_BODY_TYPE_KINEMATIC);
+		}
     }
 }
 

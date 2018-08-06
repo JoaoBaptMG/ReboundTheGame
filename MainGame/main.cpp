@@ -56,7 +56,7 @@
 
 using namespace std::literals::chrono_literals;
 
-bool clearMapTextures();
+void clearMapTextures();
 bool GlobalUpdateWindowHandler;
 int main(int argc, char **argv)
 {

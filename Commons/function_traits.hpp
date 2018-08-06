@@ -39,7 +39,7 @@ namespace util
     {
         using return_type = R;
 
-        static constexpr auto arity = sizeof...(Args);
+        static constexpr size_t arity = sizeof...(Args);
 
         template <size_t N>
         struct argument

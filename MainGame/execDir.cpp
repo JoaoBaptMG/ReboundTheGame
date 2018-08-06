@@ -31,6 +31,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+extern "C"
+{
+	// Make NVIDIA and AMD run us on dedicated card
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 std::string getExecutableDirectory()
 {
 	static std::string dir;
@@ -59,6 +66,36 @@ std::string getExecutableDirectory()
 	}
 
 	return dir;
+}
+
+std::vector<std::string> getAllFilesInDir(std::string dir)
+{
+	dir += "\\*";
+
+	std::vector<std::string> list;
+
+	WIN32_FIND_DATA data;
+	HANDLE hFind = FindFirstFileA(dir.c_str(), &data);
+
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			std::string name(data.cFileName);
+
+			auto pos = name.find_last_of("\\/");
+			if (pos == std::string::npos)
+				pos = decltype(pos)(0);
+			else pos++;
+
+			list.emplace_back(name.substr(pos));
+		}
+		while (FindNextFileA(hFind, &data));
+
+		FindClose(hFind);
+	}
+
+	return list;
 }
 
 #elif __APPLE__

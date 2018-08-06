@@ -288,7 +288,7 @@ bool writeEncryptedSaveFile(OutputStream& stream, const SavedGame& savedGame, Sa
     }
     
     size_t newSize = (scrambledMem.size() / 16 + 1) * 16;
-    uint8_t diff = newSize - scrambledMem.size();
+    uint8_t diff = uint8_t(newSize - scrambledMem.size());
     scrambledMem.resize(newSize, diff);
     
     uint8_t aesKey[32];

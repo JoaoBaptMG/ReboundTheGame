@@ -31,8 +31,11 @@
 #include <chronoUtils.hpp>
 
 #include <vector>
+#include <list>
 #include <utility>
 #include <predUtils.hpp>
+
+#include <readerwriterqueue/readerwriterqueue.h>
 
 #include <iostream>
 #include <cassert>
@@ -41,7 +44,7 @@ constexpr float MaxSineWaveHeight = 4;
 constexpr float MaxSineWaveK = 0.08f;
 constexpr float MaxSineWaveOmega = 0.08f;
 
-constexpr float WaveSpeed = 0.92;
+constexpr float WaveSpeed = 0.92f;
 
 constexpr auto ShaderUtilities = R"util(
 float decomposeColor(vec4 color)
@@ -79,7 +82,7 @@ void main()
                       sin(staticWaveProperties[i].z * x + staticWaveProperties[i].w * t);
     }
 
-    float dist = staticDist + decomposeColor(texture2D(dynamicTex, vec2(gl_TexCoord[0].x/texWidth, 0.0)));
+    float dist = staticDist + decomposeColor(texture2D(dynamicTex, vec2(x/texWidth, 0.0)));
     float weight = step(dist, gl_TexCoord[0].y);
     float mixed = step(dist + 4.0, gl_TexCoord[0].y);
 
@@ -108,21 +111,6 @@ void main()
 }
 )waveupd";
 
-sf::Shader& WaterBody::getSimulationShader()
-{
-    static sf::Shader shader;
-    static bool shaderLoaded = false;
-
-    if (!shaderLoaded)
-    {
-        auto shaderStr = std::string(ShaderUtilities) + std::string(WaveUpdateShader);
-        ASSERT(shader.loadFromMemory(shaderStr, sf::Shader::Fragment));
-        shaderLoaded = true;
-    }
-
-    return shader;
-}
-
 sf::Shader& WaterBody::getDrawingShader()
 {
     static sf::Shader shader;
@@ -138,44 +126,89 @@ sf::Shader& WaterBody::getDrawingShader()
     return shader;
 }
 
-static OpaqueWaterPtr getSpareWaterTexture()
+struct DynamicUpdateThreadInfo
 {
-    static std::vector<std::pair<std::unique_ptr<sf::RenderTexture>,bool>> cachedTextures{};
+	struct Command
+	{
+		enum class Type { Update, Delete, Final } cmd;
+		WaterBody::DynamicWaveProperties* dynamicWaveProperties;
+	};
 
-    auto returnTexture = [](const sf::RenderTexture* texture)
-    {
-        auto it = std::find_if(cachedTextures.begin(), cachedTextures.end(), PRED_X(x.first.get() == texture));
-        it->second = false;
-        std::cout << "Returning texture " << texture << "." << std::endl;
-    };
+	moodycamel::BlockingReaderWriterQueue<Command> dynamicUpdateQueue;
+	std::thread dynamicUpdateThread;
 
-    auto freeSlot = std::find_if(cachedTextures.begin(), cachedTextures.end(), PRED_X(!x.second));
-    if (freeSlot == cachedTextures.end())
-    {
-        for (size_t i = 0; i < 16; i++)
-        {
-            auto ptr = std::make_unique<sf::RenderTexture>();
-            ASSERT(ptr->create(1024, 1));
-            cachedTextures.emplace_back(std::move(ptr), false);
-        }
+	DynamicUpdateThreadInfo() : dynamicUpdateThread(dynamicWaveUpdateThread, this) {}
+	~DynamicUpdateThreadInfo() { dynamicUpdateQueue.enqueue({ Command::Type::Final, nullptr }); dynamicUpdateThread.join(); }
+};
 
-        freeSlot = std::find_if(cachedTextures.begin(), cachedTextures.end(), PRED_X(!x.second));
-    }
+std::unique_ptr<DynamicUpdateThreadInfo> threadInfo;
 
-    freeSlot->second = true;
-    std::cout << "Getting texture " << freeSlot->first.get() << "." << std::endl;
-    return OpaqueWaterPtr(freeSlot->first.get(), returnTexture);
+// type erasure at its finest
+static void dynamicWaveUpdateThread(void* ptr)
+{
+	DynamicUpdateThreadInfo& threadInfo = *(DynamicUpdateThreadInfo*)ptr;
+	DynamicUpdateThreadInfo::Command dynamicUpdateCommand;
+
+	for (;;)
+	{
+		threadInfo.dynamicUpdateQueue.wait_dequeue(dynamicUpdateCommand);
+		WaterBody::DynamicWaveProperties* dynamicWaveProperties = dynamicUpdateCommand.dynamicWaveProperties;
+
+		switch (dynamicUpdateCommand.cmd)
+		{
+		case DynamicUpdateThreadInfo::Command::Type::Update:
+			{
+				std::vector<float> newVelocity;
+
+				{
+					std::lock_guard<std::mutex> lock(dynamicWaveProperties->velocityMutex);
+					newVelocity.resize(dynamicWaveProperties->newVelocity.size());
+					newVelocity.swap(dynamicWaveProperties->newVelocity);
+				}
+
+				std::lock_guard<std::mutex> lock(dynamicWaveProperties->updateMutex);
+				dynamicWaveProperties->previousFrame2.swap(dynamicWaveProperties->previousFrame);
+				dynamicWaveProperties->previousFrame.swap(dynamicWaveProperties->curFrame);
+
+				for (size_t i = 0; i < dynamicWaveProperties->width; i++)
+				{
+					float fxt = dynamicWaveProperties->previousFrame[i];
+					float fxnt = i > 0 ? dynamicWaveProperties->previousFrame[i - 1] : 0;
+					float fxpt = i < dynamicWaveProperties->width - 1 ? dynamicWaveProperties->previousFrame[i + 1] : 0;
+					float fxtn = dynamicWaveProperties->previousFrame2[i];
+					float vel = newVelocity[i];
+
+					float output = 0.99f*(2 * fxt - fxtn) + WaveSpeed * WaveSpeed *(fxnt + fxpt - 2.0*fxt) - vel;
+					dynamicWaveProperties->curFrame[i] = output;
+
+					if (output > 255) output = 255;
+					else if (output < -255) output = -255;
+
+					dynamicWaveProperties->texBuffer[4 * i] = floorf(fmodf(fabsf(output) * 256, 256));
+					dynamicWaveProperties->texBuffer[4 * i + 1] = floorf(fabsf(output));
+					dynamicWaveProperties->texBuffer[4 * i + 2] = 255 * (output >= 0);
+					dynamicWaveProperties->texBuffer[4 * i + 3] = 255;
+				}
+			} break;
+		case DynamicUpdateThreadInfo::Command::Type::Delete: delete dynamicWaveProperties; break;
+		case DynamicUpdateThreadInfo::Command::Type::Final: return;
+		}
+	}
 }
 
-WaterBody::WaterBody(sf::Vector2f drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false),
-                                                 previousFrame2(nullptr, [](const sf::RenderTexture*){}),
-                                                 previousFrame(nullptr, [](const sf::RenderTexture*){}),
-                                                 curFrame(nullptr, [](const sf::RenderTexture*){}),
-                                                 newVelocity(nullptr, [](const sf::RenderTexture*){})
+WaterBody::WaterBody(sf::Vector2f drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false), dynamicWaveProperties(nullptr)
 {
+	if (!threadInfo) threadInfo = std::make_unique<DynamicUpdateThreadInfo>();
+
     recreateQuad();
     resetWaves();
-    resetSimulationTextures();
+    resetSimulationVectors();
+}
+
+WaterBody::~WaterBody()
+{
+	if (!topHidden)
+		threadInfo->dynamicUpdateQueue.enqueue({ DynamicUpdateThreadInfo::Command::Type::Delete, dynamicWaveProperties });
 }
 
 void WaterBody::recreateQuad()
@@ -185,11 +218,8 @@ void WaterBody::recreateQuad()
     quad[2].position = quad[2].texCoords = sf::Vector2f(drawingSize.x, drawingSize.y);
     quad[3].position = quad[3].texCoords = sf::Vector2f(drawingSize.x, -256);
     
-    if (topHidden)
-        quad[0].position.y = quad[3].position.y = 0;
-
-    for (auto& vtx : quad)
-        vtx.color = sf::Color::White;
+    if (topHidden) quad[0].position.y = quad[3].position.y = 0;
+    for (auto& vtx : quad) vtx.color = sf::Color::White;
 }
 
 void WaterBody::resetWaves()
@@ -220,20 +250,23 @@ void WaterBody::resetWaves()
     }
 }
 
-void WaterBody::resetSimulationTextures()
+void WaterBody::resetSimulationVectors()
 {
     if (!topHidden)
     {
-        for (auto texture : {&curFrame, &previousFrame, &previousFrame2, &newVelocity})
-            if (*texture == nullptr)
-            {
-                *texture = getSpareWaterTexture();
-                (*texture)->clear(sf::Color::Black);
-                (*texture)->display();
-            }
+		threadInfo->dynamicUpdateQueue.enqueue({ DynamicUpdateThreadInfo::Command::Type::Delete, dynamicWaveProperties });
+		dynamicWaveProperties = new DynamicWaveProperties();
+
+		dynamicWaveProperties->width = drawingSize.x;
+		ASSERT(dynamicWaveProperties->texture.create(dynamicWaveProperties->width, 1));
+
+		dynamicWaveProperties->previousFrame2.resize(dynamicWaveProperties->width);
+		dynamicWaveProperties->previousFrame.resize(dynamicWaveProperties->width);
+		dynamicWaveProperties->curFrame.resize(dynamicWaveProperties->width);
+		dynamicWaveProperties->newVelocity.resize(dynamicWaveProperties->width);
+		dynamicWaveProperties->texBuffer.resize(4 * dynamicWaveProperties->width);
     }
-    else for (auto texture : { &curFrame, &previousFrame, &previousFrame2, &newVelocity })
-            texture->reset();
+	else threadInfo->dynamicUpdateQueue.enqueue({ DynamicUpdateThreadInfo::Command::Type::Delete, dynamicWaveProperties });
 }
 
 void WaterBody::update(FrameTime curTime)
@@ -253,51 +286,22 @@ void WaterBody::updateSimulation()
 {
     if (haltSimulation) return;
 
-    newVelocity->display();
+	{
+		std::lock_guard<std::mutex> lock(dynamicWaveProperties->updateMutex);
+		dynamicWaveProperties->texture.update(dynamicWaveProperties->texBuffer.data());
+	}
 
-    sf::Vertex line[2];
-    line[0].position = line[0].texCoords = sf::Vector2f(0, 0);
-    line[1].position = line[1].texCoords = sf::Vector2f(drawingSize.x, 0);
-
-    {
-        using std::swap;
-        previousFrame2.swap(previousFrame);
-        previousFrame.swap(curFrame);
-    }
-
-    auto& shader = getSimulationShader();
-    shader.setUniform("newVelocity", newVelocity->getTexture());
-    shader.setUniform("prevFrame2", previousFrame2->getTexture());
-    shader.setUniform("prevFrame", previousFrame->getTexture());
-    shader.setUniform("c", WaveSpeed);
-    shader.setUniform("texWidth", (float)curFrame->getSize().x);
-
-    sf::RenderStates states;
-    states.shader = &shader;
-    curFrame->draw(line, 2, sf::Lines, states);
-    curFrame->display();
-
-    newVelocity->clear(sf::Color::Black);
-
+	threadInfo->dynamicUpdateQueue.enqueue({ DynamicUpdateThreadInfo::Command::Type::Update, dynamicWaveProperties });
     haltSimulation = true;
 }
 
 void WaterBody::setVelocity(float point, float newVel)
 {
     if (topHidden) return;
+	if (point < 0 || point >= dynamicWaveProperties->width) return;
 
-    if (newVel > 255) newVel = 255;
-    else if (newVel < -255) newVel = -255;
-
-    sf::Color color;
-    color.r = floorf(fmodf(fabsf(newVel)*256, 256));
-    color.g = floorf(fabsf(newVel));
-    color.b = 255 * (newVel >= 0);
-    color.a = 255;
-
-    sf::Vertex pt(sf::Vector2f(point, 0), color);
-
-    newVelocity->draw(&pt, 1, sf::Points);
+	std::lock_guard<std::mutex> lock(dynamicWaveProperties->velocityMutex);
+	dynamicWaveProperties->newVelocity[point] = newVel;
 }
 
 void WaterBody::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -311,8 +315,8 @@ void WaterBody::draw(sf::RenderTarget& target, sf::RenderStates states) const
     shader.setUniform("t", (float)curT);
     if (!topHidden)
     {
-        shader.setUniform("texWidth", (float)curFrame->getSize().x);
-        shader.setUniform("dynamicTex", curFrame->getTexture());
+		shader.setUniform("texWidth", (float)dynamicWaveProperties->width);
+        shader.setUniform("dynamicTex", dynamicWaveProperties->texture);
     }
 
     states.shader = &shader;

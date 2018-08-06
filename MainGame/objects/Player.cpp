@@ -94,18 +94,10 @@ Player::Player(GameScene& scene)
     microHealth(0), sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
     grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
-#warning Remove this!
-    if (scene.getSavedGame().getCurLevel() == 2)
-    {
-        for (size_t i = 0; i < 76; i++) scene.getSavedGame().setPicket(i, true);
-        for (size_t i = 100; i < 133; i++) scene.getSavedGame().setPicket(i, true);
-    }
-
     isPersistent = true;
 
     grappleSprite.setOpacity(0);
 	upgradeToAbilityLevel(scene.getSavedGame().getAbilityLevel());
-    upgradeToAbilityLevel(5);
     if (scene.getSavedGame().getDoubleArmor()) enableDoubleArmor();
     if (scene.getSavedGame().getMoveRegen()) enableMoveRegen();
     maxHealth += scene.getSavedGame().getGoldenTokenCount() * HealthIncr;

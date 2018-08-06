@@ -83,7 +83,7 @@ void UIButton::initialize(InputManager& inputManager, intmax_t priority)
 
 bool UIButton::isInBounds(sf::Vector2f position) const
 {
-    if (!isnanf(globalBounds.left) && !isnanf(globalBounds.top))
+    if (!std::isnan(globalBounds.left) && !std::isnan(globalBounds.top))
         if (!globalBounds.contains(position)) return false;
     return bounds.contains(position - this->position);
 }

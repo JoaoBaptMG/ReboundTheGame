@@ -178,13 +178,13 @@ std::string LocalizationManager::buildFormat(const LangID& id, const StringSpeci
             {
                 auto it = stringSpecifiers.find(specifier.specifier1);
                 auto it2 = rawSpecifiers.find(specifier.specifier1);
-                if (it == stringSpecifiers.end() && it2 == stringSpecifiers.end())
+                if (it == stringSpecifiers.end() && it2 == rawSpecifiers.end())
                 {
                     replacement = descriptorDebug ? buildErrorForStringSpecifier(specifier.specifier1) : "";
                     break;
                 }
 
-                if (it2 == stringSpecifiers.end())
+                if (it2 == rawSpecifiers.end())
                     replacement = getString(it->second);
                 else replacement = it2->second;
             } break;

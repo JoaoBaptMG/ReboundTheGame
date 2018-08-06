@@ -115,6 +115,13 @@ GameScene::GameScene(Services& services, SavedGame sg)
     joystickMap = buildJoystickSpecifierMap(services.settings, services.localizationManager);
 }
 
+GameScene::~GameScene()
+{
+	// Make sure that a GameObject who access the objects vector while it is being destroyed don't invoke UB
+	while (!gameObjects.empty())
+		gameObjects.pop_back();
+}
+
 void GameScene::loadLevel(std::string levelName)
 {
     this->levelName = levelName;

@@ -49,7 +49,7 @@ constexpr auto DefaultLetterPeriod = 2_frames;
 constexpr auto FadeInterval = 24_frames;
 constexpr size_t VisibleLines = 4;
 
-constexpr float FullFadePerFrame = 0.025;
+constexpr float FullFadePerFrame = 0.025f;
 constexpr float MessageVerticalSpacing = 112;
 
 constexpr auto IconOscillationPeriod = 48_frames;
@@ -220,9 +220,8 @@ void MessageBox::update(FrameTime curTime)
         } break;
 
         case CloseBox:
-            if (messageBackground.getOpacity() == 0)
-                curState = Idle;
-            [[fallthrough]];
+            if (messageBackground.getOpacity() == 0) curState = Idle;
+			// It is intended to fall through
         case FadingPage:
         {
             float factor = toSeconds<float>(initTime - curTime) / toSeconds<float>(FadeInterval);

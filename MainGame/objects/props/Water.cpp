@@ -92,7 +92,7 @@ cpFloat intersectionAreaForAABBCircle(cpBB bb, cpVect pos, cpFloat radius)
 
 using namespace props;
 
-Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256))
+Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256)), player(nullptr)
 {
     shape.setColor(sf::Color(100, 100, 255, 128));
     shape.setCoastColor(sf::Color(255, 255, 255, 128));
@@ -100,7 +100,7 @@ Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector
 
 Water::~Water()
 {
-     auto player = gameScene.getObjectByName<Player>("player");
+     if (!player) player = gameScene.getObjectByName<Player>("player");
      if (player) player->addToWaterArea(-oldArea);
 }
 
@@ -132,7 +132,7 @@ void Water::setRect(sf::IntRect rect)
 
 void Water::update(FrameTime curTime)
 {
-    auto player = gameScene.getObjectByName<Player>("player");
+	if (!player) player = gameScene.getObjectByName<Player>("player");
 
     if (player)
     {
@@ -146,8 +146,7 @@ void Water::update(FrameTime curTime)
         if (fabs(waveGen) <= 64.0)
         {
             for (intmax_t k = -32; k <= 32; k++)
-                shape.setVelocity(pos.x + k - rect.l,
-                    vel.y * toSeconds<float>(UpdatePeriod) * cosf(M_PI*k/64) / 20);
+                shape.setVelocity(pos.x + k - rect.l, vel.y * toSeconds<float>(UpdatePeriod) * cosf(M_PI*k/64) / 20);
         }
     }
 

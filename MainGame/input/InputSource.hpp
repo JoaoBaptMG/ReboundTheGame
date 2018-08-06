@@ -41,7 +41,7 @@ private:
 
     // Constructor private
     InputSource() = default;
-    InputSource(Type type, uint32_t attr) : type(type), attribute(attr) {}
+    InputSource(Type type, size_t attr) : type(type), attribute(attr) {}
 public:
     std::string getInputName(LocalizationManager& lm);
 
@@ -78,8 +78,8 @@ namespace std
     {
         size_t operator()(const InputSource& in) const noexcept
         {
-            return (std::hash<uint8_t>()((uint8_t)in.type) << (21 - (uint8_t)in.type))
-                 ^ std::hash<uint32_t>()(in.attribute);
+            return std::hash<uint8_t>()((uint8_t)in.type) << (21 - (uint8_t)in.type)
+                 ^ std::hash<uint32_t>()((uint32_t)in.attribute);
         }
     };
 }

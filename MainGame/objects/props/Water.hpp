@@ -43,6 +43,7 @@ namespace props
         WaterBody shape;
 
         cpFloat oldArea;
+		Player* player;
 
     public:
         Water(GameScene& scene);

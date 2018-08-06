@@ -27,6 +27,16 @@
 
 #if _WIN32
 
+#include <SFML/Window.hpp>
+
+std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
+{
+	auto str = sf::Keyboard::keyNameForScanCode(code).toUtf8();
+	if (str.empty()) return lm.getFormattedString("key-name-unknown", {}, { { "n", code } }, {});
+
+	return (const char*)str.c_str();
+}
+
 #elif __APPLE__
 
 #include <CoreFoundation/CoreFoundation.h>
