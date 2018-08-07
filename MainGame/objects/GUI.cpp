@@ -38,6 +38,7 @@
 #include "ColorList.hpp"
 
 #include <chronoUtils.hpp>
+#include <transforms.hpp>
 
 constexpr float FirstBlinkPeriod = 2.0f;
 constexpr float SecondBlinkPeriod = 0.4f;
@@ -76,8 +77,8 @@ GUIBossUpdater* nullBossMeter()
 }
 
 GUI::GUI(GameScene& scene) : gameScene(scene),
-    guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
-    guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), sf::Vector2f(0, 0)),
+    guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), glm::vec2(0, 0)),
+    guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), glm::vec2(0, 0)),
     playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small, false), bossMeter(MeterSize::Normal),
     levelLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
     levelID(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
@@ -199,7 +200,7 @@ void GUI::update(FrameTime curTime)
         
         drawDash = player->abilityLevel >= 3;
         auto pos = player->getDisplayPosition();
-        sf::Vector2f mapPosition(std::floor(pos.x / DefaultTileSize), std::floor(pos.y / DefaultTileSize));
+        glm::vec2 mapPosition(std::floor(pos.x / DefaultTileSize), std::floor(pos.y / DefaultTileSize));
         guiMap.setDisplayPosition(mapPosition);
         
         size_t health = player->getHealth();
@@ -254,34 +255,34 @@ void GUI::render(Renderer& renderer)
     if (drawDash) renderer.pushDrawable(dashMeter, {}, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(52, 452 - dashMeter.getFrameHeight() - 22);
+    renderer.currentTransform *= util::translate(52, 452 - dashMeter.getFrameHeight() - 22);
     
     for (size_t i = 0; i < MaxBombs; i++)
     {
         renderer.pushDrawable(bombSprites[i], {}, 6600);
-        renderer.currentTransform.translate(0, -22);
+        renderer.currentTransform *= util::translate(0, -22);
     }
     
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(60, 487);
+    renderer.currentTransform *= util::translate(60, 487);
     renderer.pushDrawable(levelLabel, {}, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(60, 563);
+    renderer.currentTransform *= util::translate(60, 563);
     renderer.pushDrawable(levelID, {}, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth - guiRight.getTextureSize().x, 0);
+    renderer.currentTransform *= util::translate(ScreenWidth - guiRight.getTextureSize().x, 0);
     renderer.pushDrawable(guiRight, {}, 6000);
     
     if (currentBoss) renderer.pushDrawable(bossMeter, {}, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(66, 514);
+    renderer.currentTransform *= util::translate(66, 514);
     renderer.pushDrawable(guiMap, {}, 6600);
     renderer.popTransform();
     

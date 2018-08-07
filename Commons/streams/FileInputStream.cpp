@@ -21,30 +21,44 @@
 //
 
 
-#include "MemoryOutputStream.hpp"
+#include "FileInputStream.hpp"
 
-#include <algorithm>
-#include <cstring>
-
-bool MemoryOutputStream::write(const void* data, size_t size)
+FileInputStream::~FileInputStream()
 {
-    try
-    {
-        auto prevSize = contents.size();
-        contents.resize(prevSize + size);
-        std::memcpy(&contents[prevSize], data, size);
-        return true;
-    }
-    catch (std::bad_alloc&)
-    {
-        return false;
-    }
+    if (file) std::fclose(file);
 }
 
-void MemoryOutputStream::alignTo(size_t align)
+bool FileInputStream::open(const std::string& filename)
 {
-    // PKCS7 alignment
-    auto newSize = ((contents.size() + align - 1) / align) * align;
-    auto diff = newSize - contents.size();
-    contents.resize(newSize, diff);
+    if (file) std::fclose(file);
+    return (file = std::fopen(filename.c_str(), "rb")) != nullptr;
+}
+
+uint64_t FileInputStream::read(void* data, uint64_t size)
+{
+    if (!file) return 0;
+    return std::fread(data, 1, size, file);
+}
+
+uint64_t FileInputStream::size()
+{
+	if (!file) return -1;
+	auto last = std::ftell(file);
+	std::fseek(file, 0, SEEK_END);
+	auto sz = std::ftell(file);
+	std::fseek(file, last, SEEK_CUR);
+	return sz;
+}
+
+uint64_t FileInputStream::seek(uint64_t pos)
+{
+	if (!file) return -1;
+	std::fseek(file, pos, SEEK_SET);
+	return std::ftell(file);
+}
+
+uint64_t FileInputStream::tell()
+{
+	if (!file) return -1;
+	return std::ftell(file);
 }

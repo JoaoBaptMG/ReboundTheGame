@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <cmath>
 
-SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f anchor)
+SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex, glm::vec2 anchor)
     : Sprite(tex, anchor), centerRect()
 {
     vertices.setPrimitiveType(sf::PrimitiveType::TriangleStrip);
@@ -34,15 +34,15 @@ SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f 
 }
 
 SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex)
-    : SegmentedSprite(tex, sf::Vector2f(tex->getSize())/2.0f) {}
+    : SegmentedSprite(tex, glm::vec2(tex->getSize().x/2.0f, tex->getSize().y/2.0f)) {}
     
-SegmentedSprite::SegmentedSprite() : SegmentedSprite(nullptr, sf::Vector2f(0, 0)) {}
+SegmentedSprite::SegmentedSprite() : SegmentedSprite(nullptr, glm::vec2(0, 0)) {}
 
-sf::FloatRect SegmentedSprite::getBounds() const
+util::rect SegmentedSprite::getBounds() const
 {
-    sf::FloatRect bounds(destRect);
-    bounds.left -= getAnchorPoint().x;
-    bounds.top -= getAnchorPoint().y;
+    util::rect bounds(destRect);
+    bounds.x -= getAnchorPoint().x;
+    bounds.y -= getAnchorPoint().y;
     return bounds;
 }
 
@@ -59,11 +59,11 @@ void SegmentedSprite::setupVertices()
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
         vertices[i].color = sf::Color::White;
         
-    float texLeft = texRect.left, texTop = texRect.top;
+    float texLeft = texRect.x, texTop = texRect.y;
     float texRight = texLeft + texRect.width, texBottom = texTop + texRect.height;
-    float centerLeft = centerRect.left, centerTop = centerRect.top;
+    float centerLeft = centerRect.x, centerTop = centerRect.y;
     float centerRight = centerLeft + centerRect.width, centerBottom = centerTop + centerRect.height;
-    float destLeft = destRect.left, destTop = destRect.top;
+    float destLeft = destRect.x, destTop = destRect.y;
     float destRight = destLeft + destRect.width, destBottom = destTop + destRect.height;
     
     float positionsX[] { destLeft, destLeft + centerLeft - texLeft, destRight - texRight + centerRight, destRight };

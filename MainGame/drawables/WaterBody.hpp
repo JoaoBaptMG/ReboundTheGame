@@ -27,6 +27,7 @@
 #include <chronoUtils.hpp>
 #include <memory>
 #include <mutex>
+#include <glm/glm.hpp>
 
 class WaterBody final : public sf::Drawable
 {
@@ -54,7 +55,7 @@ class WaterBody final : public sf::Drawable
 		std::mutex updateMutex, velocityMutex;
 	};
 
-	sf::Vector2f drawingSize;
+	glm::vec2 drawingSize;
 	FrameTime startingTime, curTime;
 	sf::Vertex quad[4];
 	sf::Color color, coastColor;
@@ -67,7 +68,7 @@ class WaterBody final : public sf::Drawable
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-	WaterBody(sf::Vector2f drawingSize);
+	WaterBody(glm::vec2 drawingSize);
 	~WaterBody();
 
 	void recreateQuad();
@@ -79,7 +80,7 @@ public:
 	void setVelocity(float point, float newVel);
 
 	auto getDrawingSize() const { return drawingSize; }
-	void setDrawingSize(sf::Vector2f size) { drawingSize = size; recreateQuad(); resetSimulationVectors(); }
+	void setDrawingSize(glm::vec2 size) { drawingSize = size; recreateQuad(); resetSimulationVectors(); }
 
 	auto getColor() const { return color; }
 	void setColor(sf::Color color) { this->color = color; }

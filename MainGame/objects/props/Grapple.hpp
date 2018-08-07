@@ -54,13 +54,13 @@ namespace props
 
         auto getDisplayPosition() const
         {
-            return sf::Vector2f(std::floor(pos.x), std::floor(pos.y));
+            return glm::vec2(std::floor(pos.x), std::floor(pos.y));
         }
 
         #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
         };
 
         static_assert(sizeof(ConfigStruct) == 4*sizeof(char), "Packing failed!");

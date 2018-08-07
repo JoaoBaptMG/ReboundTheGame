@@ -33,7 +33,6 @@
 #include "ColorList.hpp"
 #include "defaults.hpp"
 
-#include <minmax.hpp>
 #include <utf8.h>
 #include <iterator>
 
@@ -384,12 +383,12 @@ void MessageBox::render(Renderer& renderer)
         float pos = roundf(factor < 0.5 ? -4 - 8*factor : -12 + 8*factor);
 
         renderer.pushTransform();
-        renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight - MessageVerticalSpacing);
+        renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight - MessageVerticalSpacing);
         renderer.pushDrawable(messageBackground, {}, 4500);
-        renderer.currentTransform.translate(0, (float)messageBackground.getTextureSize().y/2 + pos);
+        renderer.currentTransform *= util::translate(0, (float)messageBackground.getTextureSize().y/2 + pos);
         renderer.pushDrawable(messageIcon, {}, 4504);
-        renderer.currentTransform.translate(0, -(float)messageBackground.getTextureSize().y/2 - pos);
-        renderer.currentTransform.translate(0, -actualMessageHeight/2 - lineOffset * messageText.getLineSpacing());
+        renderer.currentTransform *= util::translate(0, -(float)messageBackground.getTextureSize().y/2 - pos);
+        renderer.currentTransform *= util::translate(0, -actualMessageHeight/2 - lineOffset * messageText.getLineSpacing());
         renderer.pushDrawable(messageText, {}, 4502);
         renderer.popTransform();
     }

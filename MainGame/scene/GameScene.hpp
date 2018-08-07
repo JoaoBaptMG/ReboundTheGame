@@ -85,7 +85,7 @@ class GameScene : public Scene
 
     InputPlayerController inputPlayerController;
     const PlayerController* currentPlayerController;
-    sf::Vector2f offsetPos;
+    glm::vec2 offsetPos;
 
     GUI gui;
     Camera camera;
@@ -166,7 +166,7 @@ public:
     void playSound(std::string soundName);
 
     cpVect wrapPosition(cpVect pos);
-    sf::Vector2f fitIntoRoom(sf::Vector2f vec);
+    glm::vec2 fitIntoRoom(glm::vec2 vec);
 
     virtual void update(FrameTime curTime) override;
     void checkWarps();

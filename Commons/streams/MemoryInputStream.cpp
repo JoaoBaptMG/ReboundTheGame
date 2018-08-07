@@ -21,4 +21,23 @@
 //
 
 
-#pragma once
+#include "MemoryInputStream.hpp"
+
+#include <algorithm>
+#include <cstring>
+
+uint64_t MemoryInputStream::read(void* data, uint64_t size)
+{
+	size_t cnt = std::min(size, this->_size - cur);
+	if (cnt == 0) return 0;
+
+	std::copy_n(this->data + cur, cnt, (char*)data);
+	cur += cnt;
+	return cnt;
+}
+
+uint64_t MemoryInputStream::seek(uint64_t pos)
+{
+	cur = std::min(pos, _size);
+	return cur;
+}

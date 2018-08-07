@@ -72,8 +72,8 @@ StringProperties HarfBuzzWrapper::shape(const char* string, size_t strSize)
         }
         
         glyphs.push_back({ info[i].codepoint, clusterIndex,
-            sf::Vector2f(positions[i].x_offset, -positions[i].y_offset),
-            sf::Vector2f(positions[i].x_advance, -positions[i].y_advance) });
+            glm::vec2(positions[i].x_offset, -positions[i].y_offset),
+            glm::vec2(positions[i].x_advance, -positions[i].y_advance) });
     }
     
     hb_segment_properties_t properties;

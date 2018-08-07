@@ -34,7 +34,7 @@ class PlayerDeath final : public GameObject
 {
     FrameTime initTime;
     Sprite playerSprite;
-    sf::Vector2f position;
+    glm::vec2 position;
     bool spawnedParticle;
     
 public:

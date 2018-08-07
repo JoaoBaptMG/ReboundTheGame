@@ -36,9 +36,9 @@ class ParticleEmitter final
     ParticleBatch::Duration totalLifetime;
     ParticleBatch::Duration emissionPeriod;
 
-    sf::Vector2f emissionCenter;
-    sf::Vector2f emissionHalfSize;
-    sf::Vector2f acceleration;
+    glm::vec2 emissionCenter;
+    glm::vec2 emissionHalfSize;
+    glm::vec2 acceleration;
     float emissionInnerLimit;
 
     float directionFirst, directionSecond, directionCenterWeight;
@@ -59,9 +59,9 @@ public:
     auto getTotalLifetime() const { return totalLifetime; }
     auto getParticleStyle() const { return particleStyle; }
 
-    friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
+    friend bool readFromStream(InputStream& stream, ParticleEmitter& in);
 };
 
 using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream);
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<InputStream>& stream);

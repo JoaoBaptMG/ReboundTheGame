@@ -43,13 +43,13 @@ ScissorRectGuard::ScissorRectGuard()
     glDisable(GL_SCISSOR_TEST);
 }
 
-ScissorRectGuard::ScissorRectGuard(const sf::FloatRect& rect)
+ScissorRectGuard::ScissorRectGuard(const util::rect& rect)
 {
     prevScissorStatus = glIsEnabled(GL_SCISSOR_TEST);
     if (prevScissorStatus) glGetIntegerv(GL_SCISSOR_BOX, prevScissor);
     
     glEnable(GL_SCISSOR_TEST);
-    glScissor(rect.left, ScreenHeight - rect.top - rect.height, rect.width, rect.height);
+    glScissor(rect.x, ScreenHeight - rect.y - rect.height, rect.width, rect.height);
 }
 
 ScissorRectGuard::~ScissorRectGuard()
@@ -68,12 +68,12 @@ void ScissorRectPush::draw(sf::RenderTarget& target, sf::RenderStates states) co
     if ((scissorStack.back().prevScissorStatus = glIsEnabled(GL_SCISSOR_TEST)))
         glGetIntegerv(GL_SCISSOR_BOX, scissorStack.back().prevScissor);
 
-    if (std::isnan(scissorRect.left) && std::isnan(scissorRect.top))
+    if (std::isnan(scissorRect.x) && std::isnan(scissorRect.y))
         glDisable(GL_SCISSOR_TEST);
     else
     {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(scissorRect.left, ScreenHeight - scissorRect.top - scissorRect.height,
+        glScissor(scissorRect.x, ScreenHeight - scissorRect.y - scissorRect.height,
             scissorRect.width, scissorRect.height);
     }
 }

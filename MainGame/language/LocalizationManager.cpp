@@ -22,7 +22,7 @@
 
 
 #include "LocalizationManager.hpp"
-#include <SFML/System.hpp>
+#include <streams/FileInputStream.hpp>
 
 constexpr auto DefaultLanguageDescriptor = "en-us.lang";
 constexpr auto DefaultFontName = "mplus-1m-medium.ttf";
@@ -92,7 +92,7 @@ bool isLanguageDescriptorPresent(std::string name)
 std::string getLanguageDescriptorName(std::string lang)
 {
     LanguageDescriptor languageDescriptor;
-    sf::FileInputStream file;
+    FileInputStream file;
 
     if (!file.open(getPathOfLanguageDescriptor(lang)) ||
         !readFromStream(file, languageDescriptor))
@@ -116,7 +116,7 @@ void LocalizationManager::loadLanguageDescriptor(std::string name)
     if (!isLanguageDescriptorPresent(name)) error = true;
     else
     {
-        sf::FileInputStream file;
+        FileInputStream file;
         if (!file.open(getPathOfLanguageDescriptor(name)) ||
             !readFromStream(file, languageDescriptor))
             error = true;
@@ -334,7 +334,7 @@ std::string languageDescriptorForLocale(std::string locale)
         if (name == DefaultLanguageDescriptor) continue;
         
         LanguageDescriptor descriptor;
-        sf::FileInputStream file;
+        FileInputStream file;
         if (!file.open(getPathOfLanguageDescriptor(name)) ||
             !readFromStream(file, descriptor)) continue;
         

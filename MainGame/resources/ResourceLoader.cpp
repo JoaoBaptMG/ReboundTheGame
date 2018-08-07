@@ -39,10 +39,10 @@
 using namespace util;
 using namespace ResourceLoader;
 
-using loadFunc = generic_shared_ptr (*)(std::unique_ptr<sf::InputStream>&);
+using loadFunc = generic_shared_ptr (*)(std::unique_ptr<InputStream>&);
 
 template <typename T>
-generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
+generic_shared_ptr loadGenericResource(std::unique_ptr<InputStream>& stream)
 {
     std::shared_ptr<T> content{new T()};
 	if (checkMagic(*stream, T::ReadMagic) && readFromStream(*stream, *content))
@@ -52,10 +52,23 @@ generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
 }
 
 template <typename T>
-generic_shared_ptr loadSFMLResource(std::unique_ptr<sf::InputStream>& stream)
+generic_shared_ptr loadSFMLResource(std::unique_ptr<InputStream>& stream)
 {
+	class SFMLStreamAdaptor : public sf::InputStream
+	{
+		::InputStream& stream;
+
+	public:
+		SFMLStreamAdaptor(::InputStream& stream) : stream(stream) {}
+		virtual ~SFMLStreamAdaptor() {}
+		virtual sf::Int64 read(void* data, sf::Int64 size) override { return stream.read(data, size); }
+		virtual sf::Int64 seek(sf::Int64 pos) override { return stream.seek(pos); }
+		virtual sf::Int64 tell() override { return stream.tell(); }
+		virtual sf::Int64 getSize() override { return stream.size(); }
+	};
+
     std::shared_ptr<T> content{new T()};
-	if (content->loadFromStream(*stream))
+	if (content->loadFromStream(SFMLStreamAdaptor(*stream)))
 		return generic_shared_ptr{content};
 
     return generic_shared_ptr{};
@@ -72,7 +85,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "wav", loadWaveFile },
 };
 
-generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)
+generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<InputStream> stream, std::string type)
 {
     auto it = loadFuncs.find(type);
 	if (it != loadFuncs.end())

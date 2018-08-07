@@ -36,6 +36,7 @@
 #include "objects/Room.hpp"
 #include "data/TileSet.hpp"
 #include "particles/TextureExplosion.hpp"
+#include <transforms.hpp>
 
 #include "gameplay/ScriptedPlayerController.hpp"
 #include "objects/PlayerDeath.hpp"
@@ -259,9 +260,9 @@ void Player::applyMovementForces()
     body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     auto dt = toSeconds<cpFloat>(UpdatePeriod);
-    if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
-    angle += radiansToDegrees(vel.x * dt / 32);
-    angle -= 360 * round(angle/360);
+    if (dashDirection == DashDir::Up) angle += vel.y * dt / 32;
+    angle += vel.x * dt / 32;
+    angle -= 2*M_PI * round(angle/(2 * M_PI));
 }
 
 void Player::applyWaterForces()
@@ -672,10 +673,10 @@ void Player::hitSpikes()
     spikeTime = curTime + SpikeRespawnTime;
 
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f((float)grav.x, (float)grav.y);
+    auto displayGravity = glm::vec2((float)grav.x, (float)grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
-        sf::FloatRect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
+        util::rect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
 
@@ -848,8 +849,8 @@ void Player::render(Renderer& renderer)
     if (spikeTime == decltype(spikeTime)())
     {
         renderer.pushTransform();
-        renderer.currentTransform.translate(getDisplayPosition());
-        renderer.currentTransform.rotate((float)angle);
+        renderer.currentTransform *= util::translate(getDisplayPosition());
+        renderer.currentTransform *= util::rotate(angle);
 
         if (invincibilityTime != decltype(invincibilityTime)())
         {

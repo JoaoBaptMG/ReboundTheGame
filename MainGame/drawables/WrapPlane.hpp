@@ -25,16 +25,18 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <glm/glm.hpp>
+#include <rect.hpp>
 
 class WrapPlane final : public sf::Drawable
 {
     std::shared_ptr<sf::Texture> texture;
-    sf::FloatRect drawArea;
+    util::rect drawArea;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    WrapPlane(sf::FloatRect area, std::shared_ptr<sf::Texture> tex = nullptr) : drawArea(area) { setTexture(tex); }
+    WrapPlane(util::rect area, std::shared_ptr<sf::Texture> tex = nullptr) : drawArea(area) { setTexture(tex); }
 
     auto getTexture() { return texture; }
     void setTexture(std::shared_ptr<sf::Texture> tex)
@@ -44,5 +46,5 @@ public:
     }
 
     auto getDrawArea() { return drawArea; }
-    void setDrawArea(sf::FloatRect area) { drawArea = area; }
+    void setDrawArea(util::rect area) { drawArea = area; }
 };

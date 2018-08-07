@@ -115,13 +115,13 @@ bool Grapple::notifyScreenTransition(cpVect displacement)
 void Grapple::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
 
     renderer.pushTransform();
 
     auto phases = toSeconds<float>(curTime - initialTime) / toSeconds<float>(WobblePeriod);
     auto scaleFactor = 0.875f + 0.125f * cosf(2 * M_PI * phases);
-    renderer.currentTransform.scale(scaleFactor, scaleFactor);
+    renderer.currentTransform *= util::scale(scaleFactor);
     renderer.pushDrawable(sprite, {}, 20);
     renderer.popTransform();
 
@@ -138,9 +138,9 @@ void Grapple::render(Renderer& renderer)
         {
             auto vec = player->getDisplayPosition() - getDisplayPosition();
             renderer.pushTransform();
-            renderer.currentTransform.translate(vec/2.0f);
-            renderer.currentTransform.rotate(radiansToDegrees(angle(vec)));
-            renderer.currentTransform.scale(length(vec)/grappleSprite.getTexture()->getSize().x, 1.0f);
+            renderer.currentTransform *= util::translate(vec/2.0f);
+            renderer.currentTransform *= util::rotate(angle(vec));
+            renderer.currentTransform *= util::scale(length(vec)/grappleSprite.getTexture()->getSize().x, 1.0f);
             renderer.pushDrawable(grappleSprite, {}, 15);
             renderer.popTransform();
         }

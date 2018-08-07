@@ -85,7 +85,7 @@ void BossCaption::render(Renderer& renderer)
     auto transform = renderer.currentTransform;
     renderer.popTransform();
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2);
+    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2);
     renderer.pushDrawable(text, {}, 120000);
     renderer.popTransform();
     renderer.pushTransform();

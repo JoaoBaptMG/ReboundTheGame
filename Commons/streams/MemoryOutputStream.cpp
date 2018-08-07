@@ -21,22 +21,30 @@
 //
 
 
-#pragma once
+#include "MemoryOutputStream.hpp"
 
-#include <vector>
-#include <string>
-#include <OutputStream.hpp>
+#include <algorithm>
+#include <cstring>
 
-class MemoryOutputStream final : public OutputStream
+bool MemoryOutputStream::write(const void* data, uint64_t size)
 {
-    std::vector<uint8_t> contents;
-    
-public:
-    MemoryOutputStream() {}
-    ~MemoryOutputStream() {}
-    
-    virtual bool write(const void* data, size_t size) override;
-    void alignTo(size_t align);
-    auto& getContents() { contents.shrink_to_fit(); return contents; }
-    const auto& getContents() const { return contents; }
-};
+    try
+    {
+        auto prevSize = contents.size();
+        contents.resize(prevSize + size);
+		std::copy_n((const char*)data, size, contents.begin() + prevSize);
+        return true;
+    }
+    catch (std::bad_alloc&)
+    {
+        return false;
+    }
+}
+
+void MemoryOutputStream::alignTo(uint64_t align)
+{
+    // PKCS7 alignment
+    auto newSize = ((contents.size() + align - 1) / align) * align;
+    auto diff = newSize - contents.size();
+    contents.resize(newSize, diff);
+}

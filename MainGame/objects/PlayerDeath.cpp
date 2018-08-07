@@ -77,7 +77,7 @@ void PlayerDeath::update(FrameTime curTime)
 void PlayerDeath::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(position);
+    renderer.currentTransform *= util::translate(position);
     renderer.pushDrawable(playerSprite, {}, 25);
     renderer.popTransform();
 }

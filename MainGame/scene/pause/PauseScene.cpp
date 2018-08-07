@@ -75,14 +75,14 @@ PauseScene::PauseScene(Services& services) : services(services),
         
         auto color = k == currentFrame ? sf::Color::Green : sf::Color::White;
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
-            ButtonCaptionSize, color, 1, sf::Color::Black, sf::Vector2f(0, 0),
+            util::rect(16, 0, 8, 1), util::rect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
+            ButtonCaptionSize, color, 1, sf::Color::Black, glm::vec2(0, 0),
             TextDrawable::Alignment::Center);
         
         button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
-        button.setPosition(sf::Vector2f(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
+        button.setPosition(glm::vec2(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
         button.setDepth(5000);
         
         button.setPressAction([=,&services] { playConfirm(services); switchPauseFrame(k); });
@@ -153,7 +153,7 @@ void PauseScene::update(FrameTime curTime)
     }
 }
 
-void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,
+void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, glm::vec2 pos,
     const std::vector<bool>& visibleMaps)
 {
     static_cast<MapPauseFrame*>(pauseFrames[1].get())->setLevelData(level, curRoom, pos, visibleMaps);
@@ -185,10 +185,10 @@ void PauseScene::render(Renderer &renderer)
     pointer.render(renderer);
     
     if (transitionFactor < 1)
-        renderer.currentTransform.translate(0, ScreenHeight * (1 - transitionFactor) * (1 - transitionFactor));
+        renderer.currentTransform *= util::translate(0, ScreenHeight * (1 - transitionFactor) * (1 - transitionFactor));
         
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 2);
+    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2 - 2);
     renderer.pushDrawable(backgroundSprite, {}, 4800);
     renderer.popTransform();
     
@@ -196,7 +196,7 @@ void PauseScene::render(Renderer &renderer)
         button.render(renderer);
         
     renderer.pushTransform();
-    renderer.currentTransform.translate(0, 64);
+    renderer.currentTransform *= util::translate(0, 64);
     pauseFrames[currentFrame]->render(renderer);
     renderer.popTransform();
     

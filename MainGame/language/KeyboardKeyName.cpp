@@ -29,7 +29,7 @@
 
 #include <SFML/Window.hpp>
 
-std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
+std::string scanCodeToKeyName(uint32_t code, LocalizationManager& lm)
 {
 	auto str = sf::Keyboard::keyNameForScanCode(code).toUtf8();
 	if (str.empty()) return lm.getFormattedString("key-name-unknown", {}, { { "n", code } }, {});
@@ -53,7 +53,7 @@ static void initCurLayout()
     CFRelease(inputSource);
 }
 
-std::string scanCodeToLocalizedKeyName(sf::Uint32 code, LocalizationManager& lm)
+std::string scanCodeToLocalizedKeyName(uint32_t code, LocalizationManager& lm)
 {
     if (!curLayout) initCurLayout();
     
@@ -73,7 +73,7 @@ std::string scanCodeToLocalizedKeyName(sf::Uint32 code, LocalizationManager& lm)
     return lm.getFormattedString("key-name-unknown", {}, {{"n", code}}, {});
 }
 
-std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
+std::string scanCodeToKeyName(uint32_t code, LocalizationManager& lm)
 {
     std::cout << code << std::endl;
     
@@ -181,7 +181,7 @@ static void initializeKeyMapper()
     std::atexit([]{ XFree(keysyms); });
 }
 
-std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
+std::string scanCodeToKeyName(uint32_t code, LocalizationManager& lm)
 {
     if (!keysyms) initializeKeyMapper();
 
@@ -190,7 +190,7 @@ std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
     {
         auto key = keysyms[i];
 
-        sf::Uint32 charCode = 0;
+        uint32_t charCode = 0;
 
         // ASCII character;
         if (key == 32) return lm.getString("key-name-space");
@@ -232,8 +232,8 @@ std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm)
             {
                 struct Comparator
                 {
-                    bool operator()(const MiscPair& first, sf::Uint32 second) const { return first.code < second; }
-                    bool operator()(sf::Uint32 first, const MiscPair& second) const { return first < second.code; }
+                    bool operator()(const MiscPair& first, uint32_t second) const { return first.code < second; }
+                    bool operator()(uint32_t first, const MiscPair& second) const { return first < second.code; }
                 };
 
                 auto pair = std::equal_range(scrambledMiscKeys, scrambledMiscKeys+scrambledMiscKeysSize, key, Comparator());

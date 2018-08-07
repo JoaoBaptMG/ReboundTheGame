@@ -75,12 +75,12 @@ namespace props
         auto getDisplayPosition() const
         {
             auto vec = getPosition();
-            return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
+            return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
         }
 
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
             std::string blockClusterName;
             size_t blockTime;
         };
@@ -88,5 +88,5 @@ namespace props
         bool configure(const ConfigStruct& config);
     };
 
-    bool readFromStream(sf::InputStream& stream, SwitchingBlock::ConfigStruct& config);
+    bool readFromStream(InputStream& stream, SwitchingBlock::ConfigStruct& config);
 }

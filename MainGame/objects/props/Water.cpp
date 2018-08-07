@@ -92,7 +92,7 @@ cpFloat intersectionAreaForAABBCircle(cpBB bb, cpVect pos, cpFloat radius)
 
 using namespace props;
 
-Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256)), player(nullptr)
+Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(glm::vec2(256, 256)), player(nullptr)
 {
     shape.setColor(sf::Color(100, 100, 255, 128));
     shape.setCoastColor(sf::Color(255, 255, 255, 128));
@@ -106,7 +106,7 @@ Water::~Water()
 
 bool Water::configure(const ConfigStruct& config)
 {
-    sf::IntRect destRect(config.position.x - config.width/2, config.position.y - config.height/2,
+    util::irect destRect(config.position.x - config.width/2, config.position.y - config.height/2,
                          config.width, config.height);
     setRect(destRect);
     shape.setTopHidden(config.hideTop);
@@ -122,12 +122,12 @@ bool Water::configure(const ConfigStruct& config)
     return true;
 }
 
-void Water::setRect(sf::IntRect rect)
+void Water::setRect(util::irect rect)
 {
-    shape.setDrawingSize(sf::Vector2f(rect.width, rect.height));
+    shape.setDrawingSize(glm::vec2(rect.width, rect.height));
 
-    this->rect = { (cpFloat)rect.left, (cpFloat)rect.top,
-                   (cpFloat)(rect.left + rect.width), (cpFloat)(rect.top + rect.height) };
+    this->rect = { (cpFloat)rect.x, (cpFloat)rect.y,
+                   (cpFloat)(rect.x + rect.width), (cpFloat)(rect.y + rect.height) };
 }
 
 void Water::update(FrameTime curTime)
@@ -165,7 +165,7 @@ bool Water::notifyScreenTransition(cpVect displacement)
 void Water::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(shape, {}, 21);
     renderer.popTransform();
 }

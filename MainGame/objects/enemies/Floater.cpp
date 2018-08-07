@@ -123,7 +123,7 @@ bool Floater::notifyScreenTransition(cpVect displacement)
 void Floater::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }

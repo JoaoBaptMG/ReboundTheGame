@@ -54,12 +54,12 @@ MessageSign::MessageSign(GameScene& scene)
     if (bounds.width < 48) bounds.width = 48;
     if (bounds.height < 48) bounds.height = 48;
 
-    signBox.setCenterRect(sf::FloatRect(4, 4, 4, 4));
-    signBox.setDestinationRect(sf::FloatRect(0, 0, bounds.width + 16, bounds.height + 16));
-    signBox.setAnchorPoint(sf::Vector2f(bounds.width/2 + 8, bounds.height/2 + 8));
+    signBox.setCenterRect(util::rect(4, 4, 4, 4));
+    signBox.setDestinationRect(util::rect(0, 0, bounds.width + 16, bounds.height + 16));
+    signBox.setAnchorPoint(glm::vec2(bounds.width/2 + 8, bounds.height/2 + 8));
 
     auto size = signPole.getTextureSize();
-    signPole.setAnchorPoint(sf::Vector2f(size.x/2, size.y));
+    signPole.setAnchorPoint(glm::vec2(size.x/2, size.y));
 
     interactionRadius = 40;
 
@@ -73,12 +73,12 @@ MessageSign::MessageSign(GameScene& scene)
         if (bounds.width < 48) bounds.width = 48;
         if (bounds.height < 48) bounds.height = 48;
 
-        signBox.setDestinationRect(sf::FloatRect(0, 0, bounds.width + 16, bounds.height + 16));
-        signBox.setAnchorPoint(sf::Vector2f(bounds.width/2 + 8, bounds.height/2 + 8));
+        signBox.setDestinationRect(util::rect(0, 0, bounds.width + 16, bounds.height + 16));
+        signBox.setAnchorPoint(glm::vec2(bounds.width/2 + 8, bounds.height/2 + 8));
     });
 }
 
-bool props::readFromStream(sf::InputStream& stream, MessageSign::ConfigStruct& config)
+bool props::readFromStream(InputStream& stream, MessageSign::ConfigStruct& config)
 {
     return ::readFromStream(stream, config.position, config.messageString);
 }
@@ -110,9 +110,9 @@ void MessageSign::interact()
 void MessageSign::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(signPole, {}, 13);
-    renderer.currentTransform.translate(0, -(float)signPole.getTextureSize().y - signBox.getAnchorPoint().y);
+    renderer.currentTransform *= util::translate(0, -(float)signPole.getTextureSize().y - signBox.getAnchorPoint().y);
     renderer.pushDrawable(signBox, {}, 13);
     renderer.pushDrawable(signLabel, {}, 14);
     renderer.popTransform();

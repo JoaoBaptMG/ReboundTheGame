@@ -46,7 +46,7 @@ SwitchingBlockCluster::SwitchingBlockCluster(GameScene& scene) : GameObject(scen
 
 }
 
-bool props::readFromStream(sf::InputStream& stream, SwitchingBlockCluster::ConfigStruct& config)
+bool props::readFromStream(InputStream& stream, SwitchingBlockCluster::ConfigStruct& config)
 {
     return ::readFromStream(stream, config.position, varLength(config.numBlockTimes),
         varLength(config.numVisibleTimes), config.durationSeconds);

@@ -27,7 +27,7 @@
 #include <limits>
 #include "Sound.hpp"
 
-util::generic_shared_ptr loadWaveFile(std::unique_ptr<sf::InputStream>& stream)
+util::generic_shared_ptr loadWaveFile(std::unique_ptr<InputStream>& stream)
 {
     using namespace util;
 

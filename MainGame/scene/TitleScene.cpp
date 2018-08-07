@@ -35,6 +35,8 @@
 #include "scene/settings/SettingsScene.hpp"
 #include "scene/FileSelectScene.hpp"
 
+#include <transforms.hpp>
+
 using namespace std::literals::chrono_literals;
 
 constexpr float ButtonHeight = 48;
@@ -52,8 +54,8 @@ const LangID ButtonIdentifiers[] =
 };
 
 TitleScene::TitleScene(Services& services)
-    : background(services.resourceManager.load<sf::Texture>("title-background.png"), sf::Vector2f(0, 0)),
-    foreground(services.resourceManager.load<sf::Texture>("title-foreground.png"), sf::Vector2f(0, 0)),
+    : background(services.resourceManager.load<sf::Texture>("title-background.png"), glm::vec2(0, 0)),
+    foreground(services.resourceManager.load<sf::Texture>("title-foreground.png"), glm::vec2(0, 0)),
     pointer(services), buttonGroup(services)
 {
     rtl = services.localizationManager.isRTL();
@@ -64,13 +66,13 @@ TitleScene::TitleScene(Services& services)
         button.initialize(services.inputManager);
         
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
-            ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+            util::rect(16, 0, 8, 1), util::rect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
+            ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0));
         
         button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
-        button.setPosition(sf::Vector2f(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (4-k) * (ButtonHeight + ButtonSpace)));
+        button.setPosition(glm::vec2(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (4-k) * (ButtonHeight + ButtonSpace)));
         button.setDepth(10);
         
         k++;
@@ -139,8 +141,8 @@ void TitleScene::render(Renderer &renderer)
     renderer.pushTransform();
     if (rtl)
     {
-        renderer.currentTransform.translate(ScreenWidth, 0);
-        renderer.currentTransform.scale(-1, 1);
+        renderer.currentTransform *= util::translate(ScreenWidth, 0);
+        renderer.currentTransform *= util::scale(-1, 1);
     }
     renderer.pushDrawable(foreground, {}, 20);
     renderer.popTransform();

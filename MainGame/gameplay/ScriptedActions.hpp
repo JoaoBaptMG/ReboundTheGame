@@ -36,5 +36,5 @@ public:
 class ScriptedDualAxisAction : public VirtualDualAxisAction
 {
 public:
-    virtual sf::Vector2f getValue() const override;
+    virtual glm::vec2 getValue() const override;
 };

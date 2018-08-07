@@ -43,7 +43,7 @@ using namespace props;
 using namespace cp;
 using namespace std::literals::chrono_literals;
 
-const sf::FloatRect FixedVelocityRect(-64, -192, 128, 128);
+const util::rect FixedVelocityRect(-64, -192, 128, 128);
 constexpr auto ExplosionDuration = 2s;
 constexpr float CrateHalfSize = 48, CrateBevel = 16;
 
@@ -106,8 +106,8 @@ void BombCrate::explode(void* ptr)
     auto dirPtr = normalize(velPtr) * 128.0f;
 
     auto rect = FixedVelocityRect;
-    rect.left += dirPtr.x;
-    rect.top += dirPtr.y;
+    rect.x += dirPtr.x;
+    rect.y += dirPtr.y;
     DestructibleCrate::explode(rect);
 }
 
@@ -117,17 +117,17 @@ void DashCrate::explode(void* ptr)
     auto player = static_cast<Player*>(ptr);
 
     auto ppos = player->getDisplayPosition(), pos = getDisplayPosition();
-    if (ppos.x - pos.x < -0.5 * (PlayerRadius + CrateHalfSize)) rect.left += 256;
-    else if (ppos.x - pos.x > 0.5 * (PlayerRadius + CrateHalfSize)) rect.left -= 256;
-    else if (ppos.y - pos.y > 0.5 * (PlayerRadius + CrateHalfSize)) rect.top -= 256;
+    if (ppos.x - pos.x < -0.5 * (PlayerRadius + CrateHalfSize)) rect.x += 256;
+    else if (ppos.x - pos.x > 0.5 * (PlayerRadius + CrateHalfSize)) rect.x -= 256;
+    else if (ppos.y - pos.y > 0.5 * (PlayerRadius + CrateHalfSize)) rect.y -= 256;
 
     DestructibleCrate::explode(rect);
 }
 
-void DestructibleCrate::explode(sf::FloatRect velocityRect)
+void DestructibleCrate::explode(util::rect velocityRect)
 {
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    auto displayGravity = glm::vec2(grav.x, grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
         velocityRect, displayGravity, TextureExplosion::Density, 8, 8, 25);
@@ -155,7 +155,7 @@ void DestructibleCrate::update(FrameTime curTime)
 void DestructibleCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }

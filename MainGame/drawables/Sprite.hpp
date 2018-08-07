@@ -25,16 +25,18 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <glm/glm.hpp>
+#include <rect.hpp>
 
 class Sprite : public sf::Drawable
 {
     static sf::Shader& getSpriteShader();
     
     std::shared_ptr<sf::Texture> texture;
-    sf::Vector2f anchorPoint;
+    glm::vec2 anchorPoint;
 
     sf::Color flashColor, blendColor;
-    sf::FloatRect texRect;
+    util::rect texRect;
     float opacity, grayscaleFactor;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -44,25 +46,25 @@ protected:
     virtual void setupVertices();
 
 public:
-    Sprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f anchor);
+    Sprite(std::shared_ptr<sf::Texture> tex, glm::vec2 anchor);
     Sprite(std::shared_ptr<sf::Texture> tex);
     Sprite();
     
     virtual ~Sprite() {}
 
-    sf::Vector2f getAnchorPoint() const { return anchorPoint; }
-    void setAnchorPoint(sf::Vector2f ap) { anchorPoint = ap; }
+    glm::vec2 getAnchorPoint() const { return anchorPoint; }
+    void setAnchorPoint(glm::vec2 ap) { anchorPoint = ap; }
     void centerAnchorPoint()
     { 
-        setAnchorPoint(sf::Vector2f(texRect.left + texRect.width/2, texRect.top + texRect.height/2));
+        setAnchorPoint(glm::vec2(texRect.x + texRect.width/2, texRect.y + texRect.height/2));
     }
 
-    sf::Vector2u getTextureSize() const
+    glm::uvec2 getTextureSize() const
     {
-        return texture ? texture->getSize() : sf::Vector2u(0, 0);
+		return glm::uvec2(texture ? texture->getSize().x : 0, texture ? texture->getSize().y : 0);
     }
     
-    virtual sf::FloatRect getBounds() const;
+    virtual util::rect getBounds() const;
 
     auto getFlashColor() const { return flashColor; }
     void setFlashColor(sf::Color color) { flashColor = color; }
@@ -80,10 +82,10 @@ public:
     virtual void setTexture(std::shared_ptr<sf::Texture> tex)
     { 
         texture = tex;
-        texRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
+        texRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
         setupVertices();
     }
     
     auto getTextureRect() const { return texRect; }
-    void setTextureRect(sf::FloatRect rect) { texRect = rect; setupVertices(); }
+    void setTextureRect(util::rect rect) { texRect = rect; setupVertices(); }
 };

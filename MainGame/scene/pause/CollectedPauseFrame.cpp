@@ -61,7 +61,7 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
     showSecretPowerups(false), scrollBar(services, 600, 512)
 {
     scrollBar.setDepth(5100);
-    scrollBar.setPosition(sf::Vector2f((ScreenWidth+PlayfieldWidth)/2 - 8, 64));
+    scrollBar.setPosition(glm::vec2((ScreenWidth+PlayfieldWidth)/2 - 8, 64));
 
     size_t i = 0;
     for (auto& title : titles)
@@ -154,20 +154,20 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
     for (auto& sprite : powerupSprites)
     {
         sprite.setTexture(services.resourceManager.load<sf::Texture>("powerup" + std::to_string(i+1) + ".png"));
-        sprite.setAnchorPoint(sf::Vector2f(sprite.getTextureSize()/2u));
+        sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
         i++;
     }
     
     for (auto& sprite : goldenTokenSprites)
     {
         sprite.setTexture(services.resourceManager.load<sf::Texture>("golden-token.png"));
-        sprite.setAnchorPoint(sf::Vector2f(sprite.getTextureSize()/2u));
+        sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
     }
 
     for (auto& sprite : picketSprites)
     {
         sprite.setTexture(services.resourceManager.load<sf::Texture>("icon-picket.png"));
-        sprite.setAnchorPoint(sf::Vector2f(sprite.getTextureSize()/2u));
+        sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
         sprite.setBlendColor(sf::Color::Black);
     }
 
@@ -267,63 +267,63 @@ void CollectedPauseFrame::render(Renderer &renderer)
     bool rtl = localizationManager.isRTL();
     auto rtlInvert = [rtl](float x) { return rtl ? -x : x; };
 
-    auto rect = sf::FloatRect((ScreenWidth - PlayfieldWidth)/2, 0, PlayfieldWidth, PlayfieldHeight);
-    scissorRectPush = ScissorRectPush(renderer.currentTransform.transformRect(rect));
+    auto rect = util::rect((ScreenWidth - PlayfieldWidth)/2, 0, PlayfieldWidth, PlayfieldHeight);
+    scissorRectPush = ScissorRectPush(renderer.currentTransform * rect);
     renderer.pushDrawable(scissorRectPush, {}, 5600);
 
     renderer.pushTransform();
 
-    renderer.currentTransform.translate(ScreenWidth/2 + rtlInvert(-HealthSpacing/2),
+    renderer.currentTransform *= util::translate(ScreenWidth/2 + rtlInvert(-HealthSpacing/2),
         -scrollBar.getCurrentOffset() + 28);
     renderer.pushDrawable(titles[3], {}, 5601);
-    renderer.currentTransform.translate(rtlInvert(HealthSpacing), 0);
+    renderer.currentTransform *= util::translate(rtlInvert(HealthSpacing), 0);
     renderer.pushDrawable(healthLabel, {}, 5601);
 
-    renderer.currentTransform.translate(rtlInvert(-HealthSpacing/2), 40);
+    renderer.currentTransform *= util::translate(rtlInvert(-HealthSpacing/2), 40);
     renderer.pushDrawable(titles[0], {}, 5601);
 
-    renderer.currentTransform.translate(rtlInvert(-ContentWidth/2 + 24), 48 + IconSpacing);
+    renderer.currentTransform *= util::translate(rtlInvert(-ContentWidth/2 + 24), 48 + IconSpacing);
 
     size_t i = 0;
     for (auto& sprite : powerupSprites)
     {
         renderer.pushDrawable(sprite, {}, 5602);
-        renderer.currentTransform.translate(rtlInvert(24 + IconSpacing), 0);
+        renderer.currentTransform *= util::translate(rtlInvert(24 + IconSpacing), 0);
         renderer.pushDrawable(powerupLabels[i], {}, 5603);
-        renderer.currentTransform.translate(rtlInvert(-24 - IconSpacing), 0);
+        renderer.currentTransform *= util::translate(rtlInvert(-24 - IconSpacing), 0);
         i++;
         if (i == 5)
-            renderer.currentTransform.translate(rtlInvert(StandardSpacing), -224);
-        else if (i != 11) renderer.currentTransform.translate(0, 56);
+            renderer.currentTransform *= util::translate(rtlInvert(StandardSpacing), -224);
+        else if (i != 11) renderer.currentTransform *= util::translate(0, 56);
         if (!showSecretPowerups && i == 10) break;
         else if (i == 10 || i == 11)
-            renderer.currentTransform.translate(rtl ^ (i == 11) ? StandardSpacing : -StandardSpacing, 0);
+            renderer.currentTransform *= util::translate(rtl ^ (i == 11) ? StandardSpacing : -StandardSpacing, 0);
     }
 
     constexpr float TokenWidth = 480 + 27 * IconSpacing;
-    renderer.currentTransform.translate(rtlInvert(ContentWidth/2 - 24 - StandardSpacing), -4);
+    renderer.currentTransform *= util::translate(rtlInvert(ContentWidth/2 - 24 - StandardSpacing), -4);
     renderer.pushDrawable(titles[1], {}, 5601);
-    renderer.currentTransform.translate(rtlInvert(-TokenWidth/2 + 24), 48 + IconSpacing);
+    renderer.currentTransform *= util::translate(rtlInvert(-TokenWidth/2 + 24), 48 + IconSpacing);
 
     i = 0;
     for (auto& sprite : goldenTokenSprites)
     {
         renderer.pushDrawable(sprite, {}, 5602);
         i++;
-        if (i % 3 == 0 && i < 30) renderer.currentTransform.translate(rtlInvert(48 + 3 * IconSpacing), -112);
-        else renderer.currentTransform.translate(0, 48 + IconSpacing);
+        if (i % 3 == 0 && i < 30) renderer.currentTransform *= util::translate(rtlInvert(48 + 3 * IconSpacing), -112);
+        else renderer.currentTransform *= util::translate(0, 48 + IconSpacing);
     }
 
-    renderer.currentTransform.translate(rtlInvert(-TokenWidth/2 + 24), -4);
+    renderer.currentTransform *= util::translate(rtlInvert(-TokenWidth/2 + 24), -4);
     renderer.pushDrawable(titles[2], {}, 5601);
-    renderer.currentTransform.translate(rtlInvert(-ContentWidth/2), 34 + IconSpacing);
+    renderer.currentTransform *= util::translate(rtlInvert(-ContentWidth/2), 34 + IconSpacing);
 
     auto drawPicket = [=, &renderer](size_t i)
     {
-        float angle = 360 * toSeconds<float>(curTime - initTime) / toSeconds<float>(RotationPeriod);
+        float angle = 2 * M_PI * toSeconds<float>(curTime - initTime) / toSeconds<float>(RotationPeriod);
 
         renderer.pushTransform();
-        renderer.currentTransform.rotate(rtl ? -angle : angle);
+        renderer.currentTransform *= util::rotate(rtl ? -angle : angle);
         renderer.pushDrawable(picketSprites[i], {}, 5603);
         renderer.popTransform();
     };
@@ -332,33 +332,33 @@ void CollectedPauseFrame::render(Renderer &renderer)
     for (i = 0; i < 10;)
     {
         renderer.pushDrawable(levelLabels[i], {}, 5602);
-        renderer.currentTransform.translate(rtlInvert(LabelOffset - 40), 0);
+        renderer.currentTransform *= util::translate(rtlInvert(LabelOffset - 40), 0);
         renderer.pushDrawable(picketCount[i], {}, 5603);
-        renderer.currentTransform.translate(rtl ? -22 : 22, 0);
+        renderer.currentTransform *= util::translate(rtl ? -22 : 22, 0);
         drawPicket(i);
-        renderer.currentTransform.translate(rtlInvert(-LabelOffset + 18), 0);
+        renderer.currentTransform *= util::translate(rtlInvert(-LabelOffset + 18), 0);
         i++;
         if (i == 5)
-            renderer.currentTransform.translate(rtlInvert(StandardSpacing), -176);
-        else renderer.currentTransform.translate(0, 44);
+            renderer.currentTransform *= util::translate(rtlInvert(StandardSpacing), -176);
+        else renderer.currentTransform *= util::translate(0, 44);
     }
 
-    renderer.currentTransform.translate(rtlInvert(-StandardSpacing), 0);
+    renderer.currentTransform *= util::translate(rtlInvert(-StandardSpacing), 0);
 
-    renderer.currentTransform.translate(rtl ? StandardSpacing + LabelOffset : 0, 0);
+    renderer.currentTransform *= util::translate(rtl ? StandardSpacing + LabelOffset : 0, 0);
     renderer.pushDrawable(totalLabel, {}, 5602);
-    renderer.currentTransform.translate(rtlInvert(StandardSpacing + LabelOffset - 40), 0);
+    renderer.currentTransform *= util::translate(rtlInvert(StandardSpacing + LabelOffset - 40), 0);
     renderer.pushDrawable(totalPicketCount, {}, 5602);
-    renderer.currentTransform.translate(rtl ? -22 : 22, 0);
+    renderer.currentTransform *= util::translate(rtl ? -22 : 22, 0);
     drawPicket(10);
     
     renderer.popTransform();
 
     renderer.pushDrawable(ScissorRect::pop(), {}, 5604);
 
-    renderer.currentTransform.translate(0, -64);
+    renderer.currentTransform *= util::translate(0, -64);
     scrollBar.render(renderer);
-    renderer.currentTransform.translate(0, 64);
+    renderer.currentTransform *= util::translate(0, 64);
 }
 
 void CollectedPauseFrame::activate()

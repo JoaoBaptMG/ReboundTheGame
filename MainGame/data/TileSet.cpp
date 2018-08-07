@@ -26,18 +26,12 @@
 #include <streamReaders.hpp>
 #include <algorithm>
 
-template <typename T>
-bool readFromStream(sf::InputStream& stream, sf::Vector2<T> &vec)
-{
-    return readFromStream(stream, vec.x, vec.y);
-}
-
-bool readFromStream(sf::InputStream& stream, TileSet::Terrain& terrain)
+bool readFromStream(InputStream& stream, TileSet::Terrain& terrain)
 {
     return readFromStream(stream, terrain.terrainAttribute, terrain.physicalParameters) && terrain.isValid();
 }
 
-bool readFromStream(sf::InputStream& stream, TileSet::SingleObject::Shape& shape)
+bool readFromStream(InputStream& stream, TileSet::SingleObject::Shape& shape)
 {
     if (!readFromStream(stream, shape.type)) return false;
     
@@ -55,7 +49,7 @@ bool readFromStream(sf::InputStream& stream, TileSet::SingleObject::Shape& shape
     }
 }
 
-bool readFromStream(sf::InputStream& stream, TileSet::SingleObject& object)
+bool readFromStream(InputStream& stream, TileSet::SingleObject& object)
 {
     if (!readFromStream(stream, object.objectAttribute)) return false;
     if (object.objectAttribute == TileSet::Attribute::Crumbling &&
@@ -64,7 +58,7 @@ bool readFromStream(sf::InputStream& stream, TileSet::SingleObject& object)
     return TileSet::isAttributeValid(object.objectAttribute);
 }
 
-bool readFromStream(sf::InputStream& stream, TileSet& tileSet)
+bool readFromStream(InputStream& stream, TileSet& tileSet)
 {
     if (!readFromStream(stream, tileSet.textureName, tileSet.terrains, tileSet.singleObjects)) return false;
 

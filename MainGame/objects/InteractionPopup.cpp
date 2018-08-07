@@ -31,6 +31,7 @@
 #include "language/convenienceConfigText.hpp"
 
 #include <chronoUtils.hpp>
+#include <transforms.hpp>
 
 auto FadeInterval = 12_frames;
 
@@ -52,9 +53,9 @@ InteractionPopup::InteractionPopup(GameScene& scene)
 
     auto bounds = popupLabel.getLocalBounds();
 
-    popupBox.setCenterRect(sf::FloatRect(8, 8, 8, 8));
-    popupBox.setDestinationRect(sf::FloatRect(0, 0, bounds.width + 8, bounds.height + 8));
-    popupBox.setAnchorPoint(sf::Vector2f(bounds.width/2 + 4, bounds.height/2 + 4));
+    popupBox.setCenterRect(util::rect(8, 8, 8, 8));
+    popupBox.setDestinationRect(util::rect(0, 0, bounds.width + 8, bounds.height + 8));
+    popupBox.setAnchorPoint(glm::vec2(bounds.width/2 + 4, bounds.height/2 + 4));
 }
 
 void InteractionPopup::update(FrameTime curTime)
@@ -85,14 +86,14 @@ void InteractionPopup::collapse()
 
 bool InteractionPopup::notifyScreenTransition(cpVect displacement)
 {
-    position += sf::Vector2f(roundf(displacement.x), roundf(displacement.y));
+    position += glm::vec2(roundf(displacement.x), roundf(displacement.y));
     return true;
 }
 
 void InteractionPopup::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(position - sf::Vector2f(0, popupBox.getAnchorPoint().y));
+    renderer.currentTransform *= util::translate(position - glm::vec2(0, popupBox.getAnchorPoint().y));
     renderer.pushDrawable(popupBox, {}, 3500);
     renderer.pushDrawable(popupLabel, {}, 3500);
     renderer.popTransform();

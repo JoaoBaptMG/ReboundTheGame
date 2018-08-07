@@ -26,7 +26,8 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
+#include <glm/glm.hpp>
 
 template <typename T>
 static constexpr bool isContained(T) { return false; }
@@ -85,7 +86,7 @@ struct TileSet final
         {
             ShapeType type;
             int16_t radius; // multifunctional
-            std::vector<sf::Vector2<int16_t>> points; // also multifunctional
+            std::vector<glm::i16vec2> points; // also multifunctional
         };
 
         Attribute objectAttribute;
@@ -165,4 +166,4 @@ struct TileSet final
     static constexpr auto ReadMagic = "TSET";
 };
 
-bool readFromStream(sf::InputStream &stream, TileSet& tileSet);
+bool readFromStream(InputStream &stream, TileSet& tileSet);
