@@ -25,6 +25,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
+#include <rect.hpp>
 #include <cmath>
 
 class ScissorRectGuard
@@ -34,17 +35,17 @@ class ScissorRectGuard
 
 public:
     ScissorRectGuard();
-    ScissorRectGuard(const sf::FloatRect& rect);
+    ScissorRectGuard(const util::rect& rect);
     ~ScissorRectGuard();
 };
 
 class ScissorRectPush : public sf::Drawable
 {
-    sf::FloatRect scissorRect;
+    util::rect scissorRect;
 
 public:
     ScissorRectPush() : scissorRect(NAN, NAN, NAN, NAN) {}
-    ScissorRectPush(sf::FloatRect rect) : scissorRect(rect) {}
+    ScissorRectPush(util::rect rect) : scissorRect(rect) {}
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

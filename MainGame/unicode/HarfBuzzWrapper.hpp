@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <glm/glm.hpp>
 #include <SFML/System.hpp>
 #include <cstdint>
 #include <string>
@@ -35,7 +36,7 @@ struct StringProperties
     {
         uint32_t codepoint;
         size_t cluster;
-        sf::Vector2f offset, advance;
+        glm::vec2 offset, advance;
     };
     
     bool isRTL;

@@ -124,16 +124,16 @@ public:
 class DualAxisActionBase : public VirtualDualAxisAction
 {
 protected:
-    sf::Vector2f valuePos;
-    sf::Vector2f valueNeg;
+    glm::vec2 valuePos;
+    glm::vec2 valueNeg;
 
-    std::function<void(sf::Vector2f)> action;
+    std::function<void(glm::vec2)> action;
 
     DualAxisActionBase() : valuePos(), valueNeg() {}
     ~DualAxisActionBase() {}
 
 public:
-    virtual sf::Vector2f getValue() const override
+    virtual glm::vec2 getValue() const override
     {
         return valuePos - valueNeg;
     }

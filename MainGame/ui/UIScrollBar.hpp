@@ -28,6 +28,7 @@
 #include "input/InputManager.hpp"
 #include "drawables/SegmentedSprite.hpp"
 
+
 #include "Services.hpp"
 class Renderer;
 
@@ -40,9 +41,9 @@ private:
     SegmentedSprite scrollRange, scrollThumb;
     std::function<void(float)> scrollAction;
     Direction direction;
-    float curOffset, maxOffset, scrollLength, thumbSize;
-    sf::Vector2f position;
-    sf::Vector2i mousePosition, lastMousePos;
+    float curOffset, maleftOffset, scrollLength, thumbSize;
+    glm::vec2 position;
+    glm::ivec2 mousePosition, lastMousePos;
     bool dragging;
     size_t depth;
     
@@ -62,20 +63,20 @@ public:
     void setCurrentOffset(float ofs);
     
     auto getDirection() const { return direction; }
-    auto getMaxOffset() const { return maxOffset; }
+    auto getMaleftOffset() const { return maleftOffset; }
     auto getScrollLength() const { return scrollLength; }
     
     void computeSizes(Direction dir, float viewSize, float scrollLength);
     
     auto getPosition() const { return position; }
-    void setPosition(sf::Vector2f pos) { position = pos; }
+    void setPosition(glm::vec2 pos) { position = pos; }
     
     auto getDepth() const { return depth; }
     void setDepth(size_t d) { depth = d; }
 
-    sf::FloatRect getLocalThumbBounds() const;
+    util::rect getLocalThumbBounds() const;
     float getGraphicalOffset() const;
-    bool isContainedOnStrip(sf::Vector2f localPos) const;
+    bool isContainedOnStrip(glm::vec2 localPos) const;
     
     void render(Renderer& renderer);
 };

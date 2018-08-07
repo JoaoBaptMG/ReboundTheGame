@@ -27,7 +27,7 @@
 
 #include <assert.hpp>
 #include <chronoUtils.hpp>
-#include <rectUtils.hpp>
+#include <rect.hpp>
 #include "defaults.hpp"
 #include "gameplay/MapGenerator.hpp"
 #include "data/LevelData.hpp"
@@ -48,8 +48,8 @@ void clearMapTextures() { staticLevelTextures.clear(); }
 
 constexpr float BlinkPeriod = 2;
 
-const sf::FloatRect MapViewport(-54, -54, 108, 108);
-const sf::FloatRect ExtendedMapViewport(-364, -204, 728, 408);
+const util::rect MapViewport(-54, -54, 108, 108);
+const util::rect ExtendedMapViewport(-364, -204, 728, 408);
 
 constexpr uint8_t PresentSpeed = 6;
 
@@ -60,7 +60,7 @@ void setColorOnly(sf::Color& color, sf::Color dest)
     color.b = dest.b;
 }
 
-sf::FloatRect GUIMap::getBounds() const
+util::rect GUIMap::getBounds() const
 {
     return extendedFrame ? ExtendedMapViewport : MapViewport;
 }
@@ -125,18 +125,17 @@ void GUIMap::buildLevelTexture()
         auto& data = staticLevelTextures.emplace(curLevel, MapTextureData()).first->second;
         mapTexture = &data.texture;
         
-        sf::IntRect bounds;
+        util::irect bounds;
         data.vertArray.resize(6 * curLevel->roomMaps.size());
 
         for (const auto& mapData : curLevel->roomMaps)
-            bounds = rectUnionWithRect(bounds,
-                sf::IntRect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
+            bounds = bounds.unite(util::irect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
                 
         ASSERT(mapTexture->create(bounds.width, bounds.height));
 
         auto buildVertex = [=](float x, float y)
         {
-            return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.left, y - bounds.top));
+            return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.x, y - bounds.y));
         };
 
         size_t i = 0;
@@ -144,7 +143,7 @@ void GUIMap::buildLevelTexture()
         {
             if (mapData.map.empty()) continue;
             mapTexture->update(getTextureData(mapData.map).get(), mapData.map.width(), mapData.map.height(),
-                mapData.x - bounds.left, mapData.y - bounds.top);
+                mapData.x - bounds.x, mapData.y - bounds.y);
             
             data.vertArray[i++] = buildVertex(mapData.x, mapData.y);
             data.vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y);
@@ -190,7 +189,7 @@ void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
     ScissorRectGuard guard{states.transform.transformRect(getBounds())};
     
     states.transform.translate(-curLevel->roomMaps.at(curRoom).x, -curLevel->roomMaps.at(curRoom).y);
-    states.transform.translate(-displayPosition);
+    states.transform.translate(-displayPosition.x, -displayPosition.y);
     states.texture = mapTexture;
     
     target.draw(vertArray, states);

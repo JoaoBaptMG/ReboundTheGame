@@ -24,11 +24,12 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <rect.hpp>
 
 class Quad : public sf::Drawable
 {
     sf::Color color;
-    sf::FloatRect rect;
+    util::rect rect;
     
     sf::VertexArray vertices;
     void setupVertices();
@@ -36,11 +37,11 @@ class Quad : public sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    Quad(sf::FloatRect rect, sf::Color color = sf::Color());
+    Quad(util::rect rect, sf::Color color = sf::Color());
     virtual ~Quad() {}
     
     auto getRect() const { return rect; }
-    void setRect(sf::FloatRect r) { rect = r; setupVertices(); }
+    void setRect(util::rect r) { rect = r; setupVertices(); }
     
     auto getColor() const { return color; }
     void setColor(sf::Color c) { color = c; setupVertices(); }

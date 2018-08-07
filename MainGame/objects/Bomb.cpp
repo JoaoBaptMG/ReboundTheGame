@@ -29,6 +29,8 @@
 #include "resources/ResourceManager.hpp"
 #include "particles/ParticleBatch.hpp"
 
+#include <transforms.hpp>
+
 #include "objects/Player.hpp"
 
 using namespace std::literals::chrono_literals;
@@ -89,7 +91,7 @@ void Bomb::render(Renderer& renderer)
     sprite.setOpacity(0.75f + 0.25f * cosf(2 * M_PI * SinePhase * powf(factor, SinePower)));
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+	renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 14);
     renderer.popTransform();
 }

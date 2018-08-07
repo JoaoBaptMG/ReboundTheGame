@@ -29,29 +29,29 @@
 
 #include <defaults.hpp>
 
-const sf::Vector2f GlobalPosition(ScreenWidth/2, ScreenHeight/2);
+const glm::vec2 GlobalPosition(ScreenWidth/2, ScreenHeight/2);
 const float ControllerMovementSpeed = 2;
 
 MapPauseFrame::MapPauseFrame(Services& services, const std::shared_ptr<LevelData>& levelData,
-    size_t curRoom, sf::Vector2f pos, const std::vector<bool>& visibleMaps)
+    size_t curRoom, glm::vec2 pos, const std::vector<bool>& visibleMaps)
     : mapFrame(services.resourceManager.load<sf::Texture>("pause-map-frame.png")),
     mapController(services.inputManager, services.settings.inputSettings),
     map(true), active(true), state(Outside)
 {
     setLevelData(levelData, curRoom, pos, visibleMaps);
     
-    mouseMoveEntry = services.inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
+    mouseMoveEntry = services.inputManager.registerMouseMoveCallback([=] (glm::ivec2 position)
     {
         if (!active) return;
         
-        if (state == Outside && map.getBounds().contains(sf::Vector2f(position) - GlobalPosition)) state = Inside;
-        else if (state != Outside && !map.getBounds().contains(sf::Vector2f(position) - GlobalPosition))
+        if (state == Outside && map.getBounds().contains(glm::vec2(position) - GlobalPosition)) state = Inside;
+        else if (state != Outside && !map.getBounds().contains(glm::vec2(position) - GlobalPosition))
             state = Outside;
         
         if (state == Inside) initialPosition = position;
         else if (state == Clicked)
         {
-            map.setDisplayPosition(map.getDisplayPosition() - sf::Vector2f(position - initialPosition));
+            map.setDisplayPosition(map.getDisplayPosition() - glm::vec2(position - initialPosition));
             initialPosition = position;
         }
     });
@@ -65,7 +65,7 @@ MapPauseFrame::MapPauseFrame(Services& services, const std::shared_ptr<LevelData
     });
 }
 
-void MapPauseFrame::setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos,
+void MapPauseFrame::setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, glm::vec2 pos,
     const std::vector<bool>& visibleMaps)
 {
     map.setCurLevel(levelData);
@@ -89,7 +89,7 @@ void MapPauseFrame::update(FrameTime curTime)
 void MapPauseFrame::render(Renderer &renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 64);
+    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2 - 64);
     renderer.pushDrawable(mapFrame, {}, 5000);
     renderer.pushDrawable(map, {}, 5002);
     renderer.popTransform();

@@ -98,10 +98,12 @@ TextDrawable::TextDrawable(std::shared_ptr<FontHandler> fontHandler) : fontHandl
     wordWrappingAlgorithm = WordWrappingAlgorithm::Normal;
 }
 
-inline static auto addGlyphQuad(sf::VertexArray& dest, sf::Vector2f position, sf::Color color, const sf::Glyph& glyph)
+sf::Vector2f toSF(glm::vec2 v) { return sf::Vector2f(v.x, v.y); }
+
+inline static auto addGlyphQuad(sf::VertexArray& dest, glm::vec2 position, sf::Color color, const sf::Glyph& glyph)
 {
     const auto& bounds = glyph.bounds;
-    sf::FloatRect texRect((float)glyph.textureRect.left, (float)glyph.textureRect.top,
+    util::rect texRect((float)glyph.textureRect.top, (float)glyph.textureRect.left,
         (float)glyph.textureRect.width, (float)glyph.textureRect.height);
 
     auto s = dest.getVertexCount();
@@ -109,14 +111,14 @@ inline static auto addGlyphQuad(sf::VertexArray& dest, sf::Vector2f position, sf
     if (bounds == sf::FloatRect(0, 0, 0, 0))
         return std::make_pair(s, s);
 
-    dest.append(sf::Vertex(position + sf::Vector2f(bounds.left, bounds.top),
-        color, sf::Vector2f(texRect.left, texRect.top)));
-    dest.append(sf::Vertex(position + sf::Vector2f(bounds.left + bounds.width, bounds.top),
-        color, sf::Vector2f(texRect.left + texRect.width, texRect.top)));
-    dest.append(sf::Vertex(position + sf::Vector2f(bounds.left + bounds.width, bounds.top + bounds.height),
-        color, sf::Vector2f(texRect.left + texRect.width, texRect.top + texRect.height)));
-    dest.append(sf::Vertex(position + sf::Vector2f(bounds.left, bounds.top + bounds.height),
-        color, sf::Vector2f(texRect.left, texRect.top + texRect.height)));
+    dest.append(sf::Vertex(toSF(position + glm::vec2(bounds.left, bounds.top)),
+        color, sf::Vector2f(texRect.x, texRect.y)));
+    dest.append(sf::Vertex(toSF(position + glm::vec2(bounds.left + bounds.width, bounds.top)),
+        color, sf::Vector2f(texRect.x + texRect.width, texRect.y)));
+    dest.append(sf::Vertex(toSF(position + glm::vec2(bounds.left + bounds.width, bounds.top + bounds.height)),
+        color, sf::Vector2f(texRect.x + texRect.width, texRect.y + texRect.height)));
+    dest.append(sf::Vertex(toSF(position + glm::vec2(bounds.left, bounds.top + bounds.height)),
+        color, sf::Vector2f(texRect.x, texRect.y + texRect.height)));
     dest.append(dest[s]);
     dest.append(dest[s+2]);
 
@@ -192,7 +194,7 @@ void TextDrawable::buildGeometry()
         size_t prevCluster = (size_t)-1;
         size_t curWordBegin = vertices.getVertexCount();
         size_t curGraphemeBegin = graphemeClusters.size();
-        sf::Vector2f position;
+		glm::vec2 position{};
 
         auto prop = wrapper.shape(curPos, nextWordPos - curPos);
         for (const auto& glyphData : prop.glyphs)
@@ -202,7 +204,7 @@ void TextDrawable::buildGeometry()
 
             if (outline)
             {
-                auto tempPos = position + glyphData.offset - sf::Vector2f(outlineThickness, outlineThickness);
+                auto tempPos = position + glyphData.offset - glm::vec2(outlineThickness, outlineThickness);
                 const auto& glyph = font.getGlyphId(c, fontSize, false, outlineThickness);
                 addGlyphQuad(verticesOutline, tempPos, defaultOutlineColor, glyph);
             }
@@ -246,20 +248,20 @@ void TextDrawable::buildGeometry()
 
         std::vector<Line> lines;
 
-        sf::Vector2f curPos;
+		glm::vec2 curPos{};
 
         if (wordWrappingWidth > 0)
         {
-            bounds.left = rtl ? -wordWrappingWidth : 0;
+            bounds.x = rtl ? -wordWrappingWidth : 0;
             bounds.width = wordWrappingWidth;
         }
         else
         {
-            bounds.left = 0;
+            bounds.x = 0;
             bounds.width = 0;
         }
 
-        bounds.top = font.getAscent(fontSize);
+        bounds.y = font.getAscent(fontSize);
 
         const Word* lastBegin = &words.front();
         float curLineWidth = 0;
@@ -289,14 +291,14 @@ void TextDrawable::buildGeometry()
 
             for (size_t i = word.vertexBegin; i < word.vertexEnd; i++)
             {
-                vertices[i].position += curPos;
-                if (outline) verticesOutline[i].position += curPos;
+                vertices[i].position += toSF(curPos);
+                if (outline) verticesOutline[i].position += toSF(curPos);
 
                 //bounds = rectUnionWithPoint(bounds, vertices[i].position);
             }
 
             if (!rtl) curPos.x += word.wordWidth;
-            bounds = rectUnionWithLineX(bounds, curPos.x);
+            bounds = bounds.unionWithLineX(curPos.x);
             curLineWidth = curPos.x;
 
             if (word.nextCharacter)
@@ -318,9 +320,9 @@ void TextDrawable::buildGeometry()
             }
         }
 
-        bounds = rectUnionWithLineX(bounds, curLineWidth);
+        bounds = bounds.unionWithLineX(curLineWidth);
         lines.push_back({ lastBegin->vertexBegin, words.back().vertexEnd, words.back().graphemeClusterEnd, curLineWidth });
-        bounds.height = (lines.size() - 1) * font.getLineSpacing(fontSize) + font.getDescent(fontSize) - bounds.top;
+        bounds.height = (lines.size() - 1) * font.getLineSpacing(fontSize) + font.getDescent(fontSize) - bounds.y;
 
         lineBoundaries.clear();
         for (const auto& line : lines)
@@ -343,28 +345,28 @@ void TextDrawable::buildGeometry()
         }
     }
 
-    sf::Vector2f revert;
+    glm::vec2 revert;
     switch (horizontalAnchor)
     {
-        case HorAnchor::Left: revert.x = bounds.left; break;
-        case HorAnchor::Center: revert.x = floorf(bounds.left + bounds.width/2); break;
-        case HorAnchor::Right: revert.x = bounds.left + bounds.width; break;
+        case HorAnchor::Left: revert.x = bounds.x; break;
+        case HorAnchor::Center: revert.x = floorf(bounds.x + bounds.width/2); break;
+        case HorAnchor::Right: revert.x = bounds.x + bounds.width; break;
     }
     switch (verticalAnchor)
     {
-        case VertAnchor::Top: revert.y = bounds.top; break;
-        case VertAnchor::Center: revert.y = floorf(bounds.top + bounds.height/2); break;
-        case VertAnchor::Bottom: revert.y = bounds.top + bounds.height; break;
+        case VertAnchor::Top: revert.y = bounds.y; break;
+        case VertAnchor::Center: revert.y = floorf(bounds.y + bounds.height/2); break;
+        case VertAnchor::Bottom: revert.y = bounds.y + bounds.height; break;
         case VertAnchor::Baseline: break;
     }
 
-    bounds.left -= revert.x;
-    bounds.top -= revert.y;
+    bounds.x -= revert.x;
+    bounds.y -= revert.y;
 
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
     {
-        vertices[i].position -= revert;
-        if (outline) verticesOutline[i].position -= revert;
+        vertices[i].position -= toSF(revert);
+        if (outline) verticesOutline[i].position -= toSF(revert);
     }
 
     needsUpdateGeometry = false;

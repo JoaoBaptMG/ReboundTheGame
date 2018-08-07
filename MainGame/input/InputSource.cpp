@@ -80,7 +80,7 @@ bool operator<(InputSource in1, InputSource in2)
     return in1.type == in2.type ? in1.attribute < in2.attribute : in1.type < in2.type;
 }
 
-bool readFromStream(sf::InputStream& stream, InputSource& in)
+bool readFromStream(InputStream& stream, InputSource& in)
 {
     return readFromStream(stream, in.type, varLength(in.attribute));
 }

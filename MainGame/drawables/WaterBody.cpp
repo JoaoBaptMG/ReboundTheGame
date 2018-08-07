@@ -196,7 +196,7 @@ static void dynamicWaveUpdateThread(void* ptr)
 	}
 }
 
-WaterBody::WaterBody(sf::Vector2f drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false), dynamicWaveProperties(nullptr)
+WaterBody::WaterBody(glm::vec2 drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false), dynamicWaveProperties(nullptr)
 {
 	if (!threadInfo) threadInfo = std::make_unique<DynamicUpdateThreadInfo>();
 

@@ -57,7 +57,7 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
     UIPointer& pointer, bool forJoystick) : SettingsPanel(curSettings, pointer),
     backButton(services.inputManager), buttonGroup(services)
 {
-    auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
+    auto pos = getCenterPosition() + glm::vec2(0, -TotalHeight/2 + ButtonHeight/2);
 
     title.setFontHandler(loadDefaultFont(services));
     title.setString(services.localizationManager.getString(forJoystick ? "settings-joystick-title" : "settings-keyboard-title"));
@@ -70,14 +70,14 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
     configTextDrawable(title, services.localizationManager);
     title.buildGeometry();
 
-    pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
+    pos += glm::vec2(0, ButtonHeight + ButtonSpace);
     buildInputScreen(pos, services, forJoystick);
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
-        sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
+        util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+        "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0),
         TextDrawable::Alignment::Center);
-    backButton.setPosition(getCenterPosition() + sf::Vector2f(0, TotalHeight/2 - ButtonHeight/2));
+    backButton.setPosition(getCenterPosition() + glm::vec2(0, TotalHeight/2 - ButtonHeight/2));
 
     backButton.getPressedSprite()->setBlendColor(sf::Color::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
@@ -101,7 +101,7 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
     buttonGroup.setPointer(pointer);
 }
 
-void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, Services& services, bool forJoystick)
+void InputMappingSettingsPanel::buildInputScreen(glm::vec2 pos, Services& services, bool forJoystick)
 {
     auto& settings = services.settings.inputSettings;
 
@@ -145,8 +145,8 @@ void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, Services& ser
         auto& button = mappingButtons.back();
 
         createCommonInputRemapper(*button, services, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            mapping.langID, ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+            util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+            mapping.langID, ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0));
         button->setPosition(pos);
 
         button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
@@ -154,7 +154,7 @@ void InputMappingSettingsPanel::buildInputScreen(sf::Vector2f pos, Services& ser
         button->getActiveSprite()->setOpacity(0.5);
         button->setDepth(5000);
 
-        pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
+        pos += glm::vec2(0, ButtonHeight + ButtonSpace);
     }
 
     mappingButtons.shrink_to_fit();
@@ -175,8 +175,8 @@ void InputMappingSettingsPanel::update(FrameTime curTime)
 void InputMappingSettingsPanel::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getCenterPosition());
-    renderer.currentTransform.translate(0, -TotalHeight/2 + ButtonHeight/2);
+    renderer.currentTransform *= util::translate(getCenterPosition());
+    renderer.currentTransform *= util::translate(0, -TotalHeight/2 + ButtonHeight/2);
     renderer.pushDrawable(title, {}, 5000);
     renderer.popTransform();
 

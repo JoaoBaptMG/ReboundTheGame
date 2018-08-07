@@ -133,8 +133,8 @@ bool Rotator::notifyScreenTransition(cpVect displacement)
 void Rotator::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.currentTransform.rotate(radiansToDegrees(collisionBody->getAngle()));
+    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.currentTransform *= util::rotate(collisionBody->getAngle());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }

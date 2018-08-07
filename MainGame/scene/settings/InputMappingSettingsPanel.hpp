@@ -42,7 +42,7 @@ class InputMappingSettingsPanel final : public SettingsPanel
     UIButton backButton;
     UIInputRemappingButtonGroup buttonGroup;
 
-    void buildInputScreen(sf::Vector2f pos, Services& services, bool forJoystick);
+    void buildInputScreen(glm::vec2 pos, Services& services, bool forJoystick);
 
 public:
     InputMappingSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer, bool forJoystick);

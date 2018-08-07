@@ -23,9 +23,10 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <InputStream.hpp>
 #include <generic_ptrs.hpp>
 #include <memory>
+#include <SFML/Graphics.hpp>
 #include "unicode/HarfBuzzWrapper.hpp"
 
 class FontHandler final
@@ -45,4 +46,4 @@ public:
     auto& getHBWrapper() { return harfBuzzWrapper; }
 };
 
-util::generic_shared_ptr loadFontHandler(std::unique_ptr<sf::InputStream>&);
+util::generic_shared_ptr loadFontHandler(std::unique_ptr<InputStream>&);

@@ -106,7 +106,7 @@ public:
     auto getDisplayPosition() const
     {
         auto vec = getPosition() + graphicalDisplacement;
-        return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
+        return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
     }
 
     auto getHealth() const { return health; }
@@ -190,7 +190,7 @@ public:
 #pragma pack(push, 1)
     struct ConfigStruct
     {
-        sf::Vector2<int16_t> position;
+        glm::i16vec2 position;
     };
 #pragma pack(pop)
 

@@ -28,16 +28,18 @@
 #include <map>
 #include <stack>
 #include <non_copyable_movable.hpp>
+#include <glm/glm.hpp>
+#include <transforms.hpp>
 
 using RenderData = std::pair<std::reference_wrapper<const sf::Drawable>,sf::RenderStates>;
 
 class Renderer final : util::non_copyable
 {
     std::multimap<long,RenderData> drawableList;
-    std::stack<sf::Transform> transformStack;
+    std::stack<glm::mat3> transformStack;
 
 public:
-    Renderer() noexcept : currentTransform(sf::Transform::Identity) {}
+    Renderer() noexcept : currentTransform(1.0f) {}
     Renderer(Renderer&& other) noexcept;
     Renderer& operator=(Renderer other);
 
@@ -49,7 +51,7 @@ public:
     void render(sf::RenderTarget& target);
     void clearState();
 
-    sf::Transform currentTransform;
+	glm::mat3 currentTransform;
     
     friend void swap(Renderer& r1, Renderer& r2);
 };

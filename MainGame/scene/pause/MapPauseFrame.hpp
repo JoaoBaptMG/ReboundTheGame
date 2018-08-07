@@ -47,13 +47,13 @@ class MapPauseFrame : public PauseFrame
     InputManager::MouseMoveEntry mouseMoveEntry;
     InputPlayerController mapController;
     
-    sf::Vector2i initialPosition;
+    glm::ivec2 initialPosition;
     bool active;
     enum { Outside, Inside, Clicked } state;
     
 public:
     MapPauseFrame(Services& services,
-        const std::shared_ptr<LevelData>& levelData = nullptr, size_t curRoom = 0, sf::Vector2f pos = {},
+        const std::shared_ptr<LevelData>& levelData = nullptr, size_t curRoom = 0, glm::vec2 pos = {},
         const std::vector<bool>& visibleMaps = {});
     virtual ~MapPauseFrame() {}
     
@@ -63,6 +63,6 @@ public:
     virtual void activate() override;
     virtual void deactivate() override;
     
-    void setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, sf::Vector2f pos,
+    void setLevelData(const std::shared_ptr<LevelData>& levelData, size_t curRoom, glm::vec2 pos,
         const std::vector<bool>& visibleMaps);
 };

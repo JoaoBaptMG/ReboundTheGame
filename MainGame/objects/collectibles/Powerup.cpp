@@ -170,7 +170,7 @@ void Powerup::update(FrameTime curTime)
 void Powerup::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(vertices, sf::RenderStates(texture.get()), 25);
     renderer.popTransform();
 }

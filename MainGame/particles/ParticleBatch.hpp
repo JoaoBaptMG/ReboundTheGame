@@ -28,6 +28,7 @@
 #include <chronoUtils.hpp>
 #include <memory>
 #include <unordered_map>
+#include <glm/glm.hpp>
 
 #include "objects/GameObject.hpp"
 
@@ -51,7 +52,7 @@ public:
 
     struct PositionInfo
     {
-        sf::Vector2f position, velocity, acceleration;
+        glm::vec2 position, velocity, acceleration;
     };
 
     struct DisplayInfo
@@ -81,7 +82,7 @@ private:
     FrameTime lastTime, initialTime;
     size_t drawingDepth;
 
-    sf::Vector2f position;
+    glm::vec2 position;
     bool aborted;
     
 public:
@@ -108,7 +109,7 @@ public:
     void unabort() { aborted = false; }
 
     auto getPosition() { return position; }
-    void setPosition(sf::Vector2f pos) { position = pos; }
+    void setPosition(glm::vec2 pos) { position = pos; }
 
 	friend class ParticleEmitter;
 };

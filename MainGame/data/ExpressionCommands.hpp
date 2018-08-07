@@ -24,7 +24,7 @@
 #pragma once
 
 #include <vector>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 
 struct ExpressionCommands final
 {
@@ -35,5 +35,5 @@ struct ExpressionCommands final
     #endif
 };
 
-bool readFromStream(sf::InputStream &stream, ExpressionCommands& cmds);
+bool readFromStream(InputStream &stream, ExpressionCommands& cmds);
 intmax_t runExpression(const ExpressionCommands& cmds, size_t x);

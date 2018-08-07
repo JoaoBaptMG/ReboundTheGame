@@ -24,13 +24,13 @@
 #pragma once
 
 #include <string>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 
 #include <generic_ptrs.hpp>
 
 namespace ResourceLoader
 {
-    util::generic_shared_ptr loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type);
+    util::generic_shared_ptr loadFromStream(std::unique_ptr<InputStream> stream, std::string type);
 }
 
 class ResourceLoadingError : public std::runtime_error

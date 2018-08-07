@@ -34,12 +34,12 @@
 #include "audio/Sound.hpp"
 
 void createCommonTextualButton(UIButton& button, Services& services,
-    std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
-    sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
-    float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement,
+    std::string activeResourceName, std::string pressedResourceName, util::rect centerRect,
+    util::rect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
+    float outlineThickness, sf::Color outlineColor, glm::vec2 captionDisplacement,
     TextDrawable::Alignment wordAlignment)
 {
-    sf::Vector2f destCenter(destRect.width/2, destRect.height/2);
+    glm::vec2 destCenter(destRect.width/2, destRect.height/2);
     
     auto activeSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>(activeResourceName));
     activeSprite->setCenterRect(centerRect);

@@ -50,7 +50,7 @@ constexpr float TotalHeight = 472;
 LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, SettingsBase* curSettings, UIPointer& pointer)
     : SettingsPanel(curSettings, pointer), backButton(services.inputManager), buttonGroup(services)
 {
-    auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
+    auto pos = getCenterPosition() + glm::vec2(0, -TotalHeight/2 + ButtonHeight/2);
 
     title.setFontHandler(loadDefaultFont(services));
     title.setString(services.localizationManager.getString("settings-language-select-title"));
@@ -63,7 +63,7 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
     configTextDrawable(title, services.localizationManager);
     title.buildGeometry();
 
-    pos += sf::Vector2f(0, ButtonHeight + ButtonSpace);
+    pos += glm::vec2(0, ButtonHeight + ButtonSpace);
 
     for (std::string lang : getAllLanguageDescriptors())
     {
@@ -71,8 +71,8 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
         auto& button = languageButtons.back();
 
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, SmallButtonHeight),
-            "", SmallCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
+            util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, SmallButtonHeight),
+            "", SmallCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0),
             TextDrawable::Alignment::Direct);
         button->getCaption()->setString(getLanguageDescriptorName(lang));
         button->getCaption()->buildGeometry();
@@ -91,16 +91,16 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
             curSettings->changeSettingsPanel(new RootSettingsPanel(services, curSettings, pointer));
         });
 
-        pos += sf::Vector2f(0, SmallButtonHeight + SmallButtonSpace);
+        pos += glm::vec2(0, SmallButtonHeight + SmallButtonSpace);
     }
 
     languageButtons.shrink_to_fit();
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
-        sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
+        util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+        "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0),
         TextDrawable::Alignment::Center);
-    backButton.setPosition(getCenterPosition() + sf::Vector2f(0, TotalHeight/2 - ButtonHeight/2));
+    backButton.setPosition(getCenterPosition() + glm::vec2(0, TotalHeight/2 - ButtonHeight/2));
 
     backButton.getPressedSprite()->setBlendColor(sf::Color::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
@@ -128,8 +128,8 @@ void LanguageSelectSettingsPanel::update(FrameTime curTime)
 void LanguageSelectSettingsPanel::render(Renderer &renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getCenterPosition());
-    renderer.currentTransform.translate(0, -TotalHeight/2 + ButtonHeight/2);
+    renderer.currentTransform *= util::translate(getCenterPosition());
+    renderer.currentTransform *= util::translate(0, -TotalHeight/2 + ButtonHeight/2);
     renderer.pushDrawable(title, {}, 5000);
     renderer.popTransform();
 

@@ -27,7 +27,6 @@
 #include "UIButtonCommons.hpp"
 
 #include "rendering/Renderer.hpp"
-#include <rectUtils.hpp>
 #include <cmath>
 #include <assert.h>
 
@@ -94,21 +93,21 @@ void UIInputRemapper::render(Renderer& renderer)
     UIButton::render(renderer);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getPosition());
+    renderer.currentTransform *= util::translate(getPosition());
 
     auto bounds = getBounds();
     auto captionDisplacement = getCaptionDisplacement();
     
-    renderer.currentTransform.translate(floorf(bounds.left + bounds.width/2), floorf(bounds.top + bounds.height/2));
+    renderer.currentTransform *= util::translate(floorf(bounds.x + bounds.width/2), floorf(bounds.y + bounds.height/2));
     renderer.pushDrawable(sourceCaption, {}, getDepth());
     
     renderer.popTransform();
 }
 
 void createCommonInputRemapper(UIInputRemapper& button, Services& services,
-    std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
-    sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
-    float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement)
+    std::string activeResourceName, std::string pressedResourceName, util::rect centerRect,
+    util::rect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
+    float outlineThickness, sf::Color outlineColor, glm::vec2 captionDisplacement)
 {
     createCommonTextualButton(button, services, activeResourceName, pressedResourceName, centerRect, destRect,
         captionString, captionSize, textColor, outlineThickness, outlineColor, captionDisplacement);

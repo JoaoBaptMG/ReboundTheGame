@@ -26,6 +26,7 @@
 #include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 #include <memory>
+#include <rect.hpp>
 
 enum class MeterSize { Small, Normal };
 
@@ -39,9 +40,9 @@ class GUIMeter final : public sf::Drawable
     sf::Color fillColor, targetColor, backdropColor;
 
     sf::Vertex vertices[20];
-    sf::Vector2f position;
+    glm::vec2 position;
 
-    void setRect(size_t ind, sf::FloatRect rect);
+    void setRect(size_t ind, util::rect rect);
     void setQuadColor(size_t ind, sf::Color color);
 
 public:
@@ -80,8 +81,8 @@ public:
     void setIcon(const std::shared_ptr<sf::Texture>& i) { icon = i; }
 
     auto getPosition() const { return position; }
-    void setPosition(sf::Vector2f pos) { position = pos; }
-    void setPosition(float x, float y) { position = sf::Vector2f(x, y); }
+    void setPosition(glm::vec2 pos) { position = pos; }
+    void setPosition(float x, float y) { position = glm::vec2(x, y); }
 
     void update(FrameTime);
     void updateVertices();

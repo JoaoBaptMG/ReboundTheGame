@@ -133,10 +133,10 @@ void TestBoss::die()
     EnemyCommon::die();
     
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    auto displayGravity = glm::vec2(grav.x, grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, mainSprite.getTexture(), ExplosionDuration,
-        sf::FloatRect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 8, 8, 160);
+        util::rect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 8, 8, 160);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
     
@@ -157,7 +157,7 @@ void TestBoss::render(Renderer& renderer)
     applyBlinkEffect(mainSprite);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(mainSprite, {}, 160);
     renderer.popTransform();
 }
@@ -215,7 +215,7 @@ void TestBossProjectile::update(FrameTime curTime)
 void TestBossProjectile::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 156);
     renderer.popTransform();
 }

@@ -52,7 +52,7 @@ SwitchingBlock::SwitchingBlock(GameScene &scene) : GameObject(scene),
 
 }
 
-bool props::readFromStream(sf::InputStream& stream, SwitchingBlock::ConfigStruct& config)
+bool props::readFromStream(InputStream& stream, SwitchingBlock::ConfigStruct& config)
 {
     return ::readFromStream(stream, config.position, config.blockClusterName, varLength(config.blockTime));
 }
@@ -153,7 +153,7 @@ bool SwitchingBlock::notifyScreenTransition(cpVect displacement)
 void SwitchingBlock::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     if (visible) renderer.pushDrawable(blockSprite, {}, 36);
     if (fadeSprite.getOpacity() > 0) renderer.pushDrawable(fadeSprite, {}, 37);
     renderer.popTransform();

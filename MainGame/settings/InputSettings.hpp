@@ -67,5 +67,5 @@ struct InputSettings
     JoystickSettings joystickSettings;
 };
 
-bool readFromStream(sf::InputStream &stream, InputSettings& settings);
+bool readFromStream(InputStream &stream, InputSettings& settings);
 bool writeToStream(OutputStream& stream, const InputSettings& settings);

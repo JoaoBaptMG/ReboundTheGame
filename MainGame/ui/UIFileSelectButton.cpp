@@ -46,9 +46,9 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     goldenTokenAmount(loadDefaultFont(services)),
     picketAmount(loadDefaultFont(services))
 {
-    sf::FloatRect centerRect(4, 4, 4, 4);
-    sf::FloatRect destRect(0, 0, ButtonSize, 128);
-    sf::Vector2f destCenter(destRect.width/2, destRect.height/2);
+    util::rect centerRect(4, 4, 4, 4);
+    util::rect destRect(0, 0, ButtonSize, 128);
+    glm::vec2 destCenter(destRect.width/2, destRect.height/2);
     
     auto normalSprite = std::make_unique<SegmentedSprite>(
         services.resourceManager.load<sf::Texture>("ui-file-button-frame.png"));
@@ -126,9 +126,9 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     setDepth(10);
 }
 
-sf::FloatRect UIFileSelectButton::getBounds() const
+util::rect UIFileSelectButton::getBounds() const
 {
-    return sf::FloatRect(-ButtonSize/2, 0, ButtonSize, 128);
+    return util::rect(-ButtonSize/2, 0, ButtonSize, 128);
 }
 
 void UIFileSelectButton::render(Renderer& renderer)
@@ -136,15 +136,15 @@ void UIFileSelectButton::render(Renderer& renderer)
     UIButton::render(renderer);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getPosition());
+    renderer.currentTransform *= util::translate(getPosition());
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(0, -28);
+    renderer.currentTransform *= util::translate(0, -28);
     renderer.pushDrawable(fileName, {}, getDepth()+4);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(rtl ? ButtonSize/2 - ButtonBorder - 56 :
+    renderer.currentTransform *= util::translate(rtl ? ButtonSize/2 - ButtonBorder - 56 :
         -ButtonSize/2 + ButtonBorder + ButtonSpace, 4);
 
     float powerupSpacing = showSecretPowerups ? 59 : 72;
@@ -152,7 +152,7 @@ void UIFileSelectButton::render(Renderer& renderer)
     for (auto& sprite : powerupSprites)
     {
         renderer.pushDrawable(sprite, {}, getDepth()+4);
-        renderer.currentTransform.translate(rtl ? -powerupSpacing : powerupSpacing, 0);
+        renderer.currentTransform *= util::translate(rtl ? -powerupSpacing : powerupSpacing, 0);
 
         k++;
         if (k == 10 && !showSecretPowerups) break;
@@ -163,17 +163,17 @@ void UIFileSelectButton::render(Renderer& renderer)
     renderer.pushTransform();
     auto bounds = goldenTokenAmount.getLocalBounds();
     float disp = -ButtonSize/2 + ButtonBorder + ButtonSpace + bounds.width/2;
-    renderer.currentTransform.translate(rtl ? disp : -disp, -28);
+    renderer.currentTransform *= util::translate(rtl ? disp : -disp, -28);
     renderer.pushDrawable(goldenTokenAmount, {}, getDepth()+4);
     disp = bounds.width/2 + ButtonSpace + 24;
-    renderer.currentTransform.translate(rtl ? disp : -disp, 0);
+    renderer.currentTransform *= util::translate(rtl ? disp : -disp, 0);
     renderer.pushDrawable(goldenTokenSprite, {}, getDepth()+4);
     bounds = picketAmount.getLocalBounds();
     disp = bounds.width/2 + ButtonSpace + 36;
-    renderer.currentTransform.translate(rtl ? disp : -disp, 0);
+    renderer.currentTransform *= util::translate(rtl ? disp : -disp, 0);
     renderer.pushDrawable(picketAmount, {}, getDepth()+4);
     disp = bounds.width/2 + ButtonSpace + 16;
-    renderer.currentTransform.translate(rtl ? disp : -disp, 4);
+    renderer.currentTransform *= util::translate(rtl ? disp : -disp, 4);
     renderer.pushDrawable(picketSprite, {}, getDepth()+4);
 
     renderer.popTransform();

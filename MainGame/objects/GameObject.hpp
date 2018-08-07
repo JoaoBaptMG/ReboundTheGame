@@ -29,9 +29,8 @@
 
 #include <memory>
 #include <chronoUtils.hpp>
-#include <chronoUtils.hpp>
 #include <functional>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 
 class GameScene;
 class Renderer;
@@ -69,5 +68,5 @@ public:
 
 struct GameObjectDescriptor;
 
-util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass);
+util::generic_shared_ptr readParametersFromStream(InputStream& stream, std::string klass);
 std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, const GameObjectDescriptor& descriptor);

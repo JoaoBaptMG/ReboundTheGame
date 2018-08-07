@@ -79,7 +79,7 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
 
 PushableCrate::PushableCrate(GameScene& gameScene) : GameObject(gameScene)
 {
-    sf::FloatRect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
+    util::rect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
         (float)PlayfieldWidth, (float)PlayfieldHeight};
     tilemap.setDrawingFrame(drawingFrame);
     
@@ -178,8 +178,8 @@ bool PushableCrate::notifyScreenTransition(cpVect displacement)
 void PushableCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.currentTransform.rotate(radiansToDegrees(shape->getBody()->getAngle()));
+    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.currentTransform *= util::rotate(shape->getBody()->getAngle());
     renderer.pushDrawable(tilemap, {}, 25);
     renderer.popTransform();
 }

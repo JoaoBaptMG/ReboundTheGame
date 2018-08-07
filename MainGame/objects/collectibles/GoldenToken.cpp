@@ -99,7 +99,7 @@ void GoldenToken::update(FrameTime curTime)
     pos.y = baseY - Amplitude * factor;
     collisionBody->setPosition(pos);
     
-    tokenBatch->setPosition(sf::Vector2f(pos.x, pos.y));
+    tokenBatch->setPosition(glm::vec2(pos.x, pos.y));
 }
 
 bool GoldenToken::notifyScreenTransition(cpVect displacement)
@@ -111,7 +111,7 @@ bool GoldenToken::notifyScreenTransition(cpVect displacement)
 void GoldenToken::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.pushDrawable(sprite, {}, 25);
     renderer.popTransform();
 }

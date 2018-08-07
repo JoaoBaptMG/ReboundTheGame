@@ -55,10 +55,10 @@ public:
     static constexpr auto ReadMagic = "LEVEL";
 };
 
-bool readRLGrid(sf::InputStream& stream, util::grid<bool>& grid);
-bool readBinaryGrid(sf::InputStream& stream, util::grid<bool>& grid);
-bool readFromStream(sf::InputStream& stream, LevelData::MapData& map);
-bool readFromStream(sf::InputStream& stream, LevelData& level);
+bool readRLGrid(InputStream& stream, util::grid<bool>& grid);
+bool readBinaryGrid(InputStream& stream, util::grid<bool>& grid);
+bool readFromStream(InputStream& stream, LevelData::MapData& map);
+bool readFromStream(InputStream& stream, LevelData& level);
 
 bool writeRLGrid(OutputStream& stream, const util::grid<bool>& grid);
 bool writeBinaryGrid(OutputStream& stream, const util::grid<bool>& grid);

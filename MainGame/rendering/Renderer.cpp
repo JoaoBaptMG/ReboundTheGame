@@ -24,6 +24,7 @@
 #include "Renderer.hpp"
 
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 Renderer::Renderer(Renderer&& other) noexcept : Renderer()
 {
@@ -45,17 +46,23 @@ void swap(Renderer& r1, Renderer& r2)
     swap(r1.currentTransform, r2.currentTransform);
 }
 
-inline static std::ostream& operator<<(std::ostream& out, const sf::Transform& transform)
+inline static std::ostream& operator<<(std::ostream& out, const glm::mat3& transform)
 {
-    auto mtx = transform.getMatrix();
+	auto mtx = glm::value_ptr(transform);
     out << '(' << mtx[0];
-    for (size_t i = 1; i < 16; i++) out << ',' << mtx[i];
+    for (size_t i = 1; i < 9; i++) out << ',' << mtx[i];
     return out << ')';
 }
 
 void Renderer::pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth)
 {
-    states.transform.combine(currentTransform);
+	sf::Transform transformedTransform
+	(
+		currentTransform[0][0], currentTransform[1][0], currentTransform[2][0],
+		currentTransform[0][1], currentTransform[1][1], currentTransform[2][1],
+		currentTransform[0][2], currentTransform[1][2], currentTransform[2][2]
+	);
+    states.transform.combine(transformedTransform);
     drawableList.emplace(depth, std::make_pair(std::cref(drawable), states));
 }
 
@@ -72,7 +79,7 @@ void Renderer::clearState()
     while (!transformStack.empty())
         transformStack.pop();
 
-    currentTransform = sf::Transform::Identity;
+	currentTransform = util::identity;
 }
 
 void Renderer::pushTransform()

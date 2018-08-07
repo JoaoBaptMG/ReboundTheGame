@@ -46,7 +46,7 @@ foreach(FILE ${MainGame_SRCS})
 endforeach()
 
 add_executable(MainGame ${MainGame_SRCS})
-target_link_libraries(MainGame CppMunk ${Boost_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${SFML_LIBRARIES}
+target_link_libraries(MainGame CppMunk Commons ${Boost_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${SFML_LIBRARIES}
     ${HARFBUZZ_LIBRARY} ${PORTAUDIO_LIBRARIES} ${SFML_DEPENDENCIES})
 
 install(TARGETS MainGame RUNTIME DESTINATION bin)

@@ -30,7 +30,7 @@
 #include <string>
 #include <map>
 #include <functional>
-#include <rectUtils.hpp>
+#include <rect.hpp>
 #include "resources/FontHandler.hpp"
 
 class TextDrawable final : public sf::Drawable
@@ -74,7 +74,7 @@ private:
     bool needsUpdateGeometry = false;
     sf::VertexArray vertices, verticesOutline;
     
-    sf::FloatRect bounds;
+    util::rect bounds;
 
     std::vector<GraphemeClusterData> graphemeClusters;
     std::vector<size_t> lineBoundaries;
