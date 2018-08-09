@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 #include <memory>
 #include <rect.hpp>
@@ -37,13 +37,13 @@ class GUIMeter final : public sf::Drawable
     MeterSize size;
     bool useCurrentAnimation;
     size_t height = 0, current = 0, target = 0;
-    sf::Color fillColor, targetColor, backdropColor;
+    glm::u8vec4 fillColor, targetColor, backdropColor;
 
     sf::Vertex vertices[20];
     glm::vec2 position;
 
     void setRect(size_t ind, util::rect rect);
-    void setQuadColor(size_t ind, sf::Color color);
+    void setQuadColor(size_t ind, glm::u8vec4 color);
 
 public:
     GUIMeter(MeterSize size, bool useCurrentAnimation = true);
@@ -60,7 +60,7 @@ public:
     
     float getFrameHeight() const;
 
-    void setColors(sf::Color fill, sf::Color target, sf::Color backdrop)
+    void setColors(glm::u8vec4 fill, glm::u8vec4 target, glm::u8vec4 backdrop)
     {
         fillColor = fill;
         targetColor = target;
@@ -69,13 +69,13 @@ public:
     }
     
     auto getFillColor() const { return fillColor; }
-    void setFillColor(sf::Color color) { fillColor = color; updateVertices(); }
+    void setFillColor(glm::u8vec4 color) { fillColor = color; updateVertices(); }
     
     auto getTargetColor() const { return targetColor; }
-    void setTargetColor(sf::Color color) { targetColor = color; updateVertices(); }
+    void setTargetColor(glm::u8vec4 color) { targetColor = color; updateVertices(); }
     
     auto getBackdropColor() const { return backdropColor; }
-    void setBackdropColor(sf::Color color) { backdropColor = color; updateVertices(); }
+    void setBackdropColor(glm::u8vec4 color) { backdropColor = color; updateVertices(); }
 
     auto getIcon() const { return icon; }
     void setIcon(const std::shared_ptr<sf::Texture>& i) { icon = i; }

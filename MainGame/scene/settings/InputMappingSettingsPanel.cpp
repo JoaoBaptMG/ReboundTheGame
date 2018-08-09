@@ -62,9 +62,9 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
     title.setFontHandler(loadDefaultFont(services));
     title.setString(services.localizationManager.getString(forJoystick ? "settings-joystick-title" : "settings-keyboard-title"));
     title.setFontSize(ButtonCaptionSize);
-    title.setDefaultColor(sf::Color::Yellow);
+    title.setDefaultColor(glm::u8vec4::Yellow);
     title.setOutlineThickness(1);
-    title.setDefaultOutlineColor(sf::Color::Black);
+    title.setDefaultOutlineColor(glm::u8vec4::Black);
     title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(title, services.localizationManager);
@@ -75,11 +75,11 @@ InputMappingSettingsPanel::InputMappingSettingsPanel(Services& services, Setting
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        "settings-back-to-root", ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0),
+        "settings-back-to-root", ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0),
         TextDrawable::Alignment::Center);
     backButton.setPosition(getCenterPosition() + glm::vec2(0, TotalHeight/2 - ButtonHeight/2));
 
-    backButton.getPressedSprite()->setBlendColor(sf::Color::Yellow);
+    backButton.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.setDepth(5000);
@@ -146,10 +146,10 @@ void InputMappingSettingsPanel::buildInputScreen(glm::vec2 pos, Services& servic
 
         createCommonInputRemapper(*button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            mapping.langID, ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0));
+            mapping.langID, ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
         button->setPosition(pos);
 
-        button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
+        button->getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
         button->setDepth(5000);

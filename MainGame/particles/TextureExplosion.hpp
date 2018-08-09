@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <vector>
 #include <chronoUtils.hpp>
 #include <memory>

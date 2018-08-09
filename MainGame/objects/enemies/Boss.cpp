@@ -53,9 +53,9 @@ BossCaption::BossCaption(GameScene& scene, LangID captionID) : GameObject(scene)
 {
     text.setString(scene.getLocalizationManager().getString(captionID));
     text.setFontSize(48);
-    text.setDefaultColor(sf::Color::White);
+    text.setDefaultColor(glm::u8vec4::White);
     text.setOutlineThickness(2);
-    text.setDefaultOutlineColor(sf::Color::Black);
+    text.setDefaultOutlineColor(glm::u8vec4::Black);
     text.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     text.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(text, scene.getLocalizationManager());

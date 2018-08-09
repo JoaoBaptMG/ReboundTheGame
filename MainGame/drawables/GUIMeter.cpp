@@ -33,8 +33,8 @@ GUIMeter::GUIMeter(MeterSize size, bool useCurrentAnimation) : size(size), useCu
 {
     float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
 
-    setQuadColor(0, sf::Color::Black);
-    setQuadColor(4, sf::Color(200, 200, 200));
+    setQuadColor(0, glm::u8vec4::Black);
+    setQuadColor(4, glm::u8vec4(200, 200, 200));
 
     for (size_t i = 0; i < 16; i++)
         vertices[i].texCoords = sf::Vector2f(0, 0);
@@ -55,7 +55,7 @@ void GUIMeter::setRect(size_t ind, util::rect rect)
     vertices[ind+3].position = sf::Vector2f(rect.x, rect.y + rect.height);
 }
 
-void GUIMeter::setQuadColor(size_t ind, sf::Color color)
+void GUIMeter::setQuadColor(size_t ind, glm::u8vec4 color)
 {
     vertices[ind].color = color;
     vertices[ind+1].color = color;

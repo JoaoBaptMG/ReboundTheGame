@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <memory>
 #include <glm/glm.hpp>
 #include <rect.hpp>

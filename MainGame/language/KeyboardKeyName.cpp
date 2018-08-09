@@ -27,7 +27,7 @@
 
 #if _WIN32
 
-#include <SFML/Window.hpp>
+
 
 std::string scanCodeToKeyName(uint32_t code, LocalizationManager& lm)
 {

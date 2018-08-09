@@ -73,13 +73,13 @@ PauseScene::PauseScene(Services& services) : services(services),
     {
         button.initialize(services.inputManager);
         
-        auto color = k == currentFrame ? sf::Color::Green : sf::Color::White;
+        auto color = k == currentFrame ? glm::u8vec4::Green : glm::u8vec4::White;
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
-            ButtonCaptionSize, color, 1, sf::Color::Black, glm::vec2(0, 0),
+            ButtonCaptionSize, color, 1, glm::u8vec4::Black, glm::vec2(0, 0),
             TextDrawable::Alignment::Center);
         
-        button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
+        button.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
         button.setPosition(glm::vec2(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
@@ -207,13 +207,13 @@ void PauseScene::render(Renderer &renderer)
 
 void PauseScene::switchPauseFrame(size_t frame)
 {
-    frameButtons[currentFrame].getCaption()->setDefaultColor(sf::Color::White);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(glm::u8vec4::White);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->deactivate();
     
     currentFrame = frame;
     
-    frameButtons[currentFrame].getCaption()->setDefaultColor(sf::Color::Green);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(glm::u8vec4::Green);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->activate();
 }

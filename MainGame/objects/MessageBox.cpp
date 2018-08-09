@@ -53,7 +53,7 @@ constexpr float MessageVerticalSpacing = 112;
 
 constexpr auto IconOscillationPeriod = 48_frames;
 
-const sf::Color DisplayColors[] =
+const glm::u8vec4 DisplayColors[] =
     {
         Colors::White, Colors::CornflowerBlue, Colors::LightFuchsiaPink, Colors::YellowOrange, Colors::LimeGreen
     };
@@ -79,7 +79,7 @@ MessageBox::MessageBox(Services& services)
     float desiredHeight = messageBackground.getTextureSize().y - 32;
     actualMessageHeight = fitTextDrawableToHeight(messageText, desiredHeight, VisibleLines);
 
-    messageText.setDefaultColor(sf::Color::White);
+    messageText.setDefaultColor(glm::u8vec4::White);
     messageText.setWordAlignment(TextDrawable::Alignment::Direct);
     messageText.setWordWrappingWidth(messageBackground.getTextureSize().x - 32);
     messageText.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
@@ -273,7 +273,7 @@ void MessageBox::buildMessageText()
     auto cit = colorChanges.begin();
     auto bit = tempBreakPoints.begin();
     auto sit = stopPoints.begin();
-    sf::Color curColor = DisplayColors[0];
+    glm::u8vec4 curColor = DisplayColors[0];
 
     for (size_t i = 0; i < messageText.getNumberOfGraphemeClusters(); i++)
     {

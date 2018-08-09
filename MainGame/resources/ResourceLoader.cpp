@@ -24,7 +24,7 @@
 #include "ResourceLoader.hpp"
 
 #include <iostream>
-#include <SFML/Graphics.hpp>
+
 #include <string>
 #include <unordered_map>
 

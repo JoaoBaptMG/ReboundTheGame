@@ -24,7 +24,7 @@
 #pragma once
 
 #include <string>
-#include <SFML/System.hpp>
+
 
 #include "LocalizationManager.hpp"
 

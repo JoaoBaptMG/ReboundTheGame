@@ -26,7 +26,7 @@
 #include <thread>
 #include <utility>
 #include <clocale>
-#include <SFML/Graphics.hpp>
+
 
 #include <grid.hpp>
 #include <assert.hpp>

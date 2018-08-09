@@ -26,7 +26,7 @@
 #include <InputStream.hpp>
 #include <generic_ptrs.hpp>
 #include <memory>
-#include <SFML/Graphics.hpp>
+
 #include "unicode/HarfBuzzWrapper.hpp"
 
 class FontHandler final

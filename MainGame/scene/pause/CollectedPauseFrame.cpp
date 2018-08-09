@@ -69,9 +69,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         title.setFontHandler(loadDefaultFont(services));
         title.setString(services.localizationManager.getString(Titles[i]));
         title.setFontSize(TitleSize);
-        title.setDefaultColor(sf::Color::Yellow);
+        title.setDefaultColor(glm::u8vec4::Yellow);
         title.setOutlineThickness(1);
-        title.setDefaultOutlineColor(sf::Color::Black);
+        title.setDefaultOutlineColor(glm::u8vec4::Black);
         title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(title, services.localizationManager);
@@ -89,9 +89,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(services.localizationManager.getString("pause-collected-unknown"));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(sf::Color::White);
+        label.setDefaultColor(glm::u8vec4::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(sf::Color::Black);
+        label.setDefaultOutlineColor(glm::u8vec4::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -105,9 +105,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(getLevelNameForNumber(services.localizationManager, i+1));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(sf::Color::White);
+        label.setDefaultColor(glm::u8vec4::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(sf::Color::Black);
+        label.setDefaultOutlineColor(glm::u8vec4::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -121,9 +121,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(services.localizationManager.getFormattedString("pause-collected-picket-count", {}, {{"n",0}}, {}));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(sf::Color::White);
+        label.setDefaultColor(glm::u8vec4::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(sf::Color::Black);
+        label.setDefaultOutlineColor(glm::u8vec4::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -139,9 +139,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         if (i == 0) label.setString(services.localizationManager.getString("pause-collected-total"));
         else label.setString(services.localizationManager.getFormattedString("pause-collected-total-picket-count", {}, {{"n",0}}, {}));
         label.setFontSize(TitleSize);
-        label.setDefaultColor(sf::Color::White);
+        label.setDefaultColor(glm::u8vec4::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(sf::Color::Black);
+        label.setDefaultOutlineColor(glm::u8vec4::Black);
         if (services.localizationManager.isRTL() ^ (i != 0)) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -168,7 +168,7 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
     {
         sprite.setTexture(services.resourceManager.load<sf::Texture>("icon-picket.png"));
         sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
-        sprite.setBlendColor(sf::Color::Black);
+        sprite.setBlendColor(glm::u8vec4::Black);
     }
 
     auto& inputSettings = services.settings.inputSettings;
@@ -187,7 +187,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
             i == 11 ? savedGame.getMoveRegen() :
             savedGame.getAbilityLevel() > i;
 
-        sprite.setBlendColor(sf::Color(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
+        sprite.setBlendColor(glm::u8vec4(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
         if (is)
         {
             auto name = "powerup" + std::to_string(i+1) + "-name";
@@ -224,7 +224,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
         label.buildGeometry();
 
         uint8_t b = 255 * n / 100;
-        picketSprites[i].setBlendColor(sf::Color(b, b, b));
+        picketSprites[i].setBlendColor(glm::u8vec4(b, b, b));
         i++;
     }
 
@@ -233,7 +233,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
     totalPicketCount.setString(str);
     totalPicketCount.buildGeometry();
     uint8_t b = 255 * n / 1000;
-    picketSprites[10].setBlendColor(sf::Color(b, b, b));
+    picketSprites[10].setBlendColor(glm::u8vec4(b, b, b));
 }
 
 void CollectedPauseFrame::setHealthData(size_t curHealth, size_t maxHealth)

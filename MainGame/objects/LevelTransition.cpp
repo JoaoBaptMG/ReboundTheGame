@@ -32,7 +32,7 @@
 constexpr auto TransitionDuration = 60_frames;
 
 LevelTransition::LevelTransition(GameScene &scene) : gameScene(scene), curTime(), transitionTime(),
-    screenQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), sf::Color::Black), transitionDone(false)
+    screenQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), glm::u8vec4::Black), transitionDone(false)
 {
     
 }

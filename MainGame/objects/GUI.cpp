@@ -23,7 +23,7 @@
 
 #include "GUI.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <string>
 #include <cstdlib>
 
@@ -84,14 +84,14 @@ GUI::GUI(GameScene& scene) : gameScene(scene),
     levelID(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
     currentBoss(nullptr), lastIconName(""), drawDash(false), levelNumber(1), healthBlinkPhase(0)
 {
-    playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
+    playerMeter.setColors(glm::u8vec4::Green, glm::u8vec4::Red, glm::u8vec4(80, 80, 80, 255));
     playerMeter.setPosition(4, 452);
     
-    dashMeter.setColors(sf::Color(162, 0, 255, 255), sf::Color::Yellow, sf::Color(80, 80, 80, 255));
+    dashMeter.setColors(glm::u8vec4(162, 0, 255, 255), glm::u8vec4::Yellow, glm::u8vec4(80, 80, 80, 255));
     dashMeter.setPosition(52, 452);
     dashMeter.setIcon(scene.getResourceManager().load<sf::Texture>("icon-dash.png"));
     
-    bossMeter.setColors(Colors::Orange, sf::Color::Yellow, sf::Color(80, 80, 80, 255));
+    bossMeter.setColors(Colors::Orange, glm::u8vec4::Yellow, glm::u8vec4(80, 80, 80, 255));
     bossMeter.setPosition(8, 452);
     bossMeter.setHeight(400);
     
@@ -108,7 +108,7 @@ void GUI::configureText()
     
     levelLabel.setString(lm.getString("ingame-gui-level-label"));
     levelLabel.setFontSize(config.labelSize);
-    levelLabel.setDefaultColor(sf::Color::White);
+    levelLabel.setDefaultColor(glm::u8vec4::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelLabel.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
@@ -118,7 +118,7 @@ void GUI::configureText()
 
     levelID.setString(lm.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {}));
     levelID.setFontSize(config.idSize);
-    levelID.setDefaultColor(sf::Color::White);
+    levelID.setDefaultColor(glm::u8vec4::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelID.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelID.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
@@ -220,7 +220,7 @@ void GUI::update(FrameTime curTime)
             }
         }
         
-        sf::Color healthColor(0, 255, 0);
+        glm::u8vec4 healthColor(0, 255, 0);
         healthColor.r = 255 * (0.5 - 0.5 * cosf(2 * M_PI * healthBlinkPhase));
         playerMeter.setFillColor(healthColor);
     }

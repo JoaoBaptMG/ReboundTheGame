@@ -35,7 +35,7 @@ Transition::Transition(Scene* prevScene, Scene* nextScene, decltype(transitionBe
         decltype(transitionBegin) transitionEnd, bool releasePrev, bool isPop)
     : prevScene(prevScene), nextScene(nextScene), releasePrev(releasePrev), isPop(isPop),
     transitionBegin(transitionBegin), transitionEnd(transitionEnd), transitionFactor(0),
-    transitionQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), sf::Color::Black)
+    transitionQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), glm::u8vec4::Black)
 {
     
 }

@@ -45,7 +45,7 @@ InteractionPopup::InteractionPopup(GameScene& scene)
     auto str = gameScene.getInputSpecifierMap().find("dashbtn")->second;
     popupLabel.setString(str.substr(4, str.size()-8));
     popupLabel.setFontSize(24);
-    popupLabel.setDefaultColor(sf::Color(255, 255, 255, 0));
+    popupLabel.setDefaultColor(glm::u8vec4(255, 255, 255, 0));
     popupLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     popupLabel.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(popupLabel, scene.getLocalizationManager());

@@ -23,7 +23,7 @@
 
 #include "InteractableObject.hpp"
 
-#include <SFML/System.hpp>
+
 #include "scene/GameScene.hpp"
 
 InteractableObject::InteractableObject(GameScene& scene)

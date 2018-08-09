@@ -67,9 +67,9 @@ TitleScene::TitleScene(Services& services)
         
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
-            ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(24, 0));
+            ButtonIdentifiers[k], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
         
-        button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
+        button.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
         button.setPosition(glm::vec2(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (4-k) * (ButtonHeight + ButtonSpace)));

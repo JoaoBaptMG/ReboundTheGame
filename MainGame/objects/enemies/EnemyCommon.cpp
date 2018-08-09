@@ -87,7 +87,7 @@ void EnemyCommon::applyBlinkEffect(Sprite& sprite)
 {
     if (isNull(blinkTime)) return;
     
-    auto color = sf::Color::White;
+    auto color = glm::u8vec4::White;
     float factor = toSeconds<float>(curTime - blinkTime) / toSeconds<float>(BlinkDuration);
     color.a = 80 * (1 - factor);
     

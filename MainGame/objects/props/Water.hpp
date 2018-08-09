@@ -28,7 +28,7 @@
 
 #include "drawables/WaterBody.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chipmunk/chipmunk.h>
 #include <chronoUtils.hpp>
 
@@ -69,7 +69,7 @@ namespace props
             glm::i16vec2 position;
             int16_t width, height;
             uint8_t hideTop;
-            sf::Color coastColor, color;
+            glm::u8vec4 coastColor, color;
         };
 
         static_assert(sizeof(ConfigStruct) == 17*sizeof(char), "Packing failed!");

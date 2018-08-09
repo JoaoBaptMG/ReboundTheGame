@@ -53,7 +53,7 @@ const util::rect ExtendedMapViewport(-364, -204, 728, 408);
 
 constexpr uint8_t PresentSpeed = 6;
 
-void setColorOnly(sf::Color& color, sf::Color dest)
+void setColorOnly(glm::u8vec4& color, glm::u8vec4 dest)
 {
     color.r = dest.r;
     color.g = dest.g;
@@ -71,7 +71,7 @@ void GUIMap::update(FrameTime curTime)
     
     float t = toSeconds<float>(curTime - initTime);
     float weight = 0.5 - 0.5 * cosf(2 * M_PI * t / BlinkPeriod);
-    sf::Color finalColor(255 + weight * ((int)mapBlinkColor.r - 255),
+    glm::u8vec4 finalColor(255 + weight * ((int)mapBlinkColor.r - 255),
                          255 + weight * ((int)mapBlinkColor.g - 255),
                          255 + weight * ((int)mapBlinkColor.b - 255),
                          255 + weight * ((int)mapBlinkColor.a - 255));
@@ -80,7 +80,7 @@ void GUIMap::update(FrameTime curTime)
         for (size_t i = 0; i < curLevel->roomMaps.size(); i++)
             for (size_t k = 0; k < 6; k++)
             {
-                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : sf::Color::White);
+                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : glm::u8vec4::White);
                 if (vertArray[6*i+k].color.a != 0 && vertArray[6*i+k].color.a != 255)
                     vertArray[6*i+k].color.a = std::min((size_t)vertArray[6*i+k].color.a + PresentSpeed, (size_t)255);
             }
@@ -135,7 +135,7 @@ void GUIMap::buildLevelTexture()
 
         auto buildVertex = [=](float x, float y)
         {
-            return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.x, y - bounds.y));
+            return sf::Vertex(sf::Vector2f(x, y), glm::u8vec4(255, 255, 255, 0), sf::Vector2f(x - bounds.x, y - bounds.y));
         };
 
         size_t i = 0;

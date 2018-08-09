@@ -26,7 +26,7 @@
 #include "objects/Enemy.hpp"
 #include "drawables/Sprite.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 #include <memory>
 #include <cppmunk/Body.h>

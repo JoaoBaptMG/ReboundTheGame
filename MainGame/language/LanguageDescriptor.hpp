@@ -28,7 +28,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <cmath>
-#include <SFML/System.hpp>
+
 
 #include "LangID.hpp"
 #include "data/ExpressionCommands.hpp"

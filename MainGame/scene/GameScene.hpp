@@ -43,7 +43,7 @@
 #include "Services.hpp"
 
 #include <cppmunk/Space.h>
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 #include <type_traits>
 #include <exception>

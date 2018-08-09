@@ -30,7 +30,7 @@
 
 #include <memory>
 #include <chronoUtils.hpp>
-#include <SFML/System.hpp>
+
 
 class GameScene;
 class Renderer;

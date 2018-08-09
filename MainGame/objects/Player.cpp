@@ -856,14 +856,14 @@ void Player::render(Renderer& renderer)
         {
             auto phase = toSeconds<cpFloat>(invincibilityTime - curTime) / toSeconds<cpFloat>(InvincPeriod);
             auto amp = fabs(sin(M_PI * phase));
-            sprite.setFlashColor(sf::Color(255, 0, 0, 128 * amp));
+            sprite.setFlashColor(glm::u8vec4(255, 0, 0, 128 * amp));
         }
         else if (chargingForHardball)
         {
             auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
-            sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
+            sprite.setFlashColor(glm::u8vec4(255, 255, 255, 255 * flash));
         }
-        else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
+        else sprite.setFlashColor(glm::u8vec4(255, 255, 255, 0));
 
         auto fade = std::min(toSeconds<cpFloat>(curTime - grappleTime) / toSeconds<cpFloat>(GrappleFade), 1.0);
         if (grapplePoints == 0) fade = std::min(lastFade, 1.0 - fade);

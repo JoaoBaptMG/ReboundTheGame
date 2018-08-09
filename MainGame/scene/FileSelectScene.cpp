@@ -83,7 +83,7 @@ FileSelectScene::FileSelectScene(Services& services, const SavedGame& savedGame,
     headerBackground(services.resourceManager.load<sf::Texture>("ui-file-button-frame.png")),
     headerLabel(loadDefaultFont(services))
 {
-    sceneFrame.setBlendColor(sf::Color(128, 128, 128, 255));
+    sceneFrame.setBlendColor(glm::u8vec4(128, 128, 128, 255));
 
     auto globalBounds = util::rect((ScreenWidth - ButtonSize)/2, 64, ButtonSize, ScreenHeight - 128);
 
@@ -146,7 +146,7 @@ FileSelectScene::FileSelectScene(Services& services, const SavedGame& savedGame,
         createCommonTextualButton(*dummyButton, services, "ui-file-button-frame-active.png",
             "ui-file-button-frame-pressed.png", util::rect(4, 4, 4, 4),
             util::rect(0, 0, ButtonSize, 128), "file-select-new-file",
-            TextSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(0, 0),
+            TextSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(0, 0),
             TextDrawable::Alignment::Center);
         
         auto normalSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>("ui-file-button-frame.png"));
@@ -199,9 +199,9 @@ FileSelectScene::FileSelectScene(Services& services, const SavedGame& savedGame,
         auto caption = std::make_unique<TextDrawable>(loadDefaultFont(services));
         caption->setString(services.localizationManager.getString("file-select-no-files"));
         caption->setFontSize(TextSize);
-        caption->setDefaultColor(sf::Color::White);
+        caption->setDefaultColor(glm::u8vec4::White);
         caption->setOutlineThickness(1);
-        caption->setDefaultOutlineColor(sf::Color::Black);
+        caption->setDefaultOutlineColor(glm::u8vec4::Black);
         caption->setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         caption->setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(*caption, services.localizationManager);
@@ -222,7 +222,7 @@ FileSelectScene::FileSelectScene(Services& services, const SavedGame& savedGame,
         createCommonTextualButton(cancelButton, services, "ui-file-button-frame-active.png",
             "ui-file-button-frame-pressed.png", util::rect(4, 4, 4, 4),
             util::rect(0, 0, ButtonSize, 64), "file-select-cancel",
-            TextSize, sf::Color::White, 1, sf::Color::Black, glm::vec2(0, 0),
+            TextSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(0, 0),
             TextDrawable::Alignment::Center);
         
         auto normalSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>("ui-file-button-frame.png"));
@@ -252,9 +252,9 @@ FileSelectScene::FileSelectScene(Services& services, const SavedGame& savedGame,
     auto title = action == FileAction::Load ? LangID("file-select-load") : LangID("file-select-save");
     headerLabel.setString(services.localizationManager.getString(title));
     headerLabel.setFontSize(TextSize);
-    headerLabel.setDefaultColor(sf::Color::Yellow);
+    headerLabel.setDefaultColor(glm::u8vec4::Yellow);
     headerLabel.setOutlineThickness(1);
-    headerLabel.setDefaultOutlineColor(sf::Color::Black);
+    headerLabel.setDefaultOutlineColor(glm::u8vec4::Black);
     headerLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     headerLabel.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(headerLabel, services.localizationManager);

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/System.hpp>
+
 #include <string>
 
 #include "objects/InteractableObject.hpp"

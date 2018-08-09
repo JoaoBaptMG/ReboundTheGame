@@ -25,7 +25,7 @@
 
 #include <chronoUtils.hpp>
 #include <vector>
-#include <SFML/Graphics.hpp>
+
 #include <rect.hpp>
 
 class GameScene;

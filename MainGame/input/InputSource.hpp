@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Window.hpp>
+
 #include <type_traits>
 #include <functional>
 #include <streamReaders.hpp>

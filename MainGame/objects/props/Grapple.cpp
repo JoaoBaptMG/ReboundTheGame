@@ -23,7 +23,7 @@
 
 #include "Grapple.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chipmunk/chipmunk.h>
 
 #include "objects/GameObjectFactory.hpp"

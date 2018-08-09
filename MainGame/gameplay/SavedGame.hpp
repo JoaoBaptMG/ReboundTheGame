@@ -27,7 +27,7 @@
 #include <vector>
 #include <array>
 #include <assert.hpp>
-#include <SFML/System.hpp>
+
 #include <OutputStream.hpp>
 #include <VarLength.hpp>
 #include <streamReaders.hpp>

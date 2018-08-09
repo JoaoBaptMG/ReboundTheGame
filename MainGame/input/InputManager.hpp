@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Window.hpp>
+
 #include <non_copyable_movable.hpp>
 #include <unordered_map>
 #include <map>

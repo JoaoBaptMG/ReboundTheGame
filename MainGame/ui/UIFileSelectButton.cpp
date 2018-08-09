@@ -78,7 +78,7 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     {
         bool is = k == 10 ? sg.getDoubleArmor() : k == 11 ? sg.getMoveRegen() : sg.getAbilityLevel() > k;
         sprite.setTexture(services.resourceManager.load<sf::Texture>("powerup" + std::to_string(k+1) + ".png"));
-        sprite.setBlendColor(sf::Color(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
+        sprite.setBlendColor(glm::u8vec4(is ? 255 : 0, is ? 255 : 0, is ? 255 : 0, 255));
         k++;
     }
 
@@ -89,9 +89,9 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     fileName.setFontHandler(loadDefaultFont(services));
     fileName.setString(indexStr + ' ' + getLevelNameForNumber(lm, sg.getCurLevel()));
     fileName.setFontSize(TextSize);
-    fileName.setDefaultColor(sf::Color::White);
+    fileName.setDefaultColor(glm::u8vec4::White);
     fileName.setOutlineThickness(1);
-    fileName.setDefaultOutlineColor(sf::Color::Black);
+    fileName.setDefaultOutlineColor(glm::u8vec4::Black);
     fileName.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     fileName.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     fileName.setWordWrappingWidth(ButtonSize - 2 * (ButtonBorder + ButtonSpace));
@@ -103,9 +103,9 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     goldenTokenAmount.setFontHandler(loadDefaultFont(services));
     goldenTokenAmount.setString(gtStr);
     goldenTokenAmount.setFontSize(TextSize);
-    goldenTokenAmount.setDefaultColor(sf::Color::White);
+    goldenTokenAmount.setDefaultColor(glm::u8vec4::White);
     goldenTokenAmount.setOutlineThickness(1);
-    goldenTokenAmount.setDefaultOutlineColor(sf::Color::Black);
+    goldenTokenAmount.setDefaultOutlineColor(glm::u8vec4::Black);
     goldenTokenAmount.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     goldenTokenAmount.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(goldenTokenAmount, lm);
@@ -115,9 +115,9 @@ UIFileSelectButton::UIFileSelectButton(const SavedGame& sg, Services& services, 
     picketAmount.setFontHandler(loadDefaultFont(services));
     picketAmount.setString(pStr);
     picketAmount.setFontSize(TextSize);
-    picketAmount.setDefaultColor(sf::Color::White);
+    picketAmount.setDefaultColor(glm::u8vec4::White);
     picketAmount.setOutlineThickness(1);
-    picketAmount.setDefaultOutlineColor(sf::Color::Black);
+    picketAmount.setDefaultOutlineColor(glm::u8vec4::Black);
     picketAmount.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     picketAmount.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(picketAmount, lm);

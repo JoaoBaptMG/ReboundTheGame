@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <SFML/System.hpp>
+
 #include <OutputStream.hpp>
 #include "InputSettings.hpp"
 #include "VideoSettings.hpp"

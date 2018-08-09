@@ -89,7 +89,7 @@ bool (*const WordWrappingAlgorithms[])(uint32_t,uint32_t) =
 };
 
 TextDrawable::TextDrawable(std::shared_ptr<FontHandler> fontHandler) : fontHandler(fontHandler), utf8String(),
-    fontSize(30), defaultColor(sf::Color::White), defaultOutlineColor(sf::Color::Black),
+    fontSize(30), defaultColor(glm::u8vec4::White), defaultOutlineColor(glm::u8vec4::Black),
     outlineThickness(0), wordWrappingWidth(0), wordAlignment(TextDrawable::Alignment::Direct),
     horizontalAnchor(TextDrawable::HorAnchor::Left), verticalAnchor(TextDrawable::VertAnchor::Top), rtl(false),
     needsUpdateGeometry(false), vertices(sf::PrimitiveType::Triangles),
@@ -100,7 +100,7 @@ TextDrawable::TextDrawable(std::shared_ptr<FontHandler> fontHandler) : fontHandl
 
 sf::Vector2f toSF(glm::vec2 v) { return sf::Vector2f(v.x, v.y); }
 
-inline static auto addGlyphQuad(sf::VertexArray& dest, glm::vec2 position, sf::Color color, const sf::Glyph& glyph)
+inline static auto addGlyphQuad(sf::VertexArray& dest, glm::vec2 position, glm::u8vec4 color, const sf::Glyph& glyph)
 {
     const auto& bounds = glyph.bounds;
     util::rect texRect((float)glyph.textureRect.top, (float)glyph.textureRect.left,

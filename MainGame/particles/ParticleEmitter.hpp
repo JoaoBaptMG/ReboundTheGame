@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 
 #include <generic_ptrs.hpp>
@@ -48,8 +48,8 @@ class ParticleEmitter final
     
     ParticleBatch::Duration lifetimeFirst, lifetimeSecond;
 
-    sf::Color colorBeginFirst, colorBeginSecond;
-    sf::Color colorEndFirst, colorEndSecond;
+    glm::u8vec4 colorBeginFirst, colorBeginSecond;
+    glm::u8vec4 colorEndFirst, colorEndSecond;
     bool generateHSV;
 
 public:

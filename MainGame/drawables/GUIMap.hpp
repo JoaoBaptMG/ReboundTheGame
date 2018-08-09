@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <memory>
 #include <vector>
 #include <chronoUtils.hpp>
@@ -37,7 +37,7 @@ class GUIMap final : public sf::Drawable
     sf::Texture* mapTexture;
     sf::VertexArray vertArray;
     glm::vec2 displayPosition;
-    sf::Color mapBlinkColor;
+    glm::u8vec4 mapBlinkColor;
     size_t curRoom;
 
     FrameTime initTime;

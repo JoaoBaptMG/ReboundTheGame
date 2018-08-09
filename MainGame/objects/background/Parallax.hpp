@@ -27,7 +27,7 @@
 #include "drawables/WrapPlane.hpp"
 #include "resources/ResourceManager.hpp"
 
-#include <SFML/System.hpp>
+
 #include <string>
 
 class GameScene;

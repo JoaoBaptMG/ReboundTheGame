@@ -94,8 +94,8 @@ using namespace props;
 
 Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(glm::vec2(256, 256)), player(nullptr)
 {
-    shape.setColor(sf::Color(100, 100, 255, 128));
-    shape.setCoastColor(sf::Color(255, 255, 255, 128));
+    shape.setColor(glm::u8vec4(100, 100, 255, 128));
+    shape.setCoastColor(glm::u8vec4(255, 255, 255, 128));
 }
 
 Water::~Water()
@@ -111,11 +111,11 @@ bool Water::configure(const ConfigStruct& config)
     setRect(destRect);
     shape.setTopHidden(config.hideTop);
 
-    sf::Color color = config.color;
+    glm::u8vec4 color = config.color;
     color.a = 128;
     shape.setColor(color);
 
-    sf::Color coastColor = config.coastColor;
+    glm::u8vec4 coastColor = config.coastColor;
     coastColor.a = 128;
     shape.setCoastColor(coastColor);
     

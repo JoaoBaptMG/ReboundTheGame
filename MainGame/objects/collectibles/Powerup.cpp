@@ -71,16 +71,16 @@ Powerup::Powerup(GameScene& scene) : Collectible(scene), vertices(sf::Quads, 4),
 {
     setupPhysics();
 
-    vertices[0].color = sf::Color::White;
+    vertices[0].color = glm::u8vec4::White;
     vertices[0].texCoords = sf::Vector2f(0, 0);
 
-    vertices[1].color = sf::Color::White;
+    vertices[1].color = glm::u8vec4::White;
     vertices[1].texCoords = sf::Vector2f(48, 0);
 
-    vertices[2].color = sf::Color::White;
+    vertices[2].color = glm::u8vec4::White;
     vertices[2].texCoords = sf::Vector2f(48, 48);
 
-    vertices[3].color = sf::Color::White;
+    vertices[3].color = glm::u8vec4::White;
     vertices[3].texCoords = sf::Vector2f(0, 48);
 }
 

@@ -131,7 +131,7 @@ void TextureExplosion::assignPieces(util::rect texRect,
             vertices[4*(j*width+i)+2].texCoords = toSF(offset + glm::vec2(pieceWidth*(i+1), pieceHeight*(j+1)));
             vertices[4*(j*width+i)+3].texCoords = toSF(offset + glm::vec2(pieceWidth*i, pieceHeight*(j+1)));
 
-            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = sf::Color::White;
+            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = glm::u8vec4::White;
         }
 }
 

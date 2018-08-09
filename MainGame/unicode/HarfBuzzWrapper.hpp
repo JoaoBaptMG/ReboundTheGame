@@ -24,7 +24,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <SFML/System.hpp>
+
 #include <cstdint>
 #include <string>
 #include <vector>

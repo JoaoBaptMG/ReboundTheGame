@@ -44,7 +44,7 @@ MessageSign::MessageSign(GameScene& scene)
 
     signLabel.setString(lm.getString("message-sign-display"));
     signLabel.setFontSize(48);
-    signLabel.setDefaultColor(sf::Color::Black);
+    signLabel.setDefaultColor(glm::u8vec4::Black);
     signLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     signLabel.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(signLabel, lm);

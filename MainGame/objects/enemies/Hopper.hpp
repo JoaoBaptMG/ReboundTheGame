@@ -25,7 +25,7 @@
 
 #include "EnemyCommon.hpp"
 #include "drawables/Sprite.hpp"
-#include <SFML/System.hpp>
+
 
 #include <memory>
 #include <cppmunk/Body.h>

@@ -24,7 +24,7 @@
 #pragma once
 
 #include <memory>
-#include <SFML/Graphics.hpp>
+
 #include <non_copyable_movable.hpp>
 #include <grid.hpp>
 #include <glm/glm.hpp>

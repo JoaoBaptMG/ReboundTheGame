@@ -44,7 +44,7 @@
 
 #include <functional>
 #include <iterator>
-#include <SFML/System.hpp>
+
 
 #include <iostream>
 

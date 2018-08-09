@@ -24,7 +24,12 @@
 #include "Renderer.hpp"
 
 #include <iostream>
-#include <glm/gtc/type_ptr.hpp>
+#include "defaults.hpp"
+
+Renderer::Renderer() noexcept
+{
+	clearState();
+}
 
 Renderer::Renderer(Renderer&& other) noexcept : Renderer()
 {
@@ -54,32 +59,16 @@ inline static std::ostream& operator<<(std::ostream& out, const glm::mat3& trans
     return out << ')';
 }
 
-void Renderer::pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth)
+void Renderer::pushDrawable(Drawable &drawable, long depth)
 {
-	sf::Transform transformedTransform
-	(
-		currentTransform[0][0], currentTransform[1][0], currentTransform[2][0],
-		currentTransform[0][1], currentTransform[1][1], currentTransform[2][1],
-		currentTransform[0][2], currentTransform[1][2], currentTransform[2][2]
-	);
-    states.transform.combine(transformedTransform);
-    drawableList.emplace(depth, std::make_pair(std::cref(drawable), states));
-}
-
-void Renderer::render(sf::RenderTarget& target)
-{
-    for (const auto& pair : drawableList)
-        target.draw(pair.second.first, pair.second.second);
+    drawableList.emplace(depth, std::make_pair(std::ref(drawable), currentTransform));
 }
 
 void Renderer::clearState()
 {
     drawableList.clear();
-
-    while (!transformStack.empty())
-        transformStack.pop();
-
-	currentTransform = util::identity;
+    while (!transformStack.empty()) transformStack.pop();
+	currentTransform = util::scale(1.0f/ScreenWidth, 1.0f/ScreenHeight);
 }
 
 void Renderer::pushTransform()

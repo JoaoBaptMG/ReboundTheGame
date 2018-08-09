@@ -49,7 +49,7 @@ void PlayerDeath::update(FrameTime curTime)
     if (duration <= FadeDuration)
     {
         float factor = toSeconds<float>(duration) / toSeconds<float>(FadeDuration);
-        playerSprite.setFlashColor(sf::Color(255, 255, 255, 255 * factor));
+        playerSprite.setFlashColor(glm::u8vec4(255, 255, 255, 255 * factor));
     }
     else if (duration <= 2 * FadeDuration)
     {
@@ -65,7 +65,7 @@ void PlayerDeath::update(FrameTime curTime)
         float factor = toSeconds<float>(duration - FadeDuration) / toSeconds<float>(FadeDuration);
         playerSprite.setOpacity(1 - factor);
     }
-    else playerSprite.setFlashColor(sf::Color::White);
+    else playerSprite.setFlashColor(glm::u8vec4::White);
     
     if (duration > TotalDuration)
     {

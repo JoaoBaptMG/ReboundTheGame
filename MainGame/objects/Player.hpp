@@ -27,7 +27,7 @@
 #include "drawables/Sprite.hpp"
 #include "gameplay/Script.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <cppmunk/Shape.h>
 #include <cppmunk/Body.h>
 #include <chronoUtils.hpp>

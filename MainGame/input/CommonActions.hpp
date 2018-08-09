@@ -25,7 +25,7 @@
 
 #include "InputManager.hpp"
 #include "gameplay/VirtualActions.hpp"
-#include <SFML/System.hpp>
+
 #include <vector>
 
 class ButtonActionBase : public VirtualButtonAction

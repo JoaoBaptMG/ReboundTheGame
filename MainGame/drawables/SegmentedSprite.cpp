@@ -57,7 +57,7 @@ void SegmentedSprite::setupVertices()
     }
     vertices.resize(22);
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
-        vertices[i].color = sf::Color::White;
+        vertices[i].color = glm::u8vec4::White;
         
     float texLeft = texRect.x, texTop = texRect.y;
     float texRight = texLeft + texRect.width, texBottom = texTop + texRect.height;

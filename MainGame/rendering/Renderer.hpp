@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include "Drawable.hpp"
 #include <memory>
 #include <map>
 #include <stack>
@@ -31,7 +31,7 @@
 #include <glm/glm.hpp>
 #include <transforms.hpp>
 
-using RenderData = std::pair<std::reference_wrapper<const sf::Drawable>,sf::RenderStates>;
+using RenderData = std::pair<std::reference_wrapper<Drawable>,glm::mat3>;
 
 class Renderer final : util::non_copyable
 {
@@ -39,16 +39,16 @@ class Renderer final : util::non_copyable
     std::stack<glm::mat3> transformStack;
 
 public:
-    Renderer() noexcept : currentTransform(1.0f) {}
+	Renderer() noexcept;
     Renderer(Renderer&& other) noexcept;
     Renderer& operator=(Renderer other);
 
-    void pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth = 0);
+    void pushDrawable(Drawable& drawable, long depth = 0);
 
     void pushTransform();
     void popTransform();
 
-    void render(sf::RenderTarget& target);
+    void render();
     void clearState();
 
 	glm::mat3 currentTransform;
