@@ -28,6 +28,7 @@
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 
 #include <cppmunk/Body.h>
 
@@ -44,8 +45,8 @@ FrameDuration SwitchingBlock::getFadeDuration()
 }
 
 SwitchingBlock::SwitchingBlock(GameScene &scene) : GameObject(scene),
-    blockSprite(scene.getResourceManager().load<sf::Texture>("switching-block.png")),
-    fadeSprite(scene.getResourceManager().load<sf::Texture>("switching-block-fade.png")),
+    blockSprite(scene.getResourceManager().load<Texture>("switching-block.png")),
+    fadeSprite(scene.getResourceManager().load<Texture>("switching-block-fade.png")),
     visible(false), blockClusterName(), blockTime(0), parentBlockCluster(nullptr),
     fadeTime(), curTime()
 {
@@ -154,8 +155,8 @@ void SwitchingBlock::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    if (visible) renderer.pushDrawable(blockSprite, {}, 36);
-    if (fadeSprite.getOpacity() > 0) renderer.pushDrawable(fadeSprite, {}, 37);
+    if (visible) renderer.pushDrawable(blockSprite, 36);
+    if (fadeSprite.getOpacity() > 0) renderer.pushDrawable(fadeSprite, 37);
     renderer.popTransform();
 }
 

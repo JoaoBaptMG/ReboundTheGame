@@ -26,6 +26,7 @@
 #include "defaults.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include <vector_math.hpp>
 
@@ -83,7 +84,7 @@ PushableCrate::PushableCrate(GameScene& gameScene) : GameObject(gameScene)
         (float)PlayfieldWidth, (float)PlayfieldHeight};
     tilemap.setDrawingFrame(drawingFrame);
     
-    tilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>("push-crate.png"));
+    tilemap.setTexture(gameScene.getResourceManager().load<Texture>("push-crate.png"));
 }
 
 bool PushableCrate::configure(const PushableCrate::ConfigStruct& config)
@@ -180,7 +181,7 @@ void PushableCrate::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.currentTransform *= util::rotate(shape->getBody()->getAngle());
-    renderer.pushDrawable(tilemap, {}, 25);
+    renderer.pushDrawable(tilemap, 25);
     renderer.popTransform();
 }
 

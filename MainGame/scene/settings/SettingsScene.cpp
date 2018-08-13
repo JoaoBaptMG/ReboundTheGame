@@ -33,6 +33,7 @@
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
+#include "rendering/Texture.hpp"
 
 #include "RootSettingsPanel.hpp"
 
@@ -98,7 +99,7 @@ void SettingsBase::changeSettingsPanel(SettingsPanel *panel) { nextSettingsPanel
 
 SettingsScene::SettingsScene(Services& services)
     : SettingsBase(services, glm::vec2(ScreenWidth, ScreenHeight)/2.0f, pointer, "settings-scene-back"),
-    sceneFrame(services.resourceManager.load<sf::Texture>("settings-scene-frame.png")), pointer(services)
+    sceneFrame(services.resourceManager.load<Texture>("settings-scene-frame.png")), pointer(services)
 {
     using namespace std::literals::chrono_literals;
     backAction = [&,this]
@@ -116,7 +117,7 @@ void SettingsScene::render(Renderer& renderer)
     
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2);
-    renderer.pushDrawable(sceneFrame, {}, 3000);
+    renderer.pushDrawable(sceneFrame, 3000);
     renderer.popTransform();
     
     pointer.render(renderer);

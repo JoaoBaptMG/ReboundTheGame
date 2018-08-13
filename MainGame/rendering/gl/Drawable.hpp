@@ -25,8 +25,11 @@
 
 #include <glm/glm.hpp>
 
+class Renderer;
+
 class GlDrawable
 {
-public:
+protected:
+	friend class Renderer;
 	virtual void draw(const glm::mat3& projTransform) = 0;
 };

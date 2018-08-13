@@ -21,16 +21,11 @@
 //
 
 
-#include "../Renderer.hpp"
-#include <mutex>
+#pragma once
 
-std::mutex globalContextMutex;
+#include <glm/glm.hpp>
 
-void Renderer::render()
-{
-	for (auto& p : drawableList)
-	{
-		auto& drawable = p.second.first.get();
-		drawable.draw(p.second.second);
-	}
-}
+struct TVertex { glm::vec2 position; glm::vec2 texCoords; };
+
+#include "gl/GlTexturedVertexArray.hpp"
+using TexturedVertexArray = GlTexturedVertexArray;

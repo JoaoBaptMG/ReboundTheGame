@@ -29,6 +29,7 @@
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "particles/TextureExplosion.hpp"
 
 #include <streamReaders.hpp>
@@ -53,9 +54,9 @@ bool enemies::readFromStream(InputStream& stream, Hopper::ConfigStruct& config)
 }
 
 Hopper::Hopper(GameScene& gameScene) : EnemyCommon(gameScene), facingRight(false),
-    hopperBody(gameScene.getResourceManager().load<sf::Texture>("hopper-body.png")),
-    hopperLeg(gameScene.getResourceManager().load<sf::Texture>("hopper-leg.png"), glm::vec2(55, 5)),
-    hopperFoot(gameScene.getResourceManager().load<sf::Texture>("hopper-foot.png"))
+    hopperBody(gameScene.getResourceManager().load<Texture>("hopper-body.png")),
+    hopperLeg(gameScene.getResourceManager().load<Texture>("hopper-leg.png"), glm::vec2(55, 5)),
+    hopperFoot(gameScene.getResourceManager().load<Texture>("hopper-foot.png"))
 {
     setHealth(3);
     setTouchDamage(3);
@@ -206,18 +207,18 @@ void Hopper::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(roundVec(mainBody->getPosition()));
     renderer.currentTransform *= util::rotate(mainBody->getAngle());
-    renderer.pushDrawable(hopperBody, {}, 47);
+    renderer.pushDrawable(hopperBody, 47);
     renderer.currentTransform *= util::translate(40, 16);
     renderer.currentTransform *= util::rotate(angle);
-    renderer.pushDrawable(hopperLeg, {}, 44);
+    renderer.pushDrawable(hopperLeg, 44);
     renderer.popTransform();
     
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(roundVec(footBody->getPosition() + graphicalDisplacement));
     renderer.currentTransform *= util::rotate(footBody->getAngle());
-    renderer.pushDrawable(hopperFoot, {}, 46);
+    renderer.pushDrawable(hopperFoot, 46);
     renderer.currentTransform *= util::rotate(-angle);
-    renderer.pushDrawable(hopperLeg, {}, 45);
+    renderer.pushDrawable(hopperLeg, 45);
     renderer.popTransform();
 }
 

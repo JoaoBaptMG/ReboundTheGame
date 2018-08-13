@@ -30,16 +30,16 @@
 
 class WrapPlane final : public sf::Drawable
 {
-    std::shared_ptr<sf::Texture> texture;
+    std::shared_ptr<Texture> texture;
     util::rect drawArea;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    WrapPlane(util::rect area, std::shared_ptr<sf::Texture> tex = nullptr) : drawArea(area) { setTexture(tex); }
+    WrapPlane(util::rect area, std::shared_ptr<Texture> tex = nullptr) : drawArea(area) { setTexture(tex); }
 
     auto getTexture() { return texture; }
-    void setTexture(std::shared_ptr<sf::Texture> tex)
+    void setTexture(std::shared_ptr<Texture> tex)
     {
         texture = tex;
         if (texture) texture->setRepeated(true);

@@ -26,6 +26,7 @@
 #include "defaults.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "particles/ParticleBatch.hpp"
 
@@ -41,7 +42,7 @@ constexpr float SinePower = 2;
 
 Bomb::Bomb(GameScene& scene, cpVect pos, FrameTime initialTime)
     : GameObject(scene), position(pos), detonationTime(initialTime + DetonationTime),
-    sprite(scene.getResourceManager().load<sf::Texture>("bomb.png"))
+    sprite(scene.getResourceManager().load<Texture>("bomb.png"))
 {
     
 }
@@ -92,6 +93,6 @@ void Bomb::render(Renderer& renderer)
     
     renderer.pushTransform();
 	renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 14);
+    renderer.pushDrawable(sprite, 14);
     renderer.popTransform();
 }

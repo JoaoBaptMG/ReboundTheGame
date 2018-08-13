@@ -48,7 +48,7 @@ constexpr auto ExplosionDuration = 2s;
 constexpr float CrateHalfSize = 48, CrateBevel = 16;
 
 DestructibleCrate::DestructibleCrate(GameScene& gameScene, std::string texture, uint32_t type)
-    : GameObject(gameScene), sprite(gameScene.getResourceManager().load<sf::Texture>(texture))
+    : GameObject(gameScene), sprite(gameScene.getResourceManager().load<Texture>(texture))
 {
     interactionHandler = [this,type] (uint32_t ty, void* ptr)
     {
@@ -156,7 +156,7 @@ void DestructibleCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 25);
+    renderer.pushDrawable(sprite, 25);
     renderer.popTransform();
 }
 

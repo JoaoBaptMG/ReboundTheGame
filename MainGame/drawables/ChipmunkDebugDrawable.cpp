@@ -153,8 +153,8 @@ void ChipmunkDebugDrawable::draw(sf::RenderTarget& target, sf::RenderStates stat
             
             for (size_t i = 0; i < set.count; i++)
             {
-                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointA.x, set.points[i].pointA.y), glm::u8vec4::Red));
-                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointB.x, set.points[i].pointB.y), glm::u8vec4::Yellow));
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointA.x, set.points[i].pointA.y), Colors::Red));
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointB.x, set.points[i].pointB.y), Colors::Yellow));
             }
 
             renderData.target.draw(pts.data(), pts.size(), sf::PrimitiveType::Points, renderData.states);

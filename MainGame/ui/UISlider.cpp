@@ -27,12 +27,16 @@
 #include "UIButtonCommons.hpp"
 
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
+
 #include <cmath>
 #include <algorithm>
 
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
+
+
 constexpr size_t MaxDelay = 2;
 
 UISlider::UISlider(Services& services, size_t* target, size_t max) : UIButton(),
@@ -47,8 +51,8 @@ void UISlider::initialize(Services& services)
  
     rtl = services.localizationManager.isRTL();
     
-    sliderBody.setTexture(services.resourceManager.load<sf::Texture>("ui-slider.png"));
-    sliderKnob.setTexture(services.resourceManager.load<sf::Texture>("ui-slider-knob.png"));
+    sliderBody.setTexture(services.resourceManager.load<Texture>("ui-slider.png"));
+    sliderKnob.setTexture(services.resourceManager.load<Texture>("ui-slider-knob.png"));
     
     if (rtl) sliderBody.setAnchorPoint(glm::vec2(0, sliderBody.getTextureSize().y/2));
     else sliderBody.setAnchorPoint(glm::vec2(sliderBody.getTextureSize().x, sliderBody.getTextureSize().y/2));

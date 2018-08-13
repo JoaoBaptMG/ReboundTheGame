@@ -39,7 +39,7 @@
 struct MapTextureData
 {
     sf::VertexArray vertArray;
-    sf::Texture texture;
+    Texture texture;
     MapTextureData() : vertArray(sf::PrimitiveType::Triangles) {}
 };
 using WeakLvlPtr = std::weak_ptr<LevelData>;
@@ -80,7 +80,7 @@ void GUIMap::update(FrameTime curTime)
         for (size_t i = 0; i < curLevel->roomMaps.size(); i++)
             for (size_t k = 0; k < 6; k++)
             {
-                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : glm::u8vec4::White);
+                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : Colors::White);
                 if (vertArray[6*i+k].color.a != 0 && vertArray[6*i+k].color.a != 255)
                     vertArray[6*i+k].color.a = std::min((size_t)vertArray[6*i+k].color.a + PresentSpeed, (size_t)255);
             }

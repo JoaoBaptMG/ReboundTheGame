@@ -25,6 +25,7 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "settings/Settings.hpp"
 
 #include <defaults.hpp>
@@ -34,7 +35,7 @@ const float ControllerMovementSpeed = 2;
 
 MapPauseFrame::MapPauseFrame(Services& services, const std::shared_ptr<LevelData>& levelData,
     size_t curRoom, glm::vec2 pos, const std::vector<bool>& visibleMaps)
-    : mapFrame(services.resourceManager.load<sf::Texture>("pause-map-frame.png")),
+    : mapFrame(services.resourceManager.load<Texture>("pause-map-frame.png")),
     mapController(services.inputManager, services.settings.inputSettings),
     map(true), active(true), state(Outside)
 {
@@ -90,8 +91,8 @@ void MapPauseFrame::render(Renderer &renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2 - 64);
-    renderer.pushDrawable(mapFrame, {}, 5000);
-    renderer.pushDrawable(map, {}, 5002);
+    renderer.pushDrawable(mapFrame, 5000);
+    renderer.pushDrawable(map, 5002);
     renderer.popTransform();
 }
 

@@ -51,7 +51,7 @@ class WaterBody final : public sf::Drawable
 		size_t width;
 		std::vector<float> previousFrame2, previousFrame, curFrame, newVelocity;
 		std::vector<sf::Uint8> texBuffer;
-		sf::Texture texture;
+		Texture texture;
 		std::mutex updateMutex, velocityMutex;
 	};
 

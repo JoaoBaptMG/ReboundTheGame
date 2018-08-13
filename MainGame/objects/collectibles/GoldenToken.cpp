@@ -27,6 +27,7 @@
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
 #include "objects/GameObjectFactory.hpp"
+#include "rendering/Texture.hpp"
 #include <chronoUtils.hpp>
 
 #include <cppmunk/CircleShape.h>
@@ -37,7 +38,7 @@ constexpr cpFloat Amplitude = 8;
 constexpr cpFloat Period = 2.5;
 
 GoldenToken::GoldenToken(GameScene& scene) : Collectible(scene), 
-    sprite(gameScene.getResourceManager().load<sf::Texture>("golden-token.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("golden-token.png"))
 {
     setupPhysics();
     
@@ -112,7 +113,7 @@ void GoldenToken::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 25);
+    renderer.pushDrawable(sprite, 25);
     renderer.popTransform();
 }
 

@@ -25,10 +25,12 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "language/convenienceConfigText.hpp"
 #include "gameplay/ScriptedPlayerController.hpp"
 #include <streamReaders.hpp>
+#include "ColorList.hpp"
 
 #include "objects/GameObjectFactory.hpp"
 
@@ -36,15 +38,15 @@ using namespace props;
 
 MessageSign::MessageSign(GameScene& scene)
     : InteractableObject(scene),
-      signPole(scene.getResourceManager().load<sf::Texture>("sign-pole.png")),
-      signBox(scene.getResourceManager().load<sf::Texture>("sign-background.png")),
+      signPole(scene.getResourceManager().load<Texture>("sign-pole.png")),
+      signBox(scene.getResourceManager().load<Texture>("sign-background.png")),
       signLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName()))
 {
     auto& lm = scene.getLocalizationManager();
 
     signLabel.setString(lm.getString("message-sign-display"));
     signLabel.setFontSize(48);
-    signLabel.setDefaultColor(glm::u8vec4::Black);
+    signLabel.setDefaultColor(Colors::Black);
     signLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     signLabel.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(signLabel, lm);
@@ -111,10 +113,10 @@ void MessageSign::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(signPole, {}, 13);
+    renderer.pushDrawable(signPole, 13);
     renderer.currentTransform *= util::translate(0, -(float)signPole.getTextureSize().y - signBox.getAnchorPoint().y);
-    renderer.pushDrawable(signBox, {}, 13);
-    renderer.pushDrawable(signLabel, {}, 14);
+    renderer.pushDrawable(signBox, 13);
+    renderer.pushDrawable(signLabel, 14);
     renderer.popTransform();
 }
 

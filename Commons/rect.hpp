@@ -27,9 +27,6 @@
 #include <algorithm>
 #include <cmath>
 
-// TODO: remove me
-#include <SFML/Graphics.hpp>
-
 namespace util
 {
 	template <typename T>
@@ -43,15 +40,31 @@ namespace util
 			if (width < T()) { width = -width; x -= width; }
 			if (height < T()) { height = -height; y -= height; }
 		}
-
-		basic_rect(const sf::Rect<T>& o) : basic_rect(o.left, o.top, o.width, o.height) {}
 		
+		basic_rect(const basic_rect& o) : x(o.x), y(o.y), width(o.width), height(o.height) {}
+		basic_rect(basic_rect&& o) : x(std::move(o.x)), y(std::move(o.y)), width(std::move(o.width)), height(std::move(o.height)) {}
+
 		template <glm::qualifier Q>
 		basic_rect(const glm::vec<2, T, Q>& pos, const glm::vec<2, T, Q>& size) : x(pos.x), y(pos.y), width(size.x), height(size.y) {}
 
 		static basic_rect fromTwoPoints(T x1, T y1, T x2, T y2) { return basic_rect(x1, y1, x2 - x1, y2 - y1); }
 		template <glm::qualifier Q>
 		static basic_rect fromTwoPoints(const glm::vec<2, T, Q>& p1, const glm::vec<2, T, Q>& p2) { return basic_rect(p1, p2 - p1); }
+
+		template <typename U>
+		basic_rect(const basic_rect<U>& o) : x(o.x), y(o.y), width(o.width), height(o.height) {}
+
+		template <typename U>
+		explicit basic_rect(const basic_rect<U>& o) : x(static_cast<T>(o.x)), y(static_cast<T>(o.y)),
+			width(static_cast<T>(o.width)), height(static_cast<T>(o.height)) {}
+
+		basic_rect& operator=(basic_rect o)
+		{
+			x = std::move(o.x);
+			y = std::move(o.y);
+			width = std::move(o.width);
+			height = std::move(o.height);
+		}
 
 		bool contains(T xp, T yp) const
 		{
@@ -109,7 +122,7 @@ namespace util
 			return basic_rect(left, top, right - left, bottom - top);
 		}
 
-		operator sf::Rect<T>() const { return sf::Rect<T>(x, y, width, height); }
+		T area() const { return width * height; }
 	};
 
 	using rect = basic_rect<float>;

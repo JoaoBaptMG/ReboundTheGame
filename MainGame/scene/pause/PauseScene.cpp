@@ -39,8 +39,11 @@
 
 #include "ui/UIButtonCommons.hpp"
 
+#include "ColorList.hpp"
+
 #include "data/LevelData.hpp"
 #include "language/convenienceConfigText.hpp"
+#include "rendering/Texture.hpp"
 
 using namespace std::literals::chrono_literals;
 constexpr auto TransitionTime = 1s;
@@ -57,7 +60,7 @@ constexpr float ButtonHeight = 44;
 constexpr size_t ButtonCaptionSize = 24;
 
 PauseScene::PauseScene(Services& services) : services(services),
-    backgroundSprite(services.resourceManager.load<sf::Texture>("pause-background.png")), transitionFactor(0),
+    backgroundSprite(services.resourceManager.load<Texture>("pause-background.png")), transitionFactor(0),
     pointer(services), unpausing(false), currentFrame(1), pauseFrames
     { 
         std::unique_ptr<PauseFrame>(new CollectedPauseFrame(services)),
@@ -73,13 +76,13 @@ PauseScene::PauseScene(Services& services) : services(services),
     {
         button.initialize(services.inputManager);
         
-        auto color = k == currentFrame ? glm::u8vec4::Green : glm::u8vec4::White;
+        auto color = k == currentFrame ? Colors::Green : Colors::White;
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
-            ButtonCaptionSize, color, 1, glm::u8vec4::Black, glm::vec2(0, 0),
+            ButtonCaptionSize, color, 1, Colors::Black, glm::vec2(0, 0),
             TextDrawable::Alignment::Center);
         
-        button.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
+        button.getPressedSprite()->setBlendColor(Colors::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
         button.setPosition(glm::vec2(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
@@ -189,7 +192,7 @@ void PauseScene::render(Renderer &renderer)
         
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2 - 2);
-    renderer.pushDrawable(backgroundSprite, {}, 4800);
+    renderer.pushDrawable(backgroundSprite, 4800);
     renderer.popTransform();
     
     for (auto& button : frameButtons)
@@ -207,13 +210,13 @@ void PauseScene::render(Renderer &renderer)
 
 void PauseScene::switchPauseFrame(size_t frame)
 {
-    frameButtons[currentFrame].getCaption()->setDefaultColor(glm::u8vec4::White);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(Colors::White);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->deactivate();
     
     currentFrame = frame;
     
-    frameButtons[currentFrame].getCaption()->setDefaultColor(glm::u8vec4::Green);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(Colors::Green);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->activate();
 }

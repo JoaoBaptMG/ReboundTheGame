@@ -25,3 +25,29 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <memory>
+#include "glad/glad.h"
+
+#include "../TexturedVertexArray.hpp"
+
+#include "rendering/Drawable.hpp"
+#include "rendering/Texture.hpp"
+
+class GlTexturedVertexArray : public Drawable
+{
+	GLuint vao, vertexBuffer, elementBuffer;
+	std::shared_ptr<Texture> texture;
+
+protected:
+	virtual void draw(const glm::mat3& projTransform) override;
+
+public:
+	GlTexturedVertexArray();
+	~GlTexturedVertexArray();
+
+	auto getTexture() const { return texture; }
+	void setTexture(const std::shared_ptr<Texture>& texture) { this->texture = texture; }
+
+	void setVertices(const TVertex* vertices, size_t numVertices);
+	void setIndices(const uint16_t* indices, size_t numIndices);
+};

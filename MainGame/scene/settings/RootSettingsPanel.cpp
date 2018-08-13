@@ -33,6 +33,7 @@
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
+#include "ColorList.hpp"
 
 #include <defaults.hpp>
 
@@ -97,9 +98,9 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
         title.setFontHandler(loadDefaultFont(services));
         title.setString(services.localizationManager.getString(Titles[k]));
         title.setFontSize(ButtonCaptionSize);
-        title.setDefaultColor(glm::u8vec4::Yellow);
+        title.setDefaultColor(Colors::Yellow);
         title.setOutlineThickness(1);
-        title.setDefaultOutlineColor(glm::u8vec4::Black);
+        title.setDefaultOutlineColor(Colors::Black);
         title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(title, services.localizationManager);
@@ -112,14 +113,14 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
     {
         createCommonTextSwitch(*button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            VideoIdentifiers[k], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
+            VideoIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
         button->setPosition(pos + glm::vec2(0, (k+1) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
     createCommonTextualButton(languageButton, services, "ui-select-field.png", "ui-select-field.png",
         util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        VideoIdentifiers[2], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
+        VideoIdentifiers[2], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
     languageButton.setPosition(pos + glm::vec2(0, 3 * (ButtonHeight + ButtonSpace)));
 
     k = 0;
@@ -127,7 +128,7 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
     {
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            SoundIdentifiers[k], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
+            SoundIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
         button->setPosition(pos + glm::vec2(0, (k+5) * (ButtonHeight + ButtonSpace)));
         k++;
     }
@@ -137,21 +138,21 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
     {
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            InputIdentifiers[k], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
+            InputIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
         button->setPosition(pos + glm::vec2(0, (k+8) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        getBackId(), ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0),
+        getBackId(), ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0),
         TextDrawable::Alignment::Center);
     backButton.setPosition(pos + glm::vec2(0, 10 * (ButtonHeight + ButtonSpace)));
 
     for (auto button : std::initializer_list<UIButton*>{ &fullscreenSwitch, &vsyncSwitch, &languageButton, &musicSlider,
                                                          &soundSlider, &keyboardButton, &joystickButton, &backButton })
     {
-        button->getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
+        button->getPressedSprite()->setBlendColor(Colors::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
         button->setDepth(5000);
@@ -211,7 +212,7 @@ void RootSettingsPanel::render(Renderer& renderer)
     int k = 0;
     for (auto& title : titles)
     {
-        renderer.pushDrawable(title, {}, 5000);
+        renderer.pushDrawable(title, 5000);
         renderer.currentTransform *= util::translate(0, (4-(k++)) * (ButtonHeight + ButtonSpace));
     }
     renderer.popTransform();

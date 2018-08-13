@@ -27,7 +27,25 @@
 
 enum class TextureFormat
 {
-	UInt8N4
+	UInt8N1, UInt8N2, UInt8N3, UInt8N4,
+	UInt16N1, UInt16N2, UInt16N3, UInt16N4,
+
+	Int8N1, Int8N2, Int8N3, Int8N4,
+	Int16N1, Int16N2, Int16N3, Int16N4,
+
+	UInt8I1, UInt8I2, UInt8I3, UInt8I4,
+	UInt16I1, UInt16I2, UInt16I3, UInt16I4,
+	UInt32I1, UInt32I2, UInt32I3, UInt32I4,
+
+	Int8I1, Int8I2, Int8I3, Int8I4,
+	Int16I1, Int16I2, Int16I3, Int16I4,
+	Int32I1, Int32I2, Int32I3, Int32I4,
+
+	Float1, Float2, Float3, Float4,
+
+	RGB10A2,
+
+	NumTextureFormats
 };
 
 enum class TextureFilter : uint8_t { Nearest, Linear };

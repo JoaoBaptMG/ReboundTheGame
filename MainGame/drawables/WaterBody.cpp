@@ -219,7 +219,7 @@ void WaterBody::recreateQuad()
     quad[3].position = quad[3].texCoords = sf::Vector2f(drawingSize.x, -256);
     
     if (topHidden) quad[0].position.y = quad[3].position.y = 0;
-    for (auto& vtx : quad) vtx.color = glm::u8vec4::White;
+    for (auto& vtx : quad) vtx.color = Colors::White;
 }
 
 void WaterBody::resetWaves()

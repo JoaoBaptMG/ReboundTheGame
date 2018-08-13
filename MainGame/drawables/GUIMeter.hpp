@@ -32,7 +32,7 @@ enum class MeterSize { Small, Normal };
 
 class GUIMeter final : public sf::Drawable
 {
-    std::shared_ptr<sf::Texture> icon;
+    std::shared_ptr<Texture> icon;
     
     MeterSize size;
     bool useCurrentAnimation;
@@ -78,7 +78,7 @@ public:
     void setBackdropColor(glm::u8vec4 color) { backdropColor = color; updateVertices(); }
 
     auto getIcon() const { return icon; }
-    void setIcon(const std::shared_ptr<sf::Texture>& i) { icon = i; }
+    void setIcon(const std::shared_ptr<Texture>& i) { icon = i; }
 
     auto getPosition() const { return position; }
     void setPosition(glm::vec2 pos) { position = pos; }

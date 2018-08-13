@@ -34,7 +34,7 @@ class LevelData;
 class GUIMap final : public sf::Drawable
 {
     std::shared_ptr<LevelData> curLevel;
-    sf::Texture* mapTexture;
+    Texture* mapTexture;
     sf::VertexArray vertArray;
     glm::vec2 displayPosition;
     glm::u8vec4 mapBlinkColor;

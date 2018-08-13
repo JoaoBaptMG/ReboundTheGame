@@ -26,6 +26,10 @@
 #include <stdexcept>
 #include <glad/glad.h>
 #include <rect.hpp>
+#include <mutex>
+
+GLFWwindow* CurrentWindow;
+std::mutex ContextMutex;
 
 WindowHandler::WindowHandler(bool fullscreen, bool vsync) : renderWindow(nullptr), vsyncEnabled(vsync), fullscreen(fullscreen),
 	prevx(0), prevy(0)

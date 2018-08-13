@@ -62,8 +62,8 @@ sf::Shader& Sprite::getSpriteShader()
     return shader;
 }
 
-Sprite::Sprite(std::shared_ptr<sf::Texture> texture, glm::vec2 anchor) : texture(texture), anchorPoint(anchor),
-    blendColor(glm::u8vec4::White), flashColor(glm::u8vec4(0, 0, 0, 0)), opacity(1), grayscaleFactor(0),
+Sprite::Sprite(std::shared_ptr<Texture> texture, glm::vec2 anchor) : texture(texture), anchorPoint(anchor),
+    blendColor(Colors::White), flashColor(glm::u8vec4(0, 0, 0, 0)), opacity(1), grayscaleFactor(0),
     vertices(sf::PrimitiveType::TriangleFan)
 {
     texRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
@@ -71,7 +71,7 @@ Sprite::Sprite(std::shared_ptr<sf::Texture> texture, glm::vec2 anchor) : texture
     setupVertices();
 }
 
-Sprite::Sprite(std::shared_ptr<sf::Texture> texture) : Sprite(texture, glm::vec2(texture->getSize().x/2.0f, texture->getSize().y/2.0f)) {}
+Sprite::Sprite(std::shared_ptr<Texture> texture) : Sprite(texture, glm::vec2(texture->getSize().x/2.0f, texture->getSize().y/2.0f)) {}
 
 Sprite::Sprite() : Sprite(nullptr, glm::vec2(0, 0)) {}
 
@@ -107,7 +107,7 @@ void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
 void Sprite::setupVertices()
 {
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
-        vertices[i].color = glm::u8vec4::White;
+        vertices[i].color = Colors::White;
 
     vertices[0].position = vertices[0].texCoords = sf::Vector2f(texRect.x, texRect.y);
     vertices[1].position = vertices[1].texCoords = sf::Vector2f(texRect.x + texRect.width, texRect.y);

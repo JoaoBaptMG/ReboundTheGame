@@ -32,6 +32,8 @@
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
 
+#include "ColorList.hpp"
+
 using namespace enemies;
 
 Boss::Boss(GameScene& scene, LangID presenterID) : EnemyCommon(scene)
@@ -53,9 +55,9 @@ BossCaption::BossCaption(GameScene& scene, LangID captionID) : GameObject(scene)
 {
     text.setString(scene.getLocalizationManager().getString(captionID));
     text.setFontSize(48);
-    text.setDefaultColor(glm::u8vec4::White);
+    text.setDefaultColor(Colors::White);
     text.setOutlineThickness(2);
-    text.setDefaultOutlineColor(glm::u8vec4::Black);
+    text.setDefaultOutlineColor(Colors::Black);
     text.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     text.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(text, scene.getLocalizationManager());
@@ -86,7 +88,7 @@ void BossCaption::render(Renderer& renderer)
     renderer.popTransform();
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2);
-    renderer.pushDrawable(text, {}, 120000);
+    renderer.pushDrawable(text, 120000);
     renderer.popTransform();
     renderer.pushTransform();
     renderer.currentTransform = transform;

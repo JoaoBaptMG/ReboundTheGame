@@ -29,6 +29,8 @@
 #include <utility>
 #include <limits>
 
+#include "ColorList.hpp"
+
 using namespace std::literals::chrono_literals;
 
 bool readFromStream(InputStream& stream, ParticleEmitter& in)
@@ -104,7 +106,7 @@ glm::u8vec4 HSVtoRGB(float h, float s, float v, char a)
         case 3: return glm::u8vec4(255.0 * p, 255.0 * q, 255.0 * v, a);
         case 4: return glm::u8vec4(255.0 * t, 255.0 * p, 255.0 * v, a);
         case 5: return glm::u8vec4(255.0 * v, 255.0 * p, 255.0 * q, a);
-        default: return glm::u8vec4::Black;
+		default: return glm::u8vec4(0, 0, 0, 255);
     }
 }
 

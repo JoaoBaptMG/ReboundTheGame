@@ -25,6 +25,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include <chronoUtils.hpp>
 #include <vector_math.hpp>
@@ -39,7 +40,7 @@ using namespace enemies;
 constexpr float Speed = 160;
 
 Rotator::Rotator(GameScene& gameScene) : Enemy(gameScene),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("rotator.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("rotator.png"))
 {
     setupPhysics();
     collisionBody->setAngularVelocity(4.4);
@@ -135,7 +136,7 @@ void Rotator::render(Renderer& renderer)
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
     renderer.currentTransform *= util::rotate(collisionBody->getAngle());
-    renderer.pushDrawable(sprite, {}, 25);
+    renderer.pushDrawable(sprite, 25);
     renderer.popTransform();
 }
 

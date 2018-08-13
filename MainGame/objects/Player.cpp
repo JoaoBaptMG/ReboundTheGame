@@ -42,6 +42,8 @@
 #include "objects/PlayerDeath.hpp"
 #include "language/KeyboardKeyName.hpp"
 
+#include "rendering/Texture.hpp"
+
 #include <functional>
 #include <limits>
 #include <iostream>
@@ -92,8 +94,8 @@ Player::Player(GameScene& scene)
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0), dashBatch(nullptr),
     doubleArmor(false), moveRegen(false), hardballBatch(nullptr), curEntry(0), previousWallState(CollisionState::None),
-    microHealth(0), sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
-    grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
+    microHealth(0), sprite(scene.getResourceManager().load<Texture>("player.png")), graphicalDisplacement(),
+    grappleSprite(scene.getResourceManager().load<Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
@@ -661,7 +663,7 @@ void Player::lieBomb(FrameTime curTime)
 void Player::setPlayerSprite()
 {
     auto name = hardballEnabled ? "player-hard.png" : abilityLevel >= 6 ? "player-enhanced.png" : "player.png";
-    sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
+    sprite.setTexture(gameScene.getResourceManager().load<Texture>(name));
 	//CurrentIcon = name;
 }
 
@@ -871,8 +873,8 @@ void Player::render(Renderer& renderer)
         lastFade = fade;
         grappleSprite.setOpacity(fade);
 
-        renderer.pushDrawable(sprite, {}, 16);
-        if (fade != 0.0f) renderer.pushDrawable(grappleSprite, {}, 14);
+        renderer.pushDrawable(sprite, 16);
+        if (fade != 0.0f) renderer.pushDrawable(grappleSprite, 14);
         
         renderer.popTransform();
     }

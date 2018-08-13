@@ -33,13 +33,13 @@ protected:
     virtual void setupVertices() override;
     
 public:
-    SegmentedSprite(std::shared_ptr<sf::Texture> tex, glm::vec2 anchor);
-    SegmentedSprite(std::shared_ptr<sf::Texture> tex);
+    SegmentedSprite(std::shared_ptr<Texture> tex, glm::vec2 anchor);
+    SegmentedSprite(std::shared_ptr<Texture> tex);
     SegmentedSprite();
     
     virtual ~SegmentedSprite() {}
     
-    virtual void setTexture(std::shared_ptr<sf::Texture> tex) override
+    virtual void setTexture(std::shared_ptr<Texture> tex) override
     { 
         centerRect = destRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
         Sprite::setTexture(tex);

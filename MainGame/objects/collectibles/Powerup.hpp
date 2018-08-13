@@ -37,7 +37,7 @@ namespace collectibles
     class Powerup final : public ::Collectible
     {
         sf::VertexArray vertices;
-        std::shared_ptr<sf::Texture> texture;
+        std::shared_ptr<Texture> texture;
         std::shared_ptr<cp::Shape> collisionShape;
         size_t abilityLevel;
 

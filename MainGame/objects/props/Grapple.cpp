@@ -29,6 +29,7 @@
 #include "objects/GameObjectFactory.hpp"
 
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
@@ -45,8 +46,8 @@ constexpr auto WobblePeriod = 60_frames;
 constexpr auto GrappleFade = 30_frames;
 
 Grapple::Grapple(GameScene& gameScene) : GameObject(gameScene), isExcited(false), lastFade(0),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("grapple.png")),
-    grappleSprite(gameScene.getResourceManager().load<sf::Texture>("grapple-beam.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("grapple.png")),
+    grappleSprite(gameScene.getResourceManager().load<Texture>("grapple-beam.png"))
 {
     grappleSprite.setOpacity(0);
 }
@@ -122,7 +123,7 @@ void Grapple::render(Renderer& renderer)
     auto phases = toSeconds<float>(curTime - initialTime) / toSeconds<float>(WobblePeriod);
     auto scaleFactor = 0.875f + 0.125f * cosf(2 * M_PI * phases);
     renderer.currentTransform *= util::scale(scaleFactor);
-    renderer.pushDrawable(sprite, {}, 20);
+    renderer.pushDrawable(sprite, 20);
     renderer.popTransform();
 
     auto fade = std::min(toSeconds<float>(curTime - exciteTime) / toSeconds<float>(GrappleFade), 1.0f);
@@ -141,7 +142,7 @@ void Grapple::render(Renderer& renderer)
             renderer.currentTransform *= util::translate(vec/2.0f);
             renderer.currentTransform *= util::rotate(angle(vec));
             renderer.currentTransform *= util::scale(length(vec)/grappleSprite.getTexture()->getSize().x, 1.0f);
-            renderer.pushDrawable(grappleSprite, {}, 15);
+            renderer.pushDrawable(grappleSprite, 15);
             renderer.popTransform();
         }
     }

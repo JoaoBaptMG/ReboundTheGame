@@ -25,8 +25,11 @@
 
 #include "Player.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "defaults.hpp"
 #include <chronoUtils.hpp>
+
+#include "ColorList.hpp"
 
 #include "particles/ParticleBatch.hpp"
 #include "scene/GameScene.hpp"
@@ -34,7 +37,7 @@
 constexpr auto FadeDuration = 30_frames;
 constexpr auto TotalDuration = 200_frames;
 
-PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<sf::Texture>& texture)
+PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<Texture>& texture)
     : GameObject(scene), playerSprite(texture), position(player.getDisplayPosition()), spawnedParticle(false)
 {
     
@@ -65,7 +68,7 @@ void PlayerDeath::update(FrameTime curTime)
         float factor = toSeconds<float>(duration - FadeDuration) / toSeconds<float>(FadeDuration);
         playerSprite.setOpacity(1 - factor);
     }
-    else playerSprite.setFlashColor(glm::u8vec4::White);
+    else playerSprite.setFlashColor(Colors::White);
     
     if (duration > TotalDuration)
     {
@@ -78,6 +81,6 @@ void PlayerDeath::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(position);
-    renderer.pushDrawable(playerSprite, {}, 25);
+    renderer.pushDrawable(playerSprite, 25);
     renderer.popTransform();
 }

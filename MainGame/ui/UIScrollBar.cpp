@@ -29,12 +29,13 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 
 constexpr float ScrollSize = 8;
 
 UIScrollBar::UIScrollBar(Services& services, intmax_t priority)
-    : scrollRange(services.resourceManager.load<sf::Texture>("ui-scroll-bar.png"), glm::vec2(0, 0)),
-    scrollThumb(services.resourceManager.load<sf::Texture>("ui-scroll-thumb.png"), glm::vec2(0, 0)),
+    : scrollRange(services.resourceManager.load<Texture>("ui-scroll-bar.png"), glm::vec2(0, 0)),
+    scrollThumb(services.resourceManager.load<Texture>("ui-scroll-thumb.png"), glm::vec2(0, 0)),
     position(0,0), mousePosition(-1, -1), lastMousePos(-1, -1), dragging(false)
 {
     scrollRange.setCenterRect(util::rect(3, 3, 2, 2));

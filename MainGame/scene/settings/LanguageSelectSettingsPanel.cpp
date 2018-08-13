@@ -35,6 +35,7 @@
 #include "input/InputSource.hpp"
 
 #include "ui/UIButtonCommons.hpp"
+#include "ColorList.hpp"
 
 #include <defaults.hpp>
 
@@ -55,9 +56,9 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
     title.setFontHandler(loadDefaultFont(services));
     title.setString(services.localizationManager.getString("settings-language-select-title"));
     title.setFontSize(ButtonCaptionSize);
-    title.setDefaultColor(glm::u8vec4::Yellow);
+    title.setDefaultColor(Colors::Yellow);
     title.setOutlineThickness(1);
-    title.setDefaultOutlineColor(glm::u8vec4::Black);
+    title.setDefaultOutlineColor(Colors::Black);
     title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(title, services.localizationManager);
@@ -72,14 +73,14 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
 
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, SmallButtonHeight),
-            "", SmallCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0),
+            "", SmallCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0),
             TextDrawable::Alignment::Direct);
         button->getCaption()->setString(getLanguageDescriptorName(lang));
         button->getCaption()->buildGeometry();
 
         button->setPosition(pos);
 
-        button->getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
+        button->getPressedSprite()->setBlendColor(Colors::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
         button->setDepth(5000);
@@ -98,11 +99,11 @@ LanguageSelectSettingsPanel::LanguageSelectSettingsPanel(Services& services, Set
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
         util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        "settings-back-to-root", ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0),
+        "settings-back-to-root", ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0),
         TextDrawable::Alignment::Center);
     backButton.setPosition(getCenterPosition() + glm::vec2(0, TotalHeight/2 - ButtonHeight/2));
 
-    backButton.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
+    backButton.getPressedSprite()->setBlendColor(Colors::Yellow);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.getActiveSprite()->setOpacity(0.5);
     backButton.setDepth(5000);
@@ -130,7 +131,7 @@ void LanguageSelectSettingsPanel::render(Renderer &renderer)
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getCenterPosition());
     renderer.currentTransform *= util::translate(0, -TotalHeight/2 + ButtonHeight/2);
-    renderer.pushDrawable(title, {}, 5000);
+    renderer.pushDrawable(title, 5000);
     renderer.popTransform();
 
     for (auto& btn : languageButtons) btn->render(renderer);

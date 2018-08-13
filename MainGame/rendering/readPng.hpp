@@ -21,16 +21,9 @@
 //
 
 
-#include "../Renderer.hpp"
-#include <mutex>
+#pragma once
 
-std::mutex globalContextMutex;
+#include <InputStream.hpp>
+#include <generic_ptrs.hpp>
 
-void Renderer::render()
-{
-	for (auto& p : drawableList)
-	{
-		auto& drawable = p.second.first.get();
-		drawable.draw(p.second.second);
-	}
-}
+util::generic_shared_ptr loadPngTexture(std::unique_ptr<InputStream>& stream);

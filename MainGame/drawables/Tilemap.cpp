@@ -104,7 +104,7 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
                     size_t texT = data / stride;
 
                     for (size_t k = 0; k < 6; k++)
-                        vertices[(j*width+i)*6+k].color = glm::u8vec4::White;
+                        vertices[(j*width+i)*6+k].color = Colors::White;
 
                     vertices[(j*width+i)*6+0].position = sf::Vector2f((float)i*tileSize, (float)j*tileSize);
                     vertices[(j*width+i)*6+1].position = sf::Vector2f((float)(i+1)*tileSize, (float)j*tileSize);

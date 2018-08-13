@@ -25,6 +25,7 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIButtonCommons.hpp"
 #include "defaults.hpp"
@@ -34,6 +35,7 @@
 #include "GameScene.hpp"
 #include "scene/settings/SettingsScene.hpp"
 #include "scene/FileSelectScene.hpp"
+#include "ColorList.hpp"
 
 #include <transforms.hpp>
 
@@ -54,8 +56,8 @@ const LangID ButtonIdentifiers[] =
 };
 
 TitleScene::TitleScene(Services& services)
-    : background(services.resourceManager.load<sf::Texture>("title-background.png"), glm::vec2(0, 0)),
-    foreground(services.resourceManager.load<sf::Texture>("title-foreground.png"), glm::vec2(0, 0)),
+    : background(services.resourceManager.load<Texture>("title-background.png"), glm::vec2(0, 0)),
+    foreground(services.resourceManager.load<Texture>("title-foreground.png"), glm::vec2(0, 0)),
     pointer(services), buttonGroup(services)
 {
     rtl = services.localizationManager.isRTL();
@@ -67,9 +69,9 @@ TitleScene::TitleScene(Services& services)
         
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
             util::rect(16, 0, 8, 1), util::rect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
-            ButtonIdentifiers[k], ButtonCaptionSize, glm::u8vec4::White, 1, glm::u8vec4::Black, glm::vec2(24, 0));
+            ButtonIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
         
-        button.getPressedSprite()->setBlendColor(glm::u8vec4::Yellow);
+        button.getPressedSprite()->setBlendColor(Colors::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
         button.setPosition(glm::vec2(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (4-k) * (ButtonHeight + ButtonSpace)));
@@ -135,7 +137,7 @@ void TitleScene::resume()
 
 void TitleScene::render(Renderer &renderer)
 {
-    renderer.pushDrawable(background, {}, 0);
+    renderer.pushDrawable(background, 0);
     for (auto& button : buttons) button.render(renderer);
     
     renderer.pushTransform();
@@ -144,7 +146,7 @@ void TitleScene::render(Renderer &renderer)
         renderer.currentTransform *= util::translate(ScreenWidth, 0);
         renderer.currentTransform *= util::scale(-1, 1);
     }
-    renderer.pushDrawable(foreground, {}, 20);
+    renderer.pushDrawable(foreground, 20);
     renderer.popTransform();
     
     pointer.render(renderer);

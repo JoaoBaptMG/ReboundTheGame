@@ -24,17 +24,23 @@
 #pragma once
 
 #include "glad/glad.h"
+#include <rect.hpp>
 #include <glm/glm.hpp>
+#include <non_copyable_movable.hpp>
+#include <vector>
 
 #include "../Texture.hpp"
 
-class GlTexture
+class GlTexture : util::non_copyable_movable
 {
-	static GLint prevTextureBinding[4];
+	static std::vector<GLint> prevTextureBinding;
+	static GLint prevActiveTexture;
+	static void initBindings();
 
 	GLuint id;
 	bool useMipmaps;
 	TextureFormat format;
+	size_t width, height;
 
 	void raiseEmptyError();
 
@@ -42,9 +48,12 @@ public:
 	GlTexture(size_t width, size_t height, TextureFormat format = TextureFormat::UInt8N4);
 	~GlTexture();
 
-	void setSamplerParameters(TextureFilter magFilter, TextureFilter minFilter, bool enableMipmaps,
-		TextureFilter mipFilter, TextureEdge edgeX, TextureEdge edgeY);
+	void setSamplerParameters(TextureFilter magFilter, TextureFilter minFilter, TextureEdge edgeX, TextureEdge edgeY);
+	void setSamplerParameters(TextureFilter magFilter, TextureFilter minFilter, TextureFilter mipFilter, TextureEdge edgeX, TextureEdge edgeY);
 
-	void uploadData(const void* data, size_t size);
+	void uploadData(const void* data);
+	void uploadSubData(const void* data, util::irect rect);
 	void bind(size_t unit);
+
+	glm::uvec2 getSize() const { return glm::uvec2(width, height); }
 };

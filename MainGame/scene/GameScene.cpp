@@ -451,7 +451,7 @@ void GameScene::render(Renderer& renderer)
     for (const auto& obj : gameObjects) obj->render(renderer);
 
 #if CP_DEBUG
-    renderer.pushDrawable(debug, {}, 800);
+    renderer.pushDrawable(debug, 800);
 #endif
 
     renderer.popTransform();

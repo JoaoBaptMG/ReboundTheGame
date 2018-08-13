@@ -76,7 +76,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
     
     tileSet = gameScene.getResourceManager().load<TileSet>(data.tilesetName + ".ts");
     
-    mainLayerTilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>(tileSet->textureName));
+    mainLayerTilemap.setTexture(gameScene.getResourceManager().load<Texture>(tileSet->textureName));
     mainLayerTilemap.setTileData(data.mainLayer);
 
     clearShapes();
@@ -168,13 +168,13 @@ void Room::update(FrameTime curTime)
 
 void Room::render(Renderer& renderer, bool transition)
 {
-    renderer.pushDrawable(mainLayerTilemap, {}, 25);
+    renderer.pushDrawable(mainLayerTilemap, 25);
     
     if (transition)
     {
         renderer.pushTransform();
         renderer.currentTransform *= util::translate(transitionDisplacement);
-        renderer.pushDrawable(transitionalTilemap, {}, 25);
+        renderer.pushDrawable(transitionalTilemap, 25);
         renderer.popTransform();
     }
 }

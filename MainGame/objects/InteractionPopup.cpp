@@ -27,6 +27,7 @@
 #include "language/LocalizationManager.hpp"
 #include "language/LangID.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "language/convenienceConfigText.hpp"
 
@@ -37,7 +38,7 @@ auto FadeInterval = 12_frames;
 
 InteractionPopup::InteractionPopup(GameScene& scene)
     : GameObject(scene), collapsing(false),
-      popupBox(scene.getResourceManager().load<sf::Texture>("popup-background.png")),
+      popupBox(scene.getResourceManager().load<Texture>("popup-background.png")),
       popupLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName()))
 {
     popupBox.setOpacity(0);
@@ -71,9 +72,9 @@ void InteractionPopup::update(FrameTime curTime)
         popupBox.setOpacity(factor);
 
         for (auto& v : popupLabel.getAllVertices())
-            v.color.a = (sf::Uint8)std::max<int>(255 * factor, 0);
+            v.color.a = (uint8_t)std::max<int>(255 * factor, 0);
         for (auto& v : popupLabel.getAllVertices(true))
-            v.color.a = (sf::Uint8)std::max<int>(255 * factor, 0);
+            v.color.a = (uint8_t)std::max<int>(255 * factor, 0);
     }
     else if (collapsing) remove();
 }
@@ -94,7 +95,7 @@ void InteractionPopup::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(position - glm::vec2(0, popupBox.getAnchorPoint().y));
-    renderer.pushDrawable(popupBox, {}, 3500);
-    renderer.pushDrawable(popupLabel, {}, 3500);
+    renderer.pushDrawable(popupBox, 3500);
+    renderer.pushDrawable(popupLabel, 3500);
     renderer.popTransform();
 }

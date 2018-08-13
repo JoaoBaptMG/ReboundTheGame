@@ -166,7 +166,7 @@ void Water::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(shape, {}, 21);
+    renderer.pushDrawable(shape, 21);
     renderer.popTransform();
 }
 

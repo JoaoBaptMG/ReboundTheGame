@@ -32,7 +32,7 @@ class Sprite : public sf::Drawable
 {
     static sf::Shader& getSpriteShader();
     
-    std::shared_ptr<sf::Texture> texture;
+    std::shared_ptr<Texture> texture;
     glm::vec2 anchorPoint;
 
     glm::u8vec4 flashColor, blendColor;
@@ -46,8 +46,8 @@ protected:
     virtual void setupVertices();
 
 public:
-    Sprite(std::shared_ptr<sf::Texture> tex, glm::vec2 anchor);
-    Sprite(std::shared_ptr<sf::Texture> tex);
+    Sprite(std::shared_ptr<Texture> tex, glm::vec2 anchor);
+    Sprite(std::shared_ptr<Texture> tex);
     Sprite();
     
     virtual ~Sprite() {}
@@ -79,7 +79,7 @@ public:
     void setGrayscaleFactor(float gf) { grayscaleFactor = gf > 1 ? 1 : gf < 0 ? 0 : gf; }
 
     auto getTexture() const { return texture; }
-    virtual void setTexture(std::shared_ptr<sf::Texture> tex)
+    virtual void setTexture(std::shared_ptr<Texture> tex)
     { 
         texture = tex;
         texRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));

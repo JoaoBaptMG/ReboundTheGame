@@ -33,7 +33,7 @@
 
 class Tilemap final : public sf::Drawable
 {
-    std::shared_ptr<sf::Texture> texture;
+    std::shared_ptr<Texture> texture;
 
     mutable std::unique_ptr<sf::Vertex[]> vertices;
     mutable size_t vertexSize;
@@ -57,7 +57,7 @@ public:
 
     void setDrawingFrame(util::rect drawingFrame) { this->drawingFrame = drawingFrame; }
 
-    void setTexture(std::shared_ptr<sf::Texture> tex) { texture = tex;  }
+    void setTexture(std::shared_ptr<Texture> tex) { texture = tex;  }
     void setTileData(const util::grid<uint8_t>& data) { tileData = data; vertexSize = 0; }
     void setTileData(util::grid<uint8_t>&& data) { tileData = std::move(data); vertexSize = 0; }
     

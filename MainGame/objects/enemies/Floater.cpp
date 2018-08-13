@@ -25,6 +25,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include <chronoUtils.hpp>
 
@@ -39,7 +40,7 @@ constexpr float Period = 6;
 constexpr float Amplitude = 18;
 
 Floater::Floater(GameScene& gameScene) : Enemy(gameScene),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("floater.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("floater.png"))
 {
     setupPhysics();
 }
@@ -124,7 +125,7 @@ void Floater::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 25);
+    renderer.pushDrawable(sprite, 25);
     renderer.popTransform();
 }
 

@@ -24,6 +24,7 @@
 #include "MessageBox.hpp"
 
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
@@ -42,6 +43,8 @@
 #include "audio/AudioManager.hpp"
 #include "audio/Sound.hpp"
 
+#undef MessageBox
+
 using namespace std::literals::chrono_literals;
 
 constexpr auto DefaultLetterPeriod = 2_frames;
@@ -53,10 +56,10 @@ constexpr float MessageVerticalSpacing = 112;
 
 constexpr auto IconOscillationPeriod = 48_frames;
 
-const glm::u8vec4 DisplayColors[] =
-    {
-        Colors::White, Colors::CornflowerBlue, Colors::LightFuchsiaPink, Colors::YellowOrange, Colors::LimeGreen
-    };
+const glm::u8vec4 DisplayColors[] = 
+{
+		Colors::White, Colors::CornflowerBlue, Colors::LightFuchsiaPink, Colors::YellowOrange, Colors::LimeGreen
+};
 constexpr size_t DisplayColorNum = sizeof(DisplayColors)/sizeof(DisplayColors[0]);
 
 template <typename T>
@@ -69,8 +72,8 @@ static constexpr bool isContained(T comp, T first, Ts... next)
 }
 
 MessageBox::MessageBox(Services& services)
-    : messageBackground(services.resourceManager.load<sf::Texture>("message-background.png")),
-      messageIcon(services.resourceManager.load<sf::Texture>("message-next.png")),
+    : messageBackground(services.resourceManager.load<Texture>("message-background.png")),
+      messageIcon(services.resourceManager.load<Texture>("message-next.png")),
       messageText(loadDefaultFont(services)),
       currentText(), localizationManager(services.localizationManager),
       letterPeriod(DefaultLetterPeriod), lineOffset(0), curState(Idle), spawnNewMessage(true)
@@ -79,7 +82,7 @@ MessageBox::MessageBox(Services& services)
     float desiredHeight = messageBackground.getTextureSize().y - 32;
     actualMessageHeight = fitTextDrawableToHeight(messageText, desiredHeight, VisibleLines);
 
-    messageText.setDefaultColor(glm::u8vec4::White);
+    messageText.setDefaultColor(Colors::White);
     messageText.setWordAlignment(TextDrawable::Alignment::Direct);
     messageText.setWordWrappingWidth(messageBackground.getTextureSize().x - 32);
     messageText.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
@@ -139,7 +142,7 @@ void MessageBox::update(FrameTime curTime)
         if (a < 0) a = 0;
         else if (a > 1) a = 1;
 
-        sf::Uint8 ab = 255*a;
+        uint8_t ab = 255*a;
         for (auto& v : range) v.color.a = ab;
     };
 
@@ -384,12 +387,12 @@ void MessageBox::render(Renderer& renderer)
 
         renderer.pushTransform();
         renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight - MessageVerticalSpacing);
-        renderer.pushDrawable(messageBackground, {}, 4500);
+        renderer.pushDrawable(messageBackground, 4500);
         renderer.currentTransform *= util::translate(0, (float)messageBackground.getTextureSize().y/2 + pos);
-        renderer.pushDrawable(messageIcon, {}, 4504);
+        renderer.pushDrawable(messageIcon, 4504);
         renderer.currentTransform *= util::translate(0, -(float)messageBackground.getTextureSize().y/2 - pos);
         renderer.currentTransform *= util::translate(0, -actualMessageHeight/2 - lineOffset * messageText.getLineSpacing());
-        renderer.pushDrawable(messageText, {}, 4502);
+        renderer.pushDrawable(messageText, 4502);
         renderer.popTransform();
     }
 }

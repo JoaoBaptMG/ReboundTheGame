@@ -33,6 +33,9 @@
 #include "defaults.hpp"
 #include <chronoUtils.hpp>
 
+#include "ColorList.hpp"
+#include "rendering/Texture.hpp"
+
 #include "settings/Settings.hpp"
 #include "settings/InputSettings.hpp"
 
@@ -69,9 +72,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         title.setFontHandler(loadDefaultFont(services));
         title.setString(services.localizationManager.getString(Titles[i]));
         title.setFontSize(TitleSize);
-        title.setDefaultColor(glm::u8vec4::Yellow);
+        title.setDefaultColor(Colors::Yellow);
         title.setOutlineThickness(1);
-        title.setDefaultOutlineColor(glm::u8vec4::Black);
+        title.setDefaultOutlineColor(Colors::Black);
         title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(title, services.localizationManager);
@@ -89,9 +92,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(services.localizationManager.getString("pause-collected-unknown"));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(glm::u8vec4::White);
+        label.setDefaultColor(Colors::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(glm::u8vec4::Black);
+        label.setDefaultOutlineColor(Colors::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -105,9 +108,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(getLevelNameForNumber(services.localizationManager, i+1));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(glm::u8vec4::White);
+        label.setDefaultColor(Colors::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(glm::u8vec4::Black);
+        label.setDefaultOutlineColor(Colors::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -121,9 +124,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         label.setFontHandler(loadDefaultFont(services));
         label.setString(services.localizationManager.getFormattedString("pause-collected-picket-count", {}, {{"n",0}}, {}));
         label.setFontSize(ButtonSize);
-        label.setDefaultColor(glm::u8vec4::White);
+        label.setDefaultColor(Colors::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(glm::u8vec4::Black);
+        label.setDefaultOutlineColor(Colors::Black);
         if (services.localizationManager.isRTL()) label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -139,9 +142,9 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
         if (i == 0) label.setString(services.localizationManager.getString("pause-collected-total"));
         else label.setString(services.localizationManager.getFormattedString("pause-collected-total-picket-count", {}, {{"n",0}}, {}));
         label.setFontSize(TitleSize);
-        label.setDefaultColor(glm::u8vec4::White);
+        label.setDefaultColor(Colors::White);
         label.setOutlineThickness(1);
-        label.setDefaultOutlineColor(glm::u8vec4::Black);
+        label.setDefaultOutlineColor(Colors::Black);
         if (services.localizationManager.isRTL() ^ (i != 0)) label.setHorizontalAnchor(TextDrawable::HorAnchor::Right);
         else label.setHorizontalAnchor(TextDrawable::HorAnchor::Left);
         label.setVerticalAnchor(TextDrawable::VertAnchor::Center);
@@ -153,22 +156,22 @@ CollectedPauseFrame::CollectedPauseFrame(Services& services) : localizationManag
     i = 0;
     for (auto& sprite : powerupSprites)
     {
-        sprite.setTexture(services.resourceManager.load<sf::Texture>("powerup" + std::to_string(i+1) + ".png"));
+        sprite.setTexture(services.resourceManager.load<Texture>("powerup" + std::to_string(i+1) + ".png"));
         sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
         i++;
     }
     
     for (auto& sprite : goldenTokenSprites)
     {
-        sprite.setTexture(services.resourceManager.load<sf::Texture>("golden-token.png"));
+        sprite.setTexture(services.resourceManager.load<Texture>("golden-token.png"));
         sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
     }
 
     for (auto& sprite : picketSprites)
     {
-        sprite.setTexture(services.resourceManager.load<sf::Texture>("icon-picket.png"));
+        sprite.setTexture(services.resourceManager.load<Texture>("icon-picket.png"));
         sprite.setAnchorPoint(glm::vec2(sprite.getTextureSize()/2u));
-        sprite.setBlendColor(glm::u8vec4::Black);
+        sprite.setBlendColor(Colors::Black);
     }
 
     auto& inputSettings = services.settings.inputSettings;
@@ -224,7 +227,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
         label.buildGeometry();
 
         uint8_t b = 255 * n / 100;
-        picketSprites[i].setBlendColor(glm::u8vec4(b, b, b));
+        picketSprites[i].setBlendColor(glm::u8vec4(b, b, b, 255));
         i++;
     }
 
@@ -233,7 +236,7 @@ void CollectedPauseFrame::setSavedGame(const SavedGame& savedGame)
     totalPicketCount.setString(str);
     totalPicketCount.buildGeometry();
     uint8_t b = 255 * n / 1000;
-    picketSprites[10].setBlendColor(glm::u8vec4(b, b, b));
+    picketSprites[10].setBlendColor(glm::u8vec4(b, b, b, 255));
 }
 
 void CollectedPauseFrame::setHealthData(size_t curHealth, size_t maxHealth)
@@ -269,27 +272,27 @@ void CollectedPauseFrame::render(Renderer &renderer)
 
     auto rect = util::rect((ScreenWidth - PlayfieldWidth)/2, 0, PlayfieldWidth, PlayfieldHeight);
     scissorRectPush = ScissorRectPush(renderer.currentTransform * rect);
-    renderer.pushDrawable(scissorRectPush, {}, 5600);
+    renderer.pushDrawable(scissorRectPush, 5600);
 
     renderer.pushTransform();
 
     renderer.currentTransform *= util::translate(ScreenWidth/2 + rtlInvert(-HealthSpacing/2),
         -scrollBar.getCurrentOffset() + 28);
-    renderer.pushDrawable(titles[3], {}, 5601);
+    renderer.pushDrawable(titles[3], 5601);
     renderer.currentTransform *= util::translate(rtlInvert(HealthSpacing), 0);
-    renderer.pushDrawable(healthLabel, {}, 5601);
+    renderer.pushDrawable(healthLabel, 5601);
 
     renderer.currentTransform *= util::translate(rtlInvert(-HealthSpacing/2), 40);
-    renderer.pushDrawable(titles[0], {}, 5601);
+    renderer.pushDrawable(titles[0], 5601);
 
     renderer.currentTransform *= util::translate(rtlInvert(-ContentWidth/2 + 24), 48 + IconSpacing);
 
     size_t i = 0;
     for (auto& sprite : powerupSprites)
     {
-        renderer.pushDrawable(sprite, {}, 5602);
+        renderer.pushDrawable(sprite, 5602);
         renderer.currentTransform *= util::translate(rtlInvert(24 + IconSpacing), 0);
-        renderer.pushDrawable(powerupLabels[i], {}, 5603);
+        renderer.pushDrawable(powerupLabels[i], 5603);
         renderer.currentTransform *= util::translate(rtlInvert(-24 - IconSpacing), 0);
         i++;
         if (i == 5)
@@ -302,20 +305,20 @@ void CollectedPauseFrame::render(Renderer &renderer)
 
     constexpr float TokenWidth = 480 + 27 * IconSpacing;
     renderer.currentTransform *= util::translate(rtlInvert(ContentWidth/2 - 24 - StandardSpacing), -4);
-    renderer.pushDrawable(titles[1], {}, 5601);
+    renderer.pushDrawable(titles[1], 5601);
     renderer.currentTransform *= util::translate(rtlInvert(-TokenWidth/2 + 24), 48 + IconSpacing);
 
     i = 0;
     for (auto& sprite : goldenTokenSprites)
     {
-        renderer.pushDrawable(sprite, {}, 5602);
+        renderer.pushDrawable(sprite, 5602);
         i++;
         if (i % 3 == 0 && i < 30) renderer.currentTransform *= util::translate(rtlInvert(48 + 3 * IconSpacing), -112);
         else renderer.currentTransform *= util::translate(0, 48 + IconSpacing);
     }
 
     renderer.currentTransform *= util::translate(rtlInvert(-TokenWidth/2 + 24), -4);
-    renderer.pushDrawable(titles[2], {}, 5601);
+    renderer.pushDrawable(titles[2], 5601);
     renderer.currentTransform *= util::translate(rtlInvert(-ContentWidth/2), 34 + IconSpacing);
 
     auto drawPicket = [=, &renderer](size_t i)
@@ -324,16 +327,16 @@ void CollectedPauseFrame::render(Renderer &renderer)
 
         renderer.pushTransform();
         renderer.currentTransform *= util::rotate(rtl ? -angle : angle);
-        renderer.pushDrawable(picketSprites[i], {}, 5603);
+        renderer.pushDrawable(picketSprites[i], 5603);
         renderer.popTransform();
     };
 
     constexpr float LabelOffset = ContentWidth/2 - 12;
     for (i = 0; i < 10;)
     {
-        renderer.pushDrawable(levelLabels[i], {}, 5602);
+        renderer.pushDrawable(levelLabels[i], 5602);
         renderer.currentTransform *= util::translate(rtlInvert(LabelOffset - 40), 0);
-        renderer.pushDrawable(picketCount[i], {}, 5603);
+        renderer.pushDrawable(picketCount[i], 5603);
         renderer.currentTransform *= util::translate(rtl ? -22 : 22, 0);
         drawPicket(i);
         renderer.currentTransform *= util::translate(rtlInvert(-LabelOffset + 18), 0);
@@ -346,15 +349,15 @@ void CollectedPauseFrame::render(Renderer &renderer)
     renderer.currentTransform *= util::translate(rtlInvert(-StandardSpacing), 0);
 
     renderer.currentTransform *= util::translate(rtl ? StandardSpacing + LabelOffset : 0, 0);
-    renderer.pushDrawable(totalLabel, {}, 5602);
+    renderer.pushDrawable(totalLabel, 5602);
     renderer.currentTransform *= util::translate(rtlInvert(StandardSpacing + LabelOffset - 40), 0);
-    renderer.pushDrawable(totalPicketCount, {}, 5602);
+    renderer.pushDrawable(totalPicketCount, 5602);
     renderer.currentTransform *= util::translate(rtl ? -22 : 22, 0);
     drawPicket(10);
     
     renderer.popTransform();
 
-    renderer.pushDrawable(ScissorRect::pop(), {}, 5604);
+    renderer.pushDrawable(ScissorRect::pop(), 5604);
 
     renderer.currentTransform *= util::translate(0, -64);
     scrollBar.render(renderer);

@@ -22,3 +22,53 @@
 
 
 #include "GlTexturedVertexArray.hpp"
+
+// We'll let the context destroy the shader
+
+
+GlTexturedVertexArray::GlTexturedVertexArray() : elementBuffer(0)
+{
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vertexBuffer);
+}
+
+GlTexturedVertexArray::~GlTexturedVertexArray()
+{
+	if (vao) glDeleteVertexArrays(1, &vao);
+	if (vertexBuffer) glDeleteBuffers(1, &vertexBuffer);
+	if (elementBuffer) glDeleteBuffers(1, &elementBuffer);
+}
+
+void GlTexturedVertexArray::setVertices(const TVertex* vertices, size_t numVertices)
+{
+	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TVertex)*numVertices, vertices, GL_DYNAMIC_DRAW);
+}
+
+void GlTexturedVertexArray::setIndices(const uint16_t* indices, size_t numIndices)
+{
+	glBindVertexArray(vao);
+
+	if (indices)
+	{
+		if (!elementBuffer) glGenBuffers(1, &elementBuffer);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t)*numIndices, indices, GL_DYNAMIC_DRAW);
+	}
+	else
+	{
+		if (elementBuffer)
+		{
+			glDeleteBuffers(1, &elementBuffer);
+			elementBuffer = 0;
+		}
+	}
+}
+
+void GlTexturedVertexArray::draw(const glm::mat3& projTransform)
+{
+
+}

@@ -26,6 +26,7 @@
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
+#include "rendering/Texture.hpp"
 #include <chronoUtils.hpp>
 
 #include "objects/GameObjectFactory.hpp"
@@ -35,7 +36,7 @@
 using namespace collectibles;
 
 HealthPickup::HealthPickup(GameScene& scene, size_t amount) : Collectible(scene), healthAmount(amount),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("health-pickup.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("health-pickup.png"))
 {
     setupPhysics();
 }
@@ -88,7 +89,7 @@ void HealthPickup::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 25);
+    renderer.pushDrawable(sprite, 25);
     renderer.popTransform();
 }
 

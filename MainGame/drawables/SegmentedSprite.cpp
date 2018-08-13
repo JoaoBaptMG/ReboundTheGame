@@ -26,14 +26,14 @@
 #include <algorithm>
 #include <cmath>
 
-SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex, glm::vec2 anchor)
+SegmentedSprite::SegmentedSprite(std::shared_ptr<Texture> tex, glm::vec2 anchor)
     : Sprite(tex, anchor), centerRect()
 {
     vertices.setPrimitiveType(sf::PrimitiveType::TriangleStrip);
     setupVertices();
 }
 
-SegmentedSprite::SegmentedSprite(std::shared_ptr<sf::Texture> tex)
+SegmentedSprite::SegmentedSprite(std::shared_ptr<Texture> tex)
     : SegmentedSprite(tex, glm::vec2(tex->getSize().x/2.0f, tex->getSize().y/2.0f)) {}
     
 SegmentedSprite::SegmentedSprite() : SegmentedSprite(nullptr, glm::vec2(0, 0)) {}
@@ -57,7 +57,7 @@ void SegmentedSprite::setupVertices()
     }
     vertices.resize(22);
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
-        vertices[i].color = glm::u8vec4::White;
+        vertices[i].color = Colors::White;
         
     float texLeft = texRect.x, texTop = texRect.y;
     float texRight = texLeft + texRect.width, texBottom = texTop + texRect.height;

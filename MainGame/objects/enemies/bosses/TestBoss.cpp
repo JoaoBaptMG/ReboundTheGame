@@ -25,6 +25,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "objects/Room.hpp"
 #include "particles/TextureExplosion.hpp"
@@ -46,7 +47,7 @@ constexpr auto SpawnPeriod = 120_frames;
 constexpr auto ExplosionDuration = 200_frames;
 
 TestBoss::TestBoss(GameScene& scene) : Boss(scene, "test-boss-present"),
-    mainSprite(scene.getResourceManager().load<sf::Texture>("test-boss.png"))
+    mainSprite(scene.getResourceManager().load<Texture>("test-boss.png"))
 {
     setupPhysics();
     
@@ -158,14 +159,14 @@ void TestBoss::render(Renderer& renderer)
     
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(mainSprite, {}, 160);
+    renderer.pushDrawable(mainSprite, 160);
     renderer.popTransform();
 }
 
 size_t TestBoss::getMaxHealth() const { return MaxHealth; }
 
 TestBossProjectile::TestBossProjectile(GameScene& scene, cpVect pos, cpVect vel) : Enemy(scene),
-    sprite(scene.getResourceManager().load<sf::Texture>("test-boss-projectile.png"))
+    sprite(scene.getResourceManager().load<Texture>("test-boss-projectile.png"))
 {
     setupPhysics();
     collisionBody->setPosition(pos);
@@ -216,7 +217,7 @@ void TestBossProjectile::render(Renderer& renderer)
 {
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 156);
+    renderer.pushDrawable(sprite, 156);
     renderer.popTransform();
 }
 

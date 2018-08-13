@@ -32,7 +32,8 @@
 #include "data/LevelData.hpp"
 #include "data/TileSet.hpp"
 #include "particles/ParticleEmitter.hpp"
-#include "audio/readWav.hpp"
+#include "audio/readWav.hpp"]
+#include "rendering/readPng.hpp"
 
 #include "FontHandler.hpp"
 
@@ -80,7 +81,7 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "lvl", loadGenericResource<LevelData> },
     { "pe",  loadParticleEmitterList },
     { "map", loadGenericResource<RoomData> },
-    { "png", loadSFMLResource<sf::Texture> },
+    { "png", loadPngTexture },
     { "ttf", loadFontHandler },
     { "wav", loadWaveFile },
 };

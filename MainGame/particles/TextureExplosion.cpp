@@ -31,31 +31,31 @@
 const TextureExplosion::DensityTag TextureExplosion::Density{};
 const TextureExplosion::SizeTag TextureExplosion::Size{};
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
     glm::vec2 acceleration, size_t depth) : GameObject(scene), texture(tex), drawingDepth(depth),
     vertices(sf::Quads), globalPosition(), globalAcceleration(acceleration), duration(duration), maleftOffset() {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
     Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
     SizeTag, size_t width, size_t height, size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(texRect, velocityFunction, TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
     Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
     DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, texRect, duration, velocityFunction, acceleration, TextureExplosion::Size,
         tex->getSize().x/pieceSizeX, tex->getSize().y/pieceSizeY, depth) {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
     std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
     SizeTag, size_t width, size_t height, size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(velocityFunction, TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
     std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
     DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, duration, velocityFunction, acceleration, TextureExplosion::Size,
@@ -76,27 +76,27 @@ inline static auto randomGenerator(util::rect velocityRect)
     };
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
     Duration duration, util::rect velocityRect, glm::vec2 acceleration, SizeTag, size_t width, size_t height,
     size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(texRect, randomGenerator(velocityRect), TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
     Duration duration, util::rect velocityRect, glm::vec2 acceleration, DensityTag, size_t pieceSizeX,
     size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, texRect, duration, velocityRect, acceleration, TextureExplosion::Size,
         texRect.width/pieceSizeX, texRect.height/pieceSizeY, depth) {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
     util::rect velocityRect, glm::vec2 acceleration, SizeTag, size_t width, size_t height, size_t depth)
     : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(randomGenerator(velocityRect), TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
     util::rect velocityRect, glm::vec2 acceleration, DensityTag, size_t pieceSizeX, size_t pieceSizeY,
     size_t depth)
     : TextureExplosion(scene, tex, duration, velocityRect, acceleration, TextureExplosion::Size,
@@ -131,7 +131,7 @@ void TextureExplosion::assignPieces(util::rect texRect,
             vertices[4*(j*width+i)+2].texCoords = toSF(offset + glm::vec2(pieceWidth*(i+1), pieceHeight*(j+1)));
             vertices[4*(j*width+i)+3].texCoords = toSF(offset + glm::vec2(pieceWidth*i, pieceHeight*(j+1)));
 
-            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = glm::u8vec4::White;
+            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = Colors::White;
         }
 }
 

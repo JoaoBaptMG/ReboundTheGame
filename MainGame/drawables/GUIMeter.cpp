@@ -33,7 +33,7 @@ GUIMeter::GUIMeter(MeterSize size, bool useCurrentAnimation) : size(size), useCu
 {
     float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
 
-    setQuadColor(0, glm::u8vec4::Black);
+    setQuadColor(0, Colors::Black);
     setQuadColor(4, glm::u8vec4(200, 200, 200));
 
     for (size_t i = 0; i < 16; i++)

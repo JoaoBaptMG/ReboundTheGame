@@ -25,6 +25,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "defaults.hpp"
 #include <iostream>
 
@@ -40,7 +41,7 @@ Parallax::Parallax(GameScene& scene) : GameObject(scene), parallaxFactor(1.0f), 
 
 Parallax::Parallax(GameScene& scene, std::string textureName) : Parallax(scene)
 {
-    plane.setTexture(scene.getResourceManager().load<sf::Texture>(textureName));
+    plane.setTexture(scene.getResourceManager().load<Texture>(textureName));
 }
 
 bool readFromStream(InputStream& stream, Parallax::ConfigStruct& config)
@@ -52,7 +53,7 @@ bool readFromStream(InputStream& stream, Parallax::ConfigStruct& config)
 
 bool Parallax::configure(const ConfigStruct& config)
 {
-    auto texture = gameScene.getResourceManager().load<sf::Texture>(config.textureName);
+    auto texture = gameScene.getResourceManager().load<Texture>(config.textureName);
     auto other = gameScene.getObjectByName<Parallax>(getName());
     if (other && other->plane.getTexture() == texture)
     {
@@ -79,7 +80,7 @@ void Parallax::render(Renderer& renderer)
 
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(trans);
-    renderer.pushDrawable(plane, {}, 0);
+    renderer.pushDrawable(plane, 0);
     renderer.popTransform();
 
     renderer.pushTransform();

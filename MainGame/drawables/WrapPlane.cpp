@@ -36,7 +36,7 @@ void WrapPlane::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     for (auto& vtx : quad)
     {
-        vtx.color = glm::u8vec4::White;
+        vtx.color = Colors::White;
         vtx.texCoords = invTransform.transformPoint(vtx.position);
     }
 

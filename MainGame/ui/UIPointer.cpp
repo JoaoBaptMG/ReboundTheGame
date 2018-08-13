@@ -27,9 +27,10 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 
 UIPointer::UIPointer(Services& services)
-    : pointer(services.resourceManager.load<sf::Texture>("ui-pointer.png"), glm::vec2(0, 0)), position(NAN, NAN)
+    : pointer(services.resourceManager.load<Texture>("ui-pointer.png"), glm::vec2(0, 0)), position(NAN, NAN)
 {
     callbackEntry = services.inputManager.registerMouseMoveCallback([=] (glm::ivec2 position)
     {
@@ -48,7 +49,7 @@ void UIPointer::render(Renderer& renderer)
     
     renderer.pushTransform();
     renderer.currentTransform *= util::translate(position);
-    renderer.pushDrawable(pointer, {}, 150000);
+    renderer.pushDrawable(pointer, 150000);
     renderer.popTransform();
 }
 

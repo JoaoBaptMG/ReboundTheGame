@@ -32,6 +32,7 @@
 #include <rect.hpp>
 
 #include "objects/GameObject.hpp"
+#include "rendering/Texture.hpp"
 
 class GameScene;
 class Renderer;
@@ -48,7 +49,7 @@ public:
     };
 
 private:
-    std::shared_ptr<sf::Texture> texture;
+    std::shared_ptr<Texture> texture;
     std::vector<TexPiece> texturePieces;
     std::vector<Duration> timeOffsets;
     sf::VertexArray vertices;
@@ -62,7 +63,7 @@ public:
     const static struct DensityTag {} Density;
     const static struct SizeTag {} Size;
 
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
          glm::vec2 acceleration, size_t depth = 12);
     void assignPieces(util::rect texRect, std::function<glm::vec2(float,float)> velocityFunction,
         SizeTag, size_t width, size_t height);
@@ -73,29 +74,29 @@ public:
     void assignPieces(std::function<glm::vec2(float,float)> velocityFunction,
         DensityTag, size_t pieceSizeX, size_t pieceSizeY);
 
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
         Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
         SizeTag, size_t width, size_t height, size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
         Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
         DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
         std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
         SizeTag, size_t width, size_t height, size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
         std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
         DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth = 12);
     
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
         Duration duration, util::rect velocityRect, glm::vec2 acceleration,
         SizeTag, size_t width, size_t height, size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, util::rect texRect,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
         Duration duration, util::rect velocityRect, glm::vec2 acceleration,
         DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
         util::rect velocityRect, glm::vec2 acceleration, SizeTag, size_t width, size_t height,
         size_t depth = 12);
-    TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
         util::rect velocityRect, glm::vec2 acceleration, DensityTag, size_t pieceSizeX, size_t pieceSizeY,
         size_t depth = 12);
 
