@@ -14,14 +14,13 @@ endif()
 
 set(Boost_USE_STATIC_LIBS ON)
 
-find_package(GLM REQUIRED)
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 find_package(Chipmunk REQUIRED)
 find_package(HarfBuzz REQUIRED)
 find_package(Boost COMPONENTS context REQUIRED)
 find_package(PortAudio REQUIRED)
 
-include_directories(${COMMONS_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${SFML_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${Boost_INCLUDE_DIR}
+include_directories(${COMMONS_INCLUDE_DIR} ${SFML_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${Boost_INCLUDE_DIR}
     ${CPPMUNK_INCLUDE_DIR} ${HARFBUZZ_INCLUDE_DIR} ${PORTAUDIO_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE MainGame_SRCS "*.c" "*.cpp" "*.h" "*.hpp")
