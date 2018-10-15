@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "MessageBox.hpp"
 
 #include "rendering/Renderer.hpp"

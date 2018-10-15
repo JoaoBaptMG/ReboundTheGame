@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "InteractableObject.hpp"
 
 #include <SFML/System.hpp>

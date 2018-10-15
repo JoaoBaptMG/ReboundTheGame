@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Bomb.hpp"
 
 #include "defaults.hpp"

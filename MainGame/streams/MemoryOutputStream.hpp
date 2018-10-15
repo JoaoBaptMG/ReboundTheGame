@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #pragma once
 
 #include <vector>
@@ -35,7 +34,7 @@ public:
     MemoryOutputStream() {}
     ~MemoryOutputStream() {}
     
-    virtual bool write(const void* data, size_t size) override;
+    virtual bool write(const void* data, uint64_t size) override;
     void alignTo(size_t align);
     auto& getContents() { contents.shrink_to_fit(); return contents; }
     const auto& getContents() const { return contents; }

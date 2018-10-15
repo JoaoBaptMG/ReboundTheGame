@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ResourceLoader.hpp"
 
 #include <iostream>

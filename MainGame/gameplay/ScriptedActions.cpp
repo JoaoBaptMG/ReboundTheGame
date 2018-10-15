@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ScriptedActions.hpp"
 
 bool ScriptedButtonAction::isTriggered() const { return false; }

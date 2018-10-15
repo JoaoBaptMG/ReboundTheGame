@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TestBoss.hpp"
 
 #include "scene/GameScene.hpp"

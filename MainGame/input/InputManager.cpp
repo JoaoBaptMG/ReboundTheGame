@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "InputManager.hpp"
 
 #include "preventSleeping.hpp"

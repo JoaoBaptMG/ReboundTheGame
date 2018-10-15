@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Settings.hpp"
 
 bool readFromStream(sf::InputStream &stream, InputSettings& settings)

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Renderer.hpp"
 
 #include <iostream>

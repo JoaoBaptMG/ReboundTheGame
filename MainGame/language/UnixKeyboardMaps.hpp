@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #if __linux__
 
 #include <SFML/System.hpp>

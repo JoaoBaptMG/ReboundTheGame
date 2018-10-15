@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Room.hpp"
 
 #include <vector>

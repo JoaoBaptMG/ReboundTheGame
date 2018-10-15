@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include <iostream>
 #include <chronoUtils.hpp>
 #include <thread>

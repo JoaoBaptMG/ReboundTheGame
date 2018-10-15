@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "InputSource.hpp"
 
 #include <algorithm>

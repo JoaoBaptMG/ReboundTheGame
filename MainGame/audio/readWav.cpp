@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "readWav.hpp"
 
 #include <streamReaders.hpp>

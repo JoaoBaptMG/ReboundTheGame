@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UIPointer.hpp"
 #include <limits>
 #include <cmath>

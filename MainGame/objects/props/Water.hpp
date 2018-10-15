@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #pragma once
 
 #include "objects/GameObject.hpp"
@@ -43,7 +42,6 @@ namespace props
         WaterBody shape;
 
         cpFloat oldArea;
-		Player* player;
 
     public:
         Water(GameScene& scene);

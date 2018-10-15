@@ -20,13 +20,12 @@
 // SOFTWARE.
 //
 
-
 #include "MemoryOutputStream.hpp"
 
 #include <algorithm>
 #include <cstring>
 
-bool MemoryOutputStream::write(const void* data, size_t size)
+bool MemoryOutputStream::write(const void* data, uint64_t size)
 {
     try
     {

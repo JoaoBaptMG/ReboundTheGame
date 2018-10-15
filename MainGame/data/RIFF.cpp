@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "RIFF.hpp"
 
 #include <streamReaders.hpp>

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UISlider.hpp"
 
 #include "UIButtonGroup.hpp"

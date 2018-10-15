@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "textUtils.hpp"
 
 float fitTextDrawableToHeight(TextDrawable& text, float height, size_t lines)

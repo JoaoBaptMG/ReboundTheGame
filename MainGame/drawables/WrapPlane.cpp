@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "WrapPlane.hpp"
 
 void WrapPlane::draw(sf::RenderTarget& target, sf::RenderStates states) const

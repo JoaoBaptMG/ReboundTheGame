@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TextTestScene.hpp"
 #include <assert.hpp>
 

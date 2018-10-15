@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "EnemyCommon.hpp"
 
 #include "scene/GameScene.hpp"

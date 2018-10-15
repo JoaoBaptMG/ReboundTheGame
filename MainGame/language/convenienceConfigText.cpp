@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "convenienceConfigText.hpp"
 #include "resources/ResourceManager.hpp"
 

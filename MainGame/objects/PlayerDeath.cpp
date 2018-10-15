@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "PlayerDeath.hpp"
 
 #include "Player.hpp"

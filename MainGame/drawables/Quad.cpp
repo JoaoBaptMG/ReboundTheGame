@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Quad.hpp"
 
 #include <assert.hpp>

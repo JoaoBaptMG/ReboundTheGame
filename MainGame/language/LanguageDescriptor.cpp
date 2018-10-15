@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "LanguageDescriptor.hpp"
 
 #include <algorithm>

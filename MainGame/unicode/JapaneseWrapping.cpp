@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UnicodeUtils.hpp"
 #include <algorithm>
 #include <string>

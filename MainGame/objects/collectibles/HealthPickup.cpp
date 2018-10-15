@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "HealthPickup.hpp"
 
 #include "scene/GameScene.hpp"

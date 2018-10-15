@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "LevelTransition.hpp"
 
 #include <chronoUtils.hpp>

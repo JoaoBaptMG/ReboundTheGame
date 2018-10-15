@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "MessageSign.hpp"
 
 #include "scene/GameScene.hpp"

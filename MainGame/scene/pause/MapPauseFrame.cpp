@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "MapPauseFrame.hpp"
 
 #include "resources/ResourceManager.hpp"

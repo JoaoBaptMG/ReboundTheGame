@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "SceneManager.hpp"
 #include "Scene.hpp"
 #include "rendering/Renderer.hpp"

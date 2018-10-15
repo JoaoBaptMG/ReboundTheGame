@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Camera.hpp"
 
 #include "scene/GameScene.hpp"

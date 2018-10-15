@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TextDrawable.hpp"
 #include <algorithm>
 #include <utf8.h>

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "GUIMap.hpp"
 
 #include <map>

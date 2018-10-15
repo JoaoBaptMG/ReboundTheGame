@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UIButtonCommons.hpp"
 
 #include "resources/ResourceManager.hpp"

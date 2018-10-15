@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "WaterBody.hpp"
 
 #include <random>

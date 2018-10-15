@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Grapple.hpp"
 
 #include <SFML/Graphics.hpp>

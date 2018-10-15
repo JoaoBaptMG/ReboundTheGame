@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UITextSwitch.hpp"
 
 #include "UIButtonGroup.hpp"

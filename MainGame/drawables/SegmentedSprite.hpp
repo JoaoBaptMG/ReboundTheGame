@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #pragma once
 
 #include "Sprite.hpp"

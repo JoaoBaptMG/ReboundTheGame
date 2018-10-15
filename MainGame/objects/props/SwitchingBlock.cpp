@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "SwitchingBlock.hpp"
 
 #include "SwitchingBlockCluster.hpp"

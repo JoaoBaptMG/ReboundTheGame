@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "GUI.hpp"
 
 #include <SFML/Graphics.hpp>

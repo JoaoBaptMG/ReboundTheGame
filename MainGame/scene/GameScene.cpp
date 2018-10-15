@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "GameScene.hpp"
 
 #include "objects/Player.hpp"

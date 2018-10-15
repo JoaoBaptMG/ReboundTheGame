@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Floater.hpp"
 
 #include "scene/GameScene.hpp"

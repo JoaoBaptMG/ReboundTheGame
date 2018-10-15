@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "GUIMeter.hpp"
 
 constexpr float MeterWidthNormal = 36;

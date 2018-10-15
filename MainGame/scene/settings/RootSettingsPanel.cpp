@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "RootSettingsPanel.hpp"
 
 #include "SettingsScene.hpp"

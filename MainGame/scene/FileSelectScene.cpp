@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "FileSelectScene.hpp"
 
 #include "ui/UIButtonCommons.hpp"

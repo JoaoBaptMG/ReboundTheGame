@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ParticleEmitter.hpp"
 
 #include <chronoUtils.hpp>

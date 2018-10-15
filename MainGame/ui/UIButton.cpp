@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UIButton.hpp"
 
 #include "UIButtonGroup.hpp"

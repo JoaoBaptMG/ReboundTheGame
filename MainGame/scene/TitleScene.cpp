@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TitleScene.hpp"
 
 #include "resources/ResourceManager.hpp"

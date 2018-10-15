@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "varlength.hpp"
 
 #include <stack>

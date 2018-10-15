@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Powerup.hpp"
 
 #include "scene/GameScene.hpp"

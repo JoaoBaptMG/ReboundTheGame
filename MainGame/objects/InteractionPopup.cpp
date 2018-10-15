@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "InteractionPopup.hpp"
 
 #include "scene/GameScene.hpp"

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Sprite.hpp"
 
 #include <assert.hpp>

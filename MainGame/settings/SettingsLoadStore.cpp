@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Settings.hpp"
 #include "execDir.hpp"
 #include "streams/FileOutputStream.hpp"

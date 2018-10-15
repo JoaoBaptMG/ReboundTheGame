@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "AudioManager.hpp"
 #include "AudioException.hpp"
 #include <portaudio.h>

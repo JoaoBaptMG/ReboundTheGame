@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Enemy.hpp"
 
 #include "objects/Player.hpp"

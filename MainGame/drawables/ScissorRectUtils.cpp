@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ScissorRectUtils.hpp"
 #include "defaults.hpp"
 

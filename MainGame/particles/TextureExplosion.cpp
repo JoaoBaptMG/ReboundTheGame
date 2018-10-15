@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TextureExplosion.hpp"
 
 #include <random>

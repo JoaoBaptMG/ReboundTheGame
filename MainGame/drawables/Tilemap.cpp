@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Tilemap.hpp"
 #include <cmath>
 #include <rectUtils.hpp>

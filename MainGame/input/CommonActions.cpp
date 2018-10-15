@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "CommonActions.hpp"
 #include <iostream>
 

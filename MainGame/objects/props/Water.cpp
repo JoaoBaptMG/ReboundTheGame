@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Water.hpp"
 
 #include "objects/Player.hpp"
@@ -92,7 +91,7 @@ cpFloat intersectionAreaForAABBCircle(cpBB bb, cpVect pos, cpFloat radius)
 
 using namespace props;
 
-Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256)), player(nullptr)
+Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector2f(256, 256))
 {
     shape.setColor(sf::Color(100, 100, 255, 128));
     shape.setCoastColor(sf::Color(255, 255, 255, 128));
@@ -100,7 +99,7 @@ Water::Water(GameScene& scene) : GameObject(scene), oldArea(0), shape(sf::Vector
 
 Water::~Water()
 {
-     if (!player) player = gameScene.getObjectByName<Player>("player");
+     auto player = gameScene.getObjectByName<Player>("player");
      if (player) player->addToWaterArea(-oldArea);
 }
 
@@ -132,7 +131,7 @@ void Water::setRect(sf::IntRect rect)
 
 void Water::update(FrameTime curTime)
 {
-	if (!player) player = gameScene.getObjectByName<Player>("player");
+	auto player = gameScene.getObjectByName<Player>("player");
 
     if (player)
     {

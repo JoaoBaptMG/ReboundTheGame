@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #pragma once
 
 #include <cstdio>
@@ -37,5 +36,5 @@ public:
 
     bool open(const std::string& filename);
     bool openForAppending(const std::string& filename);
-    virtual bool write(const void* data, size_t size) override;
+    virtual bool write(const void* data, uint64_t size) override;
 };

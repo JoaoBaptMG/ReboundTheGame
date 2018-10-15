@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Room.hpp"
 #include "rendering/Renderer.hpp"
 #include "scene/GameScene.hpp"

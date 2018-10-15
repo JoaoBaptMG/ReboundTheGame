@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "BitCounts.hpp"
 
 const std::size_t BitCounts[256] = 

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "readVorbis.hpp"
 
 #include <streamReaders.hpp>

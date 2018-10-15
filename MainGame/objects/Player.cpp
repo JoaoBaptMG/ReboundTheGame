@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Player.hpp"
 
 #include "GameObjectFactory.hpp"

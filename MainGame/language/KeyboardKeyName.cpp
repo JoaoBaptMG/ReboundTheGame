@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "KeyboardKeyName.hpp"
 
 #include <iostream>

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ShapeUtils.hpp"
 
 #include <chipmunk/chipmunk_unsafe.h>

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "DestructibleCrate.hpp"
 
 #include "scene/GameScene.hpp"

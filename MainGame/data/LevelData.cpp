@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "LevelData.hpp"
 
 #include <algorithm>

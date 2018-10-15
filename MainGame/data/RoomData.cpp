@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "RoomData.hpp"
 
 #include <streamReaders.hpp>

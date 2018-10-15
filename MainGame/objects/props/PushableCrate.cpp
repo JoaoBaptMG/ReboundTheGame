@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "PushableCrate.hpp"
 
 #include "defaults.hpp"

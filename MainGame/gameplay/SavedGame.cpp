@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "SavedGame.hpp"
 
 #include <algorithm>

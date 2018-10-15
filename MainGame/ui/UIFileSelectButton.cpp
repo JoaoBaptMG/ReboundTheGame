@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UIFileSelectButton.hpp"
 
 #include "gameplay/SavedGame.hpp"

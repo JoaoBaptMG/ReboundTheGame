@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Transition.hpp"
 
 #include "scene/SceneManager.hpp"

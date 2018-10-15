@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "HarfBuzzWrapper.hpp"
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ot.h>

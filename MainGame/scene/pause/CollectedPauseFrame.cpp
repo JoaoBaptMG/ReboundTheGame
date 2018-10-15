@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "CollectedPauseFrame.hpp"
 
 #include "resources/ResourceManager.hpp"

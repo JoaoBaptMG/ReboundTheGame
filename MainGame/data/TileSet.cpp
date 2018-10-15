@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "TileSet.hpp"
 
 #include <streamReaders.hpp>

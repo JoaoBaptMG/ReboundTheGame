@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "MidLevelScene.hpp"
 
 #include "ui/UIButtonCommons.hpp"

@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "LocalizationManager.hpp"
 #include <SFML/System.hpp>
 

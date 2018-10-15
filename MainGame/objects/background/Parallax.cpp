@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Parallax.hpp"
 
 #include "scene/GameScene.hpp"

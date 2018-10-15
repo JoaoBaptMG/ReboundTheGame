@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "GoldenToken.hpp"
 
 #include "scene/GameScene.hpp"

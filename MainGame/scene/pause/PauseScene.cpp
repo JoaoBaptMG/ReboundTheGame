@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "PauseScene.hpp"
 
 #include "PauseFrame.hpp"

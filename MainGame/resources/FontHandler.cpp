@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "FontHandler.hpp"
 
 using namespace util;

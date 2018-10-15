@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ChipmunkDebugDrawable.hpp"
 #include <chipmunk/chipmunk_structs.h>
 

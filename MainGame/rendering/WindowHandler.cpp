@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "WindowHandler.hpp"
 #include "defaults.hpp"
 #include <stdexcept>

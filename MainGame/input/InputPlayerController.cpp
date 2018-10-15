@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "InputPlayerController.hpp"
 
 InputPlayerController::InputPlayerController(InputManager &inputManager, const InputSettings &settings)

@@ -20,5 +20,4 @@
 // SOFTWARE.
 //
 
-
 #include "ScriptedPlayerController.hpp"

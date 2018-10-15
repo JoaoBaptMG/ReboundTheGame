@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ExpressionCommands.hpp"
 
 #include <streamReaders.hpp>

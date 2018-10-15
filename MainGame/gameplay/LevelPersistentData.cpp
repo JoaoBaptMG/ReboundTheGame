@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "LevelPersistentData.hpp"
 
 LevelPersistentData::LevelPersistentData()

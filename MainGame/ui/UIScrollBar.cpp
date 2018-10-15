@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "UIScrollBar.hpp"
 
 #include <cmath>

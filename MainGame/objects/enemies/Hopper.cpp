@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Hopper.hpp"
 
 #include "objects/GameObjectFactory.hpp"

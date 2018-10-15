@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "SegmentedSprite.hpp"
 
 #include <algorithm>

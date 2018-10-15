@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "Rotator.hpp"
 
 #include "scene/GameScene.hpp"

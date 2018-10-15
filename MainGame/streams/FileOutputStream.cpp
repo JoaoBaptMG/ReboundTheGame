@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "FileOutputStream.hpp"
 
 FileOutputStream::~FileOutputStream()
@@ -40,7 +39,7 @@ bool FileOutputStream::openForAppending(const std::string& filename)
     return (file = std::fopen(filename.c_str(), "ab")) != nullptr;
 }
 
-bool FileOutputStream::write(const void* data, size_t size)
+bool FileOutputStream::write(const void* data, uint64_t size)
 {
     if (!file) return false;
     return std::fwrite(data, size, 1, file) > 0;

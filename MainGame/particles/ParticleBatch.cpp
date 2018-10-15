@@ -20,7 +20,6 @@
 // SOFTWARE.
 //
 
-
 #include "ParticleBatch.hpp"
 
 #include <random>
