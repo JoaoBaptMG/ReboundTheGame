@@ -23,31 +23,33 @@
 #pragma once
 
 #include "Renderer.hpp"
-#include <SFML/Graphics.hpp>
+#include <GLFW/glfw3.h>
 #include <non_copyable_movable.hpp>
 
 class WindowHandler : util::non_copyable_movable
 {
-    sf::RenderWindow renderWindow;
-    std::unique_ptr<sf::RenderTexture> fullscreenTexture;
-    sf::VertexArray fullscreenQuad;
+	GLFWwindow* renderWindow;
     Renderer renderer;
+	int prevx, prevy;
     
     bool vsyncEnabled;
+	bool fullscreen;
     
     void enableFullscreen();
     void disableFullscreen();
+	void setWindowViewport();
     
 public:
     WindowHandler(bool fullscreen, bool vsync);
+	~WindowHandler();
     
     void setFullscreen(bool fullscreen);
-    auto getFullscreen() const { return (bool)fullscreenTexture; }
+	auto getFullscreen() const { return fullscreen; }
     
-    void setVsyncEnabled(bool vsync) { vsyncEnabled = vsync; renderWindow.setVerticalSyncEnabled(vsync); }
+    void setVsyncEnabled(bool vsync) { vsyncEnabled = vsync; glfwSwapInterval(vsync); }
     
     Renderer& getRenderer() { return renderer; }
-    sf::Window& getWindow() { return renderWindow; }
+    GLFWwindow* getWindow() { return renderWindow; }
     
     void prepareForDraw();
     void display();

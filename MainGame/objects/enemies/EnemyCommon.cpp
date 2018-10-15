@@ -29,6 +29,9 @@
 #include "objects/Player.hpp"
 #include "objects/Bomb.hpp"
 
+#include <glm/glm.hpp>
+#include "ColorList.hpp"
+
 using namespace enemies;
 
 constexpr auto BlinkDuration = 12_frames;
@@ -86,7 +89,7 @@ void EnemyCommon::applyBlinkEffect(Sprite& sprite)
 {
     if (isNull(blinkTime)) return;
     
-    auto color = sf::Color::White;
+    auto color = Colors::White;
     float factor = toSeconds<float>(curTime - blinkTime) / toSeconds<float>(BlinkDuration);
     color.a = 80 * (1 - factor);
     

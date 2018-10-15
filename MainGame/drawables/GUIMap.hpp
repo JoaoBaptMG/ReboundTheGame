@@ -22,20 +22,21 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <memory>
 #include <vector>
 #include <chronoUtils.hpp>
+#include <rect.hpp>
 
 class LevelData;
 
 class GUIMap final : public sf::Drawable
 {
     std::shared_ptr<LevelData> curLevel;
-    sf::Texture* mapTexture;
+    Texture* mapTexture;
     sf::VertexArray vertArray;
-    sf::Vector2f displayPosition;
-    sf::Color mapBlinkColor;
+    glm::vec2 displayPosition;
+    glm::u8vec4 mapBlinkColor;
     size_t curRoom;
 
     FrameTime initTime;
@@ -55,12 +56,12 @@ public:
     void setCurRoom(size_t room) { curRoom = room; }
     
     auto getDisplayPosition() const { return displayPosition; }
-    void setDisplayPosition(sf::Vector2f pos) { displayPosition = pos; }
+    void setDisplayPosition(glm::vec2 pos) { displayPosition = pos; }
     
     auto getExtendedFrame() const { return extendedFrame; }
     void setExtendedFrame(bool f) { extendedFrame = f; }
 
-    sf::FloatRect getBounds() const;
+    util::rect getBounds() const;
     
     void presentRoom(size_t room);
     void presentRoomFull(size_t room);

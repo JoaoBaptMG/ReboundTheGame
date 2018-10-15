@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 #include <generic_ptrs.hpp>
 
-util::generic_shared_ptr loadWaveFile(std::unique_ptr<sf::InputStream>& stream);
+util::generic_shared_ptr loadWaveFile(std::unique_ptr<InputStream>& stream);

@@ -46,7 +46,7 @@ void InputManager::dispatchData(InputSource source, float val)
     }
 }
 
-void InputManager::dispatchMouseMovement(sf::Vector2i pos)
+void InputManager::dispatchMouseMovement(glm::ivec2 pos)
 {
     for (auto& callback : mouseMoveCallbacks) callback.second(pos);
 }
@@ -85,7 +85,7 @@ bool InputManager::handleEvent(const sf::Event& event)
             dispatchData(InputSource::mouseY, (float)event.mouseMove.y);
             dispatchData(InputSource::invertedMouseX, -(float)event.mouseMove.x);
             dispatchData(InputSource::invertedMouseY, -(float)event.mouseMove.y);
-            dispatchMouseMovement(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
+            dispatchMouseMovement(glm::ivec2(event.mouseMove.x, event.mouseMove.y));
             return true;
         case sf::Event::JoystickButtonPressed:
             if (curPickAllJoystickCallback && !joystickPickAllAxesOnly)

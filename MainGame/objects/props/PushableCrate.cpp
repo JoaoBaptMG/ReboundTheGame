@@ -25,6 +25,7 @@
 #include "defaults.hpp"
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include <vector_math.hpp>
 
@@ -78,11 +79,11 @@ void PushableCrate::setupCollisionHandlers(cp::Space* space)
 
 PushableCrate::PushableCrate(GameScene& gameScene) : GameObject(gameScene)
 {
-    sf::FloatRect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
+    util::rect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
         (float)PlayfieldWidth, (float)PlayfieldHeight};
     tilemap.setDrawingFrame(drawingFrame);
     
-    tilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>("push-crate.png"));
+    tilemap.setTexture(gameScene.getResourceManager().load<Texture>("push-crate.png"));
 }
 
 bool PushableCrate::configure(const PushableCrate::ConfigStruct& config)
@@ -177,9 +178,9 @@ bool PushableCrate::notifyScreenTransition(cpVect displacement)
 void PushableCrate::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.currentTransform.rotate(radiansToDegrees(shape->getBody()->getAngle()));
-    renderer.pushDrawable(tilemap, {}, 25);
+    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.currentTransform *= util::rotate(shape->getBody()->getAngle());
+    renderer.pushDrawable(tilemap, 25);
     renderer.popTransform();
 }
 

@@ -21,7 +21,7 @@
 //
 
 #include "FilesystemResourceLocator.hpp"
-#include <fstream>
+#include <streams/FileInputStream.hpp>
 
 inline static std::string getResourceDirectory()
 {
@@ -32,12 +32,13 @@ FilesystemResourceLocator::FilesystemResourceLocator() : basename(getResourceDir
 {
 }
 
-std::unique_ptr<sf::InputStream> FilesystemResourceLocator::getResource(std::string name)
+std::unique_ptr<InputStream> FilesystemResourceLocator::getResource(std::string name)
 {
     std::string fullname = basename + '/' + name;
 
-    std::unique_ptr<sf::FileInputStream> ptr{new sf::FileInputStream()};
+    std::unique_ptr<FileInputStream> ptr{new FileInputStream()};
     if (!ptr->open(fullname)) throw FileNotFound(name);
 
-    return std::unique_ptr<sf::InputStream>{ptr.release()};
+    return std::unique_ptr<InputStream>{ptr.release()};
 }
+

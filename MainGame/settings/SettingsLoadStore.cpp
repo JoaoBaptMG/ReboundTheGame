@@ -22,7 +22,8 @@
 
 #include "Settings.hpp"
 #include "execDir.hpp"
-#include "streams/FileOutputStream.hpp"
+#include <streams/FileInputStream.hpp>
+#include <streams/FileOutputStream.hpp>
 
 constexpr auto SettingsFileName = "settings.sav";
 
@@ -111,7 +112,7 @@ Settings loadSettingsFile(bool *success)
     if (success) *success = false;
     
     auto fullname = getExecutableDirectory() + '/' + SettingsFileName;
-    sf::FileInputStream file;
+    FileInputStream file;
 
     if (!file.open(fullname)) return defaultSettings();
     if (!checkMagic(file, "SETTINGS")) return defaultSettings();

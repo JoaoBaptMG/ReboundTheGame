@@ -37,7 +37,7 @@ protected:
 
     SettingsPanel(SettingsBase* curSettings, UIPointer& pointer) : curSettings(curSettings), pointer(pointer) {}
 
-    sf::Vector2f getCenterPosition() const;
+    glm::vec2 getCenterPosition() const;
     const LangID& getBackId() const;
     void executeBackAction();
 

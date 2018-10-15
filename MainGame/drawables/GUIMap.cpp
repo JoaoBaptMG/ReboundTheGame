@@ -26,7 +26,7 @@
 
 #include <assert.hpp>
 #include <chronoUtils.hpp>
-#include <rectUtils.hpp>
+#include <rect.hpp>
 #include "defaults.hpp"
 #include "gameplay/MapGenerator.hpp"
 #include "data/LevelData.hpp"
@@ -38,7 +38,7 @@
 struct MapTextureData
 {
     sf::VertexArray vertArray;
-    sf::Texture texture;
+    Texture texture;
     MapTextureData() : vertArray(sf::PrimitiveType::Triangles) {}
 };
 using WeakLvlPtr = std::weak_ptr<LevelData>;
@@ -47,19 +47,19 @@ void clearMapTextures() { staticLevelTextures.clear(); }
 
 constexpr float BlinkPeriod = 2;
 
-const sf::FloatRect MapViewport(-54, -54, 108, 108);
-const sf::FloatRect ExtendedMapViewport(-364, -204, 728, 408);
+const util::rect MapViewport(-54, -54, 108, 108);
+const util::rect ExtendedMapViewport(-364, -204, 728, 408);
 
 constexpr uint8_t PresentSpeed = 6;
 
-void setColorOnly(sf::Color& color, sf::Color dest)
+void setColorOnly(glm::u8vec4& color, glm::u8vec4 dest)
 {
     color.r = dest.r;
     color.g = dest.g;
     color.b = dest.b;
 }
 
-sf::FloatRect GUIMap::getBounds() const
+util::rect GUIMap::getBounds() const
 {
     return extendedFrame ? ExtendedMapViewport : MapViewport;
 }
@@ -70,7 +70,7 @@ void GUIMap::update(FrameTime curTime)
     
     float t = toSeconds<float>(curTime - initTime);
     float weight = 0.5 - 0.5 * cosf(2 * M_PI * t / BlinkPeriod);
-    sf::Color finalColor(255 + weight * ((int)mapBlinkColor.r - 255),
+    glm::u8vec4 finalColor(255 + weight * ((int)mapBlinkColor.r - 255),
                          255 + weight * ((int)mapBlinkColor.g - 255),
                          255 + weight * ((int)mapBlinkColor.b - 255),
                          255 + weight * ((int)mapBlinkColor.a - 255));
@@ -79,7 +79,7 @@ void GUIMap::update(FrameTime curTime)
         for (size_t i = 0; i < curLevel->roomMaps.size(); i++)
             for (size_t k = 0; k < 6; k++)
             {
-                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : sf::Color::White);
+                setColorOnly(vertArray[6*i+k].color, curRoom == i ? finalColor : Colors::White);
                 if (vertArray[6*i+k].color.a != 0 && vertArray[6*i+k].color.a != 255)
                     vertArray[6*i+k].color.a = std::min((size_t)vertArray[6*i+k].color.a + PresentSpeed, (size_t)255);
             }
@@ -124,18 +124,17 @@ void GUIMap::buildLevelTexture()
         auto& data = staticLevelTextures.emplace(curLevel, MapTextureData()).first->second;
         mapTexture = &data.texture;
         
-        sf::IntRect bounds;
+        util::irect bounds;
         data.vertArray.resize(6 * curLevel->roomMaps.size());
 
         for (const auto& mapData : curLevel->roomMaps)
-            bounds = rectUnionWithRect(bounds,
-                sf::IntRect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
+            bounds = bounds.unite(util::irect(mapData.x, mapData.y, mapData.map.width(), mapData.map.height()));
                 
         ASSERT(mapTexture->create(bounds.width, bounds.height));
 
         auto buildVertex = [=](float x, float y)
         {
-            return sf::Vertex(sf::Vector2f(x, y), sf::Color(255, 255, 255, 0), sf::Vector2f(x - bounds.left, y - bounds.top));
+            return sf::Vertex(sf::Vector2f(x, y), glm::u8vec4(255, 255, 255, 0), sf::Vector2f(x - bounds.x, y - bounds.y));
         };
 
         size_t i = 0;
@@ -143,7 +142,7 @@ void GUIMap::buildLevelTexture()
         {
             if (mapData.map.empty()) continue;
             mapTexture->update(getTextureData(mapData.map).get(), mapData.map.width(), mapData.map.height(),
-                mapData.x - bounds.left, mapData.y - bounds.top);
+                mapData.x - bounds.x, mapData.y - bounds.y);
             
             data.vertArray[i++] = buildVertex(mapData.x, mapData.y);
             data.vertArray[i++] = buildVertex(mapData.x + (int16_t)mapData.map.width(), mapData.y);
@@ -189,7 +188,7 @@ void GUIMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
     ScissorRectGuard guard{states.transform.transformRect(getBounds())};
     
     states.transform.translate(-curLevel->roomMaps.at(curRoom).x, -curLevel->roomMaps.at(curRoom).y);
-    states.transform.translate(-displayPosition);
+    states.transform.translate(-displayPosition.x, -displayPosition.y);
     states.texture = mapTexture;
     
     target.draw(vertArray, states);

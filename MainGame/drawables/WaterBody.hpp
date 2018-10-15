@@ -22,10 +22,11 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 #include <memory>
 #include <mutex>
+#include <glm/glm.hpp>
 
 class WaterBody final : public sf::Drawable
 {
@@ -49,14 +50,14 @@ class WaterBody final : public sf::Drawable
 		size_t width;
 		std::vector<float> previousFrame2, previousFrame, curFrame, newVelocity;
 		std::vector<sf::Uint8> texBuffer;
-		sf::Texture texture;
+		Texture texture;
 		std::mutex updateMutex, velocityMutex;
 	};
 
-	sf::Vector2f drawingSize;
+	glm::vec2 drawingSize;
 	FrameTime startingTime, curTime;
 	sf::Vertex quad[4];
-	sf::Color color, coastColor;
+	glm::u8vec4 color, coastColor;
 	DynamicWaveProperties* dynamicWaveProperties;
 
 	intmax_t curT;
@@ -66,7 +67,7 @@ class WaterBody final : public sf::Drawable
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-	WaterBody(sf::Vector2f drawingSize);
+	WaterBody(glm::vec2 drawingSize);
 	~WaterBody();
 
 	void recreateQuad();
@@ -78,13 +79,13 @@ public:
 	void setVelocity(float point, float newVel);
 
 	auto getDrawingSize() const { return drawingSize; }
-	void setDrawingSize(sf::Vector2f size) { drawingSize = size; recreateQuad(); resetSimulationVectors(); }
+	void setDrawingSize(glm::vec2 size) { drawingSize = size; recreateQuad(); resetSimulationVectors(); }
 
 	auto getColor() const { return color; }
-	void setColor(sf::Color color) { this->color = color; }
+	void setColor(glm::u8vec4 color) { this->color = color; }
 
 	auto getCoastColor() const { return coastColor; }
-	void setCoastColor(sf::Color color) { coastColor = color; }
+	void setCoastColor(glm::u8vec4 color) { coastColor = color; }
 
 	auto getTopHidden() const { return topHidden; }
 	void setTopHidden(bool top) { topHidden = top; recreateQuad(); resetWaves(); resetSimulationVectors(); }

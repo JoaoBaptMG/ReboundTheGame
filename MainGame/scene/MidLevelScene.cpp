@@ -33,7 +33,9 @@
 #include "resources/ResourceManager.hpp"
 #include "input/InputManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "defaults.hpp"
+#include "ColorList.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -55,13 +57,13 @@ const LangID ButtonIdentifiers[] =
 MidLevelScene::MidLevelScene(Services& services, const SavedGame& sg, std::string nextLevel, bool gameover)
     : nextLevel(nextLevel), title(loadDefaultFont(services)),
     pointer(services), buttonGroup(services),
-    sceneFrame(services.resourceManager.load<sf::Texture>("mid-level-scene-frame.png"), sf::Vector2f(0, 0))
+    sceneFrame(services.resourceManager.load<Texture>("mid-level-scene-frame.png"), glm::vec2(0, 0))
 {
     title.setString(services.localizationManager.getString(gameover ? LangID("mid-level-gameover") : LangID("mid-level-advance")));
     title.setFontSize(TitleCaptionSize);
-    title.setDefaultColor(sf::Color::Yellow);
+    title.setDefaultColor(Colors::Yellow);
     title.setOutlineThickness(2);
-    title.setDefaultOutlineColor(sf::Color::Black);
+    title.setDefaultOutlineColor(Colors::Black);
     title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     title.setVerticalAnchor(TextDrawable::VertAnchor::Top);
     title.setWordWrappingWidth(ScreenWidth - 2 * TitleSpace);
@@ -75,13 +77,13 @@ MidLevelScene::MidLevelScene(Services& services, const SavedGame& sg, std::strin
         button.initialize(services.inputManager);
         
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
-            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
-            ButtonIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+            util::rect(16, 0, 8, 1), util::rect(0, 0, ScreenWidth - 2 * ButtonSpace, ButtonHeight),
+            ButtonIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
         
-        button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
+        button.getPressedSprite()->setBlendColor(Colors::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
-        button.setPosition(sf::Vector2f(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (3-k) * (ButtonHeight + ButtonSpace)));
+        button.setPosition(glm::vec2(ScreenWidth/2, ButtonTop + ButtonHeight/2 - (3-k) * (ButtonHeight + ButtonSpace)));
         button.setDepth(20);
         
         k++;
@@ -126,11 +128,11 @@ void MidLevelScene::update(FrameTime curTime)
 
 void MidLevelScene::render(Renderer &renderer)
 {
-    renderer.pushDrawable(sceneFrame, {}, 0);
+    renderer.pushDrawable(sceneFrame, 0);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth/2, TitleSpace);
-    renderer.pushDrawable(title, {}, 10);
+    renderer.currentTransform *= util::translate(ScreenWidth/2, TitleSpace);
+    renderer.pushDrawable(title, 10);
     renderer.popTransform();
     
     for (auto& button : buttons) button.render(renderer);

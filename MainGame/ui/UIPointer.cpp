@@ -26,19 +26,20 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 
 UIPointer::UIPointer(Services& services)
-    : pointer(services.resourceManager.load<sf::Texture>("ui-pointer.png"), sf::Vector2f(0, 0)), position(NAN, NAN)
+    : pointer(services.resourceManager.load<Texture>("ui-pointer.png"), glm::vec2(0, 0)), position(NAN, NAN)
 {
-    callbackEntry = services.inputManager.registerMouseMoveCallback([=] (sf::Vector2i position)
+    callbackEntry = services.inputManager.registerMouseMoveCallback([=] (glm::ivec2 position)
     {
-        this->position = sf::Vector2f(position);
+        this->position = glm::vec2(position);
     });
 }
 
 void UIPointer::hide()
 {
-    position = sf::Vector2f(NAN, NAN);
+    position = glm::vec2(NAN, NAN);
 }
 
 void UIPointer::render(Renderer& renderer)
@@ -46,8 +47,8 @@ void UIPointer::render(Renderer& renderer)
     if (std::isnan(position.x) || std::isnan(position.y)) return;
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(position);
-    renderer.pushDrawable(pointer, {}, 150000);
+    renderer.currentTransform *= util::translate(position);
+    renderer.pushDrawable(pointer, 150000);
     renderer.popTransform();
 }
 

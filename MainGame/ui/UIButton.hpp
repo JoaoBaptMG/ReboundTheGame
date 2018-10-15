@@ -27,6 +27,7 @@
 #include <functional>
 #include <string>
 #include <non_copyable_movable.hpp>
+#include <rect.hpp>
 #include "drawables/Sprite.hpp"
 #include "drawables/TextDrawable.hpp"
 #include "input/InputManager.hpp"
@@ -38,8 +39,8 @@ class UIButton : util::non_copyable
 {
     std::unique_ptr<Sprite> normalSprite, activeSprite, pressedSprite;
     std::unique_ptr<TextDrawable> caption;
-    sf::FloatRect bounds, globalBounds;
-    sf::Vector2f position, captionDisplacement;
+    util::rect bounds, globalBounds;
+    glm::vec2 position, captionDisplacement;
     size_t depth;
     
     std::function<void()> pressAction, overAction, outAction;
@@ -52,7 +53,7 @@ protected:
     UIButtonGroup *parentGroup;
     enum class State { Normal, Active, Pressed } state;
 
-    bool isInBounds(sf::Vector2f position) const;
+    bool isInBounds(glm::vec2 position) const;
 
 public:
     UIButton() : state(State::Normal), active(true), parentGroup(nullptr), bounds(),
@@ -78,11 +79,11 @@ public:
     void setCaption(std::unique_ptr<TextDrawable> &&text) { caption = std::move(text); }
     
     auto getBounds() const { return bounds; }
-    void setBounds(const sf::FloatRect& rect) { bounds = rect; }
+    void setBounds(const util::rect& rect) { bounds = rect; }
     void autoComputeBounds();
 
     auto getGlobalBounds() const { return globalBounds; }
-    void setGlobalBounds(const sf::FloatRect& rect) { globalBounds = rect; }
+    void setGlobalBounds(const util::rect& rect) { globalBounds = rect; }
     
     auto getPressAction() const { return pressAction; }
     void setPressAction(decltype(pressAction) act) { pressAction = act; }
@@ -97,10 +98,10 @@ public:
     void setDepth(size_t d) { depth = d; }
     
     auto getPosition() const { return position; }
-    void setPosition(sf::Vector2f pos) { position = pos; }
+    void setPosition(glm::vec2 pos) { position = pos; }
     
     auto getCaptionDisplacement() const { return captionDisplacement; }
-    void setCaptionDisplacement(sf::Vector2f displacement) { captionDisplacement = displacement; }
+    void setCaptionDisplacement(glm::vec2 displacement) { captionDisplacement = displacement; }
     
     void activate() { active = true; }
     void deactivate() { active = false; }

@@ -30,5 +30,5 @@ struct AudioSettings
     uint8_t soundVolume;
 };
 
-bool readFromStream(sf::InputStream &stream, AudioSettings& settings);
+bool readFromStream(InputStream &stream, AudioSettings& settings);
 bool writeToStream(OutputStream& stream, const AudioSettings& settings);

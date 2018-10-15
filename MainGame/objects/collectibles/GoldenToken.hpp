@@ -54,7 +54,7 @@ namespace collectibles
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
             uint8_t tokenId;
         };
 

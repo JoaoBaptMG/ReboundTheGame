@@ -45,7 +45,7 @@ public:
     UIFileSelectButton(const SavedGame& sg, Services& services, size_t k);
     virtual ~UIFileSelectButton() {}
     
-    sf::FloatRect getBounds() const;
+    util::rect getBounds() const;
     
     virtual void render(Renderer &renderer) override;
 };

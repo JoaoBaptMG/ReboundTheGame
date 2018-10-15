@@ -24,6 +24,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "objects/Room.hpp"
 #include "particles/TextureExplosion.hpp"
@@ -45,7 +46,7 @@ constexpr auto SpawnPeriod = 120_frames;
 constexpr auto ExplosionDuration = 200_frames;
 
 TestBoss::TestBoss(GameScene& scene) : Boss(scene, "test-boss-present"),
-    mainSprite(scene.getResourceManager().load<sf::Texture>("test-boss.png"))
+    mainSprite(scene.getResourceManager().load<Texture>("test-boss.png"))
 {
     setupPhysics();
     
@@ -132,10 +133,10 @@ void TestBoss::die()
     EnemyCommon::die();
     
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    auto displayGravity = glm::vec2(grav.x, grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, mainSprite.getTexture(), ExplosionDuration,
-        sf::FloatRect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 8, 8, 160);
+        util::rect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 8, 8, 160);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
     
@@ -156,15 +157,15 @@ void TestBoss::render(Renderer& renderer)
     applyBlinkEffect(mainSprite);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.pushDrawable(mainSprite, {}, 160);
+    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.pushDrawable(mainSprite, 160);
     renderer.popTransform();
 }
 
 size_t TestBoss::getMaxHealth() const { return MaxHealth; }
 
 TestBossProjectile::TestBossProjectile(GameScene& scene, cpVect pos, cpVect vel) : Enemy(scene),
-    sprite(scene.getResourceManager().load<sf::Texture>("test-boss-projectile.png"))
+    sprite(scene.getResourceManager().load<Texture>("test-boss-projectile.png"))
 {
     setupPhysics();
     collisionBody->setPosition(pos);
@@ -214,8 +215,8 @@ void TestBossProjectile::update(FrameTime curTime)
 void TestBossProjectile::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
-    renderer.pushDrawable(sprite, {}, 156);
+    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.pushDrawable(sprite, 156);
     renderer.popTransform();
 }
 

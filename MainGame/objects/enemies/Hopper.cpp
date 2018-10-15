@@ -28,6 +28,7 @@
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "particles/TextureExplosion.hpp"
 
 #include <streamReaders.hpp>
@@ -43,7 +44,7 @@
 
 using namespace enemies;
 
-bool enemies::readFromStream(sf::InputStream& stream, Hopper::ConfigStruct& config)
+bool enemies::readFromStream(InputStream& stream, Hopper::ConfigStruct& config)
 {
     uint8_t faceRight;
     if (!::readFromStream(stream, config.position, faceRight)) return false;
@@ -52,9 +53,9 @@ bool enemies::readFromStream(sf::InputStream& stream, Hopper::ConfigStruct& conf
 }
 
 Hopper::Hopper(GameScene& gameScene) : EnemyCommon(gameScene), facingRight(false),
-    hopperBody(gameScene.getResourceManager().load<sf::Texture>("hopper-body.png")),
-    hopperLeg(gameScene.getResourceManager().load<sf::Texture>("hopper-leg.png"), sf::Vector2f(55, 5)),
-    hopperFoot(gameScene.getResourceManager().load<sf::Texture>("hopper-foot.png"))
+    hopperBody(gameScene.getResourceManager().load<Texture>("hopper-body.png")),
+    hopperLeg(gameScene.getResourceManager().load<Texture>("hopper-leg.png"), glm::vec2(55, 5)),
+    hopperFoot(gameScene.getResourceManager().load<Texture>("hopper-foot.png"))
 {
     setHealth(3);
     setTouchDamage(3);
@@ -137,13 +138,13 @@ void Hopper::die()
 {
     EnemyCommon::die();
     
-    auto roundVec = [](cpVect vec) { return sf::Vector2f(round(vec.x), round(vec.y)); };
+    auto roundVec = [](cpVect vec) { return glm::vec2(round(vec.x), round(vec.y)); };
     
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = sf::Vector2f(grav.x, grav.y);
+    auto displayGravity = glm::vec2(grav.x, grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, hopperBody.getTexture(), 100_frames,
-        sf::FloatRect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 4, 4, 160);
+        util::rect(-80, -32, 160, 16), displayGravity, TextureExplosion::Density, 4, 4, 160);
     explosion->setPosition(roundVec(mainBody->getPosition()));
     gameScene.addObject(std::move(explosion));
 }
@@ -193,30 +194,30 @@ void Hopper::setFacingDirection(bool facingRight)
 
 void Hopper::render(Renderer& renderer)
 {
-    auto roundVec = [](cpVect vec) { return sf::Vector2f(round(vec.x), round(vec.y)); };
+    auto roundVec = [](cpVect vec) { return glm::vec2(round(vec.x), round(vec.y)); };
     
     applyBlinkEffect(hopperBody);
     applyBlinkEffect(hopperLeg);
     applyBlinkEffect(hopperFoot);
     
     float dy = roundVec(mainBody->getPosition() - footBody->getPosition() - graphicalDisplacement).y + 16;
-    float angle = radiansToDegrees(asinf(dy/(2*50)));
+    float angle = asinf(dy/(2*50));
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(roundVec(mainBody->getPosition()));
-    renderer.currentTransform.rotate(radiansToDegrees(mainBody->getAngle()));
-    renderer.pushDrawable(hopperBody, {}, 47);
-    renderer.currentTransform.translate(40, 16);
-    renderer.currentTransform.rotate(angle);
-    renderer.pushDrawable(hopperLeg, {}, 44);
+    renderer.currentTransform *= util::translate(roundVec(mainBody->getPosition()));
+    renderer.currentTransform *= util::rotate(mainBody->getAngle());
+    renderer.pushDrawable(hopperBody, 47);
+    renderer.currentTransform *= util::translate(40, 16);
+    renderer.currentTransform *= util::rotate(angle);
+    renderer.pushDrawable(hopperLeg, 44);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(roundVec(footBody->getPosition() + graphicalDisplacement));
-    renderer.currentTransform.rotate(radiansToDegrees(footBody->getAngle()));
-    renderer.pushDrawable(hopperFoot, {}, 46);
-    renderer.currentTransform.rotate(-angle);
-    renderer.pushDrawable(hopperLeg, {}, 45);
+    renderer.currentTransform *= util::translate(roundVec(footBody->getPosition() + graphicalDisplacement));
+    renderer.currentTransform *= util::rotate(footBody->getAngle());
+    renderer.pushDrawable(hopperFoot, 46);
+    renderer.currentTransform *= util::rotate(-angle);
+    renderer.pushDrawable(hopperLeg, 45);
     renderer.popTransform();
 }
 

@@ -27,7 +27,7 @@
 
 #include "drawables/WaterBody.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chipmunk/chipmunk.h>
 #include <chronoUtils.hpp>
 
@@ -47,13 +47,13 @@ namespace props
         Water(GameScene& scene);
         virtual ~Water();
 
-        void setRect(sf::IntRect rect);
+        void setRect(util::irect rect);
 
         auto getPosition() { return cpVect{rect.l, rect.b}; }
         auto getDisplayPosition()
         {
             auto pos = getPosition();
-            return sf::Vector2f((float)std::round(pos.x), (float)std::round(pos.y));
+            return glm::vec2((float)std::round(pos.x), (float)std::round(pos.y));
         }
         
         virtual void update(FrameTime curTime) override;
@@ -64,10 +64,10 @@ namespace props
     #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
             int16_t width, height;
             uint8_t hideTop;
-            sf::Color coastColor, color;
+            glm::u8vec4 coastColor, color;
         };
 
         static_assert(sizeof(ConfigStruct) == 17*sizeof(char), "Packing failed!");

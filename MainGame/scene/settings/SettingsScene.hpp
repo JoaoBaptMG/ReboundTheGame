@@ -44,13 +44,13 @@ class PauseScene;
 
 class SettingsBase
 {
-    sf::Vector2f centerPosition;
+    glm::vec2 centerPosition;
     std::unique_ptr<SettingsPanel> curSettingsPanel;
     SettingsPanel* nextSettingsPanel;
     LangID backId;
     
 protected:
-    SettingsBase(Services& services, sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
+    SettingsBase(Services& services, glm::vec2 centerPos, UIPointer& pointer, LangID backId);
     ~SettingsBase() = default;
     
     void update(FrameTime curTime);

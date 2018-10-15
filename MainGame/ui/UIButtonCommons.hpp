@@ -30,9 +30,9 @@
 #include "Services.hpp"
 
 void createCommonTextualButton(UIButton& button, Services& services,
-    std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
-    sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
-    float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement,
+    std::string activeResourceName, std::string pressedResourceName, util::rect centerRect,
+    util::rect destRect, LangID captionString, size_t captionSize, glm::u8vec4 textColor,
+    float outlineThickness, glm::u8vec4 outlineColor, glm::vec2 captionDisplacement,
     TextDrawable::Alignment wordAlignment = TextDrawable::Alignment::Direct);
 
 void createCommonGraphicsButton(UIButton& button, ResourceManager& rm, std::string normalResourceName,

@@ -27,7 +27,7 @@
 #include "CommonActions.hpp"
 #include "settings/InputSettings.hpp"
 #include <non_copyable_movable.hpp>
-#include <SFML/System.hpp>
+
 
 class InputPlayerController final : public PlayerController, util::non_copyable
 {

@@ -33,11 +33,11 @@ class PlayerDeath final : public GameObject
 {
     FrameTime initTime;
     Sprite playerSprite;
-    sf::Vector2f position;
+    glm::vec2 position;
     bool spawnedParticle;
     
 public:
-    PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<sf::Texture>& texture);
+    PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<Texture>& texture);
     virtual ~PlayerDeath() {}
 
     virtual void update(FrameTime curTime) override;

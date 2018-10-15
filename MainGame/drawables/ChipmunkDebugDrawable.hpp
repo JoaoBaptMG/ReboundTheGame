@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <cppmunk/Space.h>
 
 class ChipmunkDebugDrawable final : public sf::Drawable

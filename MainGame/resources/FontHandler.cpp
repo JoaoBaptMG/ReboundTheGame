@@ -31,18 +31,18 @@ FontHandler::FontHandler(std::unique_ptr<const char[]> &&data, size_t size) : fo
         throw -1;
 }
 
-util::generic_shared_ptr loadFontHandler(std::unique_ptr<sf::InputStream>& stream)
+util::generic_shared_ptr loadFontHandler(std::unique_ptr<InputStream>& stream)
 {
     try
     {
-        auto size = stream->getSize();
+        auto size = stream->size();
         if (size == -1) return generic_shared_ptr{};
         if (stream->seek(0) != 0) return generic_shared_ptr{};
         
         std::unique_ptr<char[]> memory(new char[size]);
         if (stream->read(memory.get(), size) != size)
             return generic_shared_ptr{};
-            
+
         return generic_shared_ptr{std::make_shared<FontHandler>(std::move(memory), size)};
     }
     catch (...)

@@ -41,7 +41,7 @@ void main()
 }
 )fragment";
 
-static inline auto toVec3(sf::Color color)
+static inline auto toVec3(glm::u8vec4 color)
 {
     return sf::Glsl::Vec3(color.r/255.0f, color.g/255.0f, color.b/255.0f);
 }
@@ -61,24 +61,24 @@ sf::Shader& Sprite::getSpriteShader()
     return shader;
 }
 
-Sprite::Sprite(std::shared_ptr<sf::Texture> texture, sf::Vector2f anchor) : texture(texture), anchorPoint(anchor),
-    blendColor(sf::Color::White), flashColor(sf::Color(0, 0, 0, 0)), opacity(1), grayscaleFactor(0),
+Sprite::Sprite(std::shared_ptr<Texture> texture, glm::vec2 anchor) : texture(texture), anchorPoint(anchor),
+    blendColor(Colors::White), flashColor(glm::u8vec4(0, 0, 0, 0)), opacity(1), grayscaleFactor(0),
     vertices(sf::PrimitiveType::TriangleFan)
 {
-    texRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
+    texRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
     vertices.resize(4);
     setupVertices();
 }
 
-Sprite::Sprite(std::shared_ptr<sf::Texture> texture) : Sprite(texture, sf::Vector2f(texture->getSize())/2.0f) {}
+Sprite::Sprite(std::shared_ptr<Texture> texture) : Sprite(texture, glm::vec2(texture->getSize().x/2.0f, texture->getSize().y/2.0f)) {}
 
-Sprite::Sprite() : Sprite(nullptr, sf::Vector2f(0, 0)) {}
+Sprite::Sprite() : Sprite(nullptr, glm::vec2(0, 0)) {}
 
-sf::FloatRect Sprite::getBounds() const
+util::rect Sprite::getBounds() const
 {
-    sf::FloatRect bounds(texRect);
-    bounds.left -= anchorPoint.x;
-    bounds.top -= anchorPoint.y;
+    util::rect bounds(texRect);
+    bounds.x -= anchorPoint.x;
+    bounds.y -= anchorPoint.y;
     return bounds;
 }
 
@@ -96,7 +96,7 @@ void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
     shader.setUniform("grayscaleFactor", grayscaleFactor);
     
     states.blendMode = sf::BlendAlpha;
-    states.transform.translate(-anchorPoint);
+    states.transform.translate(-anchorPoint.x, -anchorPoint.y);
     states.texture = texture.get();
     states.shader = &shader;
 
@@ -106,10 +106,10 @@ void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
 void Sprite::setupVertices()
 {
     for (size_t i = 0; i < vertices.getVertexCount(); i++)
-        vertices[i].color = sf::Color::White;
+        vertices[i].color = Colors::White;
 
-    vertices[0].position = vertices[0].texCoords = sf::Vector2f(texRect.left, texRect.top);
-    vertices[1].position = vertices[1].texCoords = sf::Vector2f(texRect.left + texRect.width, texRect.top);
-    vertices[2].position = vertices[2].texCoords = sf::Vector2f(texRect.left + texRect.width, texRect.top + texRect.height);
-    vertices[3].position = vertices[3].texCoords = sf::Vector2f(texRect.left, texRect.top + texRect.height);
+    vertices[0].position = vertices[0].texCoords = sf::Vector2f(texRect.x, texRect.y);
+    vertices[1].position = vertices[1].texCoords = sf::Vector2f(texRect.x + texRect.width, texRect.y);
+    vertices[2].position = vertices[2].texCoords = sf::Vector2f(texRect.x + texRect.width, texRect.y + texRect.height);
+    vertices[3].position = vertices[3].texCoords = sf::Vector2f(texRect.x, texRect.y + texRect.height);
 }

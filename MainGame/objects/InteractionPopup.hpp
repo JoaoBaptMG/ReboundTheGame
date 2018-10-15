@@ -29,7 +29,7 @@
 
 #include <memory>
 #include <chronoUtils.hpp>
-#include <SFML/System.hpp>
+
 
 class GameScene;
 class Renderer;
@@ -41,7 +41,7 @@ class InteractionPopup final : public GameObject
 
     FrameTime curTime, destTime;
 
-    sf::Vector2f position;
+    glm::vec2 position;
     bool collapsing;
 
 public:
@@ -54,7 +54,7 @@ public:
     virtual bool notifyScreenTransition(cpVect displacement) override;
 
     auto getPosition() const { return position; }
-    void setPosition(sf::Vector2f pos) { position = pos; }
+    void setPosition(glm::vec2 pos) { position = pos; }
 
     void collapse();
 };

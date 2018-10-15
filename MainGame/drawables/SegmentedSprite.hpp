@@ -26,29 +26,29 @@
 
 class SegmentedSprite : public Sprite
 {    
-    sf::FloatRect centerRect, destRect;
+    util::rect centerRect, destRect;
     
 protected:
     virtual void setupVertices() override;
     
 public:
-    SegmentedSprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f anchor);
-    SegmentedSprite(std::shared_ptr<sf::Texture> tex);
+    SegmentedSprite(std::shared_ptr<Texture> tex, glm::vec2 anchor);
+    SegmentedSprite(std::shared_ptr<Texture> tex);
     SegmentedSprite();
     
     virtual ~SegmentedSprite() {}
     
-    virtual void setTexture(std::shared_ptr<sf::Texture> tex) override
+    virtual void setTexture(std::shared_ptr<Texture> tex) override
     { 
-        centerRect = destRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
+        centerRect = destRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
         Sprite::setTexture(tex);
     }
     
-    virtual sf::FloatRect getBounds() const override;
+    virtual util::rect getBounds() const override;
     
     auto getCenterRect() const { return centerRect; }
-    void setCenterRect(sf::FloatRect rect) { centerRect = rect; setupVertices(); }
+    void setCenterRect(util::rect rect) { centerRect = rect; setupVertices(); }
     
     auto getDestinationRect() const { return destRect; }
-    void setDestinationRect(sf::FloatRect rect) { destRect = rect; setupVertices(); }
+    void setDestinationRect(util::rect rect) { destRect = rect; setupVertices(); }
 };

@@ -22,18 +22,20 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <memory>
+#include <glm/glm.hpp>
+#include <rect.hpp>
 
 class Sprite : public sf::Drawable
 {
     static sf::Shader& getSpriteShader();
     
-    std::shared_ptr<sf::Texture> texture;
-    sf::Vector2f anchorPoint;
+    std::shared_ptr<Texture> texture;
+    glm::vec2 anchorPoint;
 
-    sf::Color flashColor, blendColor;
-    sf::FloatRect texRect;
+    glm::u8vec4 flashColor, blendColor;
+    util::rect texRect;
     float opacity, grayscaleFactor;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -43,31 +45,31 @@ protected:
     virtual void setupVertices();
 
 public:
-    Sprite(std::shared_ptr<sf::Texture> tex, sf::Vector2f anchor);
-    Sprite(std::shared_ptr<sf::Texture> tex);
+    Sprite(std::shared_ptr<Texture> tex, glm::vec2 anchor);
+    Sprite(std::shared_ptr<Texture> tex);
     Sprite();
     
     virtual ~Sprite() {}
 
-    sf::Vector2f getAnchorPoint() const { return anchorPoint; }
-    void setAnchorPoint(sf::Vector2f ap) { anchorPoint = ap; }
+    glm::vec2 getAnchorPoint() const { return anchorPoint; }
+    void setAnchorPoint(glm::vec2 ap) { anchorPoint = ap; }
     void centerAnchorPoint()
     { 
-        setAnchorPoint(sf::Vector2f(texRect.left + texRect.width/2, texRect.top + texRect.height/2));
+        setAnchorPoint(glm::vec2(texRect.x + texRect.width/2, texRect.y + texRect.height/2));
     }
 
-    sf::Vector2u getTextureSize() const
+    glm::uvec2 getTextureSize() const
     {
-        return texture ? texture->getSize() : sf::Vector2u(0, 0);
+		return glm::uvec2(texture ? texture->getSize().x : 0, texture ? texture->getSize().y : 0);
     }
     
-    virtual sf::FloatRect getBounds() const;
+    virtual util::rect getBounds() const;
 
     auto getFlashColor() const { return flashColor; }
-    void setFlashColor(sf::Color color) { flashColor = color; }
+    void setFlashColor(glm::u8vec4 color) { flashColor = color; }
 
     auto getBlendColor() const { return blendColor; }
-    void setBlendColor(sf::Color color) { blendColor = color; }
+    void setBlendColor(glm::u8vec4 color) { blendColor = color; }
 
     auto getOpacity() const { return opacity; }
     void setOpacity(float op) { opacity = op > 1 ? 1 : op < 0 ? 0 : op; }
@@ -76,13 +78,13 @@ public:
     void setGrayscaleFactor(float gf) { grayscaleFactor = gf > 1 ? 1 : gf < 0 ? 0 : gf; }
 
     auto getTexture() const { return texture; }
-    virtual void setTexture(std::shared_ptr<sf::Texture> tex)
+    virtual void setTexture(std::shared_ptr<Texture> tex)
     { 
         texture = tex;
-        texRect = sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(getTextureSize()));
+        texRect = util::rect(glm::vec2(0, 0), glm::vec2(getTextureSize().x, getTextureSize().y));
         setupVertices();
     }
     
     auto getTextureRect() const { return texRect; }
-    void setTextureRect(sf::FloatRect rect) { texRect = rect; setupVertices(); }
+    void setTextureRect(util::rect rect) { texRect = rect; setupVertices(); }
 };

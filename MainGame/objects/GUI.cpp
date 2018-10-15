@@ -22,13 +22,14 @@
 
 #include "GUI.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <string>
 #include <cstdlib>
 
 #include "scene/GameScene.hpp"
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "objects/Player.hpp"
 #include "defaults.hpp"
 #include "language/convenienceConfigText.hpp"
@@ -37,6 +38,7 @@
 #include "ColorList.hpp"
 
 #include <chronoUtils.hpp>
+#include <transforms.hpp>
 
 constexpr float FirstBlinkPeriod = 2.0f;
 constexpr float SecondBlinkPeriod = 0.4f;
@@ -75,26 +77,26 @@ GUIBossUpdater* nullBossMeter()
 }
 
 GUI::GUI(GameScene& scene) : gameScene(scene),
-    guiLeft(scene.getResourceManager().load<sf::Texture>("gui-left.png"), sf::Vector2f(0, 0)),
-    guiRight(scene.getResourceManager().load<sf::Texture>("gui-right.png"), sf::Vector2f(0, 0)),
+    guiLeft(scene.getResourceManager().load<Texture>("gui-left.png"), glm::vec2(0, 0)),
+    guiRight(scene.getResourceManager().load<Texture>("gui-right.png"), glm::vec2(0, 0)),
     playerMeter(MeterSize::Normal), dashMeter(MeterSize::Small, false), bossMeter(MeterSize::Normal),
     levelLabel(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
     levelID(scene.getResourceManager().load<FontHandler>(scene.getLocalizationManager().getFontName())),
     currentBoss(nullptr), lastIconName(""), drawDash(false), levelNumber(1), healthBlinkPhase(0)
 {
-    playerMeter.setColors(sf::Color::Green, sf::Color::Red, sf::Color(80, 80, 80, 255));
+    playerMeter.setColors(Colors::Green, Colors::Red, glm::u8vec4(80, 80, 80, 255));
     playerMeter.setPosition(4, 452);
     
-    dashMeter.setColors(sf::Color(162, 0, 255, 255), sf::Color::Yellow, sf::Color(80, 80, 80, 255));
+    dashMeter.setColors(glm::u8vec4(162, 0, 255, 255), Colors::Yellow, glm::u8vec4(80, 80, 80, 255));
     dashMeter.setPosition(52, 452);
-    dashMeter.setIcon(scene.getResourceManager().load<sf::Texture>("icon-dash.png"));
+    dashMeter.setIcon(scene.getResourceManager().load<Texture>("icon-dash.png"));
     
-    bossMeter.setColors(Colors::Orange, sf::Color::Yellow, sf::Color(80, 80, 80, 255));
+    bossMeter.setColors(Colors::Orange, Colors::Yellow, glm::u8vec4(80, 80, 80, 255));
     bossMeter.setPosition(8, 452);
     bossMeter.setHeight(400);
     
     for (auto& sprite : bombSprites)
-        sprite.setTexture(scene.getResourceManager().load<sf::Texture>("icon-bomb.png"));
+        sprite.setTexture(scene.getResourceManager().load<Texture>("icon-bomb.png"));
         
     configureText();
 }
@@ -106,7 +108,7 @@ void GUI::configureText()
     
     levelLabel.setString(lm.getString("ingame-gui-level-label"));
     levelLabel.setFontSize(config.labelSize);
-    levelLabel.setDefaultColor(sf::Color::White);
+    levelLabel.setDefaultColor(Colors::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelLabel.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelLabel.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
@@ -116,7 +118,7 @@ void GUI::configureText()
 
     levelID.setString(lm.getFormattedString("ingame-gui-level-number", {}, { { "n", levelNumber } }, {}));
     levelID.setFontSize(config.idSize);
-    levelID.setDefaultColor(sf::Color::White);
+    levelID.setDefaultColor(Colors::White);
     //levelLabel.setWordAlignment(TextDrawable::Alignment::Center);
     levelID.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     levelID.setVerticalAnchor(TextDrawable::VertAnchor::Baseline);
@@ -186,7 +188,7 @@ void GUI::update(FrameTime curTime)
             
         if (iconName != lastIconName)
         {
-            playerMeter.setIcon(gameScene.getResourceManager().load<sf::Texture>(iconName));
+            playerMeter.setIcon(gameScene.getResourceManager().load<Texture>(iconName));
             lastIconName = iconName;
         }
         
@@ -198,7 +200,7 @@ void GUI::update(FrameTime curTime)
         
         drawDash = player->abilityLevel >= 3;
         auto pos = player->getDisplayPosition();
-        sf::Vector2f mapPosition(std::floor(pos.x / DefaultTileSize), std::floor(pos.y / DefaultTileSize));
+        glm::vec2 mapPosition(std::floor(pos.x / DefaultTileSize), std::floor(pos.y / DefaultTileSize));
         guiMap.setDisplayPosition(mapPosition);
         
         size_t health = player->getHealth();
@@ -218,7 +220,7 @@ void GUI::update(FrameTime curTime)
             }
         }
         
-        sf::Color healthColor(0, 255, 0);
+        glm::u8vec4 healthColor(0, 255, 0, 255);
         healthColor.r = 255 * (0.5 - 0.5 * cosf(2 * M_PI * healthBlinkPhase));
         playerMeter.setFillColor(healthColor);
     }
@@ -247,41 +249,41 @@ void GUI::update(FrameTime curTime)
 
 void GUI::render(Renderer& renderer)
 {
-    renderer.pushDrawable(guiLeft, {}, 6000);
+    renderer.pushDrawable(guiLeft, 6000);
 
-    renderer.pushDrawable(playerMeter, {}, 6600);
-    if (drawDash) renderer.pushDrawable(dashMeter, {}, 6600);
+    renderer.pushDrawable(playerMeter, 6600);
+    if (drawDash) renderer.pushDrawable(dashMeter, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(52, 452 - dashMeter.getFrameHeight() - 22);
+    renderer.currentTransform *= util::translate(52, 452 - dashMeter.getFrameHeight() - 22);
     
     for (size_t i = 0; i < MaxBombs; i++)
     {
-        renderer.pushDrawable(bombSprites[i], {}, 6600);
-        renderer.currentTransform.translate(0, -22);
+        renderer.pushDrawable(bombSprites[i], 6600);
+        renderer.currentTransform *= util::translate(0, -22);
     }
     
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(60, 487);
-    renderer.pushDrawable(levelLabel, {}, 6600);
+    renderer.currentTransform *= util::translate(60, 487);
+    renderer.pushDrawable(levelLabel, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(60, 563);
-    renderer.pushDrawable(levelID, {}, 6600);
+    renderer.currentTransform *= util::translate(60, 563);
+    renderer.pushDrawable(levelID, 6600);
     renderer.popTransform();
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(ScreenWidth - guiRight.getTextureSize().x, 0);
-    renderer.pushDrawable(guiRight, {}, 6000);
+    renderer.currentTransform *= util::translate(ScreenWidth - guiRight.getTextureSize().x, 0);
+    renderer.pushDrawable(guiRight, 6000);
     
-    if (currentBoss) renderer.pushDrawable(bossMeter, {}, 6600);
+    if (currentBoss) renderer.pushDrawable(bossMeter, 6600);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(66, 514);
-    renderer.pushDrawable(guiMap, {}, 6600);
+    renderer.currentTransform *= util::translate(66, 514);
+    renderer.pushDrawable(guiMap, 6600);
     renderer.popTransform();
     
     renderer.popTransform();

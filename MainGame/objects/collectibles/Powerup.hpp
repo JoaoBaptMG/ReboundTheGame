@@ -25,7 +25,7 @@
 #include "objects/Collectible.hpp"
 #include "drawables/Sprite.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chronoUtils.hpp>
 #include <memory>
 #include <cppmunk/Body.h>
@@ -36,7 +36,7 @@ namespace collectibles
     class Powerup final : public ::Collectible
     {
         sf::VertexArray vertices;
-        std::shared_ptr<sf::Texture> texture;
+        std::shared_ptr<Texture> texture;
         std::shared_ptr<cp::Shape> collisionShape;
         size_t abilityLevel;
 
@@ -57,7 +57,7 @@ namespace collectibles
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
             uint8_t abilityLevel;
         };
 

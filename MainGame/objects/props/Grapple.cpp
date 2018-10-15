@@ -22,12 +22,13 @@
 
 #include "Grapple.hpp"
 
-#include <SFML/Graphics.hpp>
+
 #include <chipmunk/chipmunk.h>
 
 #include "objects/GameObjectFactory.hpp"
 
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include "scene/GameScene.hpp"
 #include "objects/Player.hpp"
@@ -44,8 +45,8 @@ constexpr auto WobblePeriod = 60_frames;
 constexpr auto GrappleFade = 30_frames;
 
 Grapple::Grapple(GameScene& gameScene) : GameObject(gameScene), isExcited(false), lastFade(0),
-    sprite(gameScene.getResourceManager().load<sf::Texture>("grapple.png")),
-    grappleSprite(gameScene.getResourceManager().load<sf::Texture>("grapple-beam.png"))
+    sprite(gameScene.getResourceManager().load<Texture>("grapple.png")),
+    grappleSprite(gameScene.getResourceManager().load<Texture>("grapple-beam.png"))
 {
     grappleSprite.setOpacity(0);
 }
@@ -114,14 +115,14 @@ bool Grapple::notifyScreenTransition(cpVect displacement)
 void Grapple::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(getDisplayPosition());
+    renderer.currentTransform *= util::translate(getDisplayPosition());
 
     renderer.pushTransform();
 
     auto phases = toSeconds<float>(curTime - initialTime) / toSeconds<float>(WobblePeriod);
     auto scaleFactor = 0.875f + 0.125f * cosf(2 * M_PI * phases);
-    renderer.currentTransform.scale(scaleFactor, scaleFactor);
-    renderer.pushDrawable(sprite, {}, 20);
+    renderer.currentTransform *= util::scale(scaleFactor);
+    renderer.pushDrawable(sprite, 20);
     renderer.popTransform();
 
     auto fade = std::min(toSeconds<float>(curTime - exciteTime) / toSeconds<float>(GrappleFade), 1.0f);
@@ -137,10 +138,10 @@ void Grapple::render(Renderer& renderer)
         {
             auto vec = player->getDisplayPosition() - getDisplayPosition();
             renderer.pushTransform();
-            renderer.currentTransform.translate(vec/2.0f);
-            renderer.currentTransform.rotate(radiansToDegrees(angle(vec)));
-            renderer.currentTransform.scale(length(vec)/grappleSprite.getTexture()->getSize().x, 1.0f);
-            renderer.pushDrawable(grappleSprite, {}, 15);
+            renderer.currentTransform *= util::translate(vec/2.0f);
+            renderer.currentTransform *= util::rotate(angle(vec));
+            renderer.currentTransform *= util::scale(length(vec)/grappleSprite.getTexture()->getSize().x, 1.0f);
+            renderer.pushDrawable(grappleSprite, 15);
             renderer.popTransform();
         }
     }

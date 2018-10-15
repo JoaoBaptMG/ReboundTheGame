@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <SFML/System.hpp>
+#include <glm/glm.hpp>
 
 class VirtualButtonAction
 {
@@ -41,5 +41,5 @@ public:
 class VirtualDualAxisAction
 {
 public:
-    virtual sf::Vector2f getValue() const = 0;
+    virtual glm::vec2 getValue() const = 0;
 };

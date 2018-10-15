@@ -25,7 +25,7 @@
 #include <streamReaders.hpp>
 #include <algorithm>
 
-bool readFromStream(sf::InputStream &stream, ExpressionCommands& cmds)
+bool readFromStream(InputStream &stream, ExpressionCommands& cmds)
 {
     size_t size;
     if (!readFromStream(stream, varLength(size))) return false;

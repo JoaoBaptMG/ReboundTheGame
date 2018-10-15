@@ -28,24 +28,25 @@
 #include "language/convenienceConfigText.hpp"
 #include "drawables/Sprite.hpp"
 #include "drawables/SegmentedSprite.hpp"
+#include "rendering/Texture.hpp"
 
 #include "audio/AudioManager.hpp"
 #include "audio/Sound.hpp"
 
 void createCommonTextualButton(UIButton& button, Services& services,
-    std::string activeResourceName, std::string pressedResourceName, sf::FloatRect centerRect,
-    sf::FloatRect destRect, LangID captionString, size_t captionSize, sf::Color textColor,
-    float outlineThickness, sf::Color outlineColor, sf::Vector2f captionDisplacement,
+    std::string activeResourceName, std::string pressedResourceName, util::rect centerRect,
+    util::rect destRect, LangID captionString, size_t captionSize, glm::u8vec4 textColor,
+    float outlineThickness, glm::u8vec4 outlineColor, glm::vec2 captionDisplacement,
     TextDrawable::Alignment wordAlignment)
 {
-    sf::Vector2f destCenter(destRect.width/2, destRect.height/2);
+    glm::vec2 destCenter(destRect.width/2, destRect.height/2);
     
-    auto activeSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>(activeResourceName));
+    auto activeSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<Texture>(activeResourceName));
     activeSprite->setCenterRect(centerRect);
     activeSprite->setDestinationRect(destRect);
     activeSprite->setAnchorPoint(destCenter);
     
-    auto pressedSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<sf::Texture>(pressedResourceName));
+    auto pressedSprite = std::make_unique<SegmentedSprite>(services.resourceManager.load<Texture>(pressedResourceName));
     pressedSprite->setCenterRect(centerRect);
     pressedSprite->setDestinationRect(destRect);
     pressedSprite->setAnchorPoint(destCenter);

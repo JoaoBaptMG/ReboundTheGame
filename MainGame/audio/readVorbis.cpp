@@ -27,7 +27,7 @@
 #include "Sound.hpp"
 
 
-util::generic_shared_ptr loadVorbisFile(std::unique_ptr<sf::InputStream>& stream)
+util::generic_shared_ptr loadVorbisFile(std::unique_ptr<InputStream>& stream)
 {
 	return util::generic_shared_ptr{};
 }

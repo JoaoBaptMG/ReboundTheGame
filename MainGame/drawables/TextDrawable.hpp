@@ -22,14 +22,14 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
+
 #include <memory>
 #include <vector>
 #include <utility>
 #include <string>
 #include <map>
 #include <functional>
-#include <rectUtils.hpp>
+#include <rect.hpp>
 #include "resources/FontHandler.hpp"
 
 class TextDrawable final : public sf::Drawable
@@ -60,7 +60,7 @@ private:
     
     std::string utf8String = "";
     size_t fontSize = 30;
-    sf::Color defaultColor, defaultOutlineColor;
+    glm::u8vec4 defaultColor, defaultOutlineColor;
     float outlineThickness = 0;
     
     float wordWrappingWidth = 0;
@@ -73,7 +73,7 @@ private:
     bool needsUpdateGeometry = false;
     sf::VertexArray vertices, verticesOutline;
     
-    sf::FloatRect bounds;
+    util::rect bounds;
 
     std::vector<GraphemeClusterData> graphemeClusters;
     std::vector<size_t> lineBoundaries;
@@ -92,10 +92,10 @@ public:
     void setFontSize(size_t size) { fontSize = size; needsUpdateGeometry = true; }
     
     auto getDefaultColor() const  { return defaultColor; }
-    void setDefaultColor(sf::Color c) { defaultColor = c; needsUpdateGeometry = true; }
+    void setDefaultColor(glm::u8vec4 c) { defaultColor = c; needsUpdateGeometry = true; }
     
     auto getDefaultOutlineColor() const  { return defaultOutlineColor; }
-    void setDefaultOutlineColor(sf::Color c) { defaultOutlineColor = c; needsUpdateGeometry = true; }
+    void setDefaultOutlineColor(glm::u8vec4 c) { defaultOutlineColor = c; needsUpdateGeometry = true; }
     
     auto getOutlineThickness() const  { return outlineThickness; }
     void setOutlineThickness(float thickness) { outlineThickness = thickness; needsUpdateGeometry = true; }

@@ -46,7 +46,7 @@ BaseRegisterGameObject::~BaseRegisterGameObject()
     if (--SchwartzCounter == 0) (&factoryParams)->~FactoryParamMap();
 }
 
-util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass)
+util::generic_shared_ptr readParametersFromStream(InputStream& stream, std::string klass)
 {
     if (SchwartzCounter == 0) return util::generic_shared_ptr{};
 

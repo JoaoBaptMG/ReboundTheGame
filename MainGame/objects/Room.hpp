@@ -61,7 +61,7 @@ class Room final : util::non_copyable
     std::shared_ptr<TileSet> tileSet;
     Tilemap mainLayerTilemap;
     Tilemap transitionalTilemap;
-    sf::Vector2f transitionDisplacement;
+    glm::vec2 transitionDisplacement;
 
 public:
     explicit Room(GameScene &scene);

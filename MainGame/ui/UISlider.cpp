@@ -26,13 +26,16 @@
 #include "UIButtonCommons.hpp"
 
 #include "rendering/Renderer.hpp"
-#include <rectUtils.hpp>
+#include "rendering/Texture.hpp"
+
 #include <cmath>
 #include <algorithm>
 
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
+
+
 constexpr size_t MaxDelay = 2;
 
 UISlider::UISlider(Services& services, size_t* target, size_t max) : UIButton(),
@@ -47,11 +50,11 @@ void UISlider::initialize(Services& services)
  
     rtl = services.localizationManager.isRTL();
     
-    sliderBody.setTexture(services.resourceManager.load<sf::Texture>("ui-slider.png"));
-    sliderKnob.setTexture(services.resourceManager.load<sf::Texture>("ui-slider-knob.png"));
+    sliderBody.setTexture(services.resourceManager.load<Texture>("ui-slider.png"));
+    sliderKnob.setTexture(services.resourceManager.load<Texture>("ui-slider-knob.png"));
     
-    if (rtl) sliderBody.setAnchorPoint(sf::Vector2f(0, sliderBody.getTextureSize().y/2));
-    else sliderBody.setAnchorPoint(sf::Vector2f(sliderBody.getTextureSize().x, sliderBody.getTextureSize().y/2));
+    if (rtl) sliderBody.setAnchorPoint(glm::vec2(0, sliderBody.getTextureSize().y/2));
+    else sliderBody.setAnchorPoint(glm::vec2(sliderBody.getTextureSize().x, sliderBody.getTextureSize().y/2));
     sliderKnob.centerAnchorPoint();
 
     auto& settings = services.settings.inputSettings;
@@ -60,7 +63,7 @@ void UISlider::initialize(Services& services)
     slideAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisX, 0);
     slideAxis.registerAxis(services.inputManager, settings.joystickSettings.movementAxisXAlt, 1);
     
-    sliderMoveEntry = services.inputManager.registerMouseMoveCallback([&,this] (sf::Vector2i position)
+    sliderMoveEntry = services.inputManager.registerMouseMoveCallback([&,this] (glm::ivec2 position)
     {
         mousePosition = position;
     });
@@ -87,9 +90,9 @@ void UISlider::update()
     auto captionDisplacement = getCaptionDisplacement();
     
     float x;
-    if (rtl) x = bounds.left + captionDisplacement.x + sliderKnob.getTextureSize().x/2 +
+    if (rtl) x = bounds.x + captionDisplacement.x + sliderKnob.getTextureSize().x/2 +
         sliderBody.getTextureSize().x - (mousePosition.x - getPosition().x);
-    else x = mousePosition.x - getPosition().x - (bounds.left + bounds.width - captionDisplacement.x - 
+    else x = mousePosition.x - getPosition().x - (bounds.x + bounds.width - captionDisplacement.x - 
             sliderKnob.getTextureSize().x/2 - sliderBody.getTextureSize().x);
     
     if (state == State::Pressed && x >= -40 && x <= sliderBody.getTextureSize().x + 40)
@@ -120,21 +123,21 @@ void UISlider::render(Renderer& renderer)
     UIButton::render(renderer);
     
     renderer.pushTransform();
-    renderer.currentTransform.translate(getPosition());
+    renderer.currentTransform *= util::translate(getPosition());
     
     auto bounds = getBounds();
     auto captionDisplacement = getCaptionDisplacement();
     
-    auto displacement = rtl ? bounds.left + captionDisplacement.x + sliderKnob.getTextureSize().x/2 :
-        bounds.left + bounds.width - captionDisplacement.x - sliderKnob.getTextureSize().x/2;
+    auto displacement = rtl ? bounds.x + captionDisplacement.x + sliderKnob.getTextureSize().x/2 :
+        bounds.x + bounds.width - captionDisplacement.x - sliderKnob.getTextureSize().x/2;
 
-    renderer.currentTransform.translate(displacement, 0);
+    renderer.currentTransform *= util::translate(displacement, 0);
     renderer.pushDrawable(sliderBody, {}, getDepth()+1);
     
     if (slideTarget && slideMaximum)
     {
         auto translation = sliderBody.getTextureSize().x * (1 - float(*slideTarget)/slideMaximum);
-        renderer.currentTransform.translate(rtl ? translation : -translation, 0);
+        renderer.currentTransform *= util::translate(rtl ? translation : -translation, 0);
         renderer.pushDrawable(sliderKnob, {}, getDepth()+2);
     }
     

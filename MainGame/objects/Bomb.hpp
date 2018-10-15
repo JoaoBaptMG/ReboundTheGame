@@ -55,7 +55,7 @@ public:
     auto getDisplayPosition() const
     {
         auto vec = getPosition();
-        return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
+        return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
     }
 
     void detonate();

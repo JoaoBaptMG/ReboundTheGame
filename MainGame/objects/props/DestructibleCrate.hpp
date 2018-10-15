@@ -61,13 +61,13 @@ namespace props
         void setPosition(cpVect pos) { shape->getBody()->setPosition(pos); }
 
         virtual bool isDestructionViable() const = 0;
-        void explode(sf::FloatRect velocityRect);
+        void explode(util::rect velocityRect);
         virtual void explode(void* ptr);
 
         auto getDisplayPosition() const
         {
             auto vec = getPosition();
-            return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
+            return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
         }
         
         auto getDestroyedKey() const
@@ -78,7 +78,7 @@ namespace props
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
         };
         static_assert(sizeof(ConfigStruct) == 4*sizeof(char), "Packing failed!");
 #pragma pack(pop)

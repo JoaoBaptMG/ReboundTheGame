@@ -29,8 +29,8 @@
 
 #include <vector>
 #include <string>
-#include <SFML/System.hpp>
-#include <SFML/Graphics.hpp>
+
+
 
 class LocalizationManager;
 
@@ -39,7 +39,7 @@ class LevelData final
 public:
     uint16_t levelNumber;
     uint16_t startingRoom;
-    sf::Color mapColor;
+    glm::u8vec4 mapColor;
     std::string songResourceName;
     std::vector<std::string> roomResourceNames;
     
@@ -54,10 +54,10 @@ public:
     static constexpr auto ReadMagic = "LEVEL";
 };
 
-bool readRLGrid(sf::InputStream& stream, util::grid<bool>& grid);
-bool readBinaryGrid(sf::InputStream& stream, util::grid<bool>& grid);
-bool readFromStream(sf::InputStream& stream, LevelData::MapData& map);
-bool readFromStream(sf::InputStream& stream, LevelData& level);
+bool readRLGrid(InputStream& stream, util::grid<bool>& grid);
+bool readBinaryGrid(InputStream& stream, util::grid<bool>& grid);
+bool readFromStream(InputStream& stream, LevelData::MapData& map);
+bool readFromStream(InputStream& stream, LevelData& level);
 
 bool writeRLGrid(OutputStream& stream, const util::grid<bool>& grid);
 bool writeBinaryGrid(OutputStream& stream, const util::grid<bool>& grid);

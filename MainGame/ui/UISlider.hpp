@@ -40,7 +40,7 @@ class UISlider final : public UIButton
     size_t* slideTarget;
     size_t slideMaximum, soundPlayDelay;
     std::function<void(size_t)> slideAction;
-    sf::Vector2i mousePosition;
+    glm::ivec2 mousePosition;
     float prevX;
     bool rtl;
 

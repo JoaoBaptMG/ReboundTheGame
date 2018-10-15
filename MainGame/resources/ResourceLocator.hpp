@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
+#include <string>
 #include <memory>
 
 class ResourceLocator
@@ -34,6 +35,6 @@ public:
     ResourceLocator() {}
     virtual ~ResourceLocator() {}
 
-    virtual std::unique_ptr<sf::InputStream> getResource(std::string name) = 0;
+    virtual std::unique_ptr<InputStream> getResource(std::string name) = 0;
 };
 

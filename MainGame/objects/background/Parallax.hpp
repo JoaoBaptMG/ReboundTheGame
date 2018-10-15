@@ -26,7 +26,7 @@
 #include "drawables/WrapPlane.hpp"
 #include "resources/ResourceManager.hpp"
 
-#include <SFML/System.hpp>
+
 #include <string>
 
 class GameScene;
@@ -37,7 +37,7 @@ namespace background
     class Parallax final : public ::GameObject
     {
         WrapPlane plane;
-        sf::Vector2f internalDisplacement;
+        glm::vec2 internalDisplacement;
         float parallaxFactor;
 
     public:
@@ -54,7 +54,7 @@ namespace background
 
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> dummy;
+            glm::i16vec2 dummy;
             std::string textureName;
             float parallaxFactor;
         };
@@ -63,4 +63,4 @@ namespace background
     };
 }
 
-bool readFromStream(sf::InputStream& stream, background::Parallax::ConfigStruct& config);
+bool readFromStream(InputStream& stream, background::Parallax::ConfigStruct& config);

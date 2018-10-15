@@ -142,7 +142,7 @@ void TextTestScene::update(FrameTime curTime)
 void TextTestScene::render(Renderer &renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform.translate(16, 16);
-    renderer.pushDrawable(testText, {}, 20);
+    renderer.currentTransform *= util::translate(16, 16);
+    renderer.pushDrawable(testText, 20);
     renderer.popTransform();
 }

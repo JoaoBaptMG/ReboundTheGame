@@ -24,6 +24,7 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "rendering/Texture.hpp"
 #include "defaults.hpp"
 #include <iostream>
 
@@ -32,17 +33,17 @@
 using namespace background;
 
 Parallax::Parallax(GameScene& scene) : GameObject(scene), parallaxFactor(1.0f), internalDisplacement(0, 0),
-    plane(sf::FloatRect((float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
+    plane(util::rect((float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
                         (float)PlayfieldWidth, (float)PlayfieldHeight))
 {
 }
 
 Parallax::Parallax(GameScene& scene, std::string textureName) : Parallax(scene)
 {
-    plane.setTexture(scene.getResourceManager().load<sf::Texture>(textureName));
+    plane.setTexture(scene.getResourceManager().load<Texture>(textureName));
 }
 
-bool readFromStream(sf::InputStream& stream, Parallax::ConfigStruct& config)
+bool readFromStream(InputStream& stream, Parallax::ConfigStruct& config)
 {
     using namespace util;
 
@@ -51,7 +52,7 @@ bool readFromStream(sf::InputStream& stream, Parallax::ConfigStruct& config)
 
 bool Parallax::configure(const ConfigStruct& config)
 {
-    auto texture = gameScene.getResourceManager().load<sf::Texture>(config.textureName);
+    auto texture = gameScene.getResourceManager().load<Texture>(config.textureName);
     auto other = gameScene.getObjectByName<Parallax>(getName());
     if (other && other->plane.getTexture() == texture)
     {
@@ -71,15 +72,14 @@ void Parallax::render(Renderer& renderer)
 {
     auto oldTransform = renderer.currentTransform;
 
-    auto mat = oldTransform.getMatrix();
-    auto trans = sf::Vector2f(mat[12], mat[13]) * parallaxFactor + internalDisplacement;
-    trans = sf::Vector2f(std::floor(trans.x), std::floor(trans.y));
+    auto trans = glm::vec2(oldTransform[2]) * parallaxFactor + internalDisplacement;
+    trans = glm::vec2(std::floor(trans.x), std::floor(trans.y));
 
     renderer.popTransform();
 
     renderer.pushTransform();
-    renderer.currentTransform.translate(trans);
-    renderer.pushDrawable(plane, {}, 0);
+    renderer.currentTransform *= util::translate(trans);
+    renderer.pushDrawable(plane, 0);
     renderer.popTransform();
 
     renderer.pushTransform();
@@ -88,7 +88,7 @@ void Parallax::render(Renderer& renderer)
 
 bool Parallax::notifyScreenTransition(cpVect displacement)
 {
-    internalDisplacement += sf::Vector2f(displacement.x, displacement.y) * parallaxFactor;
+    internalDisplacement += glm::vec2(displacement.x, displacement.y) * parallaxFactor;
     return true;
 }
 

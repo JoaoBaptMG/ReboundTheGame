@@ -192,10 +192,12 @@ void ParticleBatch::update(FrameTime curTime)
 bool ParticleBatch::notifyScreenTransition(cpVect displacement)
 {
     for (auto& data : positionAttributes)
-        data.position += sf::Vector2f(displacement.x, displacement.y);
+        data.position += glm::vec2(displacement.x, displacement.y);
     
     return true;
 }
+
+sf::Vector2f toSF(glm::vec2);
 
 void ParticleBatch::render(Renderer& renderer)
 {
@@ -203,8 +205,8 @@ void ParticleBatch::render(Renderer& renderer)
     {
         for (size_t k = 0; k < 6; k++)
         {
-            vertices[6*i+k].position = positionAttributes[i].position;
-            vertices[6*i+k].color = sf::Color(displayAttributes[i].curColor.x * 255.f,
+            vertices[6*i+k].position = toSF(positionAttributes[i].position);
+            vertices[6*i+k].color = glm::u8vec4(displayAttributes[i].curColor.x * 255.f,
                                               displayAttributes[i].curColor.y * 255.f,
                                               displayAttributes[i].curColor.z * 255.f,
                                               displayAttributes[i].curColor.w * 255.f);

@@ -27,11 +27,12 @@
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
+#include "ColorList.hpp"
 
 constexpr auto TransitionDuration = 60_frames;
 
 LevelTransition::LevelTransition(GameScene &scene) : gameScene(scene), curTime(), transitionTime(),
-    screenQuad(sf::FloatRect(0, 0, ScreenWidth, ScreenHeight), sf::Color::Black), transitionDone(false)
+    screenQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), Colors::Black), transitionDone(false)
 {
     
 }
@@ -74,6 +75,6 @@ void LevelTransition::render(Renderer& renderer)
         
         screenQuad.setAlpha(255 * factor);
         
-        renderer.pushDrawable(screenQuad, {}, 10000000);
+        renderer.pushDrawable(screenQuad, 10000000);
     }
 }

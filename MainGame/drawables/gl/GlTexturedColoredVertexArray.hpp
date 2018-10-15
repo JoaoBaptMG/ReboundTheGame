@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Jo√£o Baptista de Paula e Silva.
+// Copyright (c) 2016-2018 Jo„o Baptista de Paula e Silva.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,5 @@
 // SOFTWARE.
 //
 
-#include "MemoryOutputStream.hpp"
 
-#include <algorithm>
-#include <cstring>
-
-bool MemoryOutputStream::write(const void* data, uint64_t size)
-{
-    try
-    {
-        auto prevSize = contents.size();
-        contents.resize(prevSize + size);
-        std::memcpy(&contents[prevSize], data, size);
-        return true;
-    }
-    catch (std::bad_alloc&)
-    {
-        return false;
-    }
-}
-
-void MemoryOutputStream::alignTo(size_t align)
-{
-    // PKCS7 alignment
-    auto newSize = ((contents.size() + align - 1) / align) * align;
-    auto diff = newSize - contents.size();
-    contents.resize(newSize, diff);
-}
+#pragma once

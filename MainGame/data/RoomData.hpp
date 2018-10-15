@@ -28,7 +28,7 @@
 #include "resources/Memory.hpp"
 
 #include <vector>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 
 template <size_t size> struct Print;
 
@@ -73,5 +73,5 @@ struct RoomData final
     static constexpr auto ReadMagic = "ROOM";
 };
 
-bool readFromStream(sf::InputStream &stream, RoomData& room);
+bool readFromStream(InputStream &stream, RoomData& room);
 

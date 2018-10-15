@@ -23,7 +23,7 @@
 #pragma once
 
 #include "Scene.hpp"
-#include <SFML/Graphics.hpp>
+
 
 #include "resources/ResourceManager.hpp"
 #include "resources/FontHandler.hpp"

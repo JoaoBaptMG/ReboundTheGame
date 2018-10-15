@@ -26,7 +26,7 @@
 #include <vector>
 #include <array>
 #include <assert.hpp>
-#include <SFML/System.hpp>
+
 #include <OutputStream.hpp>
 #include <VarLength.hpp>
 #include <streamReaders.hpp>
@@ -115,5 +115,5 @@ struct SavedGame
     }
 };
 
-bool readEncryptedSaveFile(sf::InputStream& stream, SavedGame& savedGame, SavedGame::Key key);
+bool readEncryptedSaveFile(InputStream& stream, SavedGame& savedGame, SavedGame::Key key);
 bool writeEncryptedSaveFile(OutputStream& stream, const SavedGame& savedGame, SavedGame::Key& key);

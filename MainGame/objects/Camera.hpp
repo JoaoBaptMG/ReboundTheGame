@@ -24,7 +24,8 @@
 
 #include <chronoUtils.hpp>
 #include <vector>
-#include <SFML/Graphics.hpp>
+
+#include <rect.hpp>
 
 class GameScene;
 
@@ -34,14 +35,14 @@ public:
     enum class Direction { Right, Down, Left, Up };
 
 private:
-    sf::Vector2f position;
+    glm::vec2 position;
     GameScene& gameScene;
     FrameTime curTime, transitionTime, shakeTime;
-    std::vector<sf::Vector2f> shakeSamples;
+    std::vector<glm::vec2> shakeSamples;
     FrameDuration shakePeriod;
     Direction transitionDirection;
 
-    sf::Vector2f getShakeDisplacement() const;
+    glm::vec2 getShakeDisplacement() const;
 
 public:
     Camera(GameScene& scene) : position(), gameScene(scene) {}
@@ -50,12 +51,11 @@ public:
     void scheduleTransition(Direction direction);
     bool transitionOccuring() const;
 
-    bool isVisible(sf::Vector2f point) const;
-    bool isVisible(sf::FloatRect rect) const;
+    bool isVisible(glm::vec2 point) const;
+    bool isVisible(util::rect rect) const;
     
     void update(FrameTime curTime);
-    sf::Vector2f getGlobalDisplacement() const;
+    glm::vec2 getGlobalDisplacement() const;
 
-    void applyShake(FrameDuration duration,
-        FrameDuration period, float amp);
+    void applyShake(FrameDuration duration, FrameDuration period, float amp);
 };

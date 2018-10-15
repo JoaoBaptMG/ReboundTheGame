@@ -23,7 +23,7 @@
 #pragma once
 
 #include <vector>
-#include <SFML/System.hpp>
+#include <InputStream.hpp>
 #include <OutputStream.hpp>
 
 struct RIFF final
@@ -32,5 +32,5 @@ struct RIFF final
     std::vector<char> data;
 };
 
-bool readFromStream(sf::InputStream& stream, RIFF& riff);
+bool readFromStream(InputStream& stream, RIFF& riff);
 bool writeToStream(OutputStream& stream, const RIFF& riff);

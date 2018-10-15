@@ -25,14 +25,14 @@
 #include <streamReaders.hpp>
 #include "objects/GameObject.hpp"
 
-bool readFromStream(sf::InputStream& stream, GameObjectDescriptor& descriptor)
+bool readFromStream(InputStream& stream, GameObjectDescriptor& descriptor)
 {
     if (!readFromStream(stream, descriptor.klass, descriptor.name)) return false;
     descriptor.parameters = readParametersFromStream(stream, descriptor.klass);
     return !descriptor.parameters.empty();
 }
 
-bool readFromStream(sf::InputStream &stream, RoomData& room)
+bool readFromStream(InputStream &stream, RoomData& room)
 {
     return readFromStream(stream, room.tilesetName, room.mainLayer, room.gameObjectDescriptors, room.warps);
 }

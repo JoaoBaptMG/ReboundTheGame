@@ -23,57 +23,59 @@
 #include "WindowHandler.hpp"
 #include "defaults.hpp"
 #include <stdexcept>
-#include <SFML/OpenGL.hpp>
+#include <glad/glad.h>
+#include <rect.hpp>
+#include <mutex>
 
-#if _WIN32
-#include <Windows.h>
-#define GL_PROGRAM_POINT_SIZE 0x8642
-#define GL_POINT_SPRITE 0x8861
-#elif __APPLE__
-#define GL_PROGRAM_POINT_SIZE 0x8642
-#endif
+GLFWwindow* CurrentWindow;
+std::mutex ContextMutex;
 
-void generateFullscreenQuad(sf::VertexArray& array, size_t canvasWidth, size_t canvasHeight)
+WindowHandler::WindowHandler(bool fullscreen, bool vsync) : renderWindow(nullptr), vsyncEnabled(vsync), fullscreen(fullscreen),
+	prevx(0), prevy(0)
 {
-    sf::FloatRect quadRect;
+	if (!glfwInit()) throw std::runtime_error("Could not initialize GLFW properly!");
 
-    if (ScreenWidth * canvasHeight < ScreenHeight * canvasWidth)
-    {
-        float ratio = ((float)ScreenWidth/ScreenHeight)*((float)canvasHeight/canvasWidth);
-        quadRect = sf::FloatRect(canvasWidth * (1.0f - ratio) / 2, 0, canvasWidth * ratio, canvasHeight);
-    }
-    else if (ScreenWidth * canvasHeight > ScreenHeight * canvasWidth)
-    {
-        float ratio = ((float)ScreenHeight/ScreenWidth)*((float)canvasWidth/canvasHeight);
-        quadRect = sf::FloatRect(0, canvasHeight * (1.0f - ratio) / 2, canvasWidth, canvasHeight * ratio);
-    }
-    else quadRect = sf::FloatRect(0, 0, canvasWidth, canvasHeight);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_VERSION_MINOR, 2);
 
-    array.setPrimitiveType(sf::PrimitiveType::TriangleFan);
-    array.resize(4);
-    
-    for (size_t i = 0; i < 4; i++)
-        array[i].color = sf::Color::White;
-        
-    array[0].texCoords = sf::Vector2f(0, 0);
-    array[1].texCoords = sf::Vector2f(ScreenWidth, 0);
-    array[2].texCoords = sf::Vector2f(ScreenWidth, ScreenHeight);
-    array[3].texCoords = sf::Vector2f(0, ScreenHeight);
-    
-    array[0].position = sf::Vector2f(quadRect.left, quadRect.top);
-    array[1].position = sf::Vector2f(quadRect.left + quadRect.width, quadRect.top);
-    array[2].position = sf::Vector2f(quadRect.left + quadRect.width, quadRect.top + quadRect.height);
-    array[3].position = sf::Vector2f(quadRect.left, quadRect.top + quadRect.height);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
+
+	GLFWmonitor* monitor;
+	int width, height;
+	if (fullscreen)
+	{
+		monitor = glfwGetPrimaryMonitor();
+		auto videoMode = glfwGetVideoMode(monitor);
+		width = videoMode->width;
+		height = videoMode->height;
+
+		glfwWindowHint(GLFW_RED_BITS, videoMode->redBits);
+		glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
+		glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
+		glfwWindowHint(GLFW_REFRESH_RATE, videoMode->refreshRate);
+	}
+	else
+	{
+		monitor = nullptr;
+		width = ScreenWidth;
+		height = ScreenHeight;
+	}
+
+	renderWindow = glfwCreateWindow(width, height, "Game", monitor, nullptr);
+	if (!renderWindow) throw std::runtime_error("Could not create the GLFW window!");
+
+	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSwapInterval(vsyncEnabled);
+
+	setWindowViewport();
 }
 
-WindowHandler::WindowHandler(bool fullscreen, bool vsync) : vsyncEnabled(vsync)
+WindowHandler::~WindowHandler()
 {
-    if (fullscreen) enableFullscreen();
-    else disableFullscreen();
-    
-    renderWindow.setVerticalSyncEnabled(vsync);
-    renderWindow.setKeyRepeatEnabled(false);
-    renderWindow.setMouseCursorVisible(false);
+	if (renderWindow) glfwDestroyWindow(renderWindow);
+	glfwTerminate();
 }
 
 void WindowHandler::setFullscreen(bool fullscreen)
@@ -83,47 +85,75 @@ void WindowHandler::setFullscreen(bool fullscreen)
     if (fullscreen) enableFullscreen();
     else disableFullscreen();
     
-    glEnable(GL_PROGRAM_POINT_SIZE);
-#if _WIN32
-	glEnable(GL_POINT_SPRITE);
-#endif
-
-    renderWindow.setVerticalSyncEnabled(vsyncEnabled);
-    renderWindow.setKeyRepeatEnabled(false);
-    renderWindow.setMouseCursorVisible(false);
+	glfwSwapInterval(vsyncEnabled);
+	setWindowViewport();
 }
 
 void WindowHandler::enableFullscreen()
 {
-    const auto& videoMode = sf::VideoMode::getFullscreenModes().front();
-    
-    renderWindow.create(videoMode, "Game", sf::Style::Fullscreen, sf::ContextSettings(24));
-    
-    fullscreenTexture = std::make_unique<sf::RenderTexture>();
-    if (!fullscreenTexture->create(ScreenWidth, ScreenHeight, true))
-        throw std::runtime_error("Failed to create the fullscreen render texture!");
-        
-    glEnable(GL_PROGRAM_POINT_SIZE);
-#if _WIN32
-	glEnable(GL_POINT_SPRITE);
-#endif
-        
-    generateFullscreenQuad(fullscreenQuad, videoMode.width, videoMode.height);
-    
-    renderWindow.clear();
-    renderWindow.display();
+	fullscreen = true;
+
+	int sz;
+	auto monitors = glfwGetMonitors(&sz);
+
+	int x, y;
+	glfwGetWindowPos(renderWindow, &x, &y);
+	prevx = x; prevy = y;
+	util::irect windowRect(x, y, ScreenWidth, ScreenHeight);
+
+	int mi = 0, marea = 0;
+	for (int i = 0; i < sz; i++)
+	{
+		auto videoMode = glfwGetVideoMode(monitors[i]);
+
+		int vx, vy;
+		glfwGetMonitorPos(monitors[i], &vx, &vy);
+
+		util::irect monitorRect(vx, vy, videoMode->width, videoMode->height);
+		if (!windowRect.intersects(monitorRect)) continue;
+
+		auto intersection = windowRect.intersect(monitorRect);
+		int area = intersection.width * intersection.height;
+
+		if (marea < area) mi = i, marea = area;
+	}
+
+	auto videoMode = glfwGetVideoMode(monitors[mi]);
+
+	int vx, vy;
+	glfwGetMonitorPos(monitors[mi], &vx, &vy);
+
+	glfwSetWindowMonitor(renderWindow, monitors[mi], vx, vy, videoMode->width, videoMode->height, videoMode->refreshRate);
 }
 
 void WindowHandler::disableFullscreen()
 {
-    fullscreenTexture.reset();
-    renderWindow.create(sf::VideoMode(ScreenWidth, ScreenHeight), "Game", sf::Style::Default & ~sf::Style::Resize,
-        sf::ContextSettings(24));
-        
-    glEnable(GL_PROGRAM_POINT_SIZE);
-#if _WIN32
-	glEnable(GL_POINT_SPRITE);
-#endif
+	fullscreen = false;
+	glfwSetWindowMonitor(renderWindow, nullptr, prevx, prevy, ScreenWidth, ScreenHeight, 0);
+}
+
+void WindowHandler::setWindowViewport()
+{
+	int width, height;
+	glfwGetWindowSize(renderWindow, &width, &height);
+
+	glViewport(0, 0, width, height);
+	glClearColor(0, 0, 0, 255);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	int64_t ratio = (int64_t)width * ScreenHeight - (int64_t)height * ScreenWidth;
+	if (ratio > 0)
+	{
+		int newWidth = (int64_t)height * ScreenWidth / ScreenHeight;
+		int ox = (width - newWidth) / 2;
+		glViewport(ox, 0, newWidth, height);
+	}
+	else if (ratio < 0)
+	{
+		int newHeight = (int64_t)width * ScreenHeight / ScreenWidth;
+		int oy = (height - newHeight) / 2;
+		glViewport(0, oy, width, newHeight);
+	}
 }
 
 void WindowHandler::prepareForDraw()
@@ -133,20 +163,8 @@ void WindowHandler::prepareForDraw()
 
 void WindowHandler::display()
 {
-    if (getFullscreen())
-    {
-        fullscreenTexture->clear();
-        renderer.render(*fullscreenTexture);
-        fullscreenTexture->display();
-        
-        //renderWindow.clear();
-        renderWindow.draw(fullscreenQuad, sf::RenderStates(&fullscreenTexture->getTexture()));
-        renderWindow.display();
-    }
-    else
-    {
-        renderWindow.clear();
-        renderer.render(renderWindow);
-        renderWindow.display();
-    }
+	glClearColor(0, 0, 0, 255);
+	glClear(GL_COLOR_BUFFER_BIT);
+	renderer.render();
+	glfwSwapBuffers(renderWindow);
 }

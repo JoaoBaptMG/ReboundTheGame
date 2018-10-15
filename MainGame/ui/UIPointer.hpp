@@ -32,7 +32,7 @@ class Renderer;
 class UIPointer final
 {
     Sprite pointer;
-    sf::Vector2f position;
+    glm::vec2 position;
     InputManager::MouseMoveEntry callbackEntry;
     
 public:

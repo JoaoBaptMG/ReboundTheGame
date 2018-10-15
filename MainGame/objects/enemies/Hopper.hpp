@@ -24,7 +24,7 @@
 
 #include "EnemyCommon.hpp"
 #include "drawables/Sprite.hpp"
-#include <SFML/System.hpp>
+
 
 #include <memory>
 #include <cppmunk/Body.h>
@@ -63,12 +63,12 @@ namespace enemies
     
         struct ConfigStruct
         {
-            sf::Vector2<int16_t> position;
+            glm::i16vec2 position;
             bool facingRight;
         };
         
         bool configure(const ConfigStruct& config);
     };
     
-    bool readFromStream(sf::InputStream& stream, Hopper::ConfigStruct& config);
+    bool readFromStream(InputStream& stream, Hopper::ConfigStruct& config);
 }

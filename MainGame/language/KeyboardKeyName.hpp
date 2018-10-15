@@ -23,8 +23,8 @@
 #pragma once
 
 #include <string>
-#include <SFML/System.hpp>
+
 
 #include "LocalizationManager.hpp"
 
-std::string scanCodeToKeyName(sf::Uint32 code, LocalizationManager& lm);
+std::string scanCodeToKeyName(uint32_t code, LocalizationManager& lm);
