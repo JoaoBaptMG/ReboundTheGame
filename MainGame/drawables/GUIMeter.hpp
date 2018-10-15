@@ -20,29 +20,29 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 #include <memory>
-#include <rect.hpp>
 
 enum class MeterSize { Small, Normal };
 
 class GUIMeter final : public sf::Drawable
 {
-    std::shared_ptr<Texture> icon;
+    std::shared_ptr<sf::Texture> icon;
     
     MeterSize size;
     bool useCurrentAnimation;
     size_t height = 0, current = 0, target = 0;
-    glm::u8vec4 fillColor, targetColor, backdropColor;
+    sf::Color fillColor, targetColor, backdropColor;
 
     sf::Vertex vertices[20];
-    glm::vec2 position;
+    sf::Vector2f position;
 
-    void setRect(size_t ind, util::rect rect);
-    void setQuadColor(size_t ind, glm::u8vec4 color);
+    void setRect(size_t ind, sf::FloatRect rect);
+    void setQuadColor(size_t ind, sf::Color color);
 
 public:
     GUIMeter(MeterSize size, bool useCurrentAnimation = true);
@@ -59,7 +59,7 @@ public:
     
     float getFrameHeight() const;
 
-    void setColors(glm::u8vec4 fill, glm::u8vec4 target, glm::u8vec4 backdrop)
+    void setColors(sf::Color fill, sf::Color target, sf::Color backdrop)
     {
         fillColor = fill;
         targetColor = target;
@@ -68,20 +68,20 @@ public:
     }
     
     auto getFillColor() const { return fillColor; }
-    void setFillColor(glm::u8vec4 color) { fillColor = color; updateVertices(); }
+    void setFillColor(sf::Color color) { fillColor = color; updateVertices(); }
     
     auto getTargetColor() const { return targetColor; }
-    void setTargetColor(glm::u8vec4 color) { targetColor = color; updateVertices(); }
+    void setTargetColor(sf::Color color) { targetColor = color; updateVertices(); }
     
     auto getBackdropColor() const { return backdropColor; }
-    void setBackdropColor(glm::u8vec4 color) { backdropColor = color; updateVertices(); }
+    void setBackdropColor(sf::Color color) { backdropColor = color; updateVertices(); }
 
     auto getIcon() const { return icon; }
-    void setIcon(const std::shared_ptr<Texture>& i) { icon = i; }
+    void setIcon(const std::shared_ptr<sf::Texture>& i) { icon = i; }
 
     auto getPosition() const { return position; }
-    void setPosition(glm::vec2 pos) { position = pos; }
-    void setPosition(float x, float y) { position = glm::vec2(x, y); }
+    void setPosition(sf::Vector2f pos) { position = pos; }
+    void setPosition(float x, float y) { position = sf::Vector2f(x, y); }
 
     void update(FrameTime);
     void updateVertices();

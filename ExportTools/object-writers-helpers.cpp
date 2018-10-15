@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "object-writers-helpers.hpp"
 
 #include <cstring>
@@ -43,7 +44,6 @@ static auto nameForType(Object::Type type)
         case Object::Type::Ellipse: return "ellipse";
         case Object::Type::Polygon: return "polygon";
         case Object::Type::Polyline: return "polyline";
-		default: return "";
     }
 }
 
@@ -57,7 +57,6 @@ static auto nameForType(Object::Property::Type type)
         case Object::Property::Type::File: return "file";
         case Object::Property::Type::Int: return "int";
         case Object::Property::Type::String: return "string";
-		default: return "";
     }
 }
 

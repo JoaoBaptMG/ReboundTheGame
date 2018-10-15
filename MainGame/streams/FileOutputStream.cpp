@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 João Baptista de Paula e Silva.
+// Copyright (c) 2016-2018 JoÃ£o Baptista de Paula e Silva.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,4 +21,27 @@
 //
 
 
-#pragma once
+#include "FileOutputStream.hpp"
+
+FileOutputStream::~FileOutputStream()
+{
+    if (file) std::fclose(file);
+}
+
+bool FileOutputStream::open(const std::string& filename)
+{
+    if (file) std::fclose(file);
+    return (file = std::fopen(filename.c_str(), "wb")) != nullptr;
+}
+
+bool FileOutputStream::openForAppending(const std::string& filename)
+{
+    if (file) std::fclose(file);
+    return (file = std::fopen(filename.c_str(), "ab")) != nullptr;
+}
+
+bool FileOutputStream::write(const void* data, size_t size)
+{
+    if (!file) return false;
+    return std::fwrite(data, size, 1, file) > 0;
+}

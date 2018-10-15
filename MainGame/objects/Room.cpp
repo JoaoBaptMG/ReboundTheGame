@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "Room.hpp"
 #include "rendering/Renderer.hpp"
 #include "scene/GameScene.hpp"
@@ -44,7 +45,7 @@ std::vector<std::shared_ptr<cp::Shape>>
 Room::Room(GameScene& scene) : gameScene(scene), shapeGeneratorData(nullptr, [](void*){}),
     transitionData(nullptr, [](void*){})
 {
-    util::rect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
+    sf::FloatRect drawingFrame{(float)(ScreenWidth-PlayfieldWidth)/2, (float)(ScreenHeight-PlayfieldHeight)/2,
         (float)PlayfieldWidth, (float)PlayfieldHeight};
     mainLayerTilemap.setDrawingFrame(drawingFrame);
     transitionalTilemap.setDrawingFrame(drawingFrame);
@@ -62,7 +63,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
     {
         transitionalTilemap.setTexture(mainLayerTilemap.getTexture());
         transitionalTilemap.setTileData(mainLayerTilemap.getTileData());
-        transitionDisplacement = glm::vec2(displacement.x, displacement.y);
+        transitionDisplacement = sf::Vector2f(displacement.x, displacement.y);
         
         transitionShapes = std::move(roomShapes);
         transitionData = std::move(shapeGeneratorData);
@@ -75,7 +76,7 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
     
     tileSet = gameScene.getResourceManager().load<TileSet>(data.tilesetName + ".ts");
     
-    mainLayerTilemap.setTexture(gameScene.getResourceManager().load<Texture>(tileSet->textureName));
+    mainLayerTilemap.setTexture(gameScene.getResourceManager().load<sf::Texture>(tileSet->textureName));
     mainLayerTilemap.setTileData(data.mainLayer);
 
     clearShapes();
@@ -141,12 +142,12 @@ void Room::update(FrameTime curTime)
                 data.crumbling = true;
 
                 auto grav = gameScene.getGameSpace().getGravity();
-                auto displayGravity = glm::vec2((float)grav.x, (float)grav.y);
+                auto displayGravity = sf::Vector2f((float)grav.x, (float)grav.y);
                 
                 auto explosion = std::make_unique<TextureExplosion>(gameScene, tilemap.getTexture(), texRect,
-                    90_frames, util::rect(-64, 8, 128, 32), displayGravity, TextureExplosion::Density,
+                    90_frames, sf::FloatRect(-64, 8, 128, 32), displayGravity, TextureExplosion::Density,
                     data.crumblePieceSize, data.crumblePieceSize, 25);
-                explosion->setPosition((float)DefaultTileSize * glm::vec2(data.x + 0.5, data.y + 0.5));
+                explosion->setPosition((float)DefaultTileSize * sf::Vector2f(data.x + 0.5, data.y + 0.5));
                 setCrumbleOffset(explosion, data.crumbleTime);
                 gameScene.addObject(std::move(explosion));
             }
@@ -167,13 +168,13 @@ void Room::update(FrameTime curTime)
 
 void Room::render(Renderer& renderer, bool transition)
 {
-    renderer.pushDrawable(mainLayerTilemap, 25);
+    renderer.pushDrawable(mainLayerTilemap, {}, 25);
     
     if (transition)
     {
         renderer.pushTransform();
-        renderer.currentTransform *= util::translate(transitionDisplacement);
-        renderer.pushDrawable(transitionalTilemap, 25);
+        renderer.currentTransform.translate(transitionDisplacement);
+        renderer.pushDrawable(transitionalTilemap, {}, 25);
         renderer.popTransform();
     }
 }

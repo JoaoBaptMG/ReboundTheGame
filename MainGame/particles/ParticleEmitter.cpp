@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "ParticleEmitter.hpp"
 
 #include <chronoUtils.hpp>
@@ -28,11 +29,9 @@
 #include <utility>
 #include <limits>
 
-#include "ColorList.hpp"
-
 using namespace std::literals::chrono_literals;
 
-bool readFromStream(InputStream& stream, ParticleEmitter& in)
+bool readFromStream(sf::InputStream& stream, ParticleEmitter& in)
 {
     float lifetimeSeconds, emissionPeriodSeconds;
     float firstSeconds, secondSeconds;
@@ -59,7 +58,7 @@ bool readFromStream(InputStream& stream, ParticleEmitter& in)
     return true;
 }
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<InputStream>& stream)
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream)
 {
     std::shared_ptr<ParticleEmitterSet> content{new ParticleEmitterSet};
 
@@ -69,7 +68,7 @@ util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<InputStream>& s
     return util::generic_shared_ptr{};
 }
 
-std::tuple<float,float,float> RGBtoHSV(glm::u8vec4 c)
+std::tuple<float,float,float> RGBtoHSV(sf::Color c)
 {
     float r = c.r/255.0f, g = c.g/255.0f, b = c.b/255.0f;
     
@@ -89,7 +88,7 @@ std::tuple<float,float,float> RGBtoHSV(glm::u8vec4 c)
     return std::make_tuple(h, s, v);
 }
 
-glm::u8vec4 HSVtoRGB(float h, float s, float v, char a)
+sf::Color HSVtoRGB(float h, float s, float v, char a)
 {
     float f = h/60 - floor(h/60);
 
@@ -99,21 +98,21 @@ glm::u8vec4 HSVtoRGB(float h, float s, float v, char a)
 
     switch (size_t(h/60))
     {
-        case 0: return glm::u8vec4(255.0 * v, 255.0 * t, 255.0 * p, a);
-        case 1: return glm::u8vec4(255.0 * q, 255.0 * v, 255.0 * p, a);
-        case 2: return glm::u8vec4(255.0 * p, 255.0 * v, 255.0 * t, a);
-        case 3: return glm::u8vec4(255.0 * p, 255.0 * q, 255.0 * v, a);
-        case 4: return glm::u8vec4(255.0 * t, 255.0 * p, 255.0 * v, a);
-        case 5: return glm::u8vec4(255.0 * v, 255.0 * p, 255.0 * q, a);
-		default: return glm::u8vec4(0, 0, 0, 255);
+        case 0: return sf::Color(255.0 * v, 255.0 * t, 255.0 * p, a);
+        case 1: return sf::Color(255.0 * q, 255.0 * v, 255.0 * p, a);
+        case 2: return sf::Color(255.0 * p, 255.0 * v, 255.0 * t, a);
+        case 3: return sf::Color(255.0 * p, 255.0 * q, 255.0 * v, a);
+        case 4: return sf::Color(255.0 * t, 255.0 * p, 255.0 * v, a);
+        case 5: return sf::Color(255.0 * v, 255.0 * p, 255.0 * q, a);
+        default: return sf::Color::Black;
     }
 }
 
-glm::u8vec4 randomColor(std::function<float()> &generator, glm::u8vec4 c1, glm::u8vec4 c2, bool hsv)
+sf::Color randomColor(std::function<float()> &generator, sf::Color c1, sf::Color c2, bool hsv)
 {
     if (!hsv)
     {
-        return glm::u8vec4(c1.r + generator() * (c2.r - c1.r),
+        return sf::Color(c1.r + generator() * (c2.r - c1.r),
                          c1.g + generator() * (c2.g - c1.g),
                          c1.b + generator() * (c2.b - c1.b),
                          c1.a + generator() * (c2.a - c1.a));

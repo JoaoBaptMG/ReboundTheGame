@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "drawables/Sprite.hpp"
@@ -32,7 +33,7 @@ class Renderer;
 class UIPointer final
 {
     Sprite pointer;
-    glm::vec2 position;
+    sf::Vector2f position;
     InputManager::MouseMoveEntry callbackEntry;
     
 public:

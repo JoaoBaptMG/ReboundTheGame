@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 using LangID = std::string;

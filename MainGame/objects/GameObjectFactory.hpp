@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "GameObject.hpp"
@@ -57,7 +58,7 @@ template <typename Obj>
 using ConfigStruct = typename ConfigStructBase<Obj>::value;
 
 template <typename Obj>
-util::generic_shared_ptr readerFor(InputStream& stream)
+util::generic_shared_ptr readerFor(sf::InputStream& stream)
 {
 	using namespace util;
 
@@ -81,7 +82,7 @@ std::unique_ptr<GameObject> factoryFor(GameScene& gameScene, std::string name, u
 
 struct FactoryParams
 {
-    util::generic_shared_ptr (*reader)(InputStream&);
+    util::generic_shared_ptr (*reader)(sf::InputStream&);
     std::unique_ptr<GameObject> (*factory)(GameScene&, std::string, util::generic_shared_ptr);
 };
 

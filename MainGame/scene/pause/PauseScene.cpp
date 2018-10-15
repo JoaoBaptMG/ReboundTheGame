@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "PauseScene.hpp"
 
 #include "PauseFrame.hpp"
@@ -38,11 +39,8 @@
 
 #include "ui/UIButtonCommons.hpp"
 
-#include "ColorList.hpp"
-
 #include "data/LevelData.hpp"
 #include "language/convenienceConfigText.hpp"
-#include "rendering/Texture.hpp"
 
 using namespace std::literals::chrono_literals;
 constexpr auto TransitionTime = 1s;
@@ -59,7 +57,7 @@ constexpr float ButtonHeight = 44;
 constexpr size_t ButtonCaptionSize = 24;
 
 PauseScene::PauseScene(Services& services) : services(services),
-    backgroundSprite(services.resourceManager.load<Texture>("pause-background.png")), transitionFactor(0),
+    backgroundSprite(services.resourceManager.load<sf::Texture>("pause-background.png")), transitionFactor(0),
     pointer(services), unpausing(false), currentFrame(1), pauseFrames
     { 
         std::unique_ptr<PauseFrame>(new CollectedPauseFrame(services)),
@@ -75,16 +73,16 @@ PauseScene::PauseScene(Services& services) : services(services),
     {
         button.initialize(services.inputManager);
         
-        auto color = k == currentFrame ? Colors::Green : Colors::White;
+        auto color = k == currentFrame ? sf::Color::Green : sf::Color::White;
         createCommonTextualButton(button, services, "ui-select-field.png", "ui-select-field.png",
-            util::rect(16, 0, 8, 1), util::rect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
-            ButtonCaptionSize, color, 1, Colors::Black, glm::vec2(0, 0),
+            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, ButtonWidth, ButtonHeight), ButtonIdentifiers[k],
+            ButtonCaptionSize, color, 1, sf::Color::Black, sf::Vector2f(0, 0),
             TextDrawable::Alignment::Center);
         
-        button.getPressedSprite()->setBlendColor(Colors::Yellow);
+        button.getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button.getActiveSprite()->setOpacity(0.5);
         button.getActiveSprite()->setOpacity(0.5);
-        button.setPosition(glm::vec2(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
+        button.setPosition(sf::Vector2f(ScreenWidth/2 + (k-1) * ButtonWidth, 30));
         button.setDepth(5000);
         
         button.setPressAction([=,&services] { playConfirm(services); switchPauseFrame(k); });
@@ -155,7 +153,7 @@ void PauseScene::update(FrameTime curTime)
     }
 }
 
-void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, glm::vec2 pos,
+void PauseScene::setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,
     const std::vector<bool>& visibleMaps)
 {
     static_cast<MapPauseFrame*>(pauseFrames[1].get())->setLevelData(level, curRoom, pos, visibleMaps);
@@ -187,18 +185,18 @@ void PauseScene::render(Renderer &renderer)
     pointer.render(renderer);
     
     if (transitionFactor < 1)
-        renderer.currentTransform *= util::translate(0, ScreenHeight * (1 - transitionFactor) * (1 - transitionFactor));
+        renderer.currentTransform.translate(0, ScreenHeight * (1 - transitionFactor) * (1 - transitionFactor));
         
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2 - 2);
-    renderer.pushDrawable(backgroundSprite, 4800);
+    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2 - 2);
+    renderer.pushDrawable(backgroundSprite, {}, 4800);
     renderer.popTransform();
     
     for (auto& button : frameButtons)
         button.render(renderer);
         
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(0, 64);
+    renderer.currentTransform.translate(0, 64);
     pauseFrames[currentFrame]->render(renderer);
     renderer.popTransform();
     
@@ -209,13 +207,13 @@ void PauseScene::render(Renderer &renderer)
 
 void PauseScene::switchPauseFrame(size_t frame)
 {
-    frameButtons[currentFrame].getCaption()->setDefaultColor(Colors::White);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(sf::Color::White);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->deactivate();
     
     currentFrame = frame;
     
-    frameButtons[currentFrame].getCaption()->setDefaultColor(Colors::Green);
+    frameButtons[currentFrame].getCaption()->setDefaultColor(sf::Color::Green);
     frameButtons[currentFrame].getCaption()->buildGeometry();
     pauseFrames[currentFrame]->activate();
 }

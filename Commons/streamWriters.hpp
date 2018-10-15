@@ -138,31 +138,6 @@ bool writeToStream(OutputStream &stream, const std::unordered_map<T,U> &value)
     return true;
 }
 
-template <typename T, glm::qualifier Q>
-bool writeToStream(InputStream &stream, const glm::vec<1, T, Q> &vec)
-{
-	return writeToStream(stream, vec.x);
-}
-
-template <typename T, glm::qualifier Q>
-bool writeToStream(InputStream &stream, const glm::vec<2, T, Q> &vec)
-{
-	return writeToStream(stream, vec.x) && writeToStream(stream, vec.y);
-}
-
-template <typename T, glm::qualifier Q>
-bool writeToStream(InputStream &stream, const glm::vec<3, T, Q> &vec)
-{
-	return writeToStream(stream, vec.x) && writeToStream(stream, vec.y) && writeToStream(stream, vec.z);
-}
-
-template <typename T, glm::qualifier Q>
-bool writeToStream(InputStream &stream, const glm::vec<4, T, Q> &vec)
-{
-	return writeToStream(stream, vec.x) && writeToStream(stream, vec.y)
-		&& writeToStream(stream, vec.z) && writeToStream(stream, vec.w);
-}
-
 template <typename T, typename... Ts, typename std::enable_if_t<(sizeof...(Ts) > 0), int> = 0>
 bool writeToStream(OutputStream& stream, T&& val, Ts&&... nexts)
 {

@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "SettingsScene.hpp"
 
 #include "scene/SceneManager.hpp"
@@ -32,7 +33,6 @@
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
-#include "rendering/Texture.hpp"
 
 #include "RootSettingsPanel.hpp"
 
@@ -74,7 +74,7 @@ const LangID InputIdentifiers[] =
 extern bool GlobalUpdateWindowHandler;
 
 SettingsBase::SettingsBase(Services& services,
-    glm::vec2 centerPos, UIPointer& pointer, LangID backId) : centerPosition(centerPos), backId(backId),
+    sf::Vector2f centerPos, UIPointer& pointer, LangID backId) : centerPosition(centerPos), backId(backId),
     nextSettingsPanel(nullptr)
 {
     curSettingsPanel.reset(new RootSettingsPanel(services, this, pointer));
@@ -97,8 +97,8 @@ void SettingsBase::deactivate() { curSettingsPanel->deactivate(); }
 void SettingsBase::changeSettingsPanel(SettingsPanel *panel) { nextSettingsPanel = panel; }
 
 SettingsScene::SettingsScene(Services& services)
-    : SettingsBase(services, glm::vec2(ScreenWidth, ScreenHeight)/2.0f, pointer, "settings-scene-back"),
-    sceneFrame(services.resourceManager.load<Texture>("settings-scene-frame.png")), pointer(services)
+    : SettingsBase(services, sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f, pointer, "settings-scene-back"),
+    sceneFrame(services.resourceManager.load<sf::Texture>("settings-scene-frame.png")), pointer(services)
 {
     using namespace std::literals::chrono_literals;
     backAction = [&,this]
@@ -115,21 +115,21 @@ void SettingsScene::render(Renderer& renderer)
     SettingsBase::render(renderer);
     
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2);
-    renderer.pushDrawable(sceneFrame, 3000);
+    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2);
+    renderer.pushDrawable(sceneFrame, {}, 3000);
     renderer.popTransform();
     
     pointer.render(renderer);
 }
 
 SettingsPauseFrame::SettingsPauseFrame(Services& services, UIPointer& pointer, PauseScene* scene)
-    : SettingsBase(services, glm::vec2(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
+    : SettingsBase(services, sf::Vector2f(ScreenWidth/2, ScreenHeight/2 + 32), pointer, "settings-pause-resume")
 {
     backAction = [=] { scene->unpause(); };
 }
 
 void SettingsPauseFrame::render(Renderer& renderer)
 {
-    renderer.currentTransform *= util::translate(0, -64);
+    renderer.currentTransform.translate(0, -64);
     SettingsBase::render(renderer);
 }

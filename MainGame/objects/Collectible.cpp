@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "Collectible.hpp"
 
 #include "objects/Player.hpp"

@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "drawables/Tilemap.hpp"
@@ -61,7 +62,7 @@ class Room final : util::non_copyable
     std::shared_ptr<TileSet> tileSet;
     Tilemap mainLayerTilemap;
     Tilemap transitionalTilemap;
-    glm::vec2 transitionDisplacement;
+    sf::Vector2f transitionDisplacement;
 
 public:
     explicit Room(GameScene &scene);

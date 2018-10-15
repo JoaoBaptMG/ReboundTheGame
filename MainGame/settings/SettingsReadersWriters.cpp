@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #include "Settings.hpp"
 
-bool readFromStream(InputStream &stream, InputSettings& settings)
+bool readFromStream(sf::InputStream &stream, InputSettings& settings)
 {
     return readFromStream(stream, settings.keyboardSettings.dashInput,
                                   settings.keyboardSettings.jumpInput,
@@ -80,7 +81,7 @@ bool writeToStream(OutputStream& stream, const InputSettings& settings)
                                  settings.joystickSettings.movementAxisYAlt);
 }
 
-bool readFromStream(InputStream &stream, VideoSettings& settings)
+bool readFromStream(sf::InputStream &stream, VideoSettings& settings)
 {
     return readFromStream(stream, settings.fullscreen, settings.vsyncEnabled);
 }
@@ -90,7 +91,7 @@ bool writeToStream(OutputStream& stream, const VideoSettings& settings)
     return writeToStream(stream, settings.fullscreen, settings.vsyncEnabled);
 }
 
-bool readFromStream(InputStream &stream, AudioSettings& settings)
+bool readFromStream(sf::InputStream &stream, AudioSettings& settings)
 {
     return readFromStream(stream, settings.musicVolume, settings.soundVolume);
 }
@@ -100,7 +101,7 @@ bool writeToStream(OutputStream& stream, const AudioSettings& settings)
     return writeToStream(stream, settings.musicVolume, settings.soundVolume);
 }
 
-bool readFromStream(InputStream &stream, KeyPair& keyPair)
+bool readFromStream(sf::InputStream &stream, KeyPair& keyPair)
 {
     return readFromStream(stream, keyPair.name, keyPair.key);
 }

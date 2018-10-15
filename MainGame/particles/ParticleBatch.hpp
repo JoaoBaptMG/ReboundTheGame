@@ -20,14 +20,14 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/Graphics.hpp>
 #include <vector>
 #include <chronoUtils.hpp>
 #include <memory>
 #include <unordered_map>
-#include <glm/glm.hpp>
 
 #include "objects/GameObject.hpp"
 
@@ -51,7 +51,7 @@ public:
 
     struct PositionInfo
     {
-        glm::vec2 position, velocity, acceleration;
+        sf::Vector2f position, velocity, acceleration;
     };
 
     struct DisplayInfo
@@ -81,7 +81,7 @@ private:
     FrameTime lastTime, initialTime;
     size_t drawingDepth;
 
-    glm::vec2 position;
+    sf::Vector2f position;
     bool aborted;
     
 public:
@@ -108,7 +108,7 @@ public:
     void unabort() { aborted = false; }
 
     auto getPosition() { return position; }
-    void setPosition(glm::vec2 pos) { position = pos; }
+    void setPosition(sf::Vector2f pos) { position = pos; }
 
 	friend class ParticleEmitter;
 };

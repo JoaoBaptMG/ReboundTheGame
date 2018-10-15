@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "objects/Collectible.hpp"
@@ -54,7 +55,7 @@ namespace collectibles
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            glm::i16vec2 position;
+            sf::Vector2<int16_t> position;
             uint8_t tokenId;
         };
 

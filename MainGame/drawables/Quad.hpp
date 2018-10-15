@@ -20,15 +20,15 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
-#include <rect.hpp>
+#include <SFML/Graphics.hpp>
 
 class Quad : public sf::Drawable
 {
-    glm::u8vec4 color;
-    util::rect rect;
+    sf::Color color;
+    sf::FloatRect rect;
     
     sf::VertexArray vertices;
     void setupVertices();
@@ -36,14 +36,14 @@ class Quad : public sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    Quad(util::rect rect, glm::u8vec4 color = glm::u8vec4());
+    Quad(sf::FloatRect rect, sf::Color color = sf::Color());
     virtual ~Quad() {}
     
     auto getRect() const { return rect; }
-    void setRect(util::rect r) { rect = r; setupVertices(); }
+    void setRect(sf::FloatRect r) { rect = r; setupVertices(); }
     
     auto getColor() const { return color; }
-    void setColor(glm::u8vec4 c) { color = c; setupVertices(); }
+    void setColor(sf::Color c) { color = c; setupVertices(); }
     
     auto getAlpha() const { return color.a; }
     void setAlpha(uint8_t a) { color.a = a; setupVertices(); }

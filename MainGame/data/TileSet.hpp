@@ -20,13 +20,13 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <InputStream.hpp>
-#include <glm/glm.hpp>
+#include <SFML/System.hpp>
 
 template <typename T>
 static constexpr bool isContained(T) { return false; }
@@ -85,7 +85,7 @@ struct TileSet final
         {
             ShapeType type;
             int16_t radius; // multifunctional
-            std::vector<glm::i16vec2> points; // also multifunctional
+            std::vector<sf::Vector2<int16_t>> points; // also multifunctional
         };
 
         Attribute objectAttribute;
@@ -165,4 +165,4 @@ struct TileSet final
     static constexpr auto ReadMagic = "TSET";
 };
 
-bool readFromStream(InputStream &stream, TileSet& tileSet);
+bool readFromStream(sf::InputStream &stream, TileSet& tileSet);

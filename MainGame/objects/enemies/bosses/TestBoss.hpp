@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "objects/enemies/Boss.hpp"
@@ -55,7 +56,7 @@ namespace enemies
 #pragma pack(push, 1)
             struct ConfigStruct
             {
-                glm::i16vec2 position;
+                sf::Vector2<int16_t> position;
                 int16_t leftSpan, rightSpan;
             };
             

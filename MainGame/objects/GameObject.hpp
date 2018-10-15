@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <non_copyable_movable.hpp>
@@ -28,8 +29,9 @@
 
 #include <memory>
 #include <chronoUtils.hpp>
+#include <chronoUtils.hpp>
 #include <functional>
-#include <InputStream.hpp>
+#include <SFML/System.hpp>
 
 class GameScene;
 class Renderer;
@@ -67,5 +69,5 @@ public:
 
 struct GameObjectDescriptor;
 
-util::generic_shared_ptr readParametersFromStream(InputStream& stream, std::string klass);
+util::generic_shared_ptr readParametersFromStream(sf::InputStream& stream, std::string klass);
 std::unique_ptr<GameObject> createObjectFromDescriptor(GameScene& gameScene, const GameObjectDescriptor& descriptor);

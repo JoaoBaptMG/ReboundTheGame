@@ -20,10 +20,11 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <memory>
-
+#include <SFML/Graphics.hpp>
 #include <grid.hpp>
 
 #include "data/RoomData.hpp"

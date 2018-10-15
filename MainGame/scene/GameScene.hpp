@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "scene/Scene.hpp"
@@ -42,7 +43,7 @@
 #include "Services.hpp"
 
 #include <cppmunk/Space.h>
-
+#include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 #include <type_traits>
 #include <exception>
@@ -84,7 +85,7 @@ class GameScene : public Scene
 
     InputPlayerController inputPlayerController;
     const PlayerController* currentPlayerController;
-    glm::vec2 offsetPos;
+    sf::Vector2f offsetPos;
 
     GUI gui;
     Camera camera;
@@ -165,7 +166,7 @@ public:
     void playSound(std::string soundName);
 
     cpVect wrapPosition(cpVect pos);
-    glm::vec2 fitIntoRoom(glm::vec2 vec);
+    sf::Vector2f fitIntoRoom(sf::Vector2f vec);
 
     virtual void update(FrameTime curTime) override;
     void checkWarps();

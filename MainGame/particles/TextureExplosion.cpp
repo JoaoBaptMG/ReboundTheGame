@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "TextureExplosion.hpp"
 
 #include <random>
@@ -30,37 +31,37 @@
 const TextureExplosion::DensityTag TextureExplosion::Density{};
 const TextureExplosion::SizeTag TextureExplosion::Size{};
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
-    glm::vec2 acceleration, size_t depth) : GameObject(scene), texture(tex), drawingDepth(depth),
-    vertices(sf::Quads), globalPosition(), globalAcceleration(acceleration), duration(duration), maleftOffset() {}
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    sf::Vector2f acceleration, size_t depth) : GameObject(scene), texture(tex), drawingDepth(depth),
+    vertices(sf::Quads), globalPosition(), globalAcceleration(acceleration), duration(duration), maxOffset() {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
-    Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, sf::FloatRect texRect,
+    Duration duration, std::function<sf::Vector2f(float,float)> velocityFunction, sf::Vector2f acceleration,
     SizeTag, size_t width, size_t height, size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(texRect, velocityFunction, TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
-    Duration duration, std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, sf::FloatRect texRect,
+    Duration duration, std::function<sf::Vector2f(float,float)> velocityFunction, sf::Vector2f acceleration,
     DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, texRect, duration, velocityFunction, acceleration, TextureExplosion::Size,
         tex->getSize().x/pieceSizeX, tex->getSize().y/pieceSizeY, depth) {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
-    std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    std::function<sf::Vector2f(float,float)> velocityFunction, sf::Vector2f acceleration,
     SizeTag, size_t width, size_t height, size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(velocityFunction, TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
-    std::function<glm::vec2(float,float)> velocityFunction, glm::vec2 acceleration,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    std::function<sf::Vector2f(float,float)> velocityFunction, sf::Vector2f acceleration,
     DensityTag, size_t pieceSizeX, size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, duration, velocityFunction, acceleration, TextureExplosion::Size,
         tex->getSize().x/pieceSizeX, tex->getSize().y/pieceSizeY, depth) {}
 
-inline static auto randomGenerator(util::rect velocityRect)
+inline static auto randomGenerator(sf::FloatRect velocityRect)
 {
     std::random_device init;
 	std::mt19937 rgen(init());
@@ -69,42 +70,40 @@ inline static auto randomGenerator(util::rect velocityRect)
 
     return [velocityRect, generator](float x, float y) mutable
     {
-        float xVel = velocityRect.x + generator() * velocityRect.width;
-        float yVel = velocityRect.y + generator() * velocityRect.height;
-        return glm::vec2(xVel, yVel);
+        float xVel = velocityRect.left + generator() * velocityRect.width;
+        float yVel = velocityRect.top + generator() * velocityRect.height;
+        return sf::Vector2f(xVel, yVel);
     };
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
-    Duration duration, util::rect velocityRect, glm::vec2 acceleration, SizeTag, size_t width, size_t height,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, sf::FloatRect texRect,
+    Duration duration, sf::FloatRect velocityRect, sf::Vector2f acceleration, SizeTag, size_t width, size_t height,
     size_t depth) : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(texRect, randomGenerator(velocityRect), TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, util::rect texRect,
-    Duration duration, util::rect velocityRect, glm::vec2 acceleration, DensityTag, size_t pieceSizeX,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, sf::FloatRect texRect,
+    Duration duration, sf::FloatRect velocityRect, sf::Vector2f acceleration, DensityTag, size_t pieceSizeX,
     size_t pieceSizeY, size_t depth)
     : TextureExplosion(scene, tex, texRect, duration, velocityRect, acceleration, TextureExplosion::Size,
         texRect.width/pieceSizeX, texRect.height/pieceSizeY, depth) {}
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
-    util::rect velocityRect, glm::vec2 acceleration, SizeTag, size_t width, size_t height, size_t depth)
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    sf::FloatRect velocityRect, sf::Vector2f acceleration, SizeTag, size_t width, size_t height, size_t depth)
     : TextureExplosion(scene, tex, duration, acceleration, depth)
 {
     assignPieces(randomGenerator(velocityRect), TextureExplosion::Size, width, height);
 }
 
-TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<Texture> tex, Duration duration,
-    util::rect velocityRect, glm::vec2 acceleration, DensityTag, size_t pieceSizeX, size_t pieceSizeY,
+TextureExplosion::TextureExplosion(GameScene& scene, std::shared_ptr<sf::Texture> tex, Duration duration,
+    sf::FloatRect velocityRect, sf::Vector2f acceleration, DensityTag, size_t pieceSizeX, size_t pieceSizeY,
     size_t depth)
     : TextureExplosion(scene, tex, duration, velocityRect, acceleration, TextureExplosion::Size,
         tex->getSize().x/pieceSizeX, tex->getSize().y/pieceSizeY, depth) {}
 
-sf::Vector2f toSF(glm::vec2 v);
-
-void TextureExplosion::assignPieces(util::rect texRect,
-    std::function<glm::vec2(float,float)> velocityFunction, SizeTag, size_t width, size_t height)
+void TextureExplosion::assignPieces(sf::FloatRect texRect,
+    std::function<sf::Vector2f(float,float)> velocityFunction, SizeTag, size_t width, size_t height)
 {
     this->texRect = texRect;
     this->width = width, this->height = height;
@@ -114,7 +113,7 @@ void TextureExplosion::assignPieces(util::rect texRect,
     float pieceWidth = (float)texRect.width/width;
     float pieceHeight = (float)texRect.height/height;
 
-    glm::vec2 offset{texRect.x, texRect.y};
+    sf::Vector2f offset{texRect.left, texRect.top};
     for (size_t j = 0; j < height; j++)
         for (size_t i = 0; i < width; i++)
         {
@@ -125,33 +124,33 @@ void TextureExplosion::assignPieces(util::rect texRect,
             texturePieces[j*width+i].position.y = texRect.height * py;
             texturePieces[j*width+i].velocity = velocityFunction(2*px, 2*py);
 
-            vertices[4*(j*width+i)].texCoords = toSF(offset + glm::vec2(pieceWidth*i, pieceHeight*j));
-            vertices[4*(j*width+i)+1].texCoords = toSF(offset + glm::vec2(pieceWidth*(i+1), pieceHeight*j));
-            vertices[4*(j*width+i)+2].texCoords = toSF(offset + glm::vec2(pieceWidth*(i+1), pieceHeight*(j+1)));
-            vertices[4*(j*width+i)+3].texCoords = toSF(offset + glm::vec2(pieceWidth*i, pieceHeight*(j+1)));
+            vertices[4*(j*width+i)].texCoords = offset + sf::Vector2f(pieceWidth*i, pieceHeight*j);
+            vertices[4*(j*width+i)+1].texCoords = offset + sf::Vector2f(pieceWidth*(i+1), pieceHeight*j);
+            vertices[4*(j*width+i)+2].texCoords = offset + sf::Vector2f(pieceWidth*(i+1), pieceHeight*(j+1));
+            vertices[4*(j*width+i)+3].texCoords = offset + sf::Vector2f(pieceWidth*i, pieceHeight*(j+1));
 
-            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = Colors::White;
+            for (size_t k = 0; k < 4; k++) vertices[4*(j*width+i)].color = sf::Color::White;
         }
 }
 
-void TextureExplosion::assignPieces(util::rect texRect,
-    std::function<glm::vec2(float,float)> velocityFunction, DensityTag, size_t pieceSizeX, size_t pieceSizeY)
+void TextureExplosion::assignPieces(sf::FloatRect texRect,
+    std::function<sf::Vector2f(float,float)> velocityFunction, DensityTag, size_t pieceSizeX, size_t pieceSizeY)
 {
     assignPieces(texRect, velocityFunction, TextureExplosion::Size,
         texRect.width/pieceSizeX, texRect.height/pieceSizeY);
 }
 
-void TextureExplosion::assignPieces(std::function<glm::vec2(float,float)> velocityFunction,
+void TextureExplosion::assignPieces(std::function<sf::Vector2f(float,float)> velocityFunction,
     SizeTag, size_t width, size_t height)
 {
-    util::rect texRect{0, 0, (float)texture->getSize().x, (float)texture->getSize().y};
+    sf::FloatRect texRect{0, 0, (float)texture->getSize().x, (float)texture->getSize().y};
     assignPieces(texRect, velocityFunction, TextureExplosion::Size, width, height);
 }
 
-void TextureExplosion::assignPieces(std::function<glm::vec2(float,float)> velocityFunction,
+void TextureExplosion::assignPieces(std::function<sf::Vector2f(float,float)> velocityFunction,
     DensityTag, size_t pieceSizeX, size_t pieceSizeY)
 {
-    util::rect texRect{0, 0, (float)texture->getSize().x, (float)texture->getSize().y};
+    sf::FloatRect texRect{0, 0, (float)texture->getSize().x, (float)texture->getSize().y};
     assignPieces(texRect, velocityFunction, TextureExplosion::Density, pieceSizeX, pieceSizeY);
 }
 
@@ -163,11 +162,11 @@ void TextureExplosion::setOffsetFunction(std::function<TextureExplosion::Duratio
         for (size_t i = 0; i < width; i++)
         {
             timeOffsets[j*width+i] = func(2*((i + 0.5)/width - 0.5), 2*((j + 0.5)/height - 0.5));
-            maleftOffset = std::max(maleftOffset, timeOffsets[j*width+i]);
+            maxOffset = std::max(maxOffset, timeOffsets[j*width+i]);
         }
 }
 
-void TextureExplosion::resetOffsets() { timeOffsets.clear(); maleftOffset = Duration(); }
+void TextureExplosion::resetOffsets() { timeOffsets.clear(); maxOffset = Duration(); }
 
 void TextureExplosion::update(FrameTime curTime)
 {
@@ -176,7 +175,7 @@ void TextureExplosion::update(FrameTime curTime)
     this->curTime = curTime;
 
     auto totalDuration = curTime - initialTime;
-    if (totalDuration > duration + maleftOffset) remove();
+    if (totalDuration > duration + maxOffset) remove();
     auto dt = toSeconds<float>(curTime - lastTime);
 
     size_t i = 0;
@@ -213,7 +212,7 @@ void TextureExplosion::render(Renderer& renderer)
         for (size_t k = 0; k < 4; k++)
         {
             vertices[4*i+k].color.a = localOpacity * 255.0f;
-            vertices[4*i+k].position = toSF(globalPosition + texturePieces[i].position);
+            vertices[4*i+k].position = globalPosition + texturePieces[i].position;
         }
 
         vertices[4*i].position += sf::Vector2f(-0.5 * pieceWidth, -0.5 * pieceHeight);

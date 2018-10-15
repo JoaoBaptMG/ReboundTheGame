@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "GameObject.hpp"
@@ -52,7 +53,7 @@ public:
     auto getDisplayPosition() const
     {
         auto vec = getPosition();
-        return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
+        return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
     }
 
     static constexpr cpCollisionType CollisionType = 'item';

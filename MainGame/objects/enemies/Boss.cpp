@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "Boss.hpp"
 
 #include "scene/GameScene.hpp"
@@ -30,8 +31,6 @@
 #include "resources/ResourceManager.hpp"
 #include "language/LocalizationManager.hpp"
 #include "language/convenienceConfigText.hpp"
-
-#include "ColorList.hpp"
 
 using namespace enemies;
 
@@ -54,9 +53,9 @@ BossCaption::BossCaption(GameScene& scene, LangID captionID) : GameObject(scene)
 {
     text.setString(scene.getLocalizationManager().getString(captionID));
     text.setFontSize(48);
-    text.setDefaultColor(Colors::White);
+    text.setDefaultColor(sf::Color::White);
     text.setOutlineThickness(2);
-    text.setDefaultOutlineColor(Colors::Black);
+    text.setDefaultOutlineColor(sf::Color::Black);
     text.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
     text.setVerticalAnchor(TextDrawable::VertAnchor::Center);
     configTextDrawable(text, scene.getLocalizationManager());
@@ -86,8 +85,8 @@ void BossCaption::render(Renderer& renderer)
     auto transform = renderer.currentTransform;
     renderer.popTransform();
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(ScreenWidth/2, ScreenHeight/2);
-    renderer.pushDrawable(text, 120000);
+    renderer.currentTransform.translate(ScreenWidth/2, ScreenHeight/2);
+    renderer.pushDrawable(text, {}, 120000);
     renderer.popTransform();
     renderer.pushTransform();
     renderer.currentTransform = transform;

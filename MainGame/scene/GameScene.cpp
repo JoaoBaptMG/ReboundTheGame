@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "GameScene.hpp"
 
 #include "objects/Player.hpp"
@@ -43,7 +44,7 @@
 
 #include <functional>
 #include <iterator>
-
+#include <SFML/System.hpp>
 
 #include <iostream>
 
@@ -253,7 +254,7 @@ cpVect GameScene::wrapPosition(cpVect pos)
     return pos;
 }
 
-glm::vec2 GameScene::fitIntoRoom(glm::vec2 vec)
+sf::Vector2f GameScene::fitIntoRoom(sf::Vector2f vec)
 {
     vec.x = clamp<float>(vec.x, PlayfieldWidth/2,
         DefaultTileSize * currentRoomData->mainLayer.width() - PlayfieldWidth/2);
@@ -445,12 +446,12 @@ void GameScene::render(Renderer& renderer)
     levelTransition.render(renderer);
     messageBox.render(renderer);
     
-    renderer.currentTransform *= util::translate(camera.getGlobalDisplacement());
+    renderer.currentTransform.translate(camera.getGlobalDisplacement());
     room.render(renderer, camera.transitionOccuring());
     for (const auto& obj : gameObjects) obj->render(renderer);
 
 #if CP_DEBUG
-    renderer.pushDrawable(debug, 800);
+    renderer.pushDrawable(debug, {}, 800);
 #endif
 
     renderer.popTransform();

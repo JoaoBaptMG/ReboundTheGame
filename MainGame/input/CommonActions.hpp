@@ -20,11 +20,12 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "InputManager.hpp"
 #include "gameplay/VirtualActions.hpp"
-
+#include <SFML/System.hpp>
 #include <vector>
 
 class ButtonActionBase : public VirtualButtonAction
@@ -123,16 +124,16 @@ public:
 class DualAxisActionBase : public VirtualDualAxisAction
 {
 protected:
-    glm::vec2 valuePos;
-    glm::vec2 valueNeg;
+    sf::Vector2f valuePos;
+    sf::Vector2f valueNeg;
 
-    std::function<void(glm::vec2)> action;
+    std::function<void(sf::Vector2f)> action;
 
     DualAxisActionBase() : valuePos(), valueNeg() {}
     ~DualAxisActionBase() {}
 
 public:
-    virtual glm::vec2 getValue() const override
+    virtual sf::Vector2f getValue() const override
     {
         return valuePos - valueNeg;
     }

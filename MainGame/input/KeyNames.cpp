@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "KeyNames.hpp"
 
 LangID getStringIDForKey(sf::Keyboard::Key key)

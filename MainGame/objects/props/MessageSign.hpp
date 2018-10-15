@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/System.hpp>
 #include <string>
 
 #include "objects/InteractableObject.hpp"
@@ -56,7 +57,7 @@ namespace props
 
         struct ConfigStruct
         {
-            glm::i16vec2 position;
+            sf::Vector2<int16_t> position;
             std::string messageString;
         };
 
@@ -65,9 +66,9 @@ namespace props
         auto getDisplayPosition()
         {
             auto pos = interactionCenter;
-            return glm::vec2(roundf(pos.x), roundf(pos.y+40));
+            return sf::Vector2f(roundf(pos.x), roundf(pos.y+40));
         }
     };
 
-    bool readFromStream(InputStream& stream, MessageSign::ConfigStruct& config);
+    bool readFromStream(sf::InputStream& stream, MessageSign::ConfigStruct& config);
 }

@@ -28,5 +28,5 @@
 class OutputStream
 {
 public:
-    virtual bool write(const void* data, uint64_t size) = 0;
+    virtual bool write(const void* data, size_t size) = 0;
 };

@@ -20,12 +20,13 @@
 // SOFTWARE.
 //
 
+
 #include "RIFF.hpp"
 
 #include <streamReaders.hpp>
 #include <streamWriters.hpp>
 
-bool readFromStream(InputStream& stream, RIFF& riff)
+bool readFromStream(sf::InputStream& stream, RIFF& riff)
 {
     uint32_t chunkSize;
     if (!readFromStream(stream, riff.code, chunkSize)) return false;

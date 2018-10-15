@@ -20,10 +20,11 @@
 // SOFTWARE.
 //
 
+
 #include "ScriptedActions.hpp"
 
 bool ScriptedButtonAction::isTriggered() const { return false; }
 bool ScriptedButtonAction::isPressed() const { return false; }
 bool ScriptedButtonAction::isReleased() const { return false; }
 
-glm::vec2 ScriptedDualAxisAction::getValue() const { return glm::vec2(0, 0); }
+sf::Vector2f ScriptedDualAxisAction::getValue() const { return sf::Vector2f(0, 0); }

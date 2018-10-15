@@ -20,13 +20,14 @@
 // SOFTWARE.
 //
 
+
 #include "LanguageDescriptor.hpp"
 
 #include <algorithm>
 #include <utility>
 #include <streamReaders.hpp>
 
-bool readFromStream(InputStream& stream, LangString& string)
+bool readFromStream(sf::InputStream& stream, LangString& string)
 {
     if (!readFromStream(stream, string.string)) return false;
     
@@ -41,7 +42,7 @@ bool readFromStream(InputStream& stream, LangString& string)
     return true;
 }
 
-bool readFromStream(InputStream& stream, Formatter& formatter)
+bool readFromStream(sf::InputStream& stream, Formatter& formatter)
 {
     size_t size;
     if (!readFromStream(stream, formatter.modelString, varLength(size))) return false;
@@ -70,12 +71,12 @@ bool readFromStream(InputStream& stream, Formatter& formatter)
     });
 }
 
-bool readFromStream(InputStream& stream, PluralForm& pluralForm)
+bool readFromStream(sf::InputStream& stream, PluralForm& pluralForm)
 {
     return readFromStream(stream, pluralForm.pluralUnits);
 }
 
-bool readPterms(InputStream& stream, std::vector<Pterm>& pterms, const std::vector<PluralForm>& pluralForms)
+bool readPterms(sf::InputStream& stream, std::vector<Pterm>& pterms, const std::vector<PluralForm>& pluralForms)
 {
     size_t size;
     if (!readFromStream(stream, varLength(size))) return false;
@@ -94,7 +95,7 @@ bool readPterms(InputStream& stream, std::vector<Pterm>& pterms, const std::vect
     return true;
 }
 
-static bool readVarLengthVector(InputStream& stream, std::vector<size_t>& vec)
+static bool readVarLengthVector(sf::InputStream& stream, std::vector<size_t>& vec)
 {
     size_t size;
     if (!readFromStream(stream, varLength(size))) return false;
@@ -104,7 +105,7 @@ static bool readVarLengthVector(InputStream& stream, std::vector<size_t>& vec)
     return true;
 }
 
-bool readFromStream(InputStream& stream, Vterm& vterm)
+bool readFromStream(sf::InputStream& stream, Vterm& vterm)
 {
     size_t size;
     if (!(readVarLengthVector(stream, vterm.categories) &&
@@ -121,7 +122,7 @@ bool readFromStream(InputStream& stream, Vterm& vterm)
     return true;
 }
 
-bool readFromStream(InputStream& stream, Pvterm& pvterm)
+bool readFromStream(sf::InputStream& stream, Pvterm& pvterm)
 {
     size_t size;
     if (!(readFromStream(stream, varLength(pvterm.pcategory)) && readVarLengthVector(stream, pvterm.vcategories) &&
@@ -139,7 +140,7 @@ bool readFromStream(InputStream& stream, Pvterm& pvterm)
     return true;
 }
 
-bool readFromStream(InputStream& stream, LanguageDescriptor& descriptor)
+bool readFromStream(sf::InputStream& stream, LanguageDescriptor& descriptor)
 {
     return checkMagic(stream, "LANG") &&
         readFromStream(stream, descriptor.name, descriptor.posixLocale, descriptor.windowsLocale,

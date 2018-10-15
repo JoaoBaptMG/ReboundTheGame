@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <grid.hpp>
@@ -28,7 +29,7 @@
 #include "resources/Memory.hpp"
 
 #include <vector>
-#include <InputStream.hpp>
+#include <SFML/System.hpp>
 
 template <size_t size> struct Print;
 
@@ -73,5 +74,5 @@ struct RoomData final
     static constexpr auto ReadMagic = "ROOM";
 };
 
-bool readFromStream(InputStream &stream, RoomData& room);
+bool readFromStream(sf::InputStream &stream, RoomData& room);
 

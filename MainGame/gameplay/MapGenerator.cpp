@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "MapGenerator.hpp"
 
 #include <algorithm>

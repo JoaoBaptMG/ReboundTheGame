@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/Window.hpp>
 #include <non_copyable_movable.hpp>
 #include <unordered_map>
 #include <map>
@@ -38,7 +39,7 @@ class InputManager final : public util::non_copyable_movable
 public:
     using Callback = std::function<void(InputSource,float)>;
     using PriorityMap = std::multimap<intmax_t,Callback>;
-    using MouseMoveCallback = std::function<void(glm::ivec2)>;
+    using MouseMoveCallback = std::function<void(sf::Vector2i)>;
 
 private:
     std::unordered_map<InputSource,PriorityMap> callbacks;
@@ -64,7 +65,7 @@ public:
     void handleJoystickPickAllResponseAxis(sf::Joystick::Axis axis, float val);
 
     void dispatchData(InputSource source, float val);
-    void dispatchMouseMovement(glm::ivec2 pos);
+    void dispatchMouseMovement(sf::Vector2i pos);
 
     bool handleEvent(const sf::Event& event);
     bool isJoystickCurrent() const { return joystickCurrent; }

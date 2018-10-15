@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "ResourceLocator.hpp"
@@ -34,7 +35,7 @@ public:
     FilesystemResourceLocator();
     virtual ~FilesystemResourceLocator() {}
 
-    virtual std::unique_ptr<InputStream> getResource(std::string name) override;
+    virtual std::unique_ptr<sf::InputStream> getResource(std::string name) override;
 };
 
 class FileNotFound : public std::runtime_error

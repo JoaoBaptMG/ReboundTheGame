@@ -20,10 +20,11 @@
 // SOFTWARE.
 //
 
+
 #include "ResourceLoader.hpp"
 
 #include <iostream>
-
+#include <SFML/Graphics.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -31,18 +32,17 @@
 #include "data/LevelData.hpp"
 #include "data/TileSet.hpp"
 #include "particles/ParticleEmitter.hpp"
-#include "audio/readWav.hpp"]
-#include "rendering/readPng.hpp"
+#include "audio/readWav.hpp"
 
 #include "FontHandler.hpp"
 
 using namespace util;
 using namespace ResourceLoader;
 
-using loadFunc = generic_shared_ptr (*)(std::unique_ptr<InputStream>&);
+using loadFunc = generic_shared_ptr (*)(std::unique_ptr<sf::InputStream>&);
 
 template <typename T>
-generic_shared_ptr loadGenericResource(std::unique_ptr<InputStream>& stream)
+generic_shared_ptr loadGenericResource(std::unique_ptr<sf::InputStream>& stream)
 {
     std::shared_ptr<T> content{new T()};
 	if (checkMagic(*stream, T::ReadMagic) && readFromStream(*stream, *content))
@@ -52,23 +52,10 @@ generic_shared_ptr loadGenericResource(std::unique_ptr<InputStream>& stream)
 }
 
 template <typename T>
-generic_shared_ptr loadSFMLResource(std::unique_ptr<InputStream>& stream)
+generic_shared_ptr loadSFMLResource(std::unique_ptr<sf::InputStream>& stream)
 {
-	class SFMLStreamAdaptor : public sf::InputStream
-	{
-		::InputStream& stream;
-
-	public:
-		SFMLStreamAdaptor(::InputStream& stream) : stream(stream) {}
-		virtual ~SFMLStreamAdaptor() {}
-		virtual sf::Int64 read(void* data, sf::Int64 size) override { return stream.read(data, size); }
-		virtual sf::Int64 seek(sf::Int64 pos) override { return stream.seek(pos); }
-		virtual sf::Int64 tell() override { return stream.tell(); }
-		virtual sf::Int64 getSize() override { return stream.size(); }
-	};
-
     std::shared_ptr<T> content{new T()};
-	if (content->loadFromStream(SFMLStreamAdaptor(*stream)))
+	if (content->loadFromStream(*stream))
 		return generic_shared_ptr{content};
 
     return generic_shared_ptr{};
@@ -80,12 +67,12 @@ const std::unordered_map<std::string,loadFunc> loadFuncs =
     { "lvl", loadGenericResource<LevelData> },
     { "pe",  loadParticleEmitterList },
     { "map", loadGenericResource<RoomData> },
-    { "png", loadPngTexture },
+    { "png", loadSFMLResource<sf::Texture> },
     { "ttf", loadFontHandler },
     { "wav", loadWaveFile },
 };
 
-generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<InputStream> stream, std::string type)
+generic_shared_ptr ResourceLoader::loadFromStream(std::unique_ptr<sf::InputStream> stream, std::string type)
 {
     auto it = loadFuncs.find(type);
 	if (it != loadFuncs.end())

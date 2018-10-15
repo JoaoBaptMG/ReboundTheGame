@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "RootSettingsPanel.hpp"
 
 #include "SettingsScene.hpp"
@@ -32,7 +33,6 @@
 #include "rendering/Renderer.hpp"
 
 #include "ui/UIButtonCommons.hpp"
-#include "ColorList.hpp"
 
 #include <defaults.hpp>
 
@@ -71,7 +71,7 @@ const LangID InputIdentifiers[] =
 
 extern bool GlobalUpdateWindowHandler;
 
-glm::vec2 SettingsPanel::getCenterPosition() const { return curSettings->centerPosition; }
+sf::Vector2f SettingsPanel::getCenterPosition() const { return curSettings->centerPosition; }
 void SettingsPanel::executeBackAction() { if (curSettings->backAction) curSettings->backAction(); }
 const LangID& SettingsPanel::getBackId() const { return curSettings->backId; }
 
@@ -89,7 +89,7 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
      keyboardButton(services.inputManager), joystickButton(services.inputManager),
      backButton(services.inputManager), buttonGroup(services)
 {
-    auto pos = getCenterPosition() + glm::vec2(0, -TotalHeight/2 + ButtonHeight/2);
+    auto pos = getCenterPosition() + sf::Vector2f(0, -TotalHeight/2 + ButtonHeight/2);
 
     size_t k = 0;
     for (auto& title : titles)
@@ -97,9 +97,9 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
         title.setFontHandler(loadDefaultFont(services));
         title.setString(services.localizationManager.getString(Titles[k]));
         title.setFontSize(ButtonCaptionSize);
-        title.setDefaultColor(Colors::Yellow);
+        title.setDefaultColor(sf::Color::Yellow);
         title.setOutlineThickness(1);
-        title.setDefaultOutlineColor(Colors::Black);
+        title.setDefaultOutlineColor(sf::Color::Black);
         title.setHorizontalAnchor(TextDrawable::HorAnchor::Center);
         title.setVerticalAnchor(TextDrawable::VertAnchor::Center);
         configTextDrawable(title, services.localizationManager);
@@ -111,24 +111,24 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
     for (auto button : { &fullscreenSwitch, &vsyncSwitch })
     {
         createCommonTextSwitch(*button, services, "ui-select-field.png", "ui-select-field.png",
-            util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            VideoIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
-        button->setPosition(pos + glm::vec2(0, (k+1) * (ButtonHeight + ButtonSpace)));
+            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+            VideoIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+        button->setPosition(pos + sf::Vector2f(0, (k+1) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
     createCommonTextualButton(languageButton, services, "ui-select-field.png", "ui-select-field.png",
-        util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        VideoIdentifiers[2], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
-    languageButton.setPosition(pos + glm::vec2(0, 3 * (ButtonHeight + ButtonSpace)));
+        sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+        VideoIdentifiers[2], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+    languageButton.setPosition(pos + sf::Vector2f(0, 3 * (ButtonHeight + ButtonSpace)));
 
     k = 0;
     for (auto button : { &musicSlider, &soundSlider })
     {
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
-            util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            SoundIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
-        button->setPosition(pos + glm::vec2(0, (k+5) * (ButtonHeight + ButtonSpace)));
+            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+            SoundIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+        button->setPosition(pos + sf::Vector2f(0, (k+5) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
@@ -136,22 +136,22 @@ RootSettingsPanel::RootSettingsPanel(Services& services, SettingsBase* curSettin
     for (auto button : { &keyboardButton, &joystickButton })
     {
         createCommonTextualButton(*button, services, "ui-select-field.png", "ui-select-field.png",
-            util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-            InputIdentifiers[k], ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0));
-        button->setPosition(pos + glm::vec2(0, (k+8) * (ButtonHeight + ButtonSpace)));
+            sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+            InputIdentifiers[k], ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0));
+        button->setPosition(pos + sf::Vector2f(0, (k+8) * (ButtonHeight + ButtonSpace)));
         k++;
     }
 
     createCommonTextualButton(backButton, services, "ui-select-field.png", "ui-select-field.png",
-        util::rect(16, 0, 8, 1), util::rect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
-        getBackId(), ButtonCaptionSize, Colors::White, 1, Colors::Black, glm::vec2(24, 0),
+        sf::FloatRect(16, 0, 8, 1), sf::FloatRect(0, 0, FrameWidth - 2 * ButtonSpace, ButtonHeight),
+        getBackId(), ButtonCaptionSize, sf::Color::White, 1, sf::Color::Black, sf::Vector2f(24, 0),
         TextDrawable::Alignment::Center);
-    backButton.setPosition(pos + glm::vec2(0, 10 * (ButtonHeight + ButtonSpace)));
+    backButton.setPosition(pos + sf::Vector2f(0, 10 * (ButtonHeight + ButtonSpace)));
 
     for (auto button : std::initializer_list<UIButton*>{ &fullscreenSwitch, &vsyncSwitch, &languageButton, &musicSlider,
                                                          &soundSlider, &keyboardButton, &joystickButton, &backButton })
     {
-        button->getPressedSprite()->setBlendColor(Colors::Yellow);
+        button->getPressedSprite()->setBlendColor(sf::Color::Yellow);
         button->getActiveSprite()->setOpacity(0.5);
         button->getActiveSprite()->setOpacity(0.5);
         button->setDepth(5000);
@@ -206,13 +206,13 @@ void RootSettingsPanel::update(FrameTime curTime)
 void RootSettingsPanel::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(getCenterPosition());
-    renderer.currentTransform *= util::translate(0, -TotalHeight/2 + ButtonHeight/2);
+    renderer.currentTransform.translate(getCenterPosition());
+    renderer.currentTransform.translate(0, -TotalHeight/2 + ButtonHeight/2);
     int k = 0;
     for (auto& title : titles)
     {
-        renderer.pushDrawable(title, 5000);
-        renderer.currentTransform *= util::translate(0, (4-(k++)) * (ButtonHeight + ButtonSpace));
+        renderer.pushDrawable(title, {}, 5000);
+        renderer.currentTransform.translate(0, (4-(k++)) * (ButtonHeight + ButtonSpace));
     }
     renderer.popTransform();
 

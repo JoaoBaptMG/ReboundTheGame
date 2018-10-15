@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <cstdint>
@@ -30,5 +31,5 @@ struct AudioSettings
     uint8_t soundVolume;
 };
 
-bool readFromStream(InputStream &stream, AudioSettings& settings);
+bool readFromStream(sf::InputStream &stream, AudioSettings& settings);
 bool writeToStream(OutputStream& stream, const AudioSettings& settings);

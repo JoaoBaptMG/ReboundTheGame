@@ -20,12 +20,12 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <chronoUtils.hpp>
 #include <vector>
-
-#include <rect.hpp>
+#include <SFML/Graphics.hpp>
 
 class GameScene;
 
@@ -35,14 +35,14 @@ public:
     enum class Direction { Right, Down, Left, Up };
 
 private:
-    glm::vec2 position;
+    sf::Vector2f position;
     GameScene& gameScene;
     FrameTime curTime, transitionTime, shakeTime;
-    std::vector<glm::vec2> shakeSamples;
+    std::vector<sf::Vector2f> shakeSamples;
     FrameDuration shakePeriod;
     Direction transitionDirection;
 
-    glm::vec2 getShakeDisplacement() const;
+    sf::Vector2f getShakeDisplacement() const;
 
 public:
     Camera(GameScene& scene) : position(), gameScene(scene) {}
@@ -51,11 +51,12 @@ public:
     void scheduleTransition(Direction direction);
     bool transitionOccuring() const;
 
-    bool isVisible(glm::vec2 point) const;
-    bool isVisible(util::rect rect) const;
+    bool isVisible(sf::Vector2f point) const;
+    bool isVisible(sf::FloatRect rect) const;
     
     void update(FrameTime curTime);
-    glm::vec2 getGlobalDisplacement() const;
+    sf::Vector2f getGlobalDisplacement() const;
 
-    void applyShake(FrameDuration duration, FrameDuration period, float amp);
+    void applyShake(FrameDuration duration,
+        FrameDuration period, float amp);
 };

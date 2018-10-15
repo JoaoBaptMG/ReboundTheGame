@@ -23,24 +23,23 @@
 
 #pragma once
 
+#include <SFML/System.hpp>
 #include <type_traits>
 #include <vector>
 #include <string>
 #include <utility>
 #include <tuple>
 #include <unordered_map>
-#include <glm/glm.hpp>
-#include "InputStream.hpp"
 #include "VarLength.hpp"
 #include "grid.hpp"
 
 template <typename T, typename std::enable_if<std::is_standard_layout<T>::value, int>::type = 0>
-bool readFromStream(InputStream &stream, T& value)
+bool readFromStream(sf::InputStream &stream, T& value)
 {
     return stream.read((char*)&value, sizeof(T)) == sizeof(T);
 }
 
-static inline bool readFromStream(InputStream &stream, VarLength value)
+static inline bool readFromStream(sf::InputStream &stream, VarLength value)
 {
     value.target = 0;
 
@@ -55,10 +54,10 @@ static inline bool readFromStream(InputStream &stream, VarLength value)
 }
 
 template <typename T>
-bool readFromStream(InputStream &stream, std::basic_string<T> &value);
+bool readFromStream(sf::InputStream &stream, std::basic_string<T> &value);
 
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
-bool readFromStream(InputStream &stream, std::vector<T> &value)
+bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
 {
     size_t size;
 
@@ -66,7 +65,7 @@ bool readFromStream(InputStream &stream, std::vector<T> &value)
         return false;
 
     std::vector<T> newVal(size, T());
-    if (stream.read((char*)newVal.data(), size*sizeof(T)) != size * sizeof(T))
+    if (stream.read((char*)newVal.data(), size*sizeof(T)) != size*sizeof(T))
         return false;
 
     newVal.swap(value);
@@ -74,7 +73,7 @@ bool readFromStream(InputStream &stream, std::vector<T> &value)
 }
 
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
-bool readFromStream(InputStream &stream, std::vector<T> &value)
+bool readFromStream(sf::InputStream &stream, std::vector<T> &value)
 {
     size_t size;
 
@@ -91,7 +90,7 @@ bool readFromStream(InputStream &stream, std::vector<T> &value)
 }
 
 template <typename T>
-bool readFromStream(InputStream &stream, std::basic_string<T> &value)
+bool readFromStream(sf::InputStream &stream, std::basic_string<T> &value)
 {
     std::vector<T> val;
     if (!readFromStream(stream, val))
@@ -102,7 +101,7 @@ bool readFromStream(InputStream &stream, std::basic_string<T> &value)
 }
 
 template <typename T, typename std::enable_if<is_optimization_viable<T>::value, int>::type = 0>
-bool readFromStream(InputStream &stream, util::grid<T> &value)
+bool readFromStream(sf::InputStream &stream, util::grid<T> &value)
 {
     size_t width, height;
 
@@ -120,7 +119,7 @@ bool readFromStream(InputStream &stream, util::grid<T> &value)
 }
 
 template <typename T, typename std::enable_if<!is_optimization_viable<T>::value, int>::type = 0>
-bool readFromStream(InputStream &stream, util::grid<T> &value)
+bool readFromStream(sf::InputStream &stream, util::grid<T> &value)
 {
     size_t width, height;
 
@@ -137,7 +136,7 @@ bool readFromStream(InputStream &stream, util::grid<T> &value)
 }
 
 template <typename T, typename U>
-bool readFromStream(InputStream &stream, std::unordered_map<T,U> &value)
+bool readFromStream(sf::InputStream &stream, std::unordered_map<T,U> &value)
 {
     std::unordered_map<T,U> newVal;
 
@@ -157,50 +156,25 @@ bool readFromStream(InputStream &stream, std::unordered_map<T,U> &value)
     return true;
 }
 
-template <typename T, glm::qualifier Q>
-bool readFromStream(InputStream &stream, glm::vec<1, T, Q> &vec)
-{
-	return readFromStream(stream, vec.x);
-}
-
-template <typename T, glm::qualifier Q>
-bool readFromStream(InputStream &stream, glm::vec<2, T, Q> &vec)
-{
-	return readFromStream(stream, vec.x) && readFromStream(stream, vec.y);
-}
-
-template <typename T, glm::qualifier Q>
-bool readFromStream(InputStream &stream, glm::vec<3, T, Q> &vec)
-{
-	return readFromStream(stream, vec.x) && readFromStream(stream, vec.y) && readFromStream(stream, vec.z);
-}
-
-template <typename T, glm::qualifier Q>
-bool readFromStream(InputStream &stream, glm::vec<4, T, Q> &vec)
-{
-	return readFromStream(stream, vec.x) && readFromStream(stream, vec.y)
-		&& readFromStream(stream, vec.z) && readFromStream(stream, vec.w);
-}
-
 template <typename T, typename... Ts, typename std::enable_if_t<(sizeof...(Ts) > 0), int> = 0>
-bool readFromStream(InputStream& stream, T&& val, Ts&&... nexts)
+bool readFromStream(sf::InputStream& stream, T&& val, Ts&&... nexts)
 {
     return readFromStream(stream, std::forward<T>(val)) && readFromStream(stream, std::forward<Ts>(nexts)...);
 }
 
 template <typename Tp, std::size_t... Is>
-bool __rtfsaux(InputStream& stream, Tp& tuple, std::index_sequence<Is...>)
+bool __rtfsaux(sf::InputStream& stream, Tp& tuple, std::index_sequence<Is...>)
 {
     return readFromStream(stream, std::get<Is>(tuple)...);
 }
 
 template <typename... Ts>
-bool readFromStream(InputStream& stream, std::tuple<Ts...>& tuple)
+bool readFromStream(sf::InputStream& stream, std::tuple<Ts...>& tuple)
 {
     return __rtfsaux(stream, tuple, std::index_sequence_for<Ts...>());
 }
 
-inline static bool checkMagic(InputStream& stream, const char *val)
+inline static bool checkMagic(sf::InputStream& stream, const char *val)
 {
     bool value = true;
     for (const char *p = val; *p; p++)

@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "scene/Scene.hpp"
@@ -67,7 +68,7 @@ public:
     virtual void update(FrameTime curTime) override;
     virtual void render(Renderer &renderer) override;
     
-    void setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, glm::vec2 pos,
+    void setMapLevelData(std::shared_ptr<LevelData> level, size_t curRoom, sf::Vector2f pos,
         const std::vector<bool>& visibleMaps);
     void setCollectedFrameSavedGame(const SavedGame& sg);
     void setCollectedFrameHealthData(size_t curHealth, size_t maxHealth);

@@ -20,12 +20,11 @@
 // SOFTWARE.
 //
 
+
 #include "Transition.hpp"
 
 #include "scene/SceneManager.hpp"
 #include "rendering/Renderer.hpp"
-#include "rendering/Texture.hpp"
-#include "ColorList.hpp"
 
 #include <chronoUtils.hpp>
 #include <defaults.hpp>
@@ -36,7 +35,7 @@ Transition::Transition(Scene* prevScene, Scene* nextScene, decltype(transitionBe
         decltype(transitionBegin) transitionEnd, bool releasePrev, bool isPop)
     : prevScene(prevScene), nextScene(nextScene), releasePrev(releasePrev), isPop(isPop),
     transitionBegin(transitionBegin), transitionEnd(transitionEnd), transitionFactor(0),
-    transitionQuad(util::rect(0, 0, ScreenWidth, ScreenHeight), Colors::Black)
+    transitionQuad(sf::FloatRect(0, 0, ScreenWidth, ScreenHeight), sf::Color::Black)
 {
     
 }
@@ -63,5 +62,5 @@ void Transition::render(Renderer &renderer)
     else nextScene->render(renderer);
     
     transitionQuad.setAlpha(255 * std::max(1.0f - fabsf(transitionFactor - 1), 0.0f));
-    renderer.pushDrawable(transitionQuad, 1000000000);
+    renderer.pushDrawable(transitionQuad, {}, 1000000000);
 }

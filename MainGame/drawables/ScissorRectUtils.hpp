@@ -20,11 +20,11 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
-
-#include <rect.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 #include <cmath>
 
 class ScissorRectGuard
@@ -34,17 +34,17 @@ class ScissorRectGuard
 
 public:
     ScissorRectGuard();
-    ScissorRectGuard(const util::rect& rect);
+    ScissorRectGuard(const sf::FloatRect& rect);
     ~ScissorRectGuard();
 };
 
 class ScissorRectPush : public sf::Drawable
 {
-    util::rect scissorRect;
+    sf::FloatRect scissorRect;
 
 public:
     ScissorRectPush() : scissorRect(NAN, NAN, NAN, NAN) {}
-    ScissorRectPush(util::rect rect) : scissorRect(rect) {}
+    ScissorRectPush(sf::FloatRect rect) : scissorRect(rect) {}
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

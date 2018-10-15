@@ -20,11 +20,11 @@
 // SOFTWARE.
 //
 
+
 #include "Powerup.hpp"
 
 #include "scene/GameScene.hpp"
 #include "rendering/Renderer.hpp"
-#include "rendering/Texture.hpp"
 #include "resources/ResourceManager.hpp"
 #include <chronoUtils.hpp>
 #include <vector_math.hpp>
@@ -71,16 +71,16 @@ Powerup::Powerup(GameScene& scene) : Collectible(scene), vertices(sf::Quads, 4),
 {
     setupPhysics();
 
-    vertices[0].color = Colors::White;
+    vertices[0].color = sf::Color::White;
     vertices[0].texCoords = sf::Vector2f(0, 0);
 
-    vertices[1].color = Colors::White;
+    vertices[1].color = sf::Color::White;
     vertices[1].texCoords = sf::Vector2f(48, 0);
 
-    vertices[2].color = Colors::White;
+    vertices[2].color = sf::Color::White;
     vertices[2].texCoords = sf::Vector2f(48, 48);
 
-    vertices[3].color = Colors::White;
+    vertices[3].color = sf::Color::White;
     vertices[3].texCoords = sf::Vector2f(0, 48);
 }
 
@@ -93,7 +93,7 @@ bool Powerup::configure(const Powerup::ConfigStruct& config)
     if (abilityLevel > 12) return false;
 
     std::string name = "powerup" + std::to_string(abilityLevel) + ".png";
-    texture = gameScene.getResourceManager().load<Texture>(name);
+    texture = gameScene.getResourceManager().load<sf::Texture>(name);
     
     return abilityLevel == 11 ? !gameScene.getSavedGame().getDoubleArmor() :
         abilityLevel == 12 ? !gameScene.getSavedGame().getMoveRegen() :
@@ -170,7 +170,7 @@ void Powerup::update(FrameTime curTime)
 void Powerup::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(getDisplayPosition());
+    renderer.currentTransform.translate(getDisplayPosition());
     renderer.pushDrawable(vertices, sf::RenderStates(texture.get()), 25);
     renderer.popTransform();
 }

@@ -20,11 +20,12 @@
 // SOFTWARE.
 //
 
+
 #include "WaterBody.hpp"
 
 #include <random>
 #include <functional>
-
+#include <SFML/OpenGL.hpp>
 
 #include <assert.hpp>
 #include <chronoUtils.hpp>
@@ -195,7 +196,7 @@ static void dynamicWaveUpdateThread(void* ptr)
 	}
 }
 
-WaterBody::WaterBody(glm::vec2 drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false), dynamicWaveProperties(nullptr)
+WaterBody::WaterBody(sf::Vector2f drawingSize) : drawingSize(drawingSize), curT(0), haltSimulation(false), dynamicWaveProperties(nullptr)
 {
 	if (!threadInfo) threadInfo = std::make_unique<DynamicUpdateThreadInfo>();
 
@@ -218,7 +219,7 @@ void WaterBody::recreateQuad()
     quad[3].position = quad[3].texCoords = sf::Vector2f(drawingSize.x, -256);
     
     if (topHidden) quad[0].position.y = quad[3].position.y = 0;
-    for (auto& vtx : quad) vtx.color = Colors::White;
+    for (auto& vtx : quad) vtx.color = sf::Color::White;
 }
 
 void WaterBody::resetWaves()

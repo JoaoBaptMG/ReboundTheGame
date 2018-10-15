@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "VirtualActions.hpp"
@@ -35,5 +36,5 @@ public:
 class ScriptedDualAxisAction : public VirtualDualAxisAction
 {
 public:
-    virtual glm::vec2 getValue() const override;
+    virtual sf::Vector2f getValue() const override;
 };

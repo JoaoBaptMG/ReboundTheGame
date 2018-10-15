@@ -20,36 +20,35 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "Renderer.hpp"
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 #include <non_copyable_movable.hpp>
 
 class WindowHandler : util::non_copyable_movable
 {
-	GLFWwindow* renderWindow;
+    sf::RenderWindow renderWindow;
+    std::unique_ptr<sf::RenderTexture> fullscreenTexture;
+    sf::VertexArray fullscreenQuad;
     Renderer renderer;
-	int prevx, prevy;
     
     bool vsyncEnabled;
-	bool fullscreen;
     
     void enableFullscreen();
     void disableFullscreen();
-	void setWindowViewport();
     
 public:
     WindowHandler(bool fullscreen, bool vsync);
-	~WindowHandler();
     
     void setFullscreen(bool fullscreen);
-	auto getFullscreen() const { return fullscreen; }
+    auto getFullscreen() const { return (bool)fullscreenTexture; }
     
-    void setVsyncEnabled(bool vsync) { vsyncEnabled = vsync; glfwSwapInterval(vsync); }
+    void setVsyncEnabled(bool vsync) { vsyncEnabled = vsync; renderWindow.setVerticalSyncEnabled(vsync); }
     
     Renderer& getRenderer() { return renderer; }
-    GLFWwindow* getWindow() { return renderWindow; }
+    sf::Window& getWindow() { return renderWindow; }
     
     void prepareForDraw();
     void display();

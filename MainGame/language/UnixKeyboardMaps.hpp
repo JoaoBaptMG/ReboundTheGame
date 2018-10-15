@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #if __linux__
 
-
+#include <SFML/System.hpp>
 #include <X11/keysymdef.h>
 
 const sf::Uint32 codeMaps0x100[96] =

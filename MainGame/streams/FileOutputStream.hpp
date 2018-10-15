@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Jo„o Baptista de Paula e Silva.
+// Copyright (c) 2016-2018 Jo√£o Baptista de Paula e Silva.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,5 +23,19 @@
 
 #pragma once
 
-#include "gl/Drawable.hpp"
-using Drawable = GlDrawable;
+#include <cstdio>
+#include <string>
+#include <OutputStream.hpp>
+
+class FileOutputStream final : public OutputStream
+{
+    std::FILE* file;
+
+public:
+    FileOutputStream() : file(nullptr) {}
+    ~FileOutputStream();
+
+    bool open(const std::string& filename);
+    bool openForAppending(const std::string& filename);
+    virtual bool write(const void* data, size_t size) override;
+};

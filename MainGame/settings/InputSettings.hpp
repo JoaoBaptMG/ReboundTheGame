@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "input/InputSource.hpp"
@@ -66,5 +67,5 @@ struct InputSettings
     JoystickSettings joystickSettings;
 };
 
-bool readFromStream(InputStream &stream, InputSettings& settings);
+bool readFromStream(sf::InputStream &stream, InputSettings& settings);
 bool writeToStream(OutputStream& stream, const InputSettings& settings);

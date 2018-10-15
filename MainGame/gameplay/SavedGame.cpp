@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "SavedGame.hpp"
 
 #include <algorithm>
@@ -35,8 +36,7 @@
 #include <numeric>
 #include <chronoUtils.hpp>
 #include <thread>
-#include <streams/MemoryInputStream.hpp>
-#include <streams/MemoryOutputStream.hpp>
+#include "streams/MemoryOutputStream.hpp"
 #include "aes/tiny-AES-c-master/aes.hpp"
 #endif
 
@@ -85,7 +85,7 @@ size_t SavedGame::getPicketCountForLevel(size_t id) const
     return count;
 }
 
-bool readBinaryVector(InputStream& stream, std::vector<bool>& vector)
+bool readBinaryVector(sf::InputStream& stream, std::vector<bool>& vector)
 {
     size_t size;
     if (!readFromStream(stream, varLength(size))) return false;
@@ -143,7 +143,7 @@ bool writeBinaryVector(OutputStream& stream, const std::vector<bool>& vector)
 
 #define ALL(v,e) std::all_of(std::begin(v), std::end(v), [&](auto&& x){ return e; })
 
-bool readFromStream(InputStream& stream, SavedGame& savedGame)
+bool readFromStream(sf::InputStream& stream, SavedGame& savedGame)
 {
     return readFromStream(stream, savedGame.levelInfo, savedGame.goldenTokens, savedGame.pickets,
         savedGame.otherSecrets) && ALL(savedGame.mapsRevealed, readBinaryVector(stream, x));
@@ -209,7 +209,7 @@ void generateAESKey(uint64_t key, uint8_t* genKey)
 }
 #endif
 
-bool readEncryptedSaveFile(InputStream& stream, SavedGame& savedGame, SavedGame::Key key)
+bool readEncryptedSaveFile(sf::InputStream& stream, SavedGame& savedGame, SavedGame::Key key)
 {
 #if CRYPT_OFF
     return readFromStream(stream, savedGame);
@@ -232,8 +232,8 @@ bool readEncryptedSaveFile(InputStream& stream, SavedGame& savedGame, SavedGame:
     scrambledMem.resize(scrambledMem.size() - padSize);
     
     auto bitScrambler = bitScramblerVector(key.bitScramblingKey, scrambledMem.size()/ScramblerSize);
-    std::vector<char> mem(scrambledMem.size()/ScramblerSize, 0);
-    std::vector<char> alreadyRead(scrambledMem.size()/ScramblerSize, 0);
+    std::vector<uint8_t> mem(scrambledMem.size()/ScramblerSize, 0);
+    std::vector<uint8_t> alreadyRead(scrambledMem.size()/ScramblerSize, 0);
     
     for (size_t i = 0; i < bitScrambler.size(); i++)
     {
@@ -255,7 +255,8 @@ bool readEncryptedSaveFile(InputStream& stream, SavedGame& savedGame, SavedGame:
         }
     }
     
-    MemoryInputStream mstream(mem.data(), mem.size());
+    sf::MemoryInputStream mstream;
+    mstream.open(mem.data(), mem.size());
     return readFromStream(mstream, savedGame);
 }
 

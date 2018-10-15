@@ -20,15 +20,13 @@
 // SOFTWARE.
 //
 
+
 #include "PlayerDeath.hpp"
 
 #include "Player.hpp"
 #include "rendering/Renderer.hpp"
-#include "rendering/Texture.hpp"
 #include "defaults.hpp"
 #include <chronoUtils.hpp>
-
-#include "ColorList.hpp"
 
 #include "particles/ParticleBatch.hpp"
 #include "scene/GameScene.hpp"
@@ -36,7 +34,7 @@
 constexpr auto FadeDuration = 30_frames;
 constexpr auto TotalDuration = 200_frames;
 
-PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<Texture>& texture)
+PlayerDeath::PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<sf::Texture>& texture)
     : GameObject(scene), playerSprite(texture), position(player.getDisplayPosition()), spawnedParticle(false)
 {
     
@@ -51,7 +49,7 @@ void PlayerDeath::update(FrameTime curTime)
     if (duration <= FadeDuration)
     {
         float factor = toSeconds<float>(duration) / toSeconds<float>(FadeDuration);
-        playerSprite.setFlashColor(glm::u8vec4(255, 255, 255, 255 * factor));
+        playerSprite.setFlashColor(sf::Color(255, 255, 255, 255 * factor));
     }
     else if (duration <= 2 * FadeDuration)
     {
@@ -67,7 +65,7 @@ void PlayerDeath::update(FrameTime curTime)
         float factor = toSeconds<float>(duration - FadeDuration) / toSeconds<float>(FadeDuration);
         playerSprite.setOpacity(1 - factor);
     }
-    else playerSprite.setFlashColor(Colors::White);
+    else playerSprite.setFlashColor(sf::Color::White);
     
     if (duration > TotalDuration)
     {
@@ -79,7 +77,7 @@ void PlayerDeath::update(FrameTime curTime)
 void PlayerDeath::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(position);
-    renderer.pushDrawable(playerSprite, 25);
+    renderer.currentTransform.translate(position);
+    renderer.pushDrawable(playerSprite, {}, 25);
     renderer.popTransform();
 }

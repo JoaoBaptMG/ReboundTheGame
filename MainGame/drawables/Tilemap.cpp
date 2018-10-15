@@ -20,8 +20,10 @@
 // SOFTWARE.
 //
 
+
 #include "Tilemap.hpp"
 #include <cmath>
+#include <rectUtils.hpp>
 
 void Tilemap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
@@ -35,22 +37,22 @@ void Tilemap::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 }
 
-util::rect Tilemap::getTextureRectForTile(size_t tile) const
+sf::FloatRect Tilemap::getTextureRectForTile(size_t tile) const
 {
-    if (tile == (uint8_t)-1) return util::rect{0, 0, 0, 0};
+    if (tile == (uint8_t)-1) return sf::FloatRect{0, 0, 0, 0};
     size_t stride = texture->getSize().x / tileSize;
     size_t texS = tile % stride;
     size_t texT = tile / stride;
 
-    return util::rect{(float)tileSize * texS, (float)tileSize * texT, (float)tileSize, (float)tileSize};
+    return sf::FloatRect{(float)tileSize * texS, (float)tileSize * texT, (float)tileSize, (float)tileSize};
 }
 
 void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
 {
     auto invTransform = transform.getInverse();
     
-    util::rect tilemapFrame(0, 0, tileSize*tileData.width(), tileSize*tileData.height());
-    util::rect targetFrame = invTransform.transformRect(drawingFrame);
+    sf::FloatRect tilemapFrame(0, 0, tileSize*tileData.width(), tileSize*tileData.height());
+    auto targetFrame = invTransform.transformRect(drawingFrame);
     if (!targetFrame.intersects(tilemapFrame))
     {
         vertexSize = 0;
@@ -58,12 +60,12 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
         return;
     }
     
-    targetFrame = targetFrame.intersect(tilemapFrame);
+    targetFrame = rectIntersectionWithRect(targetFrame, tilemapFrame);
 
-    size_t width = (size_t)floorf((targetFrame.x + targetFrame.width)/tileSize) -
-                   (size_t)floorf((targetFrame.x)/tileSize) + 1;
-    size_t height = (size_t)floorf((targetFrame.y + targetFrame.height)/tileSize) -
-                    (size_t)floorf((targetFrame.y)/tileSize) + 1;
+    size_t width = (size_t)floorf((targetFrame.left + targetFrame.width)/tileSize) -
+                   (size_t)floorf((targetFrame.left)/tileSize) + 1;
+    size_t height = (size_t)floorf((targetFrame.top + targetFrame.height)/tileSize) -
+                    (size_t)floorf((targetFrame.top)/tileSize) + 1;
 
     bool dirty = false;
 
@@ -71,11 +73,11 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
     {
         vertexSize = 6*width*height;
         vertices.reset(new sf::Vertex[vertexSize]);
-        lastPoint = glm::ivec2(0, 0);
+        lastPoint = sf::Vector2i(0, 0);
         dirty = true;
     }
 
-    glm::ivec2 pt(size_t(targetFrame.x/tileSize), size_t(targetFrame.y/tileSize));
+    sf::Vector2i pt(size_t(targetFrame.left/tileSize), size_t(targetFrame.top/tileSize));
 
     if (dirty || lastPoint != pt)
     {
@@ -84,14 +86,14 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
         for (size_t j = 0; j < height; j++)
             for (size_t i = 0; i < width; i++)
             {
-                auto cur = pt + glm::ivec2(i, j);
+                auto cur = pt + sf::Vector2i(i, j);
 
                 if (cur.x < 0 || cur.y < 0 || cur.x >= (intmax_t)tileData.width()
                     || cur.y >= (intmax_t)tileData.height() || tileData(cur.x, cur.y) == (uint8_t)-1)
                 {
                     for (size_t k = 0; k < 6; k++)
                     {
-                        vertices[(j*width+i)*6+k].color = glm::u8vec4(0, 0, 0, 0);
+                        vertices[(j*width+i)*6+k].color = sf::Color(0, 0, 0, 0);
                         vertices[(j*width+i)*6+k].position = sf::Vector2f(0, 0);
                         vertices[(j*width+i)*6+k].texCoords = sf::Vector2f(0, 0);
                     }
@@ -103,7 +105,7 @@ void Tilemap::mutableUpdateVertexMap(sf::Transform transform) const
                     size_t texT = data / stride;
 
                     for (size_t k = 0; k < 6; k++)
-                        vertices[(j*width+i)*6+k].color = Colors::White;
+                        vertices[(j*width+i)*6+k].color = sf::Color::White;
 
                     vertices[(j*width+i)*6+0].position = sf::Vector2f((float)i*tileSize, (float)j*tileSize);
                     vertices[(j*width+i)*6+1].position = sf::Vector2f((float)(i+1)*tileSize, (float)j*tileSize);

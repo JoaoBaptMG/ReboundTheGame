@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "GameObject.hpp"
@@ -33,11 +34,11 @@ class PlayerDeath final : public GameObject
 {
     FrameTime initTime;
     Sprite playerSprite;
-    glm::vec2 position;
+    sf::Vector2f position;
     bool spawnedParticle;
     
 public:
-    PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<Texture>& texture);
+    PlayerDeath(GameScene& scene, Player& player, const std::shared_ptr<sf::Texture>& texture);
     virtual ~PlayerDeath() {}
 
     virtual void update(FrameTime curTime) override;

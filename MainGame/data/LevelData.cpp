@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "LevelData.hpp"
 
 #include <algorithm>
@@ -27,7 +28,7 @@
 #include "language/LocalizationManager.hpp"
 #include "language/LangID.hpp"
 
-bool readRLGrid(InputStream& stream, util::grid<bool>& grid)
+bool readRLGrid(sf::InputStream& stream, util::grid<bool>& grid)
 {
     size_t width, height;
     if (!readFromStream(stream, varLength(width), varLength(height))) return false;
@@ -50,7 +51,7 @@ bool readRLGrid(InputStream& stream, util::grid<bool>& grid)
     return true;
 }
 
-bool readBinaryGrid(InputStream& stream, util::grid<bool>& grid)
+bool readBinaryGrid(sf::InputStream& stream, util::grid<bool>& grid)
 {
     size_t width, height;
     if (!readFromStream(stream, varLength(width), varLength(height))) return false;
@@ -79,12 +80,12 @@ bool readBinaryGrid(InputStream& stream, util::grid<bool>& grid)
     return true;
 }
 
-bool readFromStream(InputStream& stream, LevelData::MapData& map)
+bool readFromStream(sf::InputStream& stream, LevelData::MapData& map)
 {
     return readFromStream(stream, map.x, map.y) && readRLGrid(stream, map.map);
 }
 
-bool readFromStream(InputStream& stream, LevelData& level)
+bool readFromStream(sf::InputStream& stream, LevelData& level)
 {
     return readFromStream(stream, level.levelNumber, level.startingRoom, level.mapColor,
         level.songResourceName, level.roomResourceNames, level.roomMaps);

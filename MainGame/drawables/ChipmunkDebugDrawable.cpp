@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "ChipmunkDebugDrawable.hpp"
 #include <chipmunk/chipmunk_structs.h>
 
@@ -30,7 +31,7 @@ sf::Vector2f toVec(cpVect v)
     return sf::Vector2f((float)v.x, (float)v.y);
 }
 
-auto pointsForShape(cpShape* shape, glm::u8vec4 color)
+auto pointsForShape(cpShape* shape, sf::Color color)
 {
     std::vector<sf::Vertex> vertices;
 
@@ -134,7 +135,7 @@ void ChipmunkDebugDrawable::draw(sf::RenderTarget& target, sf::RenderStates stat
     {
         RenderData& renderData = *(RenderData*)data;
         
-        auto pts = pointsForShape(shape, glm::u8vec4(0, 255, 0, 128));
+        auto pts = pointsForShape(shape, sf::Color(0, 255, 0, 128));
         pts.push_back(pts[0]);
 
         renderData.target.draw(pts.data(), pts.size(), sf::PrimitiveType::TriangleFan, renderData.states);
@@ -152,8 +153,10 @@ void ChipmunkDebugDrawable::draw(sf::RenderTarget& target, sf::RenderStates stat
             
             for (size_t i = 0; i < set.count; i++)
             {
-                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointA.x, set.points[i].pointA.y), Colors::Red));
-                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointB.x, set.points[i].pointB.y), Colors::Yellow));
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointA.x, set.points[i].pointA.y),
+                    sf::Color::Red));
+                pts.push_back(sf::Vertex(sf::Vector2f(set.points[i].pointB.x, set.points[i].pointB.y),
+                    sf::Color::Yellow));
             }
 
             renderData.target.draw(pts.data(), pts.size(), sf::PrimitiveType::Points, renderData.states);

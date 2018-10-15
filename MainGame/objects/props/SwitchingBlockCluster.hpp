@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "objects/GameObject.hpp"
@@ -55,7 +56,7 @@ namespace props
 
         struct ConfigStruct
         {
-            glm::i16vec2 position;
+            sf::Vector2<int16_t> position;
             size_t numBlockTimes, numVisibleTimes;
             float durationSeconds;
         };
@@ -63,5 +64,5 @@ namespace props
         bool configure(const ConfigStruct& config);
     };
 
-    bool readFromStream(InputStream& stream, SwitchingBlockCluster::ConfigStruct& config);
+    bool readFromStream(sf::InputStream& stream, SwitchingBlockCluster::ConfigStruct& config);
 }

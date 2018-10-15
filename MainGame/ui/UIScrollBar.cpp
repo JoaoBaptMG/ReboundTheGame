@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "UIScrollBar.hpp"
 
 #include <cmath>
@@ -28,19 +29,18 @@
 
 #include "resources/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
-#include "rendering/Texture.hpp"
 
 constexpr float ScrollSize = 8;
 
 UIScrollBar::UIScrollBar(Services& services, intmax_t priority)
-    : scrollRange(services.resourceManager.load<Texture>("ui-scroll-bar.png"), glm::vec2(0, 0)),
-    scrollThumb(services.resourceManager.load<Texture>("ui-scroll-thumb.png"), glm::vec2(0, 0)),
+    : scrollRange(services.resourceManager.load<sf::Texture>("ui-scroll-bar.png"), sf::Vector2f(0, 0)),
+    scrollThumb(services.resourceManager.load<sf::Texture>("ui-scroll-thumb.png"), sf::Vector2f(0, 0)),
     position(0,0), mousePosition(-1, -1), lastMousePos(-1, -1), dragging(false)
 {
-    scrollRange.setCenterRect(util::rect(3, 3, 2, 2));
-    scrollThumb.setCenterRect(util::rect(3, 3, 2, 2));
+    scrollRange.setCenterRect(sf::FloatRect(3, 3, 2, 2));
+    scrollThumb.setCenterRect(sf::FloatRect(3, 3, 2, 2));
 
-    mouseEntry = services.inputManager.registerMouseMoveCallback([=](glm::ivec2 pos)
+    mouseEntry = services.inputManager.registerMouseMoveCallback([=](sf::Vector2i pos)
     {
         lastMousePos = mousePosition;
         mousePosition = pos;
@@ -50,9 +50,9 @@ UIScrollBar::UIScrollBar(Services& services, intmax_t priority)
             float delta = direction == Direction::Horizontal ? mousePosition.x - lastMousePos.x
                 : mousePosition.y - lastMousePos.y;
             
-            setCurrentOffset(curOffset + delta * maleftOffset / (scrollLength - thumbSize + 1));
+            setCurrentOffset(curOffset + delta * maxOffset / (scrollLength - thumbSize + 1));
             
-            glm::vec2 floatMousePos(mousePosition.x, mousePosition.y);
+            sf::Vector2f floatMousePos(mousePosition.x, mousePosition.y);
             
             if (!isContainedOnStrip(floatMousePos - getPosition())) dragging = false;
         }
@@ -61,7 +61,7 @@ UIScrollBar::UIScrollBar(Services& services, intmax_t priority)
     clickEntry = services.inputManager.registerCallback(InputSource::mouseButton(sf::Mouse::Button::Left),
     [=](InputSource, float val)
     {
-        glm::vec2 floatMousePos(mousePosition.x, mousePosition.y);
+        sf::Vector2f floatMousePos(mousePosition.x, mousePosition.y);
         
         if (val > 0.5)
         {
@@ -88,7 +88,7 @@ UIScrollBar::UIScrollBar(Services& services, float viewSize, float scrollLength,
 
 void UIScrollBar::setCurrentOffset(float ofs)
 {
-    curOffset = std::max(0.0f, std::min(ofs, maleftOffset));
+    curOffset = std::max(0.0f, std::min(ofs, maxOffset));
     if (scrollAction) scrollAction(curOffset);
 }
 
@@ -99,59 +99,59 @@ void UIScrollBar::computeSizes(UIScrollBar::Direction dir, float viewSize, float
     direction = dir;
     
     curOffset = 0;
-    maleftOffset = viewSize - scrollLength;
+    maxOffset = viewSize - scrollLength;
     this->scrollLength = scrollLength;
     
     thumbSize = std::max(8.0f, std::round(scrollLength * scrollLength / viewSize));
     
     if (dir == Direction::Horizontal)
     {
-        scrollRange.setDestinationRect(util::rect(0, 0, scrollLength, 8));
-        scrollThumb.setDestinationRect(util::rect(0, 0, thumbSize, 8));
+        scrollRange.setDestinationRect(sf::FloatRect(0, 0, scrollLength, 8));
+        scrollThumb.setDestinationRect(sf::FloatRect(0, 0, thumbSize, 8));
     }
     else
     {
-        scrollRange.setDestinationRect(util::rect(0, 0, 8, scrollLength));
-        scrollThumb.setDestinationRect(util::rect(0, 0, 8, thumbSize));
+        scrollRange.setDestinationRect(sf::FloatRect(0, 0, 8, scrollLength));
+        scrollThumb.setDestinationRect(sf::FloatRect(0, 0, 8, thumbSize));
     }
 }
 
-util::rect UIScrollBar::getLocalThumbBounds() const
+sf::FloatRect UIScrollBar::getLocalThumbBounds() const
 {
-    util::rect bounds(getGraphicalOffset(), 0, thumbSize, 4);
+    sf::FloatRect bounds(getGraphicalOffset(), 0, thumbSize, 4);
     if (direction == Direction::Vertical)
     {
         using std::swap;
-        swap(bounds.y, bounds.x);
+        swap(bounds.top, bounds.left);
         swap(bounds.width, bounds.height);
     }
     return bounds;
 }
 
-bool UIScrollBar::isContainedOnStrip(glm::vec2 localPos) const
+bool UIScrollBar::isContainedOnStrip(sf::Vector2f localPos) const
 {
     auto bounds = getLocalThumbBounds();
     
     if (direction == Direction::Horizontal)
-        return localPos.x >= bounds.x && localPos.x < bounds.x + bounds.width;
-    else return localPos.y >= bounds.y && localPos.y < bounds.y + bounds.height;
+        return localPos.x >= bounds.left && localPos.x < bounds.left + bounds.width;
+    else return localPos.y >= bounds.top && localPos.y < bounds.top + bounds.height;
 }
 
 float UIScrollBar::getGraphicalOffset() const
 {
-    return std::floor(curOffset * (scrollLength - thumbSize + 1) / maleftOffset);
+    return std::floor(curOffset * (scrollLength - thumbSize + 1) / maxOffset);
 }
 
 void UIScrollBar::render(Renderer& renderer)
 {
     renderer.pushTransform();
-    renderer.currentTransform *= util::translate(position);
+    renderer.currentTransform.translate(position);
     renderer.pushDrawable(scrollRange, {}, depth);
     
     float pos = getGraphicalOffset();
     if (direction == Direction::Horizontal)
-        renderer.currentTransform *= util::translate(pos, 0);
-    else renderer.currentTransform *= util::translate(0, pos);
+        renderer.currentTransform.translate(pos, 0);
+    else renderer.currentTransform.translate(0, pos);
     renderer.pushDrawable(scrollThumb, {}, depth);
     
     renderer.popTransform();

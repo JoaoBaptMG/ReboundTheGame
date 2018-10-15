@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <string>
@@ -27,7 +28,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <cmath>
-
+#include <SFML/System.hpp>
 
 #include "LangID.hpp"
 #include "data/ExpressionCommands.hpp"
@@ -109,10 +110,10 @@ struct LanguageDescriptor final
     bool isRTL() const { return fontSizeFactorRTL < 0; }
 };
 
-bool readFromStream(InputStream& stream, LangString& string);
-bool readFromStream(InputStream& stream, Formatter& formatter);
-bool readFromStream(InputStream& stream, PluralForm& pluralForm);
-bool readPterms(InputStream& stream, std::vector<Pterm>& pterms, const std::vector<PluralForm>& pluralForms);
-bool readFromStream(InputStream& stream, Vterm& vterm);
-bool readFromStream(InputStream& stream, Pvterm& pvterm);
-bool readFromStream(InputStream& stream, LanguageDescriptor& descriptor);
+bool readFromStream(sf::InputStream& stream, LangString& string);
+bool readFromStream(sf::InputStream& stream, Formatter& formatter);
+bool readFromStream(sf::InputStream& stream, PluralForm& pluralForm);
+bool readPterms(sf::InputStream& stream, std::vector<Pterm>& pterms, const std::vector<PluralForm>& pluralForms);
+bool readFromStream(sf::InputStream& stream, Vterm& vterm);
+bool readFromStream(sf::InputStream& stream, Pvterm& pvterm);
+bool readFromStream(sf::InputStream& stream, LanguageDescriptor& descriptor);

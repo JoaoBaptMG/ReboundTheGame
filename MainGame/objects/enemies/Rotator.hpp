@@ -20,12 +20,13 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "objects/Enemy.hpp"
 #include "drawables/Sprite.hpp"
 
-
+#include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 #include <memory>
 #include <cppmunk/Body.h>
@@ -61,7 +62,7 @@ namespace enemies
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            glm::i16vec2 position;
+            sf::Vector2<int16_t> position;
             int16_t width, height;
         };
 

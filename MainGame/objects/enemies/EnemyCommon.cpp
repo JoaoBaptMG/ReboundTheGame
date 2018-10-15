@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "EnemyCommon.hpp"
 
 #include "scene/GameScene.hpp"
@@ -28,9 +29,6 @@
 
 #include "objects/Player.hpp"
 #include "objects/Bomb.hpp"
-
-#include <glm/glm.hpp>
-#include "ColorList.hpp"
 
 using namespace enemies;
 
@@ -89,7 +87,7 @@ void EnemyCommon::applyBlinkEffect(Sprite& sprite)
 {
     if (isNull(blinkTime)) return;
     
-    auto color = Colors::White;
+    auto color = sf::Color::White;
     float factor = toSeconds<float>(curTime - blinkTime) / toSeconds<float>(BlinkDuration);
     color.a = 80 * (1 - factor);
     

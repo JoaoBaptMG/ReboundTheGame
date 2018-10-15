@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Jo„o Baptista de Paula e Silva.
+// Copyright (c) 2016-2018 Jo√£o Baptista de Paula e Silva.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,4 @@
 //
 
 
-#include "../Renderer.hpp"
-#include <mutex>
-
-std::mutex globalContextMutex;
-
-void Renderer::render()
-{
-	for (auto& p : drawableList)
-	{
-		auto& drawable = p.second.first.get();
-		drawable.draw(p.second.second);
-	}
-}
+#pragma once

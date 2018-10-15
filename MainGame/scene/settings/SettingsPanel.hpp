@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <chronoUtils.hpp>
@@ -37,7 +38,7 @@ protected:
 
     SettingsPanel(SettingsBase* curSettings, UIPointer& pointer) : curSettings(curSettings), pointer(pointer) {}
 
-    glm::vec2 getCenterPosition() const;
+    sf::Vector2f getCenterPosition() const;
     const LangID& getBackId() const;
     void executeBackAction();
 

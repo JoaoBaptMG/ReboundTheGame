@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/Window.hpp>
 #include <type_traits>
 #include <functional>
 #include <streamReaders.hpp>
@@ -60,7 +61,7 @@ public:
     friend bool operator==(InputSource in1, InputSource in2);
     friend bool operator<(InputSource in1, InputSource in2);
 
-    friend bool readFromStream(InputStream& stream, InputSource& in);
+    friend bool readFromStream(sf::InputStream& stream, InputSource& in);
     friend bool writeToStream(OutputStream& stream, const InputSource& in);
 
     friend struct std::hash<InputSource>;

@@ -20,27 +20,23 @@
 // SOFTWARE.
 //
 
-#include "FileOutputStream.hpp"
 
-FileOutputStream::~FileOutputStream()
-{
-    if (file) std::fclose(file);
-}
+#pragma once
 
-bool FileOutputStream::open(const std::string& filename)
-{
-    if (file) std::fclose(file);
-    return (file = std::fopen(filename.c_str(), "wb")) != nullptr;
-}
+#include <vector>
+#include <string>
+#include <OutputStream.hpp>
 
-bool FileOutputStream::openForAppending(const std::string& filename)
+class MemoryOutputStream final : public OutputStream
 {
-    if (file) std::fclose(file);
-    return (file = std::fopen(filename.c_str(), "ab")) != nullptr;
-}
-
-bool FileOutputStream::write(const void* data, uint64_t size)
-{
-    if (!file) return false;
-    return std::fwrite(data, size, 1, file) > 0;
-}
+    std::vector<uint8_t> contents;
+    
+public:
+    MemoryOutputStream() {}
+    ~MemoryOutputStream() {}
+    
+    virtual bool write(const void* data, size_t size) override;
+    void alignTo(size_t align);
+    auto& getContents() { contents.shrink_to_fit(); return contents; }
+    const auto& getContents() const { return contents; }
+};

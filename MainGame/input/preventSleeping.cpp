@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "preventSleeping.hpp"
 
 #if _WIN32

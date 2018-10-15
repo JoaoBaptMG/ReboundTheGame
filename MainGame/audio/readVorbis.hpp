@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-#include <InputStream.hpp>
+#include <SFML/System.hpp>
 #include <generic_ptrs.hpp>
 
-util::generic_shared_ptr loadVorbisFile(std::unique_ptr<InputStream>& stream);
+util::generic_shared_ptr loadVorbisFile(std::unique_ptr<sf::InputStream>& stream);

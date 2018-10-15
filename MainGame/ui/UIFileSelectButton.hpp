@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "UIButton.hpp"
@@ -45,7 +46,7 @@ public:
     UIFileSelectButton(const SavedGame& sg, Services& services, size_t k);
     virtual ~UIFileSelectButton() {}
     
-    util::rect getBounds() const;
+    sf::FloatRect getBounds() const;
     
     virtual void render(Renderer &renderer) override;
 };

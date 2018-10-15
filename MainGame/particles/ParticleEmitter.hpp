@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-
+#include <SFML/Graphics.hpp>
 #include <chronoUtils.hpp>
 
 #include <generic_ptrs.hpp>
@@ -35,9 +36,9 @@ class ParticleEmitter final
     ParticleBatch::Duration totalLifetime;
     ParticleBatch::Duration emissionPeriod;
 
-    glm::vec2 emissionCenter;
-    glm::vec2 emissionHalfSize;
-    glm::vec2 acceleration;
+    sf::Vector2f emissionCenter;
+    sf::Vector2f emissionHalfSize;
+    sf::Vector2f acceleration;
     float emissionInnerLimit;
 
     float directionFirst, directionSecond, directionCenterWeight;
@@ -47,8 +48,8 @@ class ParticleEmitter final
     
     ParticleBatch::Duration lifetimeFirst, lifetimeSecond;
 
-    glm::u8vec4 colorBeginFirst, colorBeginSecond;
-    glm::u8vec4 colorEndFirst, colorEndSecond;
+    sf::Color colorBeginFirst, colorBeginSecond;
+    sf::Color colorEndFirst, colorEndSecond;
     bool generateHSV;
 
 public:
@@ -58,9 +59,9 @@ public:
     auto getTotalLifetime() const { return totalLifetime; }
     auto getParticleStyle() const { return particleStyle; }
 
-    friend bool readFromStream(InputStream& stream, ParticleEmitter& in);
+    friend bool readFromStream(sf::InputStream& stream, ParticleEmitter& in);
 };
 
 using ParticleEmitterSet = std::unordered_map<std::string,ParticleEmitter>;
 
-util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<InputStream>& stream);
+util::generic_shared_ptr loadParticleEmitterList(std::unique_ptr<sf::InputStream>& stream);

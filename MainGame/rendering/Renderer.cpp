@@ -20,15 +20,10 @@
 // SOFTWARE.
 //
 
+
 #include "Renderer.hpp"
 
 #include <iostream>
-#include "defaults.hpp"
-
-Renderer::Renderer() noexcept
-{
-	clearState();
-}
 
 Renderer::Renderer(Renderer&& other) noexcept : Renderer()
 {
@@ -50,24 +45,34 @@ void swap(Renderer& r1, Renderer& r2)
     swap(r1.currentTransform, r2.currentTransform);
 }
 
-inline static std::ostream& operator<<(std::ostream& out, const glm::mat3& transform)
+inline static std::ostream& operator<<(std::ostream& out, const sf::Transform& transform)
 {
-	auto mtx = glm::value_ptr(transform);
+    auto mtx = transform.getMatrix();
     out << '(' << mtx[0];
-    for (size_t i = 1; i < 9; i++) out << ',' << mtx[i];
+    for (size_t i = 1; i < 16; i++) out << ',' << mtx[i];
     return out << ')';
 }
 
-void Renderer::pushDrawable(Drawable &drawable, long depth)
+void Renderer::pushDrawable(const sf::Drawable &drawable, sf::RenderStates states, long depth)
 {
-    drawableList.emplace(depth, std::make_pair(std::ref(drawable), currentTransform));
+    states.transform.combine(currentTransform);
+    drawableList.emplace(depth, std::make_pair(std::cref(drawable), states));
+}
+
+void Renderer::render(sf::RenderTarget& target)
+{
+    for (const auto& pair : drawableList)
+        target.draw(pair.second.first, pair.second.second);
 }
 
 void Renderer::clearState()
 {
     drawableList.clear();
-    while (!transformStack.empty()) transformStack.pop();
-	currentTransform = util::scale(1.0f/ScreenWidth, 1.0f/ScreenHeight);
+
+    while (!transformStack.empty())
+        transformStack.pop();
+
+    currentTransform = sf::Transform::Identity;
 }
 
 void Renderer::pushTransform()

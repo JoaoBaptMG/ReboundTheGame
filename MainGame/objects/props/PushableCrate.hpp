@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include <memory>
@@ -62,7 +63,7 @@ namespace props
         auto getDisplayPosition() const
         {
             auto vec = getPosition();
-            return glm::vec2((float)std::round(vec.x), (float)std::round(vec.y));
+            return sf::Vector2f((float)std::round(vec.x), (float)std::round(vec.y));
         }
 
         auto getPositionKey() const
@@ -78,7 +79,7 @@ namespace props
 #pragma pack(push, 1)
         struct ConfigStruct
         {
-            glm::i16vec2 position;
+            sf::Vector2<int16_t> position;
             int16_t width, height;
         };
 

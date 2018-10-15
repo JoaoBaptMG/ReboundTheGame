@@ -21,23 +21,30 @@
 //
 
 
-#include "MemoryInputStream.hpp"
+#include "MemoryOutputStream.hpp"
 
 #include <algorithm>
 #include <cstring>
 
-uint64_t MemoryInputStream::read(void* data, uint64_t size)
+bool MemoryOutputStream::write(const void* data, size_t size)
 {
-	size_t cnt = std::min(size, this->_size - cur);
-	if (cnt == 0) return 0;
-
-	std::copy_n(this->data + cur, cnt, (char*)data);
-	cur += cnt;
-	return cnt;
+    try
+    {
+        auto prevSize = contents.size();
+        contents.resize(prevSize + size);
+        std::memcpy(&contents[prevSize], data, size);
+        return true;
+    }
+    catch (std::bad_alloc&)
+    {
+        return false;
+    }
 }
 
-uint64_t MemoryInputStream::seek(uint64_t pos)
+void MemoryOutputStream::alignTo(size_t align)
 {
-	cur = std::min(pos, _size);
-	return cur;
+    // PKCS7 alignment
+    auto newSize = ((contents.size() + align - 1) / align) * align;
+    auto diff = newSize - contents.size();
+    contents.resize(newSize, diff);
 }

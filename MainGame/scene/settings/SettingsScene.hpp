@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "scene/Scene.hpp"
@@ -44,13 +45,13 @@ class PauseScene;
 
 class SettingsBase
 {
-    glm::vec2 centerPosition;
+    sf::Vector2f centerPosition;
     std::unique_ptr<SettingsPanel> curSettingsPanel;
     SettingsPanel* nextSettingsPanel;
     LangID backId;
     
 protected:
-    SettingsBase(Services& services, glm::vec2 centerPos, UIPointer& pointer, LangID backId);
+    SettingsBase(Services& services, sf::Vector2f centerPos, UIPointer& pointer, LangID backId);
     ~SettingsBase() = default;
     
     void update(FrameTime curTime);

@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
 #include "UIButton.hpp"
@@ -40,7 +41,7 @@ class UISlider final : public UIButton
     size_t* slideTarget;
     size_t slideMaximum, soundPlayDelay;
     std::function<void(size_t)> slideAction;
-    glm::ivec2 mousePosition;
+    sf::Vector2i mousePosition;
     float prevX;
     bool rtl;
 

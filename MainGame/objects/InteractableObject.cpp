@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #include "InteractableObject.hpp"
 
-
+#include <SFML/System.hpp>
 #include "scene/GameScene.hpp"
 
 InteractableObject::InteractableObject(GameScene& scene)
@@ -42,7 +43,7 @@ void InteractableObject::update(FrameTime curTime)
     if (popup && currentPopup == nullptr)
     {
         auto obj = std::make_unique<InteractionPopup>(gameScene);
-        obj->setPosition(glm::vec2(round(popupPosition.x), round(popupPosition.y)));
+        obj->setPosition(sf::Vector2f(round(popupPosition.x), round(popupPosition.y)));
         currentPopup = obj.get();
         gameScene.addObject(std::move(obj));
     }

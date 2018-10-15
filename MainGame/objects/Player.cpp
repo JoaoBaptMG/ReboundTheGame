@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "Player.hpp"
 
 #include "GameObjectFactory.hpp"
@@ -35,13 +36,10 @@
 #include "objects/Room.hpp"
 #include "data/TileSet.hpp"
 #include "particles/TextureExplosion.hpp"
-#include <transforms.hpp>
 
 #include "gameplay/ScriptedPlayerController.hpp"
 #include "objects/PlayerDeath.hpp"
 #include "language/KeyboardKeyName.hpp"
-
-#include "rendering/Texture.hpp"
 
 #include <functional>
 #include <limits>
@@ -93,8 +91,8 @@ Player::Player(GameScene& scene)
     numBombs(MaxBombs), dashDirection(DashDir::None), dashConsumed(false), doubleJumpConsumed(false), waterArea(0),
     chargingForHardball(false), hardballEnabled(false), grappleEnabled(false), grapplePoints(0), dashBatch(nullptr),
     doubleArmor(false), moveRegen(false), hardballBatch(nullptr), curEntry(0), previousWallState(CollisionState::None),
-    microHealth(0), sprite(scene.getResourceManager().load<Texture>("player.png")), graphicalDisplacement(),
-    grappleSprite(scene.getResourceManager().load<Texture>("player-grapple.png"))
+    microHealth(0), sprite(scene.getResourceManager().load<sf::Texture>("player.png")), graphicalDisplacement(),
+    grappleSprite(scene.getResourceManager().load<sf::Texture>("player-grapple.png"))
 {
     isPersistent = true;
 
@@ -261,9 +259,9 @@ void Player::applyMovementForces()
     body->applyForceAtLocalPoint(base * body->getMass() * HorAcceleration, cpvzero);
 
     auto dt = toSeconds<cpFloat>(UpdatePeriod);
-    if (dashDirection == DashDir::Up) angle += vel.y * dt / 32;
-    angle += vel.x * dt / 32;
-    angle -= 2*M_PI * round(angle/(2 * M_PI));
+    if (dashDirection == DashDir::Up) angle += radiansToDegrees(vel.y * dt / 32);
+    angle += radiansToDegrees(vel.x * dt / 32);
+    angle -= 360 * round(angle/360);
 }
 
 void Player::applyWaterForces()
@@ -662,7 +660,7 @@ void Player::lieBomb(FrameTime curTime)
 void Player::setPlayerSprite()
 {
     auto name = hardballEnabled ? "player-hard.png" : abilityLevel >= 6 ? "player-enhanced.png" : "player.png";
-    sprite.setTexture(gameScene.getResourceManager().load<Texture>(name));
+    sprite.setTexture(gameScene.getResourceManager().load<sf::Texture>(name));
 	//CurrentIcon = name;
 }
 
@@ -674,10 +672,10 @@ void Player::hitSpikes()
     spikeTime = curTime + SpikeRespawnTime;
 
     auto grav = gameScene.getGameSpace().getGravity();
-    auto displayGravity = glm::vec2((float)grav.x, (float)grav.y);
+    auto displayGravity = sf::Vector2f((float)grav.x, (float)grav.y);
     
     auto explosion = std::make_unique<TextureExplosion>(gameScene, sprite.getTexture(), ExplosionDuration,
-        util::rect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
+        sf::FloatRect(-32, 0, 64, 64), displayGravity, TextureExplosion::Density, 8, 8, 25);
     explosion->setPosition(getDisplayPosition());
     gameScene.addObject(std::move(explosion));
 
@@ -850,21 +848,21 @@ void Player::render(Renderer& renderer)
     if (spikeTime == decltype(spikeTime)())
     {
         renderer.pushTransform();
-        renderer.currentTransform *= util::translate(getDisplayPosition());
-        renderer.currentTransform *= util::rotate(angle);
+        renderer.currentTransform.translate(getDisplayPosition());
+        renderer.currentTransform.rotate((float)angle);
 
         if (invincibilityTime != decltype(invincibilityTime)())
         {
             auto phase = toSeconds<cpFloat>(invincibilityTime - curTime) / toSeconds<cpFloat>(InvincPeriod);
             auto amp = fabs(sin(M_PI * phase));
-            sprite.setFlashColor(glm::u8vec4(255, 0, 0, 128 * amp));
+            sprite.setFlashColor(sf::Color(255, 0, 0, 128 * amp));
         }
         else if (chargingForHardball)
         {
             auto flash = toSeconds<float>(curTime - hardballTime) / toSeconds<float>(HardballChangeTime);
-            sprite.setFlashColor(glm::u8vec4(255, 255, 255, 255 * flash));
+            sprite.setFlashColor(sf::Color(255, 255, 255, 255 * flash));
         }
-        else sprite.setFlashColor(glm::u8vec4(255, 255, 255, 0));
+        else sprite.setFlashColor(sf::Color(255, 255, 255, 0));
 
         auto fade = std::min(toSeconds<cpFloat>(curTime - grappleTime) / toSeconds<cpFloat>(GrappleFade), 1.0);
         if (grapplePoints == 0) fade = std::min(lastFade, 1.0 - fade);
@@ -872,8 +870,8 @@ void Player::render(Renderer& renderer)
         lastFade = fade;
         grappleSprite.setOpacity(fade);
 
-        renderer.pushDrawable(sprite, 16);
-        if (fade != 0.0f) renderer.pushDrawable(grappleSprite, 14);
+        renderer.pushDrawable(sprite, {}, 16);
+        if (fade != 0.0f) renderer.pushDrawable(grappleSprite, {}, 14);
         
         renderer.popTransform();
     }

@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "readVorbis.hpp"
 
 #include <streamReaders.hpp>
@@ -27,7 +28,7 @@
 #include "Sound.hpp"
 
 
-util::generic_shared_ptr loadVorbisFile(std::unique_ptr<InputStream>& stream)
+util::generic_shared_ptr loadVorbisFile(std::unique_ptr<sf::InputStream>& stream)
 {
 	return util::generic_shared_ptr{};
 }

@@ -20,9 +20,10 @@
 // SOFTWARE.
 //
 
+
 #pragma once
 
-#include <glm/glm.hpp>
+#include <SFML/System.hpp>
 
 class VirtualButtonAction
 {
@@ -41,5 +42,5 @@ public:
 class VirtualDualAxisAction
 {
 public:
-    virtual glm::vec2 getValue() const = 0;
+    virtual sf::Vector2f getValue() const = 0;
 };

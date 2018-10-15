@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "Camera.hpp"
 
 #include "scene/GameScene.hpp"
@@ -80,7 +81,7 @@ void Camera::applyShake(FrameDuration duration,
 	std::mt19937 rgen(init());
 	std::uniform_real_distribution<float> distribution(-amp, amp);
 	auto generator = std::bind(distribution, rgen);
-    auto generator2 = [&] { return glm::vec2(generator(), generator()); };
+    auto generator2 = [&] { return sf::Vector2f(generator(), generator()); };
 
     std::generate(shakeSamples.begin(), shakeSamples.end(), generator2);
     for (size_t i = 0; i < shakeSamples.size(); i++)
@@ -90,7 +91,7 @@ void Camera::applyShake(FrameDuration duration,
     }
 }
 
-glm::vec2 Camera::getGlobalDisplacement() const
+sf::Vector2f Camera::getGlobalDisplacement() const
 {
     auto disp = position;
     
@@ -111,13 +112,13 @@ glm::vec2 Camera::getGlobalDisplacement() const
         }
     }
     
-    return glm::vec2(ScreenWidth, ScreenHeight)/2.0f - disp + getShakeDisplacement();
+    return sf::Vector2f(ScreenWidth, ScreenHeight)/2.0f - disp + getShakeDisplacement();
 }
 
-glm::vec2 Camera::getShakeDisplacement() const
+sf::Vector2f Camera::getShakeDisplacement() const
 {
-    if (isNull(shakeTime)) return glm::vec2(0, 0);
-    if (curTime > shakeTime) return glm::vec2(0, 0);
+    if (isNull(shakeTime)) return sf::Vector2f(0, 0);
+    if (curTime > shakeTime) return sf::Vector2f(0, 0);
 
     auto sample = (shakeTime - curTime) / shakePeriod;
     auto rem = (shakeTime - curTime) % shakePeriod;
@@ -127,13 +128,13 @@ glm::vec2 Camera::getShakeDisplacement() const
     return s1 + factor * (s2 - s1);
 }
 
-bool Camera::isVisible(glm::vec2 point) const
+bool Camera::isVisible(sf::Vector2f point) const
 {
     return fabsf(point.x - position.x) <= PlayfieldWidth/2 && fabsf(point.y - position.y) <= PlayfieldHeight/2;
 }
 
-bool Camera::isVisible(util::rect rect) const
+bool Camera::isVisible(sf::FloatRect rect) const
 {
-    util::rect centerRect(position.x - PlayfieldWidth/2, position.y - PlayfieldHeight/2, PlayfieldWidth, PlayfieldHeight);
+    sf::FloatRect centerRect(position.x - PlayfieldWidth/2, position.y - PlayfieldHeight/2, PlayfieldWidth, PlayfieldHeight);
     return rect.intersects(centerRect);
 }

@@ -1,7 +1,0 @@
-Command
-    vertex array (indexed? instanced?)
-    shaders (vtx, geometry, fragment)
-    shader uniform buffers
-    shader textures
-    primitive assembly state (cull faces?)
-    fragment write state (scissor rectangle, blending/logic-op, depth/stencil test/write)

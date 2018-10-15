@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+
 #include "GUIMeter.hpp"
 
 constexpr float MeterWidthNormal = 36;
@@ -32,8 +33,8 @@ GUIMeter::GUIMeter(MeterSize size, bool useCurrentAnimation) : size(size), useCu
 {
     float width = size == MeterSize::Normal ? MeterWidthNormal : MeterWidthSmall;
 
-    setQuadColor(0, Colors::Black);
-    setQuadColor(4, glm::u8vec4(200, 200, 200));
+    setQuadColor(0, sf::Color::Black);
+    setQuadColor(4, sf::Color(200, 200, 200));
 
     for (size_t i = 0; i < 16; i++)
         vertices[i].texCoords = sf::Vector2f(0, 0);
@@ -46,15 +47,15 @@ GUIMeter::GUIMeter(MeterSize size, bool useCurrentAnimation) : size(size), useCu
     updateVertices();
 }
 
-void GUIMeter::setRect(size_t ind, util::rect rect)
+void GUIMeter::setRect(size_t ind, sf::FloatRect rect)
 {
-    vertices[ind].position = sf::Vector2f(rect.x, rect.y);
-    vertices[ind+1].position = sf::Vector2f(rect.x + rect.width, rect.y);
-    vertices[ind+2].position = sf::Vector2f(rect.x + rect.width, rect.y + rect.height);
-    vertices[ind+3].position = sf::Vector2f(rect.x, rect.y + rect.height);
+    vertices[ind].position = sf::Vector2f(rect.left, rect.top);
+    vertices[ind+1].position = sf::Vector2f(rect.left + rect.width, rect.top);
+    vertices[ind+2].position = sf::Vector2f(rect.left + rect.width, rect.top + rect.height);
+    vertices[ind+3].position = sf::Vector2f(rect.left, rect.top + rect.height);
 }
 
-void GUIMeter::setQuadColor(size_t ind, glm::u8vec4 color)
+void GUIMeter::setQuadColor(size_t ind, sf::Color color)
 {
     vertices[ind].color = color;
     vertices[ind+1].color = color;
@@ -81,11 +82,11 @@ void GUIMeter::updateVertices()
 
     float frameHeight = height + width + 3*border;
     float frameOffset = width + 2*border;
-    setRect(0, util::rect(0, -frameHeight, width + 2*border, frameHeight));
-    setRect(4, util::rect(border, -frameOffset-(float)height, width, (float)height));
-    setRect(8, util::rect(border, -frameOffset-(float)current, width, (float)current));
-    setRect(12, util::rect(border, -frameOffset-(float)target, width, (float)target));
-    setRect(16, util::rect(border, -border-width, width, width));
+    setRect(0, sf::FloatRect(0, -frameHeight, width + 2*border, frameHeight));
+    setRect(4, sf::FloatRect(border, -frameOffset-(float)height, width, (float)height));
+    setRect(8, sf::FloatRect(border, -frameOffset-(float)current, width, (float)current));
+    setRect(12, sf::FloatRect(border, -frameOffset-(float)target, width, (float)target));
+    setRect(16, sf::FloatRect(border, -border-width, width, width));
 
     setQuadColor(4, backdropColor);
     setQuadColor(8, targetColor);
@@ -101,7 +102,7 @@ float GUIMeter::getFrameHeight() const
 
 void GUIMeter::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    states.transform.translate(position.x, position.y);
+    states.transform.translate(position);
     target.draw(vertices, 20, sf::Quads, states);
     
     if (icon)
