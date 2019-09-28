@@ -122,8 +122,8 @@ void SwitchingBlock::switchOn()
     auto body = blockShape->getBody();
     if (!cpSpaceContainsBody(gameScene.getGameSpace(), *body))
     {
+		gameScene.getGameSpace().add(body);
         gameScene.getGameSpace().add(blockShape);
-        gameScene.getGameSpace().add(body);
     }
     visible = true;
 }

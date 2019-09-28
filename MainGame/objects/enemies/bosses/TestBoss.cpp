@@ -86,6 +86,7 @@ void TestBoss::setupPhysics()
         { cpVect{ -16, 16 }, cpVect{ 16,  16 },
           cpVect{  16, 96 }, cpVect{ -16, 96 } }, 16);
     
+	gameScene.getGameSpace().add(collisionBody);
     for (const auto& shape : collisionShapes)
     {
         shape->setCollisionType(Enemy::CollisionType);
@@ -96,7 +97,6 @@ void TestBoss::setupPhysics()
     }
     
     addBombShape(collisionShapes[0], bombShapeHandler);
-    gameScene.getGameSpace().add(collisionBody);
     
     Enemy::setupPhysics();
 }
@@ -176,6 +176,7 @@ void TestBossProjectile::setupPhysics()
 {
     using namespace cp;
     collisionBody = std::make_shared<Body>(0.0, 0.0);
+	gameScene.getGameSpace().add(collisionBody);
  
     collisionShape = std::make_shared<CircleShape>(collisionBody, 16);
     collisionShape->setDensity(1);
@@ -183,8 +184,6 @@ void TestBossProjectile::setupPhysics()
     collisionShape->setElasticity(1.0);
     collisionShape->setFriction(0.0);
     gameScene.getGameSpace().add(collisionShape);
-    
-    gameScene.getGameSpace().add(collisionBody);
     
     Enemy::setupPhysics();
 }

@@ -74,6 +74,9 @@ void Hopper::setupPhysics(cpVect position)
 {
     mainBody = std::make_shared<cp::Body>(0, 0);
     footBody = std::make_shared<cp::Body>(0, 0);
+
+	for (const auto& body : { mainBody, footBody })
+		gameScene.getGameSpace().add(body);
     
     mainShape[0] = std::make_shared<cp::CircleShape>(mainBody, 10, cpv(40, 16));
     mainShape[1] = std::make_shared<cp::PolyShape>(mainBody, std::vector<cpVect>
@@ -111,9 +114,7 @@ void Hopper::setupPhysics(cpVect position)
     
     mainBody->setMoment(std::numeric_limits<cpFloat>::infinity());
     footBody->setMoment(std::numeric_limits<cpFloat>::infinity());
-    
-    for (const auto& body : { mainBody, footBody })
-        gameScene.getGameSpace().add(body);
+   
     
     collisionBody = mainBody;
     footBody->setUserData((void*)this);

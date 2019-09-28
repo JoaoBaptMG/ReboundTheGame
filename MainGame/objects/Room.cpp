@@ -81,6 +81,8 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
 
     clearShapes();
     roomBody = std::make_unique<cp::Body>(cp::Body::Static);
+	gameScene.getGameSpace().add(roomBody);
+
     roomShapes = generateShapesForTilemap(data, *tileSet, roomBody, shapeGeneratorData, crumblingTiles);
     for (auto& shape : roomShapes)
     {
@@ -88,7 +90,6 @@ void Room::loadRoom(const RoomData& data, bool transition, cpVect displacement)
         shape->setCollisionType(CollisionType);
         gameScene.getGameSpace().add(shape);
     }
-    gameScene.getGameSpace().add(roomBody);
 }
 
 void setCrumbleOffset(std::unique_ptr<TextureExplosion>& explosion, FrameDuration crumbleTime)

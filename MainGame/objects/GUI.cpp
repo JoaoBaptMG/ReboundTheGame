@@ -47,7 +47,7 @@ constexpr size_t SecondBlinkThreshold = 40;
 
 struct ParsedConfigString
 {
-    size_t labelSize, idSize;
+    unsigned int labelSize, idSize;
 };
 
 ParsedConfigString parseConfigString(std::string config)
@@ -57,8 +57,8 @@ ParsedConfigString parseConfigString(std::string config)
     auto pos2 = config.find_first_not_of(' ', pos);
     if (pos2 == std::string::npos) return { 0, 0 };
     
-    size_t labelSize = strtoull(config.data(), nullptr, 10);
-    size_t idSize = strtoull(config.data() + pos2, nullptr, 10);
+    unsigned int labelSize = strtoul(config.data(), nullptr, 10);
+	unsigned int idSize = strtoul(config.data() + pos2, nullptr, 10);
     
     return { labelSize, idSize };
 }

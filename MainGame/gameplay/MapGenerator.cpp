@@ -91,20 +91,20 @@ void generateAllMapsForLevel(LevelData& level, ResourceManager& manager)
                 switch (warp.warpDir)
                 {
                     case WarpData::Dir::Right:
-                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x + data->mainLayer.width();
-                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - (size_t)(delta/DefaultTileSize);
+                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x + (int16_t)data->mainLayer.width();
+                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - (int16_t)(delta/DefaultTileSize);
                         break;
                     case WarpData::Dir::Down:
-                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y + data->mainLayer.height();
-                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - (size_t)(delta/DefaultTileSize);
+                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y + (int16_t)data->mainLayer.height();
+                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - (int16_t)(delta/DefaultTileSize);
                         break;
                     case WarpData::Dir::Left:
-                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - otherData->mainLayer.width();
-                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - (size_t)(delta/DefaultTileSize);
+                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - (int16_t)otherData->mainLayer.width();
+                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - (int16_t)(delta/DefaultTileSize);
                         break;
                     case WarpData::Dir::Up:
-                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - otherData->mainLayer.height();
-                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - (size_t)(delta/DefaultTileSize);
+                        level.roomMaps.at(other).y = level.roomMaps.at(cur).y - (int16_t)otherData->mainLayer.height();
+                        level.roomMaps.at(other).x = level.roomMaps.at(cur).x - (int16_t)(delta/DefaultTileSize);
                         break;
                 }
             }

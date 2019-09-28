@@ -28,7 +28,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
-#include <exception>
+#include <stdexcept>
 
 class LevelPersistentData final
 {

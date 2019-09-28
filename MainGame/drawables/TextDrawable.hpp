@@ -60,7 +60,7 @@ private:
     std::shared_ptr<FontHandler> fontHandler;
     
     std::string utf8String = "";
-    size_t fontSize = 30;
+    unsigned int fontSize = 30;
     sf::Color defaultColor, defaultOutlineColor;
     float outlineThickness = 0;
     
@@ -90,7 +90,7 @@ public:
     void setString(std::string str) { utf8String = str; needsUpdateGeometry = true; }
     
     auto getFontSize() const  { return fontSize; }
-    void setFontSize(size_t size) { fontSize = size; needsUpdateGeometry = true; }
+    void setFontSize(unsigned int size) { fontSize = size; needsUpdateGeometry = true; }
     
     auto getDefaultColor() const  { return defaultColor; }
     void setDefaultColor(sf::Color c) { defaultColor = c; needsUpdateGeometry = true; }

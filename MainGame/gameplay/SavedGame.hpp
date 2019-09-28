@@ -43,8 +43,8 @@ struct SavedGame
     
     SavedGame();
     
-    size_t getCurLevel() const { return levelInfo % 10 + 1; }
-    size_t getAbilityLevel() const { return levelInfo / 10; }
+    size_t getCurLevel() const { return (size_t)levelInfo % 10 + 1; }
+    size_t getAbilityLevel() const { return (size_t)levelInfo / 10; }
     
     void setCurLevel(size_t l)
     {
@@ -88,14 +88,14 @@ struct SavedGame
     bool getPicket(size_t id) const
     {
         ASSERT(id < 1000);
-        return pickets[id/8] & (1 << (id%8));
+        return pickets[id>>3] & (1 << (id&7));
     }
 
     void setPicket(size_t id, bool collected)
     {
         ASSERT(id < 1000);
-        if (collected) pickets[id/8] |= (1 << (id%8));
-        else pickets[id/8] &= ~(1 << (id%8));
+        if (collected) pickets[id>>3] |= (1 << (id&7));
+        else pickets[id>>3] &= ~(1 << (id&7));
     }
 
     size_t getGoldenTokenCount() const;
