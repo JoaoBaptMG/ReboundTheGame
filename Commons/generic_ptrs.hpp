@@ -88,11 +88,6 @@ namespace util
             return ptr.use_count();
         }
 
-        inline bool unique() const
-        {
-            return ptr.unique();
-        }
-
         inline explicit operator bool() const
         {
             return type != notype && static_cast<bool>(ptr);
