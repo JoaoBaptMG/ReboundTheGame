@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
+cmake_policy(SET CMP0074 NEW)
 
 project(ReboundTheGame)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules ${CMAKE_MODULE_PATH})
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
@@ -21,7 +22,6 @@ add_subdirectory(MainGame)
 add_subdirectory(Languages)
 add_subdirectory(Resources)
 
-add_custom_target(install_everything
-	"${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
-	DEPENDS MainGame Languages Resources
-	COMMENT "Installing ${PROJECT_NAME}")
+if(MSVC)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ALL_BUILD)
+endif()

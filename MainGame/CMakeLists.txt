@@ -1,20 +1,25 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
 
 project(MainGame)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /SAFESEH:NO /ENTRY:mainCRTStartup")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /SAFESEH:NO")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS")
 	add_definitions(/ZI)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
 
-find_package(SFML COMPONENTS graphics window system REQUIRED)
+if (MSVC)
+	find_package(SFML COMPONENTS graphics window system main REQUIRED)
+else()
+	find_package(SFML COMPONENTS graphics window system REQUIRED)
+endif()
+
 find_package(Chipmunk REQUIRED)
 find_package(HarfBuzz REQUIRED)
 find_package(Boost COMPONENTS context REQUIRED)
